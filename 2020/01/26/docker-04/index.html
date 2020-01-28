@@ -47,7 +47,7 @@
 </script>
 
   <meta name="description" content="Docker Compose笔记">
-<meta name="keywords" content="docker">
+<meta name="keywords" content="docker,ELK">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Docker Compose笔记">
 <meta property="og:url" content="http:&#x2F;&#x2F;blog.gaoyp.cn&#x2F;2020&#x2F;01&#x2F;26&#x2F;docker-04&#x2F;index.html">
@@ -61,7 +61,9 @@
 <meta property="og:image" content="http:&#x2F;&#x2F;blog.gaoyp.cn&#x2F;images&#x2F;docker&#x2F;elk-ps.png">
 <meta property="og:image" content="http:&#x2F;&#x2F;blog.gaoyp.cn&#x2F;images&#x2F;docker&#x2F;%E5%AE%89%E8%A3%85json_lines.png">
 <meta property="og:image" content="http:&#x2F;&#x2F;blog.gaoyp.cn&#x2F;images&#x2F;docker&#x2F;%E6%B5%8F%E8%A7%88%E5%99%A8%E8%AE%BF%E9%97%AEelk.png">
-<meta property="og:updated_time" content="2020-01-27T14:45:03.708Z">
+<meta property="og:image" content="http:&#x2F;&#x2F;blog.gaoyp.cn&#x2F;images&#x2F;docker&#x2F;logstash.gif">
+<meta property="og:image" content="http:&#x2F;&#x2F;blog.gaoyp.cn&#x2F;images&#x2F;docker&#x2F;%E9%AA%8C%E8%AF%81%E6%98%AF%E5%90%A6%E6%90%9C%E9%9B%86%E5%88%B0%E4%BA%86%E6%97%A5%E5%BF%97%E6%95%B0%E6%8D%AE.png">
+<meta property="og:updated_time" content="2020-01-28T05:37:48.966Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http:&#x2F;&#x2F;blog.gaoyp.cn&#x2F;images&#x2F;docker&#x2F;dockercompose%E5%AF%B9%E5%BA%94%E5%85%B3%E7%B3%BB.png">
 
@@ -255,7 +257,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-01-27 22:45:03" itemprop="dateModified" datetime="2020-01-27T22:45:03+08:00">2020-01-27</time>
+                <time title="修改时间：2020-01-28 13:37:48" itemprop="dateModified" datetime="2020-01-28T13:37:48+08:00">2020-01-28</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -265,6 +267,12 @@
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
                   <a href="/categories/docker/" itemprop="url" rel="index">
                     <span itemprop="name">docker</span>
+                  </a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/docker/ELK/" itemprop="url" rel="index">
+                    <span itemprop="name">ELK</span>
                   </a>
                 </span>
             </span>
@@ -393,6 +401,30 @@
 <p><img src="/images/docker/%E5%AE%89%E8%A3%85json_lines.png" alt="安装json_lines.png"></p>
 <p>安装过程很慢，中间报错是因为断网了，再次执行下命令静静等待就行，安装完成后输入exit退出，或者按Ctrl+Q+P 退出。</p>
 <p>访问<a href="http://192.168.85.128:5601/" target="_blank" rel="noopener">http://192.168.85.128:5601/</a> ，192.168.85.128是我虚拟机IP，结果如下：<br><img src="/images/docker/%E6%B5%8F%E8%A7%88%E5%99%A8%E8%AE%BF%E9%97%AEelk.png" alt="浏览器访问elk.png"></p>
+<h3 id="使用ELK"><a href="#使用ELK" class="headerlink" title="使用ELK"></a>使用ELK</h3><p>我们顺便记录下SpringBoot项目如何接入ELK日志分析系统。</p>
+<ol>
+<li><p>首先在POM.xml文件中引入logstash,此处springboot项目使用logback作为日志框架</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">2</span></pre></td><td class="code"><pre><span class="line">    &lt;groupId&gt;net.logstash.logback&lt;&#x2F;groupId&gt;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">3</span></pre></td><td class="code"><pre><span class="line">    &lt;artifactId&gt;logstash-logback-encoder&lt;&#x2F;artifactId&gt;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">4</span></pre></td><td class="code"><pre><span class="line">    &lt;version&gt;6.1&lt;&#x2F;version&gt;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">5</span></pre></td><td class="code"><pre><span class="line">&lt;&#x2F;dependency&gt;</span></pre></td></tr></table></figure></li>
+<li><p>在项目的logback-spring.xml配资文件中添加</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line">&lt;!--输出到 logstash的 appender--&gt;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">2</span></pre></td><td class="code"><pre><span class="line">&lt;appender name&#x3D;&quot;logstash&quot; class&#x3D;&quot;net.logstash.logback.appender.LogstashTcpSocketAppender&quot;&gt;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">3</span></pre></td><td class="code"><pre><span class="line">    &lt;destination&gt;192.168.85.128:4560&lt;&#x2F;destination&gt;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">4</span></pre></td><td class="code"><pre><span class="line">    &lt;encoder charset&#x3D;&quot;UTF-8&quot; class&#x3D;&quot;net.logstash.logback.encoder.LogstashEncoder&quot;&#x2F;&gt;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">5</span></pre></td><td class="code"><pre><span class="line">&lt;&#x2F;appender&gt;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">6</span></pre></td><td class="code"><pre><span class="line"></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">7</span></pre></td><td class="code"><pre><span class="line">......</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">8</span></pre></td><td class="code"><pre><span class="line">&lt;root level&#x3D;&quot;info&quot;&gt;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">9</span></pre></td><td class="code"><pre><span class="line">    ......</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">10</span></pre></td><td class="code"><pre><span class="line">    &lt;appender-ref ref&#x3D;&quot;logstash&quot; &#x2F;&gt;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">11</span></pre></td><td class="code"><pre><span class="line">&lt;&#x2F;root&gt;</span></pre></td></tr></table></figure></li>
+<li><p>168.85.128:4560对应我们刚刚搭建的Logstash地址</p>
+</li>
+<li><p>配置Kiabana<br>访问<a href="http://192.168.85.128:5601/做一些配置" target="_blank" rel="noopener">http://192.168.85.128:5601/做一些配置</a></p>
+</li>
+</ol>
+<ul>
+<li>Kibana管理界面点击左侧Management,点击 Kinaba Index Patterns</li>
+<li>在Index pattern里输入我们在logstash配置文件logstash-kiki.conf里output.index指定的值kiki-logstash-*,点击下一步，注意，这里需要检查elasticsearch中是否有匹配数据。<br>所以，需要按上面的步骤创建springboot项目并启动，否则无法点击Next Step。</li>
+<li>点击Next Step，在下拉框里选择@timestamp</li>
+<li>点击 Create index patterns</li>
+</ul>
+<p><img src="/images/docker/logstash.gif" alt="logstash"> </p>
+<ol start="4">
+<li>使用postman调用接口，产生日志数据,代码如下<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line">package com.sxdx.sso.resource.one.controller;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">2</span></pre></td><td class="code"><pre><span class="line">import lombok.extern.slf4j.Slf4j;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">3</span></pre></td><td class="code"><pre><span class="line">import org.springframework.security.access.prepost.PreAuthorize;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">4</span></pre></td><td class="code"><pre><span class="line">import org.springframework.web.bind.annotation.GetMapping;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">5</span></pre></td><td class="code"><pre><span class="line">import org.springframework.web.bind.annotation.RestController;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">6</span></pre></td><td class="code"><pre><span class="line"></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">7</span></pre></td><td class="code"><pre><span class="line">import java.security.Principal;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">8</span></pre></td><td class="code"><pre><span class="line">import java.util.HashMap;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">9</span></pre></td><td class="code"><pre><span class="line">import java.util.Map;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">10</span></pre></td><td class="code"><pre><span class="line"></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">11</span></pre></td><td class="code"><pre><span class="line">@Slf4j</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">12</span></pre></td><td class="code"><pre><span class="line">@RestController</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">13</span></pre></td><td class="code"><pre><span class="line">public class OneController &#123;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">14</span></pre></td><td class="code"><pre><span class="line">    @GetMapping(&quot;&#x2F;user&quot;)</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">15</span></pre></td><td class="code"><pre><span class="line">    public Principal user(Principal principal) &#123;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">16</span></pre></td><td class="code"><pre><span class="line">        log.info(&quot;获取当前登录人信息&quot;);</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">17</span></pre></td><td class="code"><pre><span class="line">        return principal;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">18</span></pre></td><td class="code"><pre><span class="line">    &#125;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">19</span></pre></td><td class="code"><pre><span class="line">&#125;</span></pre></td></tr></table></figure>
+我的访问接口访问路径为localhost:8002/one/user。查看是否搜集到了日志数据。</li>
+</ol>
+<p><img src="/images/docker/%E9%AA%8C%E8%AF%81%E6%98%AF%E5%90%A6%E6%90%9C%E9%9B%86%E5%88%B0%E4%BA%86%E6%97%A5%E5%BF%97%E6%95%B0%E6%8D%AE.png" alt="验证是否搜集到了日志数据.png"> </p>
+<p>可以看到已经获取到了日志数据。完工！！！</p>
 
     </div>
 
@@ -440,6 +472,7 @@
       <footer class="post-footer">
           <div class="post-tags">
               <a href="/tags/docker/" rel="tag"># docker</a>
+              <a href="/tags/ELK/" rel="tag"># ELK</a>
           </div>
 
         
@@ -452,8 +485,8 @@
       <i class="fa fa-chevron-left"></i> docker常用命令及Dockerfile笔记
     </a></div>
       <div class="post-nav-item">
-    <a href="/2020/01/27/docker-05/" rel="next" title="docker-05">
-      docker-05 <i class="fa fa-chevron-right"></i>
+    <a href="/2020/01/27/docker-05/" rel="next" title="docker网络配置笔记">
+      docker网络配置笔记 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -493,7 +526,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#安装Docker-Compose"><span class="nav-number">1.</span> <span class="nav-text">安装Docker Compose</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Docker-Compose-配置指令"><span class="nav-number">2.</span> <span class="nav-text">Docker Compose 配置指令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DockerCompose常用命令"><span class="nav-number">3.</span> <span class="nav-text">DockerCompose常用命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#搭建-ELK日志分析系统"><span class="nav-number">4.</span> <span class="nav-text">搭建 ELK日志分析系统</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#准备工作"><span class="nav-number">4.0.1.</span> <span class="nav-text">准备工作</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#启动ELK"><span class="nav-number">4.0.2.</span> <span class="nav-text">启动ELK</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#安装Docker-Compose"><span class="nav-number">1.</span> <span class="nav-text">安装Docker Compose</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Docker-Compose-配置指令"><span class="nav-number">2.</span> <span class="nav-text">Docker Compose 配置指令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DockerCompose常用命令"><span class="nav-number">3.</span> <span class="nav-text">DockerCompose常用命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#搭建-ELK日志分析系统"><span class="nav-number">4.</span> <span class="nav-text">搭建 ELK日志分析系统</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#准备工作"><span class="nav-number">4.0.1.</span> <span class="nav-text">准备工作</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#启动ELK"><span class="nav-number">4.0.2.</span> <span class="nav-text">启动ELK</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用ELK"><span class="nav-number">4.1.</span> <span class="nav-text">使用ELK</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -516,13 +549,13 @@
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

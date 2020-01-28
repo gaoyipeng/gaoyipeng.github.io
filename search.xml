@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>docker-05</title>
+    <title>docker网络配置笔记</title>
     <url>/2020/01/27/docker-05/</url>
     <content><![CDATA[]]></content>
+      <categories>
+        <category>docker</category>
+      </categories>
+      <tags>
+        <tag>docker</tag>
+      </tags>
   </entry>
   <entry>
     <title>Docker Compose笔记</title>
@@ -99,12 +105,38 @@
 <p><img src="/images/docker/%E5%AE%89%E8%A3%85json_lines.png" alt="安装json_lines.png"></p>
 <p>安装过程很慢，中间报错是因为断网了，再次执行下命令静静等待就行，安装完成后输入exit退出，或者按Ctrl+Q+P 退出。</p>
 <p>访问<a href="http://192.168.85.128:5601/" target="_blank" rel="noopener">http://192.168.85.128:5601/</a> ，192.168.85.128是我虚拟机IP，结果如下：<br><img src="/images/docker/%E6%B5%8F%E8%A7%88%E5%99%A8%E8%AE%BF%E9%97%AEelk.png" alt="浏览器访问elk.png"></p>
+<h3 id="使用ELK"><a href="#使用ELK" class="headerlink" title="使用ELK"></a>使用ELK</h3><p>我们顺便记录下SpringBoot项目如何接入ELK日志分析系统。</p>
+<ol>
+<li><p>首先在POM.xml文件中引入logstash,此处springboot项目使用logback作为日志框架</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&lt;dependency&gt;</span></pre></td></tr><tr><td class="code"><pre><span class="line">    &lt;groupId&gt;net.logstash.logback&lt;&#x2F;groupId&gt;</span></pre></td></tr><tr><td class="code"><pre><span class="line">    &lt;artifactId&gt;logstash-logback-encoder&lt;&#x2F;artifactId&gt;</span></pre></td></tr><tr><td class="code"><pre><span class="line">    &lt;version&gt;6.1&lt;&#x2F;version&gt;</span></pre></td></tr><tr><td class="code"><pre><span class="line">&lt;&#x2F;dependency&gt;</span></pre></td></tr></table></figure></li>
+<li><p>在项目的logback-spring.xml配资文件中添加</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&lt;!--输出到 logstash的 appender--&gt;</span></pre></td></tr><tr><td class="code"><pre><span class="line">&lt;appender name&#x3D;&quot;logstash&quot; class&#x3D;&quot;net.logstash.logback.appender.LogstashTcpSocketAppender&quot;&gt;</span></pre></td></tr><tr><td class="code"><pre><span class="line">    &lt;destination&gt;192.168.85.128:4560&lt;&#x2F;destination&gt;</span></pre></td></tr><tr><td class="code"><pre><span class="line">    &lt;encoder charset&#x3D;&quot;UTF-8&quot; class&#x3D;&quot;net.logstash.logback.encoder.LogstashEncoder&quot;&#x2F;&gt;</span></pre></td></tr><tr><td class="code"><pre><span class="line">&lt;&#x2F;appender&gt;</span></pre></td></tr><tr><td class="code"><pre><span class="line"></span></pre></td></tr><tr><td class="code"><pre><span class="line">......</span></pre></td></tr><tr><td class="code"><pre><span class="line">&lt;root level&#x3D;&quot;info&quot;&gt;</span></pre></td></tr><tr><td class="code"><pre><span class="line">    ......</span></pre></td></tr><tr><td class="code"><pre><span class="line">    &lt;appender-ref ref&#x3D;&quot;logstash&quot; &#x2F;&gt;</span></pre></td></tr><tr><td class="code"><pre><span class="line">&lt;&#x2F;root&gt;</span></pre></td></tr></table></figure></li>
+<li><p>168.85.128:4560对应我们刚刚搭建的Logstash地址</p>
+</li>
+<li><p>配置Kiabana<br>访问<a href="http://192.168.85.128:5601/做一些配置" target="_blank" rel="noopener">http://192.168.85.128:5601/做一些配置</a></p>
+</li>
+</ol>
+<ul>
+<li>Kibana管理界面点击左侧Management,点击 Kinaba Index Patterns</li>
+<li>在Index pattern里输入我们在logstash配置文件logstash-kiki.conf里output.index指定的值kiki-logstash-*,点击下一步，注意，这里需要检查elasticsearch中是否有匹配数据。<br>所以，需要按上面的步骤创建springboot项目并启动，否则无法点击Next Step。</li>
+<li>点击Next Step，在下拉框里选择@timestamp</li>
+<li>点击 Create index patterns</li>
+</ul>
+<p><img src="/images/docker/logstash.gif" alt="logstash"> </p>
+<ol start="4">
+<li>使用postman调用接口，产生日志数据,代码如下<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">package com.sxdx.sso.resource.one.controller;</span></pre></td></tr><tr><td class="code"><pre><span class="line">import lombok.extern.slf4j.Slf4j;</span></pre></td></tr><tr><td class="code"><pre><span class="line">import org.springframework.security.access.prepost.PreAuthorize;</span></pre></td></tr><tr><td class="code"><pre><span class="line">import org.springframework.web.bind.annotation.GetMapping;</span></pre></td></tr><tr><td class="code"><pre><span class="line">import org.springframework.web.bind.annotation.RestController;</span></pre></td></tr><tr><td class="code"><pre><span class="line"></span></pre></td></tr><tr><td class="code"><pre><span class="line">import java.security.Principal;</span></pre></td></tr><tr><td class="code"><pre><span class="line">import java.util.HashMap;</span></pre></td></tr><tr><td class="code"><pre><span class="line">import java.util.Map;</span></pre></td></tr><tr><td class="code"><pre><span class="line"></span></pre></td></tr><tr><td class="code"><pre><span class="line">@Slf4j</span></pre></td></tr><tr><td class="code"><pre><span class="line">@RestController</span></pre></td></tr><tr><td class="code"><pre><span class="line">public class OneController &#123;</span></pre></td></tr><tr><td class="code"><pre><span class="line">    @GetMapping(&quot;&#x2F;user&quot;)</span></pre></td></tr><tr><td class="code"><pre><span class="line">    public Principal user(Principal principal) &#123;</span></pre></td></tr><tr><td class="code"><pre><span class="line">        log.info(&quot;获取当前登录人信息&quot;);</span></pre></td></tr><tr><td class="code"><pre><span class="line">        return principal;</span></pre></td></tr><tr><td class="code"><pre><span class="line">    &#125;</span></pre></td></tr><tr><td class="code"><pre><span class="line">&#125;</span></pre></td></tr></table></figure>
+我的访问接口访问路径为localhost:8002/one/user。查看是否搜集到了日志数据。</li>
+</ol>
+<p><img src="/images/docker/%E9%AA%8C%E8%AF%81%E6%98%AF%E5%90%A6%E6%90%9C%E9%9B%86%E5%88%B0%E4%BA%86%E6%97%A5%E5%BF%97%E6%95%B0%E6%8D%AE.png" alt="验证是否搜集到了日志数据.png"> </p>
+<p>可以看到已经获取到了日志数据。完工！！！</p>
 ]]></content>
       <categories>
         <category>docker</category>
+        <category>ELK</category>
       </categories>
       <tags>
         <tag>docker</tag>
+        <tag>ELK</tag>
       </tags>
   </entry>
   <entry>
