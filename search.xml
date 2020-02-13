@@ -1,6 +1,305 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>docker redis集群安装</title>
+    <url>/2020/02/12/redis-04/</url>
+    <content><![CDATA[<h2 id="redis集群安装"><a href="#redis集群安装" class="headerlink" title="redis集群安装"></a>redis集群安装</h2><p>目前为止我们的程序一直都是向1台redis写数据，其他的redis只是备份而已。实际场景中，单个redis节点可能不满足要求，因为：</p>
+<ul>
+<li>单个redis并发有限</li>
+<li>单个redis接收所有的数据，最终回导致内存太大，内存太大会导致rdb文件过大，从很大的rdb文件中同步恢复数据会很慢。</li>
+</ul>
+<p>所以，我们需要redis cluster 即redis集群。</p>
+<p>Redis 集群是一个提供在多个 Redis 节点间共享数据的程序集。提高Redis的可用性，不会因为某个节点宕掉或者不可达而导致整个集群网络的不可用。</p>
+<p>Redis 集群的优势:</p>
+<ul>
+<li>自动分割数据到不同的节点上。</li>
+<li>整个集群的部分节点失败或者不可达的情况下能够继续处理命令。</li>
+</ul>
+<p>因为Redis集群中至少应该有奇数个主节点，所以本文将创建6个Redis节点，其中3个为主节点，3个为从属节点，用于从主节点拉取数据进行备份。</p>
+<h3 id="节点规划"><a href="#节点规划" class="headerlink" title="节点规划"></a>节点规划</h3><p><img src="/images/redis/docker-redis-cluster1.png" alt="docker-redis-cluster1.png"></p>
+<h3 id="创建工作目录"><a href="#创建工作目录" class="headerlink" title="创建工作目录"></a>创建工作目录</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mkdir -p &#x2F;usr&#x2F;local&#x2F;redis&#x2F;cluster&#x2F;config</span></pre></td></tr><tr><td class="code"><pre><span class="line">mkdir -p &#x2F;usr&#x2F;local&#x2F;redis&#x2F;cluster&#x2F;data</span></pre></td></tr></table></figure>
+<ul>
+<li>cluster 作为集群主目录</li>
+<li>config 存放redis配置文件</li>
+<li>data 存放持久化文件</li>
+</ul>
+<h3 id="准备redis-conf文件"><a href="#准备redis-conf文件" class="headerlink" title="准备redis.conf文件"></a>准备redis.conf文件</h3><p>下载redis.conf：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">wget http:&#x2F;&#x2F;download.redis.io&#x2F;redis-stable&#x2F;redis.conf</span></pre></td></tr></table></figure>
+
+<p>复制6份redis.conf，保存到/usr/local/redis/cluster/config目录下，分别命名为node-6391.conf、node-6392.conf、node-6393.conf、node-6394.conf、node-6395.conf、node-6396.conf</p>
+<p><img src="/images/redis/redis-confs.png" alt="redis-confs.png"></p>
+<p>修改redis-6391.conf以下内容，其他5个配置文件类似：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">port 6391  #修改端口</span></pre></td></tr><tr><td class="code"><pre><span class="line">bind 0.0.0.0 #设置所有ip均可访问</span></pre></td></tr><tr><td class="code"><pre><span class="line">cluster-enabled yes #开启集群功能</span></pre></td></tr><tr><td class="code"><pre><span class="line">cluster-config-file nodes-6391.conf #集群内部配置文件</span></pre></td></tr><tr><td class="code"><pre><span class="line">cluster-node-timeout 15000 #节点超时时间，单位毫秒</span></pre></td></tr></table></figure>
+
+<h3 id="编写-docker-compose-yml"><a href="#编写-docker-compose-yml" class="headerlink" title="编写 docker-compose.yml"></a>编写 docker-compose.yml</h3><p>在/usr/local/redis/cluster/下创建docker-compose.yml文件：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">version: &quot;3.6&quot;</span></pre></td></tr><tr><td class="code"><pre><span class="line">services:</span></pre></td></tr><tr><td class="code"><pre><span class="line">  redis-master1:</span></pre></td></tr><tr><td class="code"><pre><span class="line">    image: redis:5.0.7 # 基础镜像</span></pre></td></tr><tr><td class="code"><pre><span class="line">    container_name: redis-master1 # 容器服务名</span></pre></td></tr><tr><td class="code"><pre><span class="line">    working_dir: &#x2F;config # 工作目录</span></pre></td></tr><tr><td class="code"><pre><span class="line">    environment: # 环境变量</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - PORT&#x3D;6391 # 跟 config&#x2F;nodes-6391.conf 里的配置一样的端口</span></pre></td></tr><tr><td class="code"><pre><span class="line">    ports: # 映射端口，对外提供服务</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - &quot;6391:6391&quot; # redis 的服务端口</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - &quot;16391:16391&quot; # redis 集群监控端口</span></pre></td></tr><tr><td class="code"><pre><span class="line">    stdin_open: true # 标准输入打开</span></pre></td></tr><tr><td class="code"><pre><span class="line">    networks: # docker 网络设置</span></pre></td></tr><tr><td class="code"><pre><span class="line">      redis-master:</span></pre></td></tr><tr><td class="code"><pre><span class="line">        ipv4_address: 172.50.0.2</span></pre></td></tr><tr><td class="code"><pre><span class="line">    tty: true</span></pre></td></tr><tr><td class="code"><pre><span class="line">    privileged: true # 拥有容器内命令执行的权限</span></pre></td></tr><tr><td class="code"><pre><span class="line">    volumes:</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - &#x2F;usr&#x2F;local&#x2F;redis&#x2F;cluster&#x2F;compose&#x2F;config:&#x2F;config</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - &#x2F;usr&#x2F;local&#x2F;redis&#x2F;cluster&#x2F;data&#x2F;6391:&#x2F;data</span></pre></td></tr><tr><td class="code"><pre><span class="line">    entrypoint: # 设置服务默认的启动程序</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - &#x2F;bin&#x2F;bash</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - redis.sh</span></pre></td></tr><tr><td class="code"><pre><span class="line">  redis-master2:</span></pre></td></tr><tr><td class="code"><pre><span class="line">    image: redis:5.0.7</span></pre></td></tr><tr><td class="code"><pre><span class="line">    working_dir: &#x2F;config</span></pre></td></tr><tr><td class="code"><pre><span class="line">    container_name: redis-master2</span></pre></td></tr><tr><td class="code"><pre><span class="line">    environment:</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - PORT&#x3D;6392</span></pre></td></tr><tr><td class="code"><pre><span class="line">    networks:</span></pre></td></tr><tr><td class="code"><pre><span class="line">      redis-master:</span></pre></td></tr><tr><td class="code"><pre><span class="line">        ipv4_address: 172.50.0.3</span></pre></td></tr><tr><td class="code"><pre><span class="line">    ports:</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - &quot;6392:6392&quot;</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - &quot;16392:16392&quot;</span></pre></td></tr><tr><td class="code"><pre><span class="line">    stdin_open: true</span></pre></td></tr><tr><td class="code"><pre><span class="line">    tty: true</span></pre></td></tr><tr><td class="code"><pre><span class="line">    privileged: true</span></pre></td></tr><tr><td class="code"><pre><span class="line">    volumes:</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - &#x2F;usr&#x2F;local&#x2F;redis&#x2F;cluster&#x2F;compose&#x2F;config:&#x2F;config</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - &#x2F;usr&#x2F;local&#x2F;redis&#x2F;cluster&#x2F;data&#x2F;6392:&#x2F;data</span></pre></td></tr><tr><td class="code"><pre><span class="line">    entrypoint:</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - &#x2F;bin&#x2F;bash</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - redis.sh</span></pre></td></tr><tr><td class="code"><pre><span class="line">  redis-master3:</span></pre></td></tr><tr><td class="code"><pre><span class="line">    image: redis:5.0.7</span></pre></td></tr><tr><td class="code"><pre><span class="line">    container_name: redis-master3</span></pre></td></tr><tr><td class="code"><pre><span class="line">    working_dir: &#x2F;config</span></pre></td></tr><tr><td class="code"><pre><span class="line">    environment:</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - PORT&#x3D;6393</span></pre></td></tr><tr><td class="code"><pre><span class="line">    networks:</span></pre></td></tr><tr><td class="code"><pre><span class="line">      redis-master:</span></pre></td></tr><tr><td class="code"><pre><span class="line">        ipv4_address: 172.50.0.4</span></pre></td></tr><tr><td class="code"><pre><span class="line">    ports:</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - &quot;6393:6393&quot;</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - &quot;16393:16393&quot;</span></pre></td></tr><tr><td class="code"><pre><span class="line">    stdin_open: true</span></pre></td></tr><tr><td class="code"><pre><span class="line">    tty: true</span></pre></td></tr><tr><td class="code"><pre><span class="line">    privileged: true</span></pre></td></tr><tr><td class="code"><pre><span class="line">    volumes:</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - &#x2F;usr&#x2F;local&#x2F;redis&#x2F;cluster&#x2F;compose&#x2F;config:&#x2F;config</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - &#x2F;usr&#x2F;local&#x2F;redis&#x2F;cluster&#x2F;data&#x2F;6393:&#x2F;data</span></pre></td></tr><tr><td class="code"><pre><span class="line">    entrypoint:</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - &#x2F;bin&#x2F;bash</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - redis.sh</span></pre></td></tr><tr><td class="code"><pre><span class="line">  redis-slave1:</span></pre></td></tr><tr><td class="code"><pre><span class="line">    image: redis:5.0.7</span></pre></td></tr><tr><td class="code"><pre><span class="line">    container_name: redis-slave1</span></pre></td></tr><tr><td class="code"><pre><span class="line">    working_dir: &#x2F;config</span></pre></td></tr><tr><td class="code"><pre><span class="line">    environment:</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - PORT&#x3D;6394</span></pre></td></tr><tr><td class="code"><pre><span class="line">    networks:</span></pre></td></tr><tr><td class="code"><pre><span class="line">      redis-slave:</span></pre></td></tr><tr><td class="code"><pre><span class="line">        ipv4_address: 172.30.0.2</span></pre></td></tr><tr><td class="code"><pre><span class="line">    ports:</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - &quot;6394:6394&quot;</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - &quot;16394:16394&quot;</span></pre></td></tr><tr><td class="code"><pre><span class="line">    stdin_open: true</span></pre></td></tr><tr><td class="code"><pre><span class="line">    tty: true</span></pre></td></tr><tr><td class="code"><pre><span class="line">    privileged: true</span></pre></td></tr><tr><td class="code"><pre><span class="line">    volumes:</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - &#x2F;usr&#x2F;local&#x2F;redis&#x2F;cluster&#x2F;compose&#x2F;config:&#x2F;config</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - &#x2F;usr&#x2F;local&#x2F;redis&#x2F;cluster&#x2F;data&#x2F;6394:&#x2F;data</span></pre></td></tr><tr><td class="code"><pre><span class="line">    entrypoint:</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - &#x2F;bin&#x2F;bash</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - redis.sh</span></pre></td></tr><tr><td class="code"><pre><span class="line">  redis-salve2:</span></pre></td></tr><tr><td class="code"><pre><span class="line">    image: redis:5.0.7</span></pre></td></tr><tr><td class="code"><pre><span class="line">    working_dir: &#x2F;config</span></pre></td></tr><tr><td class="code"><pre><span class="line">    container_name: redis-salve2</span></pre></td></tr><tr><td class="code"><pre><span class="line">    environment:</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - PORT&#x3D;6395</span></pre></td></tr><tr><td class="code"><pre><span class="line">    ports:</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - &quot;6395:6395&quot;</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - &quot;16395:16395&quot;</span></pre></td></tr><tr><td class="code"><pre><span class="line">    stdin_open: true</span></pre></td></tr><tr><td class="code"><pre><span class="line">    networks:</span></pre></td></tr><tr><td class="code"><pre><span class="line">      redis-slave:</span></pre></td></tr><tr><td class="code"><pre><span class="line">        ipv4_address: 172.30.0.3</span></pre></td></tr><tr><td class="code"><pre><span class="line">    tty: true</span></pre></td></tr><tr><td class="code"><pre><span class="line">    privileged: true</span></pre></td></tr><tr><td class="code"><pre><span class="line">    volumes:</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - &#x2F;usr&#x2F;local&#x2F;redis&#x2F;cluster&#x2F;compose&#x2F;config:&#x2F;config</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - &#x2F;usr&#x2F;local&#x2F;redis&#x2F;cluster&#x2F;data&#x2F;6395:&#x2F;data</span></pre></td></tr><tr><td class="code"><pre><span class="line">    entrypoint:</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - &#x2F;bin&#x2F;bash</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - redis.sh</span></pre></td></tr><tr><td class="code"><pre><span class="line">  redis-salve3:</span></pre></td></tr><tr><td class="code"><pre><span class="line">    image: redis:5.0.7</span></pre></td></tr><tr><td class="code"><pre><span class="line">    container_name: redis-slave3</span></pre></td></tr><tr><td class="code"><pre><span class="line">    working_dir: &#x2F;config</span></pre></td></tr><tr><td class="code"><pre><span class="line">    environment:</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - PORT&#x3D;6396</span></pre></td></tr><tr><td class="code"><pre><span class="line">    ports:</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - &quot;6396:6396&quot;</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - &quot;16396:16396&quot;</span></pre></td></tr><tr><td class="code"><pre><span class="line">    stdin_open: true</span></pre></td></tr><tr><td class="code"><pre><span class="line">    networks:</span></pre></td></tr><tr><td class="code"><pre><span class="line">      redis-slave:</span></pre></td></tr><tr><td class="code"><pre><span class="line">        ipv4_address: 172.30.0.4</span></pre></td></tr><tr><td class="code"><pre><span class="line">    tty: true</span></pre></td></tr><tr><td class="code"><pre><span class="line">    privileged: true</span></pre></td></tr><tr><td class="code"><pre><span class="line">    volumes:</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - &#x2F;usr&#x2F;local&#x2F;redis&#x2F;cluster&#x2F;compose&#x2F;config:&#x2F;config</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - &#x2F;usr&#x2F;local&#x2F;redis&#x2F;cluster&#x2F;data&#x2F;6396:&#x2F;data</span></pre></td></tr><tr><td class="code"><pre><span class="line">    entrypoint:</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - &#x2F;bin&#x2F;bash</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - redis.sh</span></pre></td></tr><tr><td class="code"><pre><span class="line">networks:</span></pre></td></tr><tr><td class="code"><pre><span class="line">  redis-master:</span></pre></td></tr><tr><td class="code"><pre><span class="line">    driver: bridge</span></pre></td></tr><tr><td class="code"><pre><span class="line">    ipam:</span></pre></td></tr><tr><td class="code"><pre><span class="line">      driver: default</span></pre></td></tr><tr><td class="code"><pre><span class="line">      config:</span></pre></td></tr><tr><td class="code"><pre><span class="line">        - subnet: 172.50.0.0&#x2F;16</span></pre></td></tr><tr><td class="code"><pre><span class="line">  redis-slave:</span></pre></td></tr><tr><td class="code"><pre><span class="line">    driver: bridge</span></pre></td></tr><tr><td class="code"><pre><span class="line">    ipam:</span></pre></td></tr><tr><td class="code"><pre><span class="line">      driver: default</span></pre></td></tr><tr><td class="code"><pre><span class="line">      config:</span></pre></td></tr><tr><td class="code"><pre><span class="line">        - subnet: 172.30.0.0&#x2F;16</span></pre></td></tr></table></figure>
+
+<h3 id="编写-redis-默认的启动脚本"><a href="#编写-redis-默认的启动脚本" class="headerlink" title="编写 redis 默认的启动脚本"></a>编写 redis 默认的启动脚本</h3><p>在/usr/local/redis/cluster/config下创建 redis.sh，对应docker-compose.yml中redis.sh：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">redis-server  &#x2F;config&#x2F;nodes-$&#123;PORT&#125;.conf</span></pre></td></tr></table></figure>
+
+<h3 id="最终目录结构"><a href="#最终目录结构" class="headerlink" title="最终目录结构"></a>最终目录结构</h3><h3 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker-compose up -d</span></pre></td></tr></table></figure>
+<p><img src="/images/redis/cluster-up.png" alt="cluster-up.png"></p>
+<p>初始化集群，创建 3 主 3 从的 redis 集群</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">redis-cli --cluster create 192.168.85.128:6391 192.168.85.128:6392 192.168.85.128:6393 192.168.85.128:6394 192.168.85.128:6395 192.168.85.128:6396 --cluster-replicas 1</span></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>docker</category>
+        <category>redis</category>
+      </categories>
+      <tags>
+        <tag>docker</tag>
+        <tag>redis</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>使用docker安装redis哨兵(sentinel)</title>
+    <url>/2020/02/11/redis-03/</url>
+    <content><![CDATA[<p>上一节我们搭建了redis主从模式，实现了redis的主从复制，读写分离。主从模式保证了数据备份，但是发生故障依然需要运维人员施工。为了解决主从模式的弊端，本节我们搭建redis哨兵模式。</p>
+<p>本节我们搭建一主二从三哨兵。</p>
+<h2 id="redis哨兵模式"><a href="#redis哨兵模式" class="headerlink" title="redis哨兵模式"></a>redis哨兵模式</h2><p>sentinel 通常翻译成哨兵，用来监控主从节点的健康情况。客户端连接redis主从的时候，先连接 sentinel，sentinel告诉客户端<font color=red>主redis</font>的地址是多少，然后客户端连接上redis并进行后续的操作。</p>
+<p>当主节点挂掉的时候，客户端就得不到连接了因而报错了，客户端重新向sentinel询问主master的地址，然后客户端得到了<font color=red>新选举出来的主redis</font>。当原来的主机恢复后，会将其作为新主的从机。</p>
+<p>我们直接在上一节的已经搭建好的主从基础上搭建redis哨兵模式，上一节的主从模式节点信息如下：</p>
+<table>
+<thead>
+<tr>
+<th align="left">角色</th>
+<th align="center">端口</th>
+<th align="right">密码</th>
+<th align="right">容器名称</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">master</td>
+<td align="center">6380</td>
+<td align="right">123456</td>
+<td align="right">redis-6380</td>
+</tr>
+<tr>
+<td align="left">slaver</td>
+<td align="center">6381</td>
+<td align="right">123456</td>
+<td align="right">redis-6381</td>
+</tr>
+<tr>
+<td align="left">slaver</td>
+<td align="center">6382</td>
+<td align="right">123456</td>
+<td align="right">redis-6382</td>
+</tr>
+</tbody></table>
+<p>各容器network信心如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"> &quot;Containers&quot;: &#123;</span></pre></td></tr><tr><td class="code"><pre><span class="line">    &quot;3729ea952faade7c3bf37467f00f8a8c6676b9a98e27a897582272f1edce2087&quot;: &#123;</span></pre></td></tr><tr><td class="code"><pre><span class="line">        &quot;Name&quot;: &quot;redis-6382&quot;,</span></pre></td></tr><tr><td class="code"><pre><span class="line">        &quot;EndpointID&quot;: &quot;95f9a05d2b6d10c13eb3d8df706a2700f33a6704ddda290bc6840676eebc6676&quot;,</span></pre></td></tr><tr><td class="code"><pre><span class="line">        &quot;MacAddress&quot;: &quot;02:42:ac:14:00:04&quot;,</span></pre></td></tr><tr><td class="code"><pre><span class="line">        &quot;IPv4Address&quot;: &quot;172.20.0.4&#x2F;16&quot;,</span></pre></td></tr><tr><td class="code"><pre><span class="line">        &quot;IPv6Address&quot;: &quot;&quot;</span></pre></td></tr><tr><td class="code"><pre><span class="line">    &#125;,</span></pre></td></tr><tr><td class="code"><pre><span class="line">    &quot;a7f4ccfa8e8aa87efb697f3ee5fef686e5138ebb0ad5faac282e7850d8cb176f&quot;: &#123;</span></pre></td></tr><tr><td class="code"><pre><span class="line">        &quot;Name&quot;: &quot;redis-6380&quot;,</span></pre></td></tr><tr><td class="code"><pre><span class="line">        &quot;EndpointID&quot;: &quot;71af5cda52f5026aba9b4040890629d5ca560c2a7208b2bc7f0682a97a19d9bf&quot;,</span></pre></td></tr><tr><td class="code"><pre><span class="line">        &quot;MacAddress&quot;: &quot;02:42:ac:14:00:02&quot;,</span></pre></td></tr><tr><td class="code"><pre><span class="line">        &quot;IPv4Address&quot;: &quot;172.20.0.2&#x2F;16&quot;,</span></pre></td></tr><tr><td class="code"><pre><span class="line">        &quot;IPv6Address&quot;: &quot;&quot;</span></pre></td></tr><tr><td class="code"><pre><span class="line">    &#125;,</span></pre></td></tr><tr><td class="code"><pre><span class="line">    &quot;ff3d51f269c40912a21b2a8686078d963f292b32d32bce6dad089d9008377a36&quot;: &#123;</span></pre></td></tr><tr><td class="code"><pre><span class="line">        &quot;Name&quot;: &quot;redis-6381&quot;,</span></pre></td></tr><tr><td class="code"><pre><span class="line">        &quot;EndpointID&quot;: &quot;405a1e61ea2afae2fca8b0ce31f6ac83b7c03440668b3f7ec42072a0ebff18e3&quot;,</span></pre></td></tr><tr><td class="code"><pre><span class="line">        &quot;MacAddress&quot;: &quot;02:42:ac:14:00:03&quot;,</span></pre></td></tr><tr><td class="code"><pre><span class="line">        &quot;IPv4Address&quot;: &quot;172.20.0.3&#x2F;16&quot;,</span></pre></td></tr><tr><td class="code"><pre><span class="line">        &quot;IPv6Address&quot;: &quot;&quot;</span></pre></td></tr><tr><td class="code"><pre><span class="line">    &#125;</span></pre></td></tr><tr><td class="code"><pre><span class="line">&#125;</span></pre></td></tr></table></figure>
+
+<p>现在我们约定sentinel哨兵节点信息：</p>
+<table>
+<thead>
+<tr>
+<th align="left">名称</th>
+<th align="center">端口</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">sentinel-26379</td>
+<td align="center">26379</td>
+</tr>
+<tr>
+<td align="left">sentinel-26380</td>
+<td align="center">26380</td>
+</tr>
+<tr>
+<td align="left">sentinel-26381</td>
+<td align="center">26381</td>
+</tr>
+</tbody></table>
+<h3 id="创建工作目录"><a href="#创建工作目录" class="headerlink" title="创建工作目录"></a>创建工作目录</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mkdir -p &#x2F;usr&#x2F;local&#x2F;redis&#x2F;sentinel&#x2F;sentinel-26379&#x2F;conf</span></pre></td></tr><tr><td class="code"><pre><span class="line">mkdir -p &#x2F;usr&#x2F;local&#x2F;redis&#x2F;sentinel&#x2F;sentinel-26379&#x2F;data</span></pre></td></tr><tr><td class="code"><pre><span class="line"></span></pre></td></tr><tr><td class="code"><pre><span class="line">mkdir -p &#x2F;usr&#x2F;local&#x2F;redis&#x2F;sentinel&#x2F;sentinel-26380&#x2F;conf</span></pre></td></tr><tr><td class="code"><pre><span class="line">mkdir -p &#x2F;usr&#x2F;local&#x2F;redis&#x2F;sentinel&#x2F;sentinel-26380&#x2F;data</span></pre></td></tr><tr><td class="code"><pre><span class="line"></span></pre></td></tr><tr><td class="code"><pre><span class="line">mkdir -p &#x2F;usr&#x2F;local&#x2F;redis&#x2F;sentinel&#x2F;sentinel-26381&#x2F;conf</span></pre></td></tr><tr><td class="code"><pre><span class="line">mkdir -p &#x2F;usr&#x2F;local&#x2F;redis&#x2F;sentinel&#x2F;sentinel-26381&#x2F;data</span></pre></td></tr></table></figure>
+<p>用来存放3个哨兵的配置文件及日志文件。</p>
+<h3 id="准备sentinel-conf"><a href="#准备sentinel-conf" class="headerlink" title="准备sentinel.conf"></a>准备sentinel.conf</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">wget http:&#x2F;&#x2F;download.redis.io&#x2F;redis-stable&#x2F;sentinel.conf</span></pre></td></tr></table></figure>
+<p>将sentinel.conf复制3份，分别存放到这3个目录下，并修改对应内容：</p>
+<ul>
+<li>/usr/local/redis/sentinel/sentinel-26379/conf<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">dir &#x2F;data</span></pre></td></tr><tr><td class="code"><pre><span class="line">logfile &quot;sentinel-26379.log&quot;  # 修改日志文件的路径</span></pre></td></tr><tr><td class="code"><pre><span class="line">sentinel monitor mymaster redis-6380 6379 2 # redis-6380表示 master 节点地址，最后一个2表示，两个sentinel判定master被动下线后，就进行failover(故障转移)</span></pre></td></tr><tr><td class="code"><pre><span class="line">sentinel auth-pass mymaster 123456 # 设置master的密码</span></pre></td></tr></table></figure></li>
+<li>/usr/local/redis/sentinel/sentinel-26379/conf<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">dir &#x2F;data</span></pre></td></tr><tr><td class="code"><pre><span class="line">logfile &quot;sentinel-26380.log&quot;  # 修改日志文件的路径</span></pre></td></tr><tr><td class="code"><pre><span class="line">sentinel monitor mymaster redis-6380 6379 2 # redis-6380表示 master 节点地址，最后一个2表示，两个sentinel判定master被动下线后，就进行failover(故障转移)</span></pre></td></tr><tr><td class="code"><pre><span class="line">sentinel auth-pass mymaster 123456 # 设置master的密码</span></pre></td></tr></table></figure></li>
+<li>/usr/local/redis/sentinel/sentinel-26379/conf<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">dir &#x2F;data</span></pre></td></tr><tr><td class="code"><pre><span class="line">logfile &quot;sentinel-26381.log&quot;  # 修改日志文件的路径</span></pre></td></tr><tr><td class="code"><pre><span class="line">sentinel monitor mymaster redis-6380 6379 2 # redis-6380表示 master 节点地址，最后一个2表示，两个sentinel判定master被动下线后，就进行failover(故障转移)</span></pre></td></tr><tr><td class="code"><pre><span class="line">sentinel auth-pass mymaster 123456 # 设置master的密码</span></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h3 id="目录结构"><a href="#目录结构" class="headerlink" title="目录结构"></a>目录结构</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@localhost sentinel]# tree</span></pre></td></tr><tr><td class="code"><pre><span class="line">.</span></pre></td></tr><tr><td class="code"><pre><span class="line">├── sentinel-26379</span></pre></td></tr><tr><td class="code"><pre><span class="line">│   ├── conf</span></pre></td></tr><tr><td class="code"><pre><span class="line">│   │   └── sentinel.conf</span></pre></td></tr><tr><td class="code"><pre><span class="line">│   └── data</span></pre></td></tr><tr><td class="code"><pre><span class="line">├── sentinel-26380</span></pre></td></tr><tr><td class="code"><pre><span class="line">│   ├── conf</span></pre></td></tr><tr><td class="code"><pre><span class="line">│   │   └── sentinel.conf</span></pre></td></tr><tr><td class="code"><pre><span class="line">│   └── data</span></pre></td></tr><tr><td class="code"><pre><span class="line">└── sentinel-26381</span></pre></td></tr><tr><td class="code"><pre><span class="line">    ├── conf</span></pre></td></tr><tr><td class="code"><pre><span class="line">    │   └── sentinel.conf</span></pre></td></tr><tr><td class="code"><pre><span class="line">    └── data</span></pre></td></tr><tr><td class="code"><pre><span class="line"></span></pre></td></tr><tr><td class="code"><pre><span class="line">9 directories, 3 files</span></pre></td></tr></table></figure>
+
+<h3 id="创建sentinel容器"><a href="#创建sentinel容器" class="headerlink" title="创建sentinel容器"></a>创建sentinel容器</h3><p>官网建议设置奇数个哨兵，这样才适合选举机制。<br>我们逐个执行下面的启动命令，并查看sentinel.conf文件的变化。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker run -d -p 26379:26379 --name sentinel-26379 --net&#x3D;redis-master-slaver \</span></pre></td></tr><tr><td class="code"><pre><span class="line">-v &#x2F;usr&#x2F;local&#x2F;redis&#x2F;sentinel&#x2F;sentinel-26379&#x2F;conf&#x2F;sentinel.conf:&#x2F;etc&#x2F;redis&#x2F;sentinel.conf \</span></pre></td></tr><tr><td class="code"><pre><span class="line">-v &#x2F;usr&#x2F;local&#x2F;redis&#x2F;sentinel&#x2F;sentinel-26379&#x2F;data:&#x2F;data redis:5.0.7 \</span></pre></td></tr><tr><td class="code"><pre><span class="line">redis-sentinel &#x2F;etc&#x2F;redis&#x2F;sentinel.conf</span></pre></td></tr><tr><td class="code"><pre><span class="line"></span></pre></td></tr><tr><td class="code"><pre><span class="line">docker run -d -p 26380:26379 --name sentinel-26380 --net&#x3D;redis-master-slaver \</span></pre></td></tr><tr><td class="code"><pre><span class="line">-v &#x2F;usr&#x2F;local&#x2F;redis&#x2F;sentinel&#x2F;sentinel-26380&#x2F;conf&#x2F;sentinel.conf:&#x2F;etc&#x2F;redis&#x2F;sentinel.conf \</span></pre></td></tr><tr><td class="code"><pre><span class="line">-v &#x2F;usr&#x2F;local&#x2F;redis&#x2F;sentinel&#x2F;sentinel-26380&#x2F;data:&#x2F;data redis:5.0.7 \</span></pre></td></tr><tr><td class="code"><pre><span class="line">redis-sentinel &#x2F;etc&#x2F;redis&#x2F;sentinel.conf</span></pre></td></tr><tr><td class="code"><pre><span class="line"></span></pre></td></tr><tr><td class="code"><pre><span class="line">docker run -d -p 26381:26379 --name sentinel-26381 --net&#x3D;redis-master-slaver \</span></pre></td></tr><tr><td class="code"><pre><span class="line">-v &#x2F;usr&#x2F;local&#x2F;redis&#x2F;sentinel&#x2F;sentinel-26381&#x2F;conf&#x2F;sentinel.conf:&#x2F;etc&#x2F;redis&#x2F;sentinel.conf \</span></pre></td></tr><tr><td class="code"><pre><span class="line">-v &#x2F;usr&#x2F;local&#x2F;redis&#x2F;sentinel&#x2F;sentinel-26381&#x2F;data:&#x2F;data redis:5.0.7 \</span></pre></td></tr><tr><td class="code"><pre><span class="line">redis-sentinel &#x2F;etc&#x2F;redis&#x2F;sentinel.conf</span></pre></td></tr></table></figure>
+
+<p>我们启动sentinel-26379后，查看/usr/local/redis/sentinel/sentinel-26379/conf/sentinel.conf文件，有了这些变化：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sentinel myid 327716021d2b88790338b362173a34163a855e56</span></pre></td></tr><tr><td class="code"><pre><span class="line">sentinel deny-scripts-reconfig yes</span></pre></td></tr><tr><td class="code"><pre><span class="line">sentinel monitor mymaster 172.20.0.2 6379 2  #自动替换成了redis-6380的ip</span></pre></td></tr><tr><td class="code"><pre><span class="line">sentinel config-epoch mymaster 0</span></pre></td></tr><tr><td class="code"><pre><span class="line">sentinel leader-epoch mymaster 0</span></pre></td></tr><tr><td class="code"><pre><span class="line"># Generated by CONFIG REWRITE</span></pre></td></tr><tr><td class="code"><pre><span class="line">sentinel known-replica mymaster 172.20.0.4 6379</span></pre></td></tr><tr><td class="code"><pre><span class="line">sentinel known-replica mymaster 172.20.0.3 6379</span></pre></td></tr><tr><td class="code"><pre><span class="line">sentinel current-epoch 0</span></pre></td></tr></table></figure>
+<p>日志文件（/usr/local/redis/sentinel/sentinel-26379/data/sentinel-26379.log）：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@localhost data]# vim sentinel-26379.log </span></pre></td></tr><tr><td class="code"><pre><span class="line">1:X 12 Feb 2020 03:03:09.681 # oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo</span></pre></td></tr><tr><td class="code"><pre><span class="line">1:X 12 Feb 2020 03:03:09.681 # Redis version&#x3D;5.0.7, bits&#x3D;64, commit&#x3D;00000000, modified&#x3D;0, pid&#x3D;1, just started</span></pre></td></tr><tr><td class="code"><pre><span class="line">1:X 12 Feb 2020 03:03:09.681 # Configuration loaded</span></pre></td></tr><tr><td class="code"><pre><span class="line">1:X 12 Feb 2020 03:03:09.683 * Running mode&#x3D;sentinel, port&#x3D;26379.</span></pre></td></tr><tr><td class="code"><pre><span class="line">1:X 12 Feb 2020 03:03:09.683 # WARNING: The TCP backlog setting of 511 cannot be enforced because &#x2F;proc&#x2F;sys&#x2F;net&#x2F;core&#x2F;somaxconn is set to the lower value of 128.</span></pre></td></tr><tr><td class="code"><pre><span class="line">1:X 12 Feb 2020 03:03:09.687 # Sentinel ID is 327716021d2b88790338b362173a34163a855e56</span></pre></td></tr><tr><td class="code"><pre><span class="line">1:X 12 Feb 2020 03:03:09.687 # +monitor master mymaster 172.20.0.2 6379 quorum 2</span></pre></td></tr><tr><td class="code"><pre><span class="line">1:X 12 Feb 2020 03:03:09.689 * +slave slave 172.20.0.3:6379 172.20.0.3 6379 @ mymaster 172.20.0.2 6379</span></pre></td></tr><tr><td class="code"><pre><span class="line">1:X 12 Feb 2020 03:03:09.690 * +slave slave 172.20.0.4:6379 172.20.0.4 6379 @ mymaster 172.20.0.2 6379</span></pre></td></tr><tr><td class="code"><pre><span class="line">1:X 12 Feb 2020 03:06:10.373 * +fix-slave-config slave 172.20.0.4:6379 172.20.0.4 6379 @ mymaster 172.20.0.2 6379</span></pre></td></tr><tr><td class="code"><pre><span class="line">1:X 12 Feb 2020 03:06:10.374 * +fix-slave-config slave 172.20.0.3:6379 172.20.0.3 6379 @ mymaster 172.20.0.2 6379</span></pre></td></tr></table></figure>
+<p>可以看到它已经检测到了master和2个slave.</p>
+<p>我们接下来启动sentinel-26380和sentinel-26381，查看/usr/local/redis/sentinel/sentinel-26379/conf/sentinel.conf文件,新增了2行记录，表示监测到了新的哨兵</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sentinel known-sentinel mymaster 172.20.0.7 26379 90137df24fb27cb5821c3a3372c2101379b75018</span></pre></td></tr><tr><td class="code"><pre><span class="line">sentinel known-sentinel mymaster 172.20.0.6 26379 d88c61fe5d93be0aaaaff6629196f0034683bb58</span></pre></td></tr></table></figure>
+
+<h3 id="验证效果"><a href="#验证效果" class="headerlink" title="验证效果"></a>验证效果</h3><p>此时master节点是redis-6380<br><img src="/images/redis/sentinel-master-6380.png" alt="sentinel-master-6380.png"></p>
+<p>我们关掉redis-6380，模式master节点故障情况。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker stop redis-6380</span></pre></td></tr></table></figure>
+<p>我们查看日志sentinel-26379.log<br><img src="/images/redis/sentinel-new-master-log.png" alt="sentinel-new-master-log.png"></p>
+<p>我们可以看到选举过程，现在选定了172.20.0.4这个节点为新的master，即redis-6382,我们来验证一下：<br><img src="/images/redis/sentinel-new-master.png" alt="sentinel-new-master.png"></p>
+<p>可以看到符合我们的预期。</p>
+<p>此时我们再次启动redis-6380,并查看redis-6380信息</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker start redis-6380</span></pre></td></tr></table></figure>
+<p><img src="/images/redis/sentinel-failer-link-master.png" alt="sentinel-failer-link-master.png"></p>
+<p>可以看到，redis-6380变为了slave,但是没有连接上新的master。</p>
+<p>这是因为我们在上一节主从模式时，在redis-6380的redis.conf中未配置密码的原因。<br>修改/usr/local/redis/master-slaver/master/conf/redis.conf,添加</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">masterauth 123456</span></pre></td></tr></table></figure>
+<p>我们重启redis-6380,并查看redis-6380信息<br><img src="/images/redis/sentinel-success-link-master.png" alt="sentinel-success-link-master.png"></p>
+<p>OK，新启动的redis-6380已经成为的新master的从节点。</p>
+<p>我们搭建的是伪哨兵模式，真实环境下，这 3个redis节点应该分别部署在3台服务器上，每台服务器都布置一个sentinel哨兵。</p>
+<p>至此，redis一主二从三哨兵搭建完成，哨兵模式主要解决了高可用问题（HA），保证特殊情况故障自动切换，哨兵盯着你的“redis主从集群”，如果主库死了，它会告诉你新的老大是谁。</p>
+<p>参考：<br><a href="https://www.cnblogs.com/demingblog/p/10295236.html#redis-cluster" target="_blank" rel="noopener">https://www.cnblogs.com/demingblog/p/10295236.html#redis-cluster</a><br><a href="https://blog.csdn.net/cyfblog/article/details/100340640" target="_blank" rel="noopener">https://blog.csdn.net/cyfblog/article/details/100340640</a></p>
+]]></content>
+      <categories>
+        <category>docker</category>
+        <category>redis</category>
+      </categories>
+      <tags>
+        <tag>docker</tag>
+        <tag>redis</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>使用docker安装redis主从模式</title>
+    <url>/2020/02/09/redis-02/</url>
+    <content><![CDATA[<h2 id="redis主从复制"><a href="#redis主从复制" class="headerlink" title="redis主从复制"></a>redis主从复制</h2><p>前一节我们搭建了单体redis应用，假设我们生产环境使用了一台redis，redis挂了怎么办？<br><font color=red>redis主从复制</font>：是备份关系，我们操作主库，数据会同步到从库。</p>
+<p>那么redis主从复制有什么作用呢？</p>
+<ul>
+<li>故障恢复：当主节点故障时，可以由从节点提供服务，快速的故障转移</li>
+<li>负载均衡：可以在主从复制的基础上，配合读写分离，由主节点负责写，从节点负责读取数据，从而分担服务器的负载压力，大大提高redis的并发量。</li>
+</ul>
+<p>本节我们搭建redis 一主二从，读写分离。redis主从是实现redis集群和redis哨兵高可用的基础.</p>
+<h3 id="创建工作目录"><a href="#创建工作目录" class="headerlink" title="创建工作目录"></a>创建工作目录</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mkdir -p &#x2F;usr&#x2F;local&#x2F;redis&#x2F;master-slaver&#x2F;master&#x2F;conf</span></pre></td></tr><tr><td class="code"><pre><span class="line">mkdir -p &#x2F;usr&#x2F;local&#x2F;redis&#x2F;master-slaver&#x2F;master&#x2F;data</span></pre></td></tr><tr><td class="code"><pre><span class="line">mkdir -p &#x2F;usr&#x2F;local&#x2F;redis&#x2F;master-slaver&#x2F;slaver&#x2F;conf</span></pre></td></tr><tr><td class="code"><pre><span class="line">mkdir -p &#x2F;usr&#x2F;local&#x2F;redis&#x2F;master-slaver&#x2F;slaver&#x2F;data</span></pre></td></tr><tr><td class="code"><pre><span class="line">mkdir -p &#x2F;usr&#x2F;local&#x2F;redis&#x2F;master-slaver&#x2F;slaver1&#x2F;conf</span></pre></td></tr><tr><td class="code"><pre><span class="line">mkdir -p &#x2F;usr&#x2F;local&#x2F;redis&#x2F;master-slaver&#x2F;slaver1&#x2F;data</span></pre></td></tr></table></figure>
+
+<h3 id="端口约定"><a href="#端口约定" class="headerlink" title="端口约定"></a>端口约定</h3><table>
+<thead>
+<tr>
+<th align="left">角色</th>
+<th align="center">端口</th>
+<th align="right">密码</th>
+<th align="right">容器名称</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">master</td>
+<td align="center">6380</td>
+<td align="right">123456</td>
+<td align="right">redis-6380</td>
+</tr>
+<tr>
+<td align="left">slaver</td>
+<td align="center">6381</td>
+<td align="right">123456</td>
+<td align="right">redis-6381</td>
+</tr>
+<tr>
+<td align="left">slaver</td>
+<td align="center">6382</td>
+<td align="right">123456</td>
+<td align="right">redis-6382</td>
+</tr>
+</tbody></table>
+<h3 id="准备redis-conf"><a href="#准备redis-conf" class="headerlink" title="准备redis.conf"></a>准备redis.conf</h3><ol>
+<li>准备一份redis.conf文件 <a href="https://redis.io/download" target="_blank" rel="noopener">https://redis.io/download</a>。复制3份，分别存放到：<br>/usr/local/redis/master-slave/master/conf<br>/usr/local/redis/master-slave/slaver/conf<br>/usr/local/redis/master-slave/slaver/conf</li>
+</ol>
+<p>2.创建自定义网桥</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker network inspect redis-master-slaver</span></pre></td></tr></table></figure>
+<p>这样我们容器间就可以使用容器名来通信了，避免出现ip变化后主从容器无法通信问题。</p>
+<ol start="3">
+<li>分别修改这3份redis.conf的以下内容<br>master:<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">requirepass 123456 #给redis设置密码</span></pre></td></tr><tr><td class="code"><pre><span class="line">bind 0.0.0.0 # 表示任意ip可连</span></pre></td></tr><tr><td class="code"><pre><span class="line">appendonly yes #开启redis aof持久化</span></pre></td></tr></table></figure>
+slaver:<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">requirepass 123456 #给redis设置密码</span></pre></td></tr><tr><td class="code"><pre><span class="line">bind 0.0.0.0 # 表示任意ip可连</span></pre></td></tr><tr><td class="code"><pre><span class="line">appendonly yes #开启redis aof持久化</span></pre></td></tr><tr><td class="code"><pre><span class="line">slaveof redis-6380 6379 #master容器内的ip端口</span></pre></td></tr><tr><td class="code"><pre><span class="line">masterauth 123456 #master节点的密码</span></pre></td></tr></table></figure>
+slaver1:<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">requirepass 123456 #给redis设置密码</span></pre></td></tr><tr><td class="code"><pre><span class="line">bind 0.0.0.0 # 表示任意ip可连</span></pre></td></tr><tr><td class="code"><pre><span class="line">appendonly yes #开启redis aof持久化</span></pre></td></tr><tr><td class="code"><pre><span class="line">slaveof redis-6380 6379 #master容器内的ip端口</span></pre></td></tr><tr><td class="code"><pre><span class="line">masterauth 123456 #master节点的密码</span></pre></td></tr></table></figure>
+注意：</li>
+</ol>
+<ul>
+<li>slaveof redis-6380 6379 这里指定的master端口6379是容器内的端口，不能指定为6380，否则slaver无法连接master。</li>
+<li>daemonize 不能设置为yes，否则无法启动。参考:<a href="https://blog.csdn.net/Mr_Yang__/article/details/81906691" target="_blank" rel="noopener">https://blog.csdn.net/Mr_Yang__/article/details/81906691</a></li>
+</ul>
+<h3 id="创建redis容器"><a href="#创建redis容器" class="headerlink" title="创建redis容器"></a>创建redis容器</h3><ul>
+<li>master 主库<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker run -d -p 6380:6379 --name redis-6380 --net&#x3D;redis-master-slaver \</span></pre></td></tr><tr><td class="code"><pre><span class="line">-v &#x2F;usr&#x2F;local&#x2F;redis&#x2F;master-slaver&#x2F;master&#x2F;conf&#x2F;redis.conf:&#x2F;etc&#x2F;redis&#x2F;redis.conf \</span></pre></td></tr><tr><td class="code"><pre><span class="line">-v &#x2F;usr&#x2F;local&#x2F;redis&#x2F;master-slaver&#x2F;master&#x2F;data:&#x2F;data redis:5.0.7 \</span></pre></td></tr><tr><td class="code"><pre><span class="line">redis-server &#x2F;etc&#x2F;redis&#x2F;redis.conf</span></pre></td></tr></table></figure></li>
+<li>slaver 从库<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker run -d -p 6381:6379 --name redis-6381 --net&#x3D;redis-master-slaver \</span></pre></td></tr><tr><td class="code"><pre><span class="line">-v &#x2F;usr&#x2F;local&#x2F;redis&#x2F;master-slaver&#x2F;slaver&#x2F;conf&#x2F;redis.conf:&#x2F;etc&#x2F;redis&#x2F;redis.conf \</span></pre></td></tr><tr><td class="code"><pre><span class="line">-v &#x2F;usr&#x2F;local&#x2F;redis&#x2F;master-slaver&#x2F;slaver&#x2F;data:&#x2F;data redis:5.0.7 \</span></pre></td></tr><tr><td class="code"><pre><span class="line">redis-server &#x2F;etc&#x2F;redis&#x2F;redis.conf</span></pre></td></tr></table></figure></li>
+<li>slaver1 从库<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker run -d -p 6382:6379 --name redis-6382 --net&#x3D;redis-master-slaver \</span></pre></td></tr><tr><td class="code"><pre><span class="line">-v &#x2F;usr&#x2F;local&#x2F;redis&#x2F;master-slaver&#x2F;slaver1&#x2F;conf&#x2F;redis.conf:&#x2F;etc&#x2F;redis&#x2F;redis.conf \</span></pre></td></tr><tr><td class="code"><pre><span class="line">-v &#x2F;usr&#x2F;local&#x2F;redis&#x2F;master-slaver&#x2F;slaver1&#x2F;data:&#x2F;data redis:5.0.7 \</span></pre></td></tr><tr><td class="code"><pre><span class="line">redis-server &#x2F;etc&#x2F;redis&#x2F;redis.conf</span></pre></td></tr></table></figure>
+<h3 id="检验功能"><a href="#检验功能" class="headerlink" title="检验功能"></a>检验功能</h3><h4 id="查看master容器"><a href="#查看master容器" class="headerlink" title="查看master容器"></a>查看master容器</h4><img src="/images/redis/redis-6380-info.png" alt="redis-6380-info.png"></li>
+</ul>
+<p>可以看到role:master，以及2个slaver。我们添加一个String 类型的键值对</p>
+<h4 id="查看slaver1容器"><a href="#查看slaver1容器" class="headerlink" title="查看slaver1容器"></a>查看slaver1容器</h4><p><img src="/images/redis/redis-6381-info.png" alt="redis-6381-info.png"></p>
+<p>可以看到role:slave，可以看到master节点信息。<br>通过 get s1 命令可以获取到1234qwer ,说明我们同步了master主节点数据。<br>通过 set s2 123 时，报(error) READONLY You can’t write against a read only replica.说明从节点是只读的。</p>
+<h4 id="查看slaver1容器-1"><a href="#查看slaver1容器-1" class="headerlink" title="查看slaver1容器"></a>查看slaver1容器</h4><p><img src="/images/redis/redis-6382-info.png" alt="redis-6382-info.png"><br>slaver2和slaver1相同。</p>
+<h3 id="树结构"><a href="#树结构" class="headerlink" title="树结构"></a>树结构</h3><p>我们来查看一下目前的树结构,可以看到主从3个redis容器的配置文件，及产生的持久化文件。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[root@localhost master-slaver]# tree</span></pre></td></tr><tr><td class="code"><pre><span class="line">.</span></pre></td></tr><tr><td class="code"><pre><span class="line">├── master</span></pre></td></tr><tr><td class="code"><pre><span class="line">│   ├── conf</span></pre></td></tr><tr><td class="code"><pre><span class="line">│   │   └── redis.conf</span></pre></td></tr><tr><td class="code"><pre><span class="line">│   └── data</span></pre></td></tr><tr><td class="code"><pre><span class="line">│       ├── appendonly.aof</span></pre></td></tr><tr><td class="code"><pre><span class="line">│       └── dump.rdb</span></pre></td></tr><tr><td class="code"><pre><span class="line">├── slaver</span></pre></td></tr><tr><td class="code"><pre><span class="line">│   ├── conf</span></pre></td></tr><tr><td class="code"><pre><span class="line">│   │   └── redis.conf</span></pre></td></tr><tr><td class="code"><pre><span class="line">│   └── data</span></pre></td></tr><tr><td class="code"><pre><span class="line">│       ├── appendonly.aof</span></pre></td></tr><tr><td class="code"><pre><span class="line">│       └── dump.rdb</span></pre></td></tr><tr><td class="code"><pre><span class="line">└── slaver1</span></pre></td></tr><tr><td class="code"><pre><span class="line">    ├── conf</span></pre></td></tr><tr><td class="code"><pre><span class="line">    │   └── redis.conf</span></pre></td></tr><tr><td class="code"><pre><span class="line">    └── data</span></pre></td></tr><tr><td class="code"><pre><span class="line">        ├── appendonly.aof</span></pre></td></tr><tr><td class="code"><pre><span class="line">        └── dump.rdb</span></pre></td></tr><tr><td class="code"><pre><span class="line"></span></pre></td></tr><tr><td class="code"><pre><span class="line">9 directories, 9 files</span></pre></td></tr></table></figure>
+<h3 id="异常情况"><a href="#异常情况" class="headerlink" title="异常情况"></a>异常情况</h3><p>我们这里模拟下可能发生的异常情况。</p>
+<h4 id="master节点损坏"><a href="#master节点损坏" class="headerlink" title="master节点损坏"></a>master节点损坏</h4><p>我们关掉master：redis-6380，模式主节点损坏情况，此时运维人员准备先将redis-6381，设置为主节点</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker stop redis-6380</span></pre></td></tr></table></figure>
+<p>修改redis-6381的redis.conf文件,注释掉下面2行</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># slaveof redis-6380 6379 </span></pre></td></tr><tr><td class="code"><pre><span class="line"># masterauth 123456</span></pre></td></tr></table></figure>
+<p>此时我们修改redis-6382的redis.conf文件的以下内容</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">slaveof redis-6381 6379</span></pre></td></tr></table></figure>
+<p>重新启动redis-6381、redis-6382</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker restart redis-6381</span></pre></td></tr><tr><td class="code"><pre><span class="line">docker restart redis-6382</span></pre></td></tr></table></figure>
+<h4 id="查看redis-6381"><a href="#查看redis-6381" class="headerlink" title="查看redis-6381"></a>查看redis-6381</h4><p><img src="/images/redis/master-6381-info.png" alt="master-6381-info.png"></p>
+<p>可以看到redis-6381已经升级为 master节点。</p>
+<h4 id="查看redis-6382"><a href="#查看redis-6382" class="headerlink" title="查看redis-6382"></a>查看redis-6382</h4><p><img src="/images/redis/slaver-6382-info.png" alt="slaver-6382-info.png"></p>
+<p>这样我们就实现了redis主从复制，读写分离。主从模式保证了数据备份，发生故障依然需要运维人员施工。</p>
+<p>参考：<br><a href="https://blog.csdn.net/qq_28804275/article/details/80907796" target="_blank" rel="noopener">https://blog.csdn.net/qq_28804275/article/details/80907796</a><br><a href="https://www.cnblogs.com/demingblog/p/10295236.html" target="_blank" rel="noopener">https://www.cnblogs.com/demingblog/p/10295236.html</a></p>
+]]></content>
+      <categories>
+        <category>docker</category>
+        <category>redis</category>
+      </categories>
+      <tags>
+        <tag>docker</tag>
+        <tag>redis</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>使用docker安装单点redis</title>
+    <url>/2020/02/08/redis-01/</url>
+    <content><![CDATA[<h2 id="安装单个redis"><a href="#安装单个redis" class="headerlink" title="安装单个redis"></a>安装单个redis</h2><ol>
+<li>拉取镜像,我使用的是5.0.7版本。<a href="https://hub.docker.com/_/redis/?tab=tags" target="_blank" rel="noopener">https://hub.docker.com/_/redis/?tab=tags</a><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker pull redis:5.0.7</span></pre></td></tr></table></figure></li>
+<li>准备一份redis.conf文件 <a href="https://redis.io/download" target="_blank" rel="noopener">https://redis.io/download</a>，使用 xftp 上传到 /usr/local/redis/conf下。</li>
+</ol>
+<p>注意：默认docker运行的redis是不存在配置文件的，即无配置启动.<br>另外还可以通过wget下载redis.conf：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">wget http:&#x2F;&#x2F;download.redis.io&#x2F;redis-stable&#x2F;redis.conf</span></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mkdir &#x2F;usr&#x2F;local&#x2F;redis&#x2F;data</span></pre></td></tr><tr><td class="code"><pre><span class="line">mkdir &#x2F;usr&#x2F;local&#x2F;redis&#x2F;conf</span></pre></td></tr></table></figure>
+<p>上传时发现一直报错，因为我是使用admin登录的，传输到虚拟机（服务器）的文件夹（目的地的文件夹）的权限不够。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">chmod 777 &#x2F;usr&#x2F;local&#x2F;redis&#x2F;conf</span></pre></td></tr></table></figure>
+<p>再次上传,然后把权限改回来，777权限很危险，尽量不要这么设置。</p>
+<p>修改redis.conf中的以下内容</p>
+<ul>
+<li>requirepass 123456 #给redis设置密码</li>
+<li>bind 127.0.0.1 # 注释掉这部分，表示任意ip可连</li>
+<li>appendonly yes #开启redis aof持久化</li>
+</ul>
+<ol start="3">
+<li>创建redis容器</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker run -d -p 6379:6379 --name redis-6379 -v &#x2F;usr&#x2F;local&#x2F;redis&#x2F;conf&#x2F;redis.conf:&#x2F;etc&#x2F;redis&#x2F;redis.conf -v &#x2F;usr&#x2F;local&#x2F;redis&#x2F;data:&#x2F;data redis:5.0.7 redis-server &#x2F;etc&#x2F;redis&#x2F;redis.conf</span></pre></td></tr></table></figure>
+<p><img src="/images/redis/docker-redis-single.png" alt="docker-redis-single"></p>
+<ul>
+<li>-p 6379:6379:把容器内的6379端口映射到宿主机6379端口</li>
+<li>-v /usr/local/redis/conf/redis.conf:/etc/redis/redis.conf:把宿主机配置好的redis.conf放到容器内的这个位置中</li>
+<li>-v /usr/local/redis/data:/data:把redis持久化的数据在宿主机内显示，做数据备份</li>
+<li>redis-server /etc/redis/redis.conf：这个是关键配置，让redis不是无配置启动，而是按照这个redis.conf的配置启动</li>
+<li>–appendonly yes：redis启动后数据持久化</li>
+</ul>
+<p>使用redis-Desktop连接<br><img src="/images/redis/redis-Desktop-single.png" alt="redis-Desktop-single.png"></p>
+<p>我们使用命令向redis中插入几个String类型的值，再次查看/usr/local/redis/data目录,发现已经生成了持久化文件。</p>
+<p><img src="/images/redis/single-data.png" alt="single-data.png"></p>
+<p>单体redis较为简单，完工！</p>
+]]></content>
+      <categories>
+        <category>docker</category>
+        <category>redis</category>
+      </categories>
+      <tags>
+        <tag>docker</tag>
+        <tag>redis</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>docker 数据存储笔记</title>
     <url>/2020/02/04/docker-06/</url>
     <content><![CDATA[<p>Docker容器在运行的时候会产生数据，为了不让这些数据随着容器的删除而删除，Docker支持数据持久化。</p>
@@ -111,17 +410,17 @@ docker run -itd --name busybox1 --link busybox2 busybox</code></pre><p><img src=
 <pre><code>docker network create -d &lt;bridge|host|container|none&gt; network_name</code></pre><p>下面我们命名一个my-bridge的自定义网络。通常情况下使用如下命令即可创建。</p>
 <pre><code>docker network create -d bridge my-bridge</code></pre><p>模式选择的是默认的bridge。</p>
 <p>使用docker network ls即可查看网络列表<br><img src="/images/docker/my-bridge.png" alt="my-bridge.png"></p>
-<p>使用docker run 创建容器时，添加–net=my-bridge即可配置使用自定义网络。</p>
+<p>使用docker run 创建容器时，添加--net=my-bridge即可配置使用自定义网络。</p>
 <p>如果是已经创建好的容器，通过以下命令可以连接到自定义网络上：<br>    docker network connect my-bridge busybox1<br><img src="/images/docker/my-bridge-box1.png" alt="my-bridge-box1.png"></p>
-<p>docker-compose.yml中这样配置自定义网络</p>
+<p>那么如何在docker-compose.yml中配置自定义网络呢？</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">version: &#39;3&#39;</span></pre></td></tr><tr><td class="code"><pre><span class="line">services:</span></pre></td></tr><tr><td class="code"><pre><span class="line">  elasticsearch:</span></pre></td></tr><tr><td class="code"><pre><span class="line">    image: elasticsearch:6.4.1</span></pre></td></tr><tr><td class="code"><pre><span class="line">    container_name: elasticsearch</span></pre></td></tr><tr><td class="code"><pre><span class="line">    environment:</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - &quot;cluster.name&#x3D;elasticsearch&quot; #集群名称为elasticsearch</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - &quot;discovery.type&#x3D;single-node&quot; #单节点启动</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - &quot;ES_JAVA_OPTS&#x3D;-Xms512m -Xmx512m&quot; #jvm内存分配为512MB</span></pre></td></tr><tr><td class="code"><pre><span class="line">    </span></pre></td></tr><tr><td class="code"><pre><span class="line">    ......</span></pre></td></tr><tr><td class="code"><pre><span class="line">    networks:</span></pre></td></tr><tr><td class="code"><pre><span class="line">      - my-bridge  </span></pre></td></tr><tr><td class="code"><pre><span class="line">networks:</span></pre></td></tr><tr><td class="code"><pre><span class="line">  my-bridge:</span></pre></td></tr><tr><td class="code"><pre><span class="line">    driver: bridge</span></pre></td></tr></table></figure>
 
-<p>以上docker-compose.yml同样可以创建my-bridge自定义网络。并且创建elasticsearch配置使用了自定义网络。<br><img src="/images/docker/docker-network.png" alt="docker-network.png"></p>
-<p>我们发现自动给my-bridge添加了elk前缀，变为了elk_my-bridge ，感觉是为了避免重名吧，不太清楚了！！</p>
+<p>以上docker-compose.yml同样可以创建my-bridge自定义网络。并且创建的elasticsearch容器会配置使用my-bridge自定义网络。<br><img src="/images/docker/docker-network.png" alt="docker-network.png"></p>
+<p>我们发现自动给my-bridge添加了elk前缀，变为了elk_my-bridge ，elk是docker-compose.yml文件的目录名。感觉是为了避免重名吧，不太清楚了！！</p>
 <p>我们查看下elk_my-bridge详情<br>    docker network inspect elk_my-bridge </p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker network inspect elk_my-bridge </span></pre></td></tr><tr><td class="code"><pre><span class="line">[</span></pre></td></tr><tr><td class="code"><pre><span class="line">    &#123;</span></pre></td></tr><tr><td class="code"><pre><span class="line">        &quot;Name&quot;: &quot;elk_my-bridge&quot;,</span></pre></td></tr><tr><td class="code"><pre><span class="line">        &quot;Id&quot;: &quot;d28de6a1cda8b97a282bdab80a10eeae6ac75acb27c3992f51799dad49f0c98c&quot;,</span></pre></td></tr><tr><td class="code"><pre><span class="line">        &quot;Created&quot;: &quot;2020-01-27T22:10:46.179450229+08:00&quot;,</span></pre></td></tr><tr><td class="code"><pre><span class="line">        &quot;Scope&quot;: &quot;local&quot;,</span></pre></td></tr><tr><td class="code"><pre><span class="line">        &quot;Driver&quot;: &quot;bridge&quot;,</span></pre></td></tr><tr><td class="code"><pre><span class="line">        &quot;EnableIPv6&quot;: false,</span></pre></td></tr><tr><td class="code"><pre><span class="line">        &quot;IPAM&quot;: &#123;</span></pre></td></tr><tr><td class="code"><pre><span class="line">            &quot;Driver&quot;: &quot;default&quot;,</span></pre></td></tr><tr><td class="code"><pre><span class="line">            &quot;Options&quot;: null,</span></pre></td></tr><tr><td class="code"><pre><span class="line">            &quot;Config&quot;: [</span></pre></td></tr><tr><td class="code"><pre><span class="line">                &#123;</span></pre></td></tr><tr><td class="code"><pre><span class="line">                    &quot;Subnet&quot;: &quot;172.19.0.0&#x2F;16&quot;,</span></pre></td></tr><tr><td class="code"><pre><span class="line">                    &quot;Gateway&quot;: &quot;172.19.0.1&quot;</span></pre></td></tr><tr><td class="code"><pre><span class="line">                &#125;</span></pre></td></tr><tr><td class="code"><pre><span class="line">            ]</span></pre></td></tr><tr><td class="code"><pre><span class="line">        &#125;,</span></pre></td></tr><tr><td class="code"><pre><span class="line">        &quot;Internal&quot;: false,</span></pre></td></tr><tr><td class="code"><pre><span class="line">        &quot;Attachable&quot;: true,</span></pre></td></tr><tr><td class="code"><pre><span class="line">        &quot;Ingress&quot;: false,</span></pre></td></tr><tr><td class="code"><pre><span class="line">        &quot;ConfigFrom&quot;: &#123;</span></pre></td></tr><tr><td class="code"><pre><span class="line">            &quot;Network&quot;: &quot;&quot;</span></pre></td></tr><tr><td class="code"><pre><span class="line">        &#125;,</span></pre></td></tr><tr><td class="code"><pre><span class="line">        &quot;ConfigOnly&quot;: false,</span></pre></td></tr><tr><td class="code"><pre><span class="line">        &quot;Containers&quot;: &#123;</span></pre></td></tr><tr><td class="code"><pre><span class="line">            &quot;4dbffe4469778db7574198a4336b3637653c434a541c102728b9dcf321824c85&quot;: &#123;</span></pre></td></tr><tr><td class="code"><pre><span class="line">                &quot;Name&quot;: &quot;kibana&quot;,</span></pre></td></tr><tr><td class="code"><pre><span class="line">                &quot;EndpointID&quot;: &quot;1dc354be523cc7cbb944545be273d4b0c0b85e0e9b00463213b412a7879a7390&quot;,</span></pre></td></tr><tr><td class="code"><pre><span class="line">                &quot;MacAddress&quot;: &quot;02:42:ac:13:00:04&quot;,</span></pre></td></tr><tr><td class="code"><pre><span class="line">                &quot;IPv4Address&quot;: &quot;172.19.0.4&#x2F;16&quot;,</span></pre></td></tr><tr><td class="code"><pre><span class="line">                &quot;IPv6Address&quot;: &quot;&quot;</span></pre></td></tr><tr><td class="code"><pre><span class="line">            &#125;,</span></pre></td></tr><tr><td class="code"><pre><span class="line">            &quot;71607bb793ed6ee0faf9e9d26967c8588abc8076a2cdf6cf1822fb0f321c2c0c&quot;: &#123;</span></pre></td></tr><tr><td class="code"><pre><span class="line">                &quot;Name&quot;: &quot;elasticsearch&quot;,</span></pre></td></tr><tr><td class="code"><pre><span class="line">                &quot;EndpointID&quot;: &quot;e873552071bd5cf9dd86bc564be568ff37ca74ab51c59d1a68d8b416b1cb0da3&quot;,</span></pre></td></tr><tr><td class="code"><pre><span class="line">                &quot;MacAddress&quot;: &quot;02:42:ac:13:00:02&quot;,</span></pre></td></tr><tr><td class="code"><pre><span class="line">                &quot;IPv4Address&quot;: &quot;172.19.0.2&#x2F;16&quot;,</span></pre></td></tr><tr><td class="code"><pre><span class="line">                &quot;IPv6Address&quot;: &quot;&quot;</span></pre></td></tr><tr><td class="code"><pre><span class="line">            &#125;,</span></pre></td></tr><tr><td class="code"><pre><span class="line">            &quot;e5c7736099fe779d7718f35557161a05ba2ba03ddcbf20c73a4146794fbb7df8&quot;: &#123;</span></pre></td></tr><tr><td class="code"><pre><span class="line">                &quot;Name&quot;: &quot;logstash&quot;,</span></pre></td></tr><tr><td class="code"><pre><span class="line">                &quot;EndpointID&quot;: &quot;5e8821f7e67780468664b7947be64fdb0bf2de3e8b2b2f73d675dd8e29ee0878&quot;,</span></pre></td></tr><tr><td class="code"><pre><span class="line">                &quot;MacAddress&quot;: &quot;02:42:ac:13:00:03&quot;,</span></pre></td></tr><tr><td class="code"><pre><span class="line">                &quot;IPv4Address&quot;: &quot;172.19.0.3&#x2F;16&quot;,</span></pre></td></tr><tr><td class="code"><pre><span class="line">                &quot;IPv6Address&quot;: &quot;&quot;</span></pre></td></tr><tr><td class="code"><pre><span class="line">            &#125;</span></pre></td></tr><tr><td class="code"><pre><span class="line">        &#125;,</span></pre></td></tr><tr><td class="code"><pre><span class="line">        &quot;Options&quot;: &#123;&#125;,</span></pre></td></tr><tr><td class="code"><pre><span class="line">        &quot;Labels&quot;: &#123;</span></pre></td></tr><tr><td class="code"><pre><span class="line">            &quot;com.docker.compose.network&quot;: &quot;my-bridge&quot;,</span></pre></td></tr><tr><td class="code"><pre><span class="line">            &quot;com.docker.compose.project&quot;: &quot;elk&quot;,</span></pre></td></tr><tr><td class="code"><pre><span class="line">            &quot;com.docker.compose.version&quot;: &quot;1.22.0&quot;</span></pre></td></tr><tr><td class="code"><pre><span class="line">        &#125;</span></pre></td></tr><tr><td class="code"><pre><span class="line">    &#125;</span></pre></td></tr><tr><td class="code"><pre><span class="line">]</span></pre></td></tr></table></figure>
 
-<p>可以看到elk_my-bridge网桥的详情，而且发现容器的IP变为了172.19.X.X不再是默认docker 网段172.17.X.X。应该是自定义网桥的原因吧。</p>
+<p>可以看到elk_my-bridge网桥的详情，而且发现容器的IP变为了172.19.X.X不再是默认docker 网段172.17.X.X。应该是自定义网桥的原因吧。<br>elasticsearch，logstash，kibana之间是可以通过容器名来通信的。</p>
 <p>OK，今天就到这吧，2020年春节，冠状病毒肺炎疫情很严峻，闷在家里总结下以前的知识点。愿这次的疫情尽早解决吧，武汉加油！湖北加油！！中国加油！！！</p>
 <p>参考：<br><a href="https://www.cnblogs.com/kaye/p/10508800.html" target="_blank" rel="noopener">https://www.cnblogs.com/kaye/p/10508800.html</a><br><a href="https://blog.csdn.net/wucong60/article/details/83757813" target="_blank" rel="noopener">https://blog.csdn.net/wucong60/article/details/83757813</a><br><a href="https://www.cnblogs.com/zuxing/articles/8780661.html" target="_blank" rel="noopener">https://www.cnblogs.com/zuxing/articles/8780661.html</a><br><a href="https://www.jianshu.com/p/22a7032bb7bd" target="_blank" rel="noopener">https://www.jianshu.com/p/22a7032bb7bd</a><br><a href="https://mrbird.cc/Docker-network.html" target="_blank" rel="noopener">https://mrbird.cc/Docker-network.html</a></p>
 ]]></content>
