@@ -64,7 +64,7 @@
 <meta property="og:image" content="http:&#x2F;&#x2F;blog.gaoyp.cn&#x2F;images&#x2F;docker&#x2F;%E5%AE%B9%E5%99%A8%E5%88%9B%E5%BB%BA%E9%95%9C%E5%83%8F.png">
 <meta property="og:image" content="http:&#x2F;&#x2F;blog.gaoyp.cn&#x2F;images&#x2F;docker&#x2F;dockerfile%E6%9E%84%E5%BB%BAnginx%E9%95%9C%E5%83%8F.png">
 <meta property="og:image" content="http:&#x2F;&#x2F;blog.gaoyp.cn&#x2F;images&#x2F;docker&#x2F;nginx82.png">
-<meta property="og:updated_time" content="2020-02-15T04:11:41.317Z">
+<meta property="og:updated_time" content="2020-02-16T15:29:56.755Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http:&#x2F;&#x2F;blog.gaoyp.cn&#x2F;images&#x2F;docker&#x2F;%E4%BB%93%E5%BA%93-%E9%95%9C%E5%83%8F-%E5%AE%B9%E5%99%A8%E5%85%B3%E7%B3%BB%E5%9B%BE.png">
 
@@ -258,7 +258,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-02-15 12:11:41" itemprop="dateModified" datetime="2020-02-15T12:11:41+08:00">2020-02-15</time>
+                <time title="修改时间：2020-02-16 23:29:56" itemprop="dateModified" datetime="2020-02-16T23:29:56+08:00">2020-02-16</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -317,19 +317,32 @@
 <p>我们在这个过程中熟悉经常使用的命令。</p>
 <h2 id="Docker-镜像和容器"><a href="#Docker-镜像和容器" class="headerlink" title="Docker 镜像和容器"></a>Docker 镜像和容器</h2><h3 id="镜像查询"><a href="#镜像查询" class="headerlink" title="镜像查询"></a>镜像查询</h3><p>docker镜像查询地址dockerhub：<a href="https://hub.docker.com/search" target="_blank" rel="noopener">https://hub.docker.com/search</a><br><img src="/images/docker/hub.docker.com.png" alt="hub.docker.com.png"></p>
 <p>我们也可以使用docker search:镜像名称  的方式，搜索镜像,这种方式无法查询镜像tags。<br><img src="/images/docker/%E6%90%9C%E7%B4%A2%E9%95%9C%E5%83%8F.png" alt="搜索镜像.png"></p>
-<p>各个选项说明:<br>NAME: 镜像仓库源的名称<br>DESCRIPTION: 镜像的描述<br>OFFICIAL: 是否 docker 官方发布<br>stars: 类似 Github 里面的 star，表示点赞、喜欢的意思。<br>AUTOMATED: 自动构建。</p>
+<p>各个选项说明:</p>
+<ul>
+<li>NAME: 镜像仓库源的名称</li>
+<li>DESCRIPTION: 镜像的描述</li>
+<li>OFFICIAL: 是否 docker 官方发布</li>
+<li>stars: 类似 Github 里面的 star，表示点赞、喜欢的意思。</li>
+<li>AUTOMATED: 自动构建。</li>
+</ul>
 <h3 id="拉取镜像"><a href="#拉取镜像" class="headerlink" title="拉取镜像"></a>拉取镜像</h3><p>我们以nginx 为例</p>
 <ul>
 <li>拉取nginx镜像到本地</li>
 </ul>
-<p>docker pull 镜像名称:镜像tags,此处我们拉取最新镜像。如果不加 :镜像tags，默认拉取最新镜像。</p>
+<p>docker pull 镜像名称:镜像tags。如果不加 tags，默认拉取最新镜像（latest）。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line">docker pull nginx:latest</span></pre></td></tr></table></figure>
 
 <p>直接执行命令报：<br>Got permission denied while trying to connect to the Docker daemon socket ….: connect: permission denied</p>
 <p>我们使用su root 命令切换到root用户，再次执行docker pull nginx:latest。<br><img src="/images/docker/%E4%B8%8B%E8%BD%BDnginx%E9%95%9C%E5%83%8F.png" alt="下载nginx镜像.png"></p>
 <p>使用docker images 命令即可查看已经拥有的镜像。<br><img src="/images/docker/%E6%9F%A5%E7%9C%8B%E5%B7%B2%E4%B8%8B%E8%BD%BDimages.png" alt="查看已下载images.png"></p>
 <p>各个选项说明:</p>
-<p>REPOSITORY：表示镜像的仓库源<br>TAG：镜像的标签<br>IMAGE ID：镜像ID<br>CREATED：镜像创建时间<br>SIZE：镜像大小</p>
+<ul>
+<li>REPOSITORY：表示镜像的仓库源</li>
+<li>TAG：镜像的标签</li>
+<li>IMAGE ID：镜像ID</li>
+<li>CREATED：镜像创建时间</li>
+<li>SIZE：镜像大小</li>
+</ul>
 <h3 id="删除镜像"><a href="#删除镜像" class="headerlink" title="删除镜像"></a>删除镜像</h3><p>如果不加 :镜像tags，默认删除最新镜像。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line">docker rmi nginx:latest</span></pre></td></tr></table></figure>
 
@@ -343,7 +356,15 @@
 </li>
 </ol>
 <p>如果返回一长串字符即为成功。使用docker ps 即可看到已启动容器列表：<br><img src="/images/docker/docker-nginx80.png" alt="docker-nginx80.png"></p>
-<p>参数说明：<br>-d 后台运行<br>-p 设置端口映射 宿主机端口：容器端口<br>–name 设置容器别名<br>–restart=always 设置容器开机启动<br>-v 数据卷映射 宿主机目录：容器目录。这样方便我们访问配置文件及日志文件<br>最后加上nginx:latest</p>
+<p>参数说明：</p>
+<ul>
+<li>-d 后台运行</li>
+<li>-p 设置端口映射 宿主机端口：容器端口</li>
+<li>--name 设置容器别名</li>
+<li>--restart=always 设置容器开机启动</li>
+<li>-v 数据卷映射 宿主机目录：容器目录。这样方便我们管理容器配置文件及日志文件</li>
+</ul>
+<p>最后加上nginx:latest，表示我们是以nginx:latest为模板创建的。</p>
 <p>浏览器访问：<a href="http://192.168.85.128/" target="_blank" rel="noopener">http://192.168.85.128/</a> 返回<br><img src="/images/docker/nginx-%E9%A6%96%E9%A1%B5.png" alt="nginx-首页.png"></p>
 <h3 id="基于容器构建镜像"><a href="#基于容器构建镜像" class="headerlink" title="基于容器构建镜像"></a>基于容器构建镜像</h3><p>镜像创建有2种方式：</p>
 <ul>
@@ -571,20 +592,20 @@ COPY &lt;源路径1&gt;  &lt;目标路径&gt;</code></pre><figure class="highlig
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">15</span>
+          <span class="site-state-item-count">16</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-count">9</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-count">12</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
