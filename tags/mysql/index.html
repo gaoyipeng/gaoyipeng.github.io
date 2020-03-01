@@ -304,13 +304,13 @@
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-count">9</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-count">14</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -546,7 +546,22 @@ NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
 
 </body>
 </html>
-    });
+
+  }
+
+  fetch('https://app-router.leancloud.cn/2/route?appId=Sur6vlFkwR817RgctJYRFHKv-gzGzoHsz')
+    .then(response => response.json())
+    .then(({ api_server }) => {
+      var Counter = (method, url, data) => {
+        return fetch(`https://${api_server}/1.1${url}`, {
+          method: method,
+          headers: {
+            'X-LC-Id': 'Sur6vlFkwR817RgctJYRFHKv-gzGzoHsz',
+            'X-LC-Key': 'FtSE43epbKIXCTe2CwG5w2V1',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
       };
       if (CONFIG.page.isPost) {
         if (CONFIG.hostname !== location.hostname) return;
