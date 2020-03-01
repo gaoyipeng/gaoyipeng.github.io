@@ -1,6 +1,153 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>数据库锁机制</title>
+    <url>/2020/03/01/database-lock/</url>
+    <content><![CDATA[<h2 id="数据库引擎"><a href="#数据库引擎" class="headerlink" title="数据库引擎"></a>数据库引擎</h2><p>mysql常见的数据库引擎有MyISAM、InnoDB。<br>MySQL中myisam与innodb的区别：</p>
+<ul>
+<li>InnoDB支持事物，而MyISAM不支持事物</li>
+<li>InnoDB支持行级锁，而MyISAM支持表级锁</li>
+<li>InnoDB支持外键，而MyISAM不支持</li>
+<li>InnoDB提供提交、回滚、崩溃恢复能力的事务安全（ASID）能力，实现并发控制。</li>
+<li>MyISAM提供较高的插入和查询记录的效率，主要用于插入和查询。</li>
+</ul>
+<h2 id="数据库锁分类"><a href="#数据库锁分类" class="headerlink" title="数据库锁分类"></a>数据库锁分类</h2><h3 id="乐观锁和悲观锁概念"><a href="#乐观锁和悲观锁概念" class="headerlink" title="乐观锁和悲观锁概念"></a>乐观锁和悲观锁概念</h3><p>悲观锁：总是假设最坏的情况，每次去拿数据的时候都认为别人会修改，所以每次在拿数据的时候都会上锁，这样别人想拿这个数据就会阻塞直到它拿到锁。<br>乐观锁：每次去拿数据的时候都认为别人不会修改，所以不会上锁，但是在更新的时候会判断一下在此期间别人有没有去更新这个数据，可以使用版本号等机制。</p>
+<p>共享锁和排他锁都是悲观锁的实现方式，由数据库提供。乐观锁就需要自己实现了。</p>
+<h3 id="操作粒度分类"><a href="#操作粒度分类" class="headerlink" title="操作粒度分类"></a>操作粒度分类</h3><ul>
+<li>表锁 ：开销小，加锁快；不会出现死锁；锁定粒度大，发生锁冲突的概率最高，并发度最低。</li>
+<li>行锁 ：开销大，加锁慢；会出现死锁；锁定粒度最小，发生锁冲突的概率最低，并发度也最高。</li>
+<li>页锁（不常见） ：开销和加锁时间界于表锁和行锁之间；会出现死锁；锁定粒度界于表锁和行锁之间，并发度一般</li>
+</ul>
+<h4 id="表锁"><a href="#表锁" class="headerlink" title="表锁"></a>表锁</h4><ol>
+<li><p>查看数据库每张表使用表锁的情况：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mysql&gt; show open tables;</span></pre></td></tr><tr><td class="code"><pre><span class="line">+--------------------+------------------------------------------------------+--------+-------------+</span></pre></td></tr><tr><td class="code"><pre><span class="line">| Database           | Table                                                | In_use | Name_locked |</span></pre></td></tr><tr><td class="code"><pre><span class="line">+--------------------+------------------------------------------------------+--------+-------------+</span></pre></td></tr><tr><td class="code"><pre><span class="line"></span></pre></td></tr><tr><td class="code"><pre><span class="line">| vim-base           | user_role_bak_190902                                 |      0 |           0 |</span></pre></td></tr><tr><td class="code"><pre><span class="line">| performance_schema | status_by_user                                       |      0 |           0 |</span></pre></td></tr><tr><td class="code"><pre><span class="line">| febs_cloud_base    | zipkin_spans                                         |      0 |           0 |</span></pre></td></tr><tr><td class="code"><pre><span class="line">......</span></pre></td></tr><tr><td class="code"><pre><span class="line">| vim-wmi            | vin_group                                            |      0 |           0 |</span></pre></td></tr><tr><td class="code"><pre><span class="line">| vim-base           | enterprise_update                                    |      0 |           0 |</span></pre></td></tr><tr><td class="code"><pre><span class="line">| vim-wmi            | wmi_detail                                           |      0 |           0 |</span></pre></td></tr><tr><td class="code"><pre><span class="line">| performance_schema | events_stages_summary_by_host_by_event_name          |      0 |           0 |</span></pre></td></tr><tr><td class="code"><pre><span class="line">+--------------------+------------------------------------------------------+--------+-------------+</span></pre></td></tr><tr><td class="code"><pre><span class="line">323 rows in set (0.20 sec)</span></pre></td></tr></table></figure>
+<p>In_use 为1 代表使用了锁。</p>
+</li>
+<li><p>表锁命令：</p>
+</li>
+</ol>
+<ul>
+<li>加锁 lock table &lt;tableName&gt; read|write;</li>
+<li>解锁 unlock tables;</li>
+</ul>
+<ol start="3">
+<li><p>以下是MyISAM表锁的总结：<br><img src="/images/database/table-lock.png" alt="table-lock.png"></p>
+</li>
+<li><p>分析数据库表锁定</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mysql&gt; show status like &#39;table%&#39;;</span></pre></td></tr><tr><td class="code"><pre><span class="line">+----------------------------+-------+</span></pre></td></tr><tr><td class="code"><pre><span class="line">| Variable_name              | Value |</span></pre></td></tr><tr><td class="code"><pre><span class="line">+----------------------------+-------+</span></pre></td></tr><tr><td class="code"><pre><span class="line">| Table_locks_immediate      | 340   |</span></pre></td></tr><tr><td class="code"><pre><span class="line">| Table_locks_waited         | 0     |</span></pre></td></tr><tr><td class="code"><pre><span class="line">| Table_open_cache_hits      | 22    |</span></pre></td></tr><tr><td class="code"><pre><span class="line">| Table_open_cache_misses    | 1     |</span></pre></td></tr><tr><td class="code"><pre><span class="line">| Table_open_cache_overflows | 0     |</span></pre></td></tr><tr><td class="code"><pre><span class="line">+----------------------------+-------+</span></pre></td></tr><tr><td class="code"><pre><span class="line">5 rows in set (0.02 sec)</span></pre></td></tr></table></figure>
+</li>
+</ol>
+<ul>
+<li>Table_locks_immediate：产生表级锁定的次数，表示可以立即获取锁的次数。</li>
+<li>Table_locks_waited：产生表级锁定争用二发生等待的次数，次数愈多，表明表级锁争用情况越严重。</li>
+</ul>
+<h4 id="行锁"><a href="#行锁" class="headerlink" title="行锁"></a>行锁</h4><p>Innodb 引擎，默认是行锁。</p>
+<p>注意：行锁是依赖索引的，如果没有索引或者索引失效，则会自动转为表锁。</p>
+<ol>
+<li>间隙锁<br><img src="/images/database/next-key.png" alt="next-key.png"></li>
+</ol>
+<h3 id="操作类型分类"><a href="#操作类型分类" class="headerlink" title="操作类型分类"></a>操作类型分类</h3><h4 id="共享锁（S锁、读锁）"><a href="#共享锁（S锁、读锁）" class="headerlink" title="共享锁（S锁、读锁）"></a>共享锁（S锁、读锁）</h4><p>对同一数据，多个读操作可同时进行。但是会阻塞其他进程的写操作。</p>
+<h4 id="排他锁（X锁、写锁）"><a href="#排他锁（X锁、写锁）" class="headerlink" title="排他锁（X锁、写锁）"></a>排他锁（X锁、写锁）</h4><p>当前写操作没完成前，阻断其他进程的读和写操作。</p>
+<ol>
+<li><p>查看数据库表锁情况</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mysql&gt; show status like &#39;innodb_row_lock%&#39;;</span></pre></td></tr><tr><td class="code"><pre><span class="line">+-------------------------------+-------+</span></pre></td></tr><tr><td class="code"><pre><span class="line">| Variable_name                 | Value |</span></pre></td></tr><tr><td class="code"><pre><span class="line">+-------------------------------+-------+</span></pre></td></tr><tr><td class="code"><pre><span class="line">| Innodb_row_lock_current_waits | 0     |</span></pre></td></tr><tr><td class="code"><pre><span class="line">| Innodb_row_lock_time          | 2     |</span></pre></td></tr><tr><td class="code"><pre><span class="line">| Innodb_row_lock_time_avg      | 2     |</span></pre></td></tr><tr><td class="code"><pre><span class="line">| Innodb_row_lock_time_max      | 2     |</span></pre></td></tr><tr><td class="code"><pre><span class="line">| Innodb_row_lock_waits         | 1     |</span></pre></td></tr><tr><td class="code"><pre><span class="line">+-------------------------------+-------+</span></pre></td></tr><tr><td class="code"><pre><span class="line">5 rows in set (0.02 sec)</span></pre></td></tr></table></figure>
+<p><img src="/images/database/hang-lock.png" alt="hang-lock.png"></p>
+</li>
+<li><p>语法：<br>共享锁：SQL+ lock in share mode;<br>排它锁：SQL+ for update;</p>
+</li>
+</ol>
+<h3 id="死锁"><a href="#死锁" class="headerlink" title="死锁"></a>死锁</h3><p>所谓死锁：是指两个或两个以上的进程在执行过程中，因争夺资源而造成的一种互相等待的现象，若无外力作用，它们都将无法推进下去。此时称系统处于死锁状态或系统产生了死锁，这些永远在互相等待的进程称为死锁进程。</p>
+<p>产生死锁的四个必要条件：</p>
+<ul>
+<li>互斥条件：一个资源每次只能被一个进程使用。</li>
+<li>请求与保持条件：一个进程因请求资源而阻塞时，对已获得的资源保持不放。</li>
+<li>不剥夺条件:进程已获得的资源，在末使用完之前，不能强行剥夺。</li>
+<li>循环等待条件:若干进程之间形成一种头尾相接的循环等待资源关系。</li>
+</ul>
+<p>这四个条件是死锁的必要条件，只要系统发生死锁，这些条件必然成立，而只要上述条件之一不满足，就不会发生死锁。</p>
+]]></content>
+      <categories>
+        <category>数据库，Mysql</category>
+      </categories>
+      <tags>
+        <tag>数据库，Mysql</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>SQL 调优</title>
+    <url>/2020/03/01/database-sql-better/</url>
+    <content><![CDATA[<h2 id="SQL优化方式"><a href="#SQL优化方式" class="headerlink" title="SQL优化方式"></a>SQL优化方式</h2><h3 id="小表驱动大表"><a href="#小表驱动大表" class="headerlink" title="小表驱动大表"></a>小表驱动大表</h3><p><img src="/images/database/sql-exist.png" alt="sql-exist.png"></p>
+<h3 id="Order-by-优化"><a href="#Order-by-优化" class="headerlink" title="Order by 优化"></a>Order by 优化</h3><ul>
+<li>Order by 语句应该符合最佳左前缀原则。尽可能在索引列上完成排序<br>eg:<br>索引：index  idx_n_a(name,age)<br>select name,age from user age&gt;20 order by name,age (√)<br>select name,age from user age&gt;20 order by name     (√)<br>select name,age from user age&gt;20 order by age      (×)<br>select name,age from user age&gt;20 order by age,name (×)</li>
+</ul>
+<p>注意，当索引idx_n_a的第一个列 name为常量时，order by age也可以使用索引<br>select name,age from user age=20 order by age      (√)</p>
+<ul>
+<li>使用Order by 时最好不要使用select * ，使用select colume1,colume2,….from table Order by colume1，colume2…</li>
+<li>使用Order by 查询慢，可以尝试提高系统参数 sort_buffer_size 的值</li>
+<li>使用Order by 查询慢，可以尝试提高系统参数 max_length_for_sort_data 的值</li>
+</ul>
+<h3 id="group-by-优化"><a href="#group-by-优化" class="headerlink" title="group by 优化"></a>group by 优化</h3><p>与order by 的优化方式基本一致。主要注意的点：</p>
+<ul>
+<li>group by先排序后分组，符合最佳左前缀原则</li>
+<li>能使用where限定条件，就不要使用having</li>
+</ul>
+<p>Having与Where的区别</p>
+<ol>
+<li>where 子句的作用是在对查询结果进行分组前，将不符合where条件的行去掉，即在分组之前过滤数据，where条件中不能包含聚组函数，使用where条件过滤出特定的行。</li>
+<li>having 子句的作用是筛选满足条件的组，即在分组之后过滤数据，条件中经常包含聚组函数，使用having 条件过滤出特定的组，也可以使用多个分组标准进行分组。</li>
+</ol>
+<h3 id="开启慢查询日志"><a href="#开启慢查询日志" class="headerlink" title="开启慢查询日志"></a>开启慢查询日志</h3><p>慢查询日志默认不开启(影响性能，需要时开启即可)：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mysql&gt; show variables like &#39;%slow_query_log%&#39;;</span></pre></td></tr><tr><td class="code"><pre><span class="line">+---------------------+--------------------------+</span></pre></td></tr><tr><td class="code"><pre><span class="line">| Variable_name       | Value                    |</span></pre></td></tr><tr><td class="code"><pre><span class="line">+---------------------+--------------------------+</span></pre></td></tr><tr><td class="code"><pre><span class="line">| slow_query_log      | ON                       |</span></pre></td></tr><tr><td class="code"><pre><span class="line">| slow_query_log_file | WIN-03C6PBEDETT-slow.log |</span></pre></td></tr><tr><td class="code"><pre><span class="line">+---------------------+--------------------------+</span></pre></td></tr><tr><td class="code"><pre><span class="line">2 rows in set (0.06 sec)</span></pre></td></tr></table></figure>
+
+<p>开启命令(只对当前数据库有效，重启数据库则失效)：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mysql&gt; set global slow_query_log&#x3D;1;</span></pre></td></tr><tr><td class="code"><pre><span class="line">Query OK, 0 rows affected (0.00 sec)</span></pre></td></tr><tr><td class="code"><pre><span class="line"></span></pre></td></tr><tr><td class="code"><pre><span class="line">mysql&gt; show variables like &#39;%slow_query_log%&#39;;</span></pre></td></tr><tr><td class="code"><pre><span class="line">+---------------------+--------------------------+</span></pre></td></tr><tr><td class="code"><pre><span class="line">| Variable_name       | Value                    |</span></pre></td></tr><tr><td class="code"><pre><span class="line">+---------------------+--------------------------+</span></pre></td></tr><tr><td class="code"><pre><span class="line">| slow_query_log      | ON                       |</span></pre></td></tr><tr><td class="code"><pre><span class="line">| slow_query_log_file | WIN-03C6PBEDETT-slow.log |</span></pre></td></tr><tr><td class="code"><pre><span class="line">+---------------------+--------------------------+</span></pre></td></tr><tr><td class="code"><pre><span class="line">2 rows in set (0.01 sec)</span></pre></td></tr><tr><td class="code"><pre><span class="line"></span></pre></td></tr><tr><td class="code"><pre><span class="line">mysql&gt; show variables like &#39;%long_query_time%&#39;;</span></pre></td></tr><tr><td class="code"><pre><span class="line">+-----------------+-----------+</span></pre></td></tr><tr><td class="code"><pre><span class="line">| Variable_name   | Value     |</span></pre></td></tr><tr><td class="code"><pre><span class="line">+-----------------+-----------+</span></pre></td></tr><tr><td class="code"><pre><span class="line">| long_query_time | 10.000000 |</span></pre></td></tr><tr><td class="code"><pre><span class="line">+-----------------+-----------+</span></pre></td></tr><tr><td class="code"><pre><span class="line">1 row in set (0.01 sec)</span></pre></td></tr></table></figure>
+
+<p>上面我们开启了慢查询日志，把查询时间超过10秒的记录到WIN-03C6PBEDETT-slow.log(这是windows环境，Linux下slow_query_log_file会指明慢查询文件路径)中。<br>我们也可以修改 long_query_time 值</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">set global long_query_time&#x3D;3;</span></pre></td></tr></table></figure>
+
+<p>我们可以使用mysqldumpslow 分析日志文件。语法：mysqldumpslow 参数 日志文件。<br>eg ：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mysqldumpslow -s r -t 10 WIN-03C6PBEDETT-slow.log</span></pre></td></tr></table></figure>
+<p>参数列表：<br><img src="/images/database/mysqldumpslow.png" alt="mysqldumpslow.png"></p>
+<h3 id="Show-Profile-sql分析"><a href="#Show-Profile-sql分析" class="headerlink" title="Show Profile sql分析"></a>Show Profile sql分析</h3><p>开启功能</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mysql&gt; show variables like &#39;%profiling%&#39;;</span></pre></td></tr><tr><td class="code"><pre><span class="line">+------------------------+-------+</span></pre></td></tr><tr><td class="code"><pre><span class="line">| Variable_name          | Value |</span></pre></td></tr><tr><td class="code"><pre><span class="line">+------------------------+-------+</span></pre></td></tr><tr><td class="code"><pre><span class="line">| have_profiling         | YES   |</span></pre></td></tr><tr><td class="code"><pre><span class="line">| profiling              | OFF   |</span></pre></td></tr><tr><td class="code"><pre><span class="line">| profiling_history_size | 15    |</span></pre></td></tr><tr><td class="code"><pre><span class="line">+------------------------+-------+</span></pre></td></tr><tr><td class="code"><pre><span class="line">3 rows in set (0.02 sec)</span></pre></td></tr><tr><td class="code"><pre><span class="line"></span></pre></td></tr><tr><td class="code"><pre><span class="line">mysql&gt; set profiling&#x3D;1;</span></pre></td></tr><tr><td class="code"><pre><span class="line">Query OK, 0 rows affected (0.01 sec)</span></pre></td></tr><tr><td class="code"><pre><span class="line"></span></pre></td></tr><tr><td class="code"><pre><span class="line">mysql&gt; show variables like &#39;%profiling%&#39;;</span></pre></td></tr><tr><td class="code"><pre><span class="line">+------------------------+-------+</span></pre></td></tr><tr><td class="code"><pre><span class="line">| Variable_name          | Value |</span></pre></td></tr><tr><td class="code"><pre><span class="line">+------------------------+-------+</span></pre></td></tr><tr><td class="code"><pre><span class="line">| have_profiling         | YES   |</span></pre></td></tr><tr><td class="code"><pre><span class="line">| profiling              | ON    |</span></pre></td></tr><tr><td class="code"><pre><span class="line">| profiling_history_size | 15    |</span></pre></td></tr><tr><td class="code"><pre><span class="line">+------------------------+-------+</span></pre></td></tr><tr><td class="code"><pre><span class="line">3 rows in set (0.03 sec)</span></pre></td></tr></table></figure>
+
+<p>查看使用过的SQL,其中Duration显示执行时间</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mysql&gt; show profiles;</span></pre></td></tr><tr><td class="code"><pre><span class="line">+----------+------------+-----------------------------------+</span></pre></td></tr><tr><td class="code"><pre><span class="line">| Query_ID | Duration   | Query                             |</span></pre></td></tr><tr><td class="code"><pre><span class="line">+----------+------------+-----------------------------------+</span></pre></td></tr><tr><td class="code"><pre><span class="line">|        1 | 0.00210800 | show variables like &#39;%profiling%&#39; |</span></pre></td></tr><tr><td class="code"><pre><span class="line">|        2 | 0.00064725 | select * from user                |</span></pre></td></tr><tr><td class="code"><pre><span class="line">|        3 | 0.01892075 | select * from wmi                 |</span></pre></td></tr><tr><td class="code"><pre><span class="line">+----------+------------+-----------------------------------+</span></pre></td></tr><tr><td class="code"><pre><span class="line">3 rows in set (0.02 sec)</span></pre></td></tr></table></figure>
+
+<p>查看SQL执行过程，语法：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">show profile &lt;type&gt; for query &lt;Query_ID&gt;;</span></pre></td></tr></table></figure>
+
+<p>可用type参数列表<br><img src="/images/database/show-profiles-type.png" alt="show-profiles-type.png"></p>
+<p>eg:查看Query_ID为3的SQL的cpu及io耗时</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mysql&gt; show profile cpu,block io for query 3;</span></pre></td></tr><tr><td class="code"><pre><span class="line">+----------------------+----------+----------+------------+--------------+---------------+</span></pre></td></tr><tr><td class="code"><pre><span class="line">| Status               | Duration | CPU_user | CPU_system | Block_ops_in | Block_ops_out |</span></pre></td></tr><tr><td class="code"><pre><span class="line">+----------------------+----------+----------+------------+--------------+---------------+</span></pre></td></tr><tr><td class="code"><pre><span class="line">| starting             | 0.000049 | 0.000000 | 0.000000   | NULL         | NULL          |</span></pre></td></tr><tr><td class="code"><pre><span class="line">| checking permissions | 0.000025 | 0.000000 | 0.000000   | NULL         | NULL          |</span></pre></td></tr><tr><td class="code"><pre><span class="line">| Opening tables       | 0.000022 | 0.000000 | 0.000000   | NULL         | NULL          |</span></pre></td></tr><tr><td class="code"><pre><span class="line">| init                 | 0.000062 | 0.000000 | 0.000000   | NULL         | NULL          |</span></pre></td></tr><tr><td class="code"><pre><span class="line">| System lock          | 0.000033 | 0.000000 | 0.000000   | NULL         | NULL          |</span></pre></td></tr><tr><td class="code"><pre><span class="line">| optimizing           | 0.000005 | 0.000000 | 0.000000   | NULL         | NULL          |</span></pre></td></tr><tr><td class="code"><pre><span class="line">| statistics           | 0.000016 | 0.000000 | 0.000000   | NULL         | NULL          |</span></pre></td></tr><tr><td class="code"><pre><span class="line">| preparing            | 0.000012 | 0.000000 | 0.000000   | NULL         | NULL          |</span></pre></td></tr><tr><td class="code"><pre><span class="line">| executing            | 0.000003 | 0.000000 | 0.000000   | NULL         | NULL          |</span></pre></td></tr><tr><td class="code"><pre><span class="line">| Sending data         | 0.018619 | 0.015625 | 0.000000   | NULL         | NULL          |</span></pre></td></tr><tr><td class="code"><pre><span class="line">| end                  | 0.000008 | 0.000000 | 0.000000   | NULL         | NULL          |</span></pre></td></tr><tr><td class="code"><pre><span class="line">| query end            | 0.000007 | 0.000000 | 0.000000   | NULL         | NULL          |</span></pre></td></tr><tr><td class="code"><pre><span class="line">| closing tables       | 0.000008 | 0.000000 | 0.000000   | NULL         | NULL          |</span></pre></td></tr><tr><td class="code"><pre><span class="line">| freeing items        | 0.000025 | 0.000000 | 0.000000   | NULL         | NULL          |</span></pre></td></tr><tr><td class="code"><pre><span class="line">| cleaning up          | 0.000030 | 0.000000 | 0.000000   | NULL         | NULL          |</span></pre></td></tr><tr><td class="code"><pre><span class="line">+----------------------+----------+----------+------------+--------------+---------------+</span></pre></td></tr><tr><td class="code"><pre><span class="line">15 rows in set (0.03 sec)</span></pre></td></tr></table></figure>
+<p>我们需要注意Status列是否会出现如下内容：</p>
+<p><img src="/images/database/show-profiles-status.png" alt="show-profiles-status.png"></p>
+]]></content>
+      <categories>
+        <category>数据库</category>
+        <category>Mysql</category>
+      </categories>
+      <tags>
+        <tag>数据库</tag>
+        <tag>Mysql</tag>
+        <tag>sql调优</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>SQL join的使用</title>
+    <url>/2020/03/01/database-sql-join/</url>
+    <content><![CDATA[<p>SQL中JOIN的常规使用示意图：<br><img src="/images/database/sql-join.png" alt="sql-join.png"></p>
+]]></content>
+      <categories>
+        <category>数据库</category>
+        <category>Mysql</category>
+      </categories>
+      <tags>
+        <tag>数据库</tag>
+        <tag>Mysql</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>使用explain对sql语句进行性能分析</title>
     <url>/2020/02/29/database-explain/</url>
     <content><![CDATA[<div class="note info">
@@ -190,10 +337,27 @@
 <li>数据列重复的字段不需要创建索引，没必要。（eg：性别字段，不是男就是女）</li>
 <li>对于那些在查询中很少使用或者参考的列不应该创建索引</li>
 </ul>
+<h3 id="join查询索引建立规则"><a href="#join查询索引建立规则" class="headerlink" title="join查询索引建立规则"></a>join查询索引建立规则</h3><ul>
+<li>左连接：右表关联字段建索引</li>
+<li>右连接：左表关联字段建索引</li>
+</ul>
 <h2 id="索引失效情况"><a href="#索引失效情况" class="headerlink" title="索引失效情况"></a>索引失效情况</h2><ul>
-<li>条件中有or，即使其中有条件带索引也不会使用(这也是为什么尽量少用or的原因)。注意：要想使用or，又想让索引生效，只能将or条件中的每个列都加上索引</li>
-<li>对于多列索引，不是使用的第一部分，则不会使用索引（即不符合最左前缀原则）</li>
-<li>如果列类型是字符串，那一定要在条件中将数据使用引号引用起来,否则不使用索引</li>
+<li><p>条件中有or，即使其中有条件带索引也不会使用(这也是为什么尽量少用or的原因)。注意：要想使用or，又想让索引生效，只能将or条件中的每个列都加上索引</p>
+</li>
+<li><p>在索引字段上使用计算、函数等，会导致索引失效。例如left(name,4),导致name字段索引失效。</p>
+</li>
+<li><p>对于组合索引，如果不使用的组合索引的第一列字段，则不会使用索引（即不符合最左前缀原则）</p>
+</li>
+<li><p>如果列类型是字符串，那一定要在条件中将数据使用引号引用起来,否则不使用索引</p>
+</li>
+<li><p>范围查找，右边的索引全失效。eg:一个组合索引 index（name,age.sex）<br><code>select name,age,sex from where name= &#39;aa&#39; and age &gt;25 and sex=1</code><br>sex 字段上的索引，无法被使用</p>
+</li>
+<li><p>使用 != 和 &lt;&gt; 会导致无法使用索引，变为全表扫描。</p>
+</li>
+<li><p>is null 和 is not null 无法使用索引</p>
+</li>
+<li><p>like ‘%aa’,以通配符开头，索引会失效。针对这种情况，我们可以使用覆盖索引解决。<br>eg: 创建一个组合索引 index（name,age），此时使用 select name from user where name like ‘%aa%’,索引不会失效</p>
+</li>
 </ul>
 <h2 id="查看索引的使用情况"><a href="#查看索引的使用情况" class="headerlink" title="查看索引的使用情况"></a>查看索引的使用情况</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">show status like ‘Handler_read%’;</span></pre></td></tr></table></figure>
 
@@ -202,6 +366,7 @@
 <li>handler_read_key:这个值越高越好，越高表示使用索引查询到的次数越多</li>
 <li>handler_read_rnd_next:这个值越高越不好，说明查询低效</li>
 </ul>
+<p>参考文章：<br><a href="https://www.cnblogs.com/LiLiliang/p/9960895.html" target="_blank" rel="noopener">https://www.cnblogs.com/LiLiliang/p/9960895.html</a><br><a href="https://blog.csdn.net/weixin_34379433/article/details/89745873" target="_blank" rel="noopener">https://blog.csdn.net/weixin_34379433/article/details/89745873</a><br><a href="https://blog.csdn.net/qq_36071795/article/details/83956068" target="_blank" rel="noopener">https://blog.csdn.net/qq_36071795/article/details/83956068</a></p>
 ]]></content>
       <categories>
         <category>数据库</category>
@@ -981,6 +1146,35 @@ COPY &lt;源路径1&gt;  &lt;目标路径&gt;</code></pre><figure class="highlig
       </tags>
   </entry>
   <entry>
+    <title>centos7设置docker阿里云镜像加速器</title>
+    <url>/2019/12/26/docker-02/</url>
+    <content><![CDATA[<div class="note info">
+            <p>国内从 DockerHub 拉取镜像有时会遇到困难，此时可以配置镜像加速器。本节记录如何配置使用阿里云镜像仓库。</p>
+          </div>
+
+<h2 id="配置使用阿里云镜像仓库下载镜像"><a href="#配置使用阿里云镜像仓库下载镜像" class="headerlink" title="配置使用阿里云镜像仓库下载镜像"></a>配置使用阿里云镜像仓库下载镜像</h2><h3 id="注册阿里云账号，并登陆"><a href="#注册阿里云账号，并登陆" class="headerlink" title="注册阿里云账号，并登陆"></a>注册阿里云账号，并登陆</h3><p><img src="/images/docker/%E9%98%BF%E9%87%8C%E4%BA%91%E7%99%BB%E5%BD%95.png" alt="阿里云登录.png"></p>
+<h3 id="选择容器镜像服务"><a href="#选择容器镜像服务" class="headerlink" title="选择容器镜像服务"></a>选择容器镜像服务</h3><p><img src="/images/docker/%E9%95%9C%E5%83%8F%E6%9C%8D%E5%8A%A1.png" alt="镜像服务.png"></p>
+<h3 id="选择如下目录，并将截图命令在centos系统上执行"><a href="#选择如下目录，并将截图命令在centos系统上执行" class="headerlink" title="选择如下目录，并将截图命令在centos系统上执行"></a>选择如下目录，并将截图命令在centos系统上执行</h3><p><img src="/images/docker/%E8%AE%BE%E7%BD%AE%E9%95%9C%E5%83%8F%E5%9C%B0%E5%9D%80.png" alt="设置镜像地址.png"></p>
+<h3 id="下载镜像"><a href="#下载镜像" class="headerlink" title="下载镜像"></a>下载镜像</h3><p>此时使用 docker pull 命令下载镜像就会默认使用阿里云了。非常快。下载如下Nginx，大概用了不到5秒钟。<br><img src="/images/docker/%E4%B8%8B%E8%BD%BDnginx.png" alt="下载nginx.png"></p>
+<h2 id="推送自定义docker镜像到阿里云"><a href="#推送自定义docker镜像到阿里云" class="headerlink" title="推送自定义docker镜像到阿里云"></a>推送自定义docker镜像到阿里云</h2><p>我们在上面设置了阿里云的镜像库，接下来演示如何将自定义的镜像推送到自己的阿里云镜像库中，这样就可以对外提供下载了。</p>
+<h3 id="阿里云创建一个命名空间"><a href="#阿里云创建一个命名空间" class="headerlink" title="阿里云创建一个命名空间"></a>阿里云创建一个命名空间</h3><p><img src="/images/docker/%E5%91%BD%E5%90%8D%E7%A9%BA%E9%97%B4.png" alt="命名空间.png"></p>
+<h3 id="准备一个可用来打包的容器"><a href="#准备一个可用来打包的容器" class="headerlink" title="准备一个可用来打包的容器"></a>准备一个可用来打包的容器</h3><p>先docker pull 一个Tomcat 镜像，并以此启动一个Tomcat 容器 ,  通过 <a href="http://192.168.230.129:8080/" target="_blank" rel="noopener">http://192.168.230.129:8080/</a> 可以看到Tomcat容器已经启动。<br><img src="/images/docker/tomcat%E5%AE%B9%E5%99%A8.png" alt="tomcat容器.png"></p>
+<h3 id="将上一步的-gaoyp-tomcat-容器打包成为一个新的镜像"><a href="#将上一步的-gaoyp-tomcat-容器打包成为一个新的镜像" class="headerlink" title="将上一步的 gaoyp-tomcat 容器打包成为一个新的镜像"></a>将上一步的 gaoyp-tomcat 容器打包成为一个新的镜像</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker commit -m&#x3D;“提交的描述信息” -a&#x3D;“作者” 容器ID 要创建的目标镜像名:[标签名]</span></pre></td></tr></table></figure>
+<p>此处定义的镜像为 gaoyp/tomcat ,标签为 v1.0<br><img src="/images/docker/%E5%88%9B%E5%BB%BA%E6%9C%AC%E5%9C%B0%E9%95%9C%E5%83%8F.png" alt="创建本地镜像.png"></p>
+<h3 id="创建镜像仓库"><a href="#创建镜像仓库" class="headerlink" title="创建镜像仓库"></a>创建镜像仓库</h3><p><img src="/images/docker/%E5%88%9B%E5%BB%BA%E9%95%9C%E5%83%8F%E4%BB%93%E5%BA%93.png" alt="创建镜像仓库.png"></p>
+<p>点击下一步，创建镜像仓库</p>
+<p><img src="/images/docker/%E8%87%AA%E5%AE%9A%E4%B9%89tomcat%E9%95%9C%E5%83%8F.png" alt="自定义tomcat镜像.png"></p>
+<p>点击管理可以看到镜像信息：<br><img src="/images/docker/%E9%95%9C%E5%83%8F%E4%BF%A1%E6%81%AF.png" alt="镜像信息.png"></p>
+<h3 id="推送镜像（参考上图第三步）"><a href="#推送镜像（参考上图第三步）" class="headerlink" title="推送镜像（参考上图第三步）"></a>推送镜像（参考上图第三步）</h3><p><img src="/images/docker/%E6%8E%A8%E9%80%81%E8%87%AA%E5%AE%9A%E4%B9%89%E9%95%9C%E5%83%8F.png" alt="推送自定义镜像.png"></p>
+<h2 id="拉取自定义镜像"><a href="#拉取自定义镜像" class="headerlink" title="拉取自定义镜像"></a>拉取自定义镜像</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker pull registry.cn-beijing.aliyuncs.com&#x2F;gaoyipeng&#x2F;gaoyp-tomcat:v1.0</span></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>docker</category>
+      </categories>
+      <tags>
+        <tag>docker</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>linux（centos7）安装docker</title>
     <url>/2019/12/26/docker-01/</url>
     <content><![CDATA[<div class="note info">
@@ -1051,35 +1245,6 @@ COPY &lt;源路径1&gt;  &lt;目标路径&gt;</code></pre><figure class="highlig
 <p>停止 docker-compose 中的容器并删除容器</p>
 <p>参考博客：<a href="https://www.cnblogs.com/morang/p/9501223.html" target="_blank" rel="noopener">https://www.cnblogs.com/morang/p/9501223.html</a></p>
 ]]></content>
-      <categories>
-        <category>docker</category>
-      </categories>
-      <tags>
-        <tag>docker</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>centos7设置docker阿里云镜像加速器</title>
-    <url>/2019/12/26/docker-02/</url>
-    <content><![CDATA[<div class="note info">
-            <p>国内从 DockerHub 拉取镜像有时会遇到困难，此时可以配置镜像加速器。本节记录如何配置使用阿里云镜像仓库。</p>
-          </div>
-
-<h2 id="配置使用阿里云镜像仓库下载镜像"><a href="#配置使用阿里云镜像仓库下载镜像" class="headerlink" title="配置使用阿里云镜像仓库下载镜像"></a>配置使用阿里云镜像仓库下载镜像</h2><h3 id="注册阿里云账号，并登陆"><a href="#注册阿里云账号，并登陆" class="headerlink" title="注册阿里云账号，并登陆"></a>注册阿里云账号，并登陆</h3><p><img src="/images/docker/%E9%98%BF%E9%87%8C%E4%BA%91%E7%99%BB%E5%BD%95.png" alt="阿里云登录.png"></p>
-<h3 id="选择容器镜像服务"><a href="#选择容器镜像服务" class="headerlink" title="选择容器镜像服务"></a>选择容器镜像服务</h3><p><img src="/images/docker/%E9%95%9C%E5%83%8F%E6%9C%8D%E5%8A%A1.png" alt="镜像服务.png"></p>
-<h3 id="选择如下目录，并将截图命令在centos系统上执行"><a href="#选择如下目录，并将截图命令在centos系统上执行" class="headerlink" title="选择如下目录，并将截图命令在centos系统上执行"></a>选择如下目录，并将截图命令在centos系统上执行</h3><p><img src="/images/docker/%E8%AE%BE%E7%BD%AE%E9%95%9C%E5%83%8F%E5%9C%B0%E5%9D%80.png" alt="设置镜像地址.png"></p>
-<h3 id="下载镜像"><a href="#下载镜像" class="headerlink" title="下载镜像"></a>下载镜像</h3><p>此时使用 docker pull 命令下载镜像就会默认使用阿里云了。非常快。下载如下Nginx，大概用了不到5秒钟。<br><img src="/images/docker/%E4%B8%8B%E8%BD%BDnginx.png" alt="下载nginx.png"></p>
-<h2 id="推送自定义docker镜像到阿里云"><a href="#推送自定义docker镜像到阿里云" class="headerlink" title="推送自定义docker镜像到阿里云"></a>推送自定义docker镜像到阿里云</h2><p>我们在上面设置了阿里云的镜像库，接下来演示如何将自定义的镜像推送到自己的阿里云镜像库中，这样就可以对外提供下载了。</p>
-<h3 id="阿里云创建一个命名空间"><a href="#阿里云创建一个命名空间" class="headerlink" title="阿里云创建一个命名空间"></a>阿里云创建一个命名空间</h3><p><img src="/images/docker/%E5%91%BD%E5%90%8D%E7%A9%BA%E9%97%B4.png" alt="命名空间.png"></p>
-<h3 id="准备一个可用来打包的容器"><a href="#准备一个可用来打包的容器" class="headerlink" title="准备一个可用来打包的容器"></a>准备一个可用来打包的容器</h3><p>先docker pull 一个Tomcat 镜像，并以此启动一个Tomcat 容器 ,  通过 <a href="http://192.168.230.129:8080/" target="_blank" rel="noopener">http://192.168.230.129:8080/</a> 可以看到Tomcat容器已经启动。<br><img src="/images/docker/tomcat%E5%AE%B9%E5%99%A8.png" alt="tomcat容器.png"></p>
-<h3 id="将上一步的-gaoyp-tomcat-容器打包成为一个新的镜像"><a href="#将上一步的-gaoyp-tomcat-容器打包成为一个新的镜像" class="headerlink" title="将上一步的 gaoyp-tomcat 容器打包成为一个新的镜像"></a>将上一步的 gaoyp-tomcat 容器打包成为一个新的镜像</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker commit -m&#x3D;“提交的描述信息” -a&#x3D;“作者” 容器ID 要创建的目标镜像名:[标签名]</span></pre></td></tr></table></figure>
-<p>此处定义的镜像为 gaoyp/tomcat ,标签为 v1.0<br><img src="/images/docker/%E5%88%9B%E5%BB%BA%E6%9C%AC%E5%9C%B0%E9%95%9C%E5%83%8F.png" alt="创建本地镜像.png"></p>
-<h3 id="创建镜像仓库"><a href="#创建镜像仓库" class="headerlink" title="创建镜像仓库"></a>创建镜像仓库</h3><p><img src="/images/docker/%E5%88%9B%E5%BB%BA%E9%95%9C%E5%83%8F%E4%BB%93%E5%BA%93.png" alt="创建镜像仓库.png"></p>
-<p>点击下一步，创建镜像仓库</p>
-<p><img src="/images/docker/%E8%87%AA%E5%AE%9A%E4%B9%89tomcat%E9%95%9C%E5%83%8F.png" alt="自定义tomcat镜像.png"></p>
-<p>点击管理可以看到镜像信息：<br><img src="/images/docker/%E9%95%9C%E5%83%8F%E4%BF%A1%E6%81%AF.png" alt="镜像信息.png"></p>
-<h3 id="推送镜像（参考上图第三步）"><a href="#推送镜像（参考上图第三步）" class="headerlink" title="推送镜像（参考上图第三步）"></a>推送镜像（参考上图第三步）</h3><p><img src="/images/docker/%E6%8E%A8%E9%80%81%E8%87%AA%E5%AE%9A%E4%B9%89%E9%95%9C%E5%83%8F.png" alt="推送自定义镜像.png"></p>
-<h2 id="拉取自定义镜像"><a href="#拉取自定义镜像" class="headerlink" title="拉取自定义镜像"></a>拉取自定义镜像</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker pull registry.cn-beijing.aliyuncs.com&#x2F;gaoyipeng&#x2F;gaoyp-tomcat:v1.0</span></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>docker</category>
       </categories>
