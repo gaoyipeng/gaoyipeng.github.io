@@ -46,22 +46,20 @@
   };
 </script>
 
-  <meta name="description" content="spring security oauth2 基础知识">
-<meta name="keywords" content="OAuth2,Spring-Security">
+  <meta name="description" content="使用Docker创建Nginx，并部署Vue项目，同时实现Nginx日志分割">
+<meta name="keywords" content="Docker,Nginx">
 <meta property="og:type" content="article">
-<meta property="og:title" content="spring security oauth2 基础知识">
-<meta property="og:url" content="http:&#x2F;&#x2F;blog.gaoyp.cn&#x2F;2019&#x2F;12&#x2F;08&#x2F;spring-security-oauth2-01&#x2F;index.html">
+<meta property="og:title" content="使用Docker创建Nginx，并部署Vue项目，同时实现Nginx日志分割">
+<meta property="og:url" content="http:&#x2F;&#x2F;blog.gaoyp.cn&#x2F;2020&#x2F;03&#x2F;08&#x2F;nginx-01&#x2F;index.html">
 <meta property="og:site_name" content="Garnett 的博客">
-<meta property="og:description" content="spring security oauth2 基础知识">
+<meta property="og:description" content="使用Docker创建Nginx，并部署Vue项目，同时实现Nginx日志分割">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http:&#x2F;&#x2F;blog.gaoyp.cn&#x2F;images&#x2F;oauth2&#x2F;%E6%8E%88%E6%9D%83%E7%A0%81%E6%A8%A1%E5%BC%8F.png">
-<meta property="og:image" content="http:&#x2F;&#x2F;blog.gaoyp.cn&#x2F;images&#x2F;oauth2&#x2F;%E5%AF%86%E7%A0%81%E6%A8%A1%E5%BC%8F.png">
-<meta property="og:image" content="http:&#x2F;&#x2F;blog.gaoyp.cn&#x2F;images&#x2F;oauth2&#x2F;spring-security-oauth2.png">
-<meta property="og:updated_time" content="2020-01-03T02:58:07.433Z">
+<meta property="og:image" content="http:&#x2F;&#x2F;blog.gaoyp.cn&#x2F;images&#x2F;nginx&#x2F;vue-index.jpg">
+<meta property="og:updated_time" content="2020-03-09T03:11:11.253Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http:&#x2F;&#x2F;blog.gaoyp.cn&#x2F;images&#x2F;oauth2&#x2F;%E6%8E%88%E6%9D%83%E7%A0%81%E6%A8%A1%E5%BC%8F.png">
+<meta name="twitter:image" content="http:&#x2F;&#x2F;blog.gaoyp.cn&#x2F;images&#x2F;nginx&#x2F;vue-index.jpg">
 
-<link rel="canonical" href="http://blog.gaoyp.cn/2019/12/08/spring-security-oauth2-01/">
+<link rel="canonical" href="http://blog.gaoyp.cn/2020/03/08/nginx-01/">
 
 
 <script id="page-configurations">
@@ -75,7 +73,7 @@
   };
 </script>
 
-  <title>spring security oauth2 基础知识 | Garnett 的博客</title>
+  <title>使用Docker创建Nginx，并部署Vue项目，同时实现Nginx日志分割 | Garnett 的博客</title>
   
 
 
@@ -221,7 +219,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://blog.gaoyp.cn/2019/12/08/spring-security-oauth2-01/">
+    <link itemprop="mainEntityOfPage" href="http://blog.gaoyp.cn/2020/03/08/nginx-01/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/uploads/qiqi.jpg">
@@ -234,7 +232,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          spring security oauth2 基础知识
+          使用Docker创建Nginx，并部署Vue项目，同时实现Nginx日志分割
         </h1>
 
         <div class="post-meta">
@@ -244,14 +242,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2019-12-08 17:12:08" itemprop="dateCreated datePublished" datetime="2019-12-08T17:12:08+08:00">2019-12-08</time>
+              <time title="创建时间：2020-03-08 10:28:34" itemprop="dateCreated datePublished" datetime="2020-03-08T10:28:34+08:00">2020-03-08</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-01-03 10:58:07" itemprop="dateModified" datetime="2020-01-03T10:58:07+08:00">2020-01-03</time>
+                <time title="修改时间：2020-03-09 11:11:11" itemprop="dateModified" datetime="2020-03-09T11:11:11+08:00">2020-03-09</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -259,20 +257,20 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/OAuth2/" itemprop="url" rel="index">
-                    <span itemprop="name">OAuth2</span>
+                  <a href="/categories/Docker/" itemprop="url" rel="index">
+                    <span itemprop="name">Docker</span>
                   </a>
                 </span>
                   ，
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/OAuth2/Spring-Security/" itemprop="url" rel="index">
-                    <span itemprop="name">Spring-Security</span>
+                  <a href="/categories/Docker/Nginx/" itemprop="url" rel="index">
+                    <span itemprop="name">Nginx</span>
                   </a>
                 </span>
             </span>
 
           
-            <span id="/2019/12/08/spring-security-oauth2-01/" class="post-meta-item leancloud_visitors" data-flag-title="spring security oauth2 基础知识" title="阅读次数">
+            <span id="/2020/03/08/nginx-01/" class="post-meta-item leancloud_visitors" data-flag-title="使用Docker创建Nginx，并部署Vue项目，同时实现Nginx日志分割" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -287,13 +285,13 @@
       </span>
       <span class="post-meta-item-text">Valine：</span>
     
-    <a title="valine" href="/2019/12/08/spring-security-oauth2-01/#comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2019/12/08/spring-security-oauth2-01/" itemprop="commentCount"></span>
+    <a title="valine" href="/2020/03/08/nginx-01/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2020/03/08/nginx-01/" itemprop="commentCount"></span>
     </a>
   </span>
   
   
-            <div class="post-description">spring security oauth2 基础知识</div>
+            <div class="post-description">使用Docker创建Nginx，并部署Vue项目，同时实现Nginx日志分割</div>
 
         </div>
       </header>
@@ -304,68 +302,69 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <div class="note info">
-            <p>OAuth（开放授权）是一个开放标准，允许用户授权第三方移动应用访问他们存储在另外的服务提供者上的信息，而不需要将用户名和密码提供给第三方移动应用或分享他们数据的所有内容，OAuth2.0是OAuth协议的延续版本，但不向后兼容OAuth 1.0即完全废止了OAuth1.0。</p>
-          </div>
+        <p>前面的文章<a href="https://blog.gaoyp.cn/2020/01/19/docker-03/">docker常用命令及Dockerfile笔记</a>中，我们介绍了Docker、Dcokerfile基本知识，并且使用Docker创建了一个Nginx容器。</p>
+<p>本节我们主要介绍，如何介绍如何使用Docker创建Nginx，并部署Vue项目，同时实现Nginx日志分割。</p>
+<p>为了阅读方便，我们重新介绍使用Docker创建Nginx的步骤，和<a href="https://blog.gaoyp.cn/2020/01/19/docker-03/">docker常用命令及Dockerfile笔记</a>相比，有一些小的修改项。</p>
+<h2 id="创建Nginx"><a href="#创建Nginx" class="headerlink" title="创建Nginx"></a>创建Nginx</h2><h3 id="拉取镜像"><a href="#拉取镜像" class="headerlink" title="拉取镜像"></a>拉取镜像</h3><p>拉取nginx镜像到本地：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line">docker pull nginx:latest</span></pre></td></tr></table></figure>
 
-<div class="note info">
-            <p>OAuth是一种用来规范令牌（Token）发放的授权机制，主要包含了四种授权模式：授权码模式、简化模式、密码模式和客户端模式。Spring Security OAuth2对这四种授权模式进行了实现.</p>
-          </div>
-
-<h2 id="名词定义"><a href="#名词定义" class="headerlink" title="名词定义"></a>名词定义</h2><p>（1）Third-party application：第三方应用程序，本文中又称”客户端”（client）。<br>（2）HTTP service：HTTP服务提供商，本文中简称”服务提供商”。<br>（3）Resource Owner：资源所有者。<br>（4）User Agent：用户代理，本文中就是指浏览器。<br>（5）Authorization server：认证服务器，即服务提供商专门用来处理认证的服务器。<br>（6）Resource server：资源服务器，即服务提供商存放用户生成的资源的服务器。它与认证服务器，可以是同一台服务器，也可以是不同的服务器。</p>
-<p>目前只用到过授权码模式、密码模式。另外两种不怎么常见。</p>
-<h2 id="授权码模式"><a href="#授权码模式" class="headerlink" title="授权码模式"></a>授权码模式</h2><p>授权码模式（authorization code）是功能最完整、流程最严密的授权模式。它的特点就是通过客户端的后台服务器，与”服务提供商”的认证服务器进行互动。</p>
-<p><img src="/images/oauth2/%E6%8E%88%E6%9D%83%E7%A0%81%E6%A8%A1%E5%BC%8F.png" alt="授权码模式"> </p>
-<p>*步骤如下：<br>（A）用户打开客户端以后，客户端要求用户给予授权。<br>（B）用户同意给予客户端授权。<br>（C）客户端使用上一步获得的授权，向认证服务器申请令牌。<br>（D）认证服务器对客户端进行认证以后，确认无误，同意发放令牌。<br>（E）客户端使用令牌，向资源服务器申请获取资源。<br>（F）资源服务器确认令牌无误，同意向客户端开放资源。</p>
-<ol>
-<li>A步骤中，客户端申请认证的URI，包含以下参数：</li>
+<p>说明：docker pull 镜像名称:镜像tags。如果不加 tags，默认拉取最新镜像（latest）。</p>
+<h3 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h3><ol>
+<li>创建挂载目录</li>
 </ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line">mkdir -p &#x2F;usr&#x2F;local&#x2F;nginx&#x2F;&#123;conf,html,logs,conf.d&#125;</span></pre></td></tr></table></figure>
 <ul>
-<li>response_type：表示授权类型，必选项，此处的值固定为”code”</li>
-<li>client_id：表示客户端的ID，必选项</li>
-<li>redirect_uri：表示重定向URI，可选项</li>
-<li>scope：表示申请的权限范围，可选项</li>
-<li>state：表示客户端的当前状态，可以指定任意值，认证服务器会原封不动地返回这个值。</li>
+<li>conf : 存放外置nginx配置文件</li>
+<li>html : 存放Vue包</li>
+<li>logs : 存放nginx日志文件</li>
+<li>conf.d : 存放具体项目的nginx配置文件</li>
 </ul>
 <ol start="2">
-<li>C步骤中，服务器回应客户端的URI，包含以下参数：</li>
+<li>将打包好的Vue项目包（一个名为dist的文件夹）放到 /usr/local/nginx/html 目录下。</li>
 </ol>
-<ul>
-<li>code：表示授权码，必选项。该码的有效期应该很短，通常设为10分钟，客户端只能使用该码一次，否则会被授权服务器拒绝。该码与客户端ID和重定向URI，是一 一对应关系。</li>
-<li>state：如果客户端的请求中包含这个参数，认证服务器的回应也必须一模一样包含这个参数。</li>
-</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line">[root@192 html]# ls -l &#x2F;usr&#x2F;local&#x2F;nginx&#x2F;html&#x2F;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">2</span></pre></td><td class="code"><pre><span class="line">总用量 4</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">3</span></pre></td><td class="code"><pre><span class="line">drwxrwxr-x. 9 admin admin 250 3月   7 17:17 dist</span></pre></td></tr></table></figure>
+
 <ol start="3">
-<li>D步骤中，客户端向认证服务器申请令牌的HTTP请求，包含以下参数：</li>
+<li><p>在/usr/local/nginx/conf下创建 nginx.conf 文件，作为外置配置文件使用。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line">user  nginx;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">2</span></pre></td><td class="code"><pre><span class="line">worker_processes  1;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">3</span></pre></td><td class="code"><pre><span class="line">error_log  &#x2F;var&#x2F;log&#x2F;nginx&#x2F;error.log warn;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">4</span></pre></td><td class="code"><pre><span class="line">pid        &#x2F;var&#x2F;run&#x2F;nginx.pid;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">5</span></pre></td><td class="code"><pre><span class="line">events &#123;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">6</span></pre></td><td class="code"><pre><span class="line">    worker_connections  1024;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">7</span></pre></td><td class="code"><pre><span class="line">&#125;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">8</span></pre></td><td class="code"><pre><span class="line">http &#123;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">9</span></pre></td><td class="code"><pre><span class="line">    include       &#x2F;etc&#x2F;nginx&#x2F;mime.types;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">10</span></pre></td><td class="code"><pre><span class="line">    default_type  application&#x2F;octet-stream;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">11</span></pre></td><td class="code"><pre><span class="line">    log_format  main  &#39;$remote_addr - $remote_user [$time_local] &quot;$request&quot; &#39;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">12</span></pre></td><td class="code"><pre><span class="line">                      &#39;$status $body_bytes_sent &quot;$http_referer&quot; &#39;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">13</span></pre></td><td class="code"><pre><span class="line">                      &#39;&quot;$http_user_agent&quot; &quot;$http_x_forwarded_for&quot;&#39;;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">14</span></pre></td><td class="code"><pre><span class="line">    access_log  &#x2F;var&#x2F;log&#x2F;nginx&#x2F;access.log  main;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">15</span></pre></td><td class="code"><pre><span class="line">    sendfile        on;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">16</span></pre></td><td class="code"><pre><span class="line">    #tcp_nopush     on;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">17</span></pre></td><td class="code"><pre><span class="line">    keepalive_timeout  65;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">18</span></pre></td><td class="code"><pre><span class="line">    #gzip  on;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">19</span></pre></td><td class="code"><pre><span class="line">    include &#x2F;etc&#x2F;nginx&#x2F;conf.d&#x2F;*.conf;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">20</span></pre></td><td class="code"><pre><span class="line">&#125;</span></pre></td></tr></table></figure>
+</li>
+<li><p>在/usr/local/nginx/conf下创建 log_format.conf文件，作为<font color="red">日志分割</font>配置文件使用。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line">if ($time_iso8601 ~ &quot;^(\d&#123;4&#125;)-(\d&#123;2&#125;)-(\d&#123;2&#125;)T(\d&#123;2&#125;):(\d&#123;2&#125;):(\d&#123;2&#125;)&quot;) &#123;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">2</span></pre></td><td class="code"><pre><span class="line">        set $year $1;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">3</span></pre></td><td class="code"><pre><span class="line">        set $month $2;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">4</span></pre></td><td class="code"><pre><span class="line">        set $day $3;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">5</span></pre></td><td class="code"><pre><span class="line">        set $hour $4;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">6</span></pre></td><td class="code"><pre><span class="line">&#125;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">7</span></pre></td><td class="code"><pre><span class="line">access_log &#x2F;var&#x2F;log&#x2F;nginx&#x2F;$&#123;server_name&#125;_$&#123;year&#125;-$&#123;month&#125;-$&#123;day&#125;-$&#123;hour&#125;_access.log main;</span></pre></td></tr></table></figure>
+<p>如上，可以实现日志的按小时分割，生产环境一般改为按天分割即可。</p>
+</li>
 </ol>
-<ul>
-<li>grant_type：表示使用的授权模式，必选项，此处的值固定为”authorization_code”。</li>
-<li>code：表示上一步获得的授权码，必选项。</li>
-<li>redirect_uri：表示重定向URI，必选项，且必须与A步骤中的该参数值保持一致。</li>
-<li>client_id：表示客户端ID，必选项。</li>
-<li>client_id：表示客户端ID，必选项。</li>
-</ul>
-<h2 id="密码模式"><a href="#密码模式" class="headerlink" title="密码模式"></a>密码模式</h2><p>   密码模式（Resource Owner Password Credentials Grant）中，用户向客户端提供自己的用户名和密码。客户端使用这些信息，向认证服务器索要授权。</p>
-<p><img src="/images/oauth2/%E5%AF%86%E7%A0%81%E6%A8%A1%E5%BC%8F.png" alt="密码模式"></p>
-<p>步骤如下：<br>（A）用户向客户端提供用户名和密码。<br>（B）客户端将用户名和密码发给认证服务器，向后者请求令牌。<br>（C）认证服务器确认无误后，向客户端提供访问令牌。</p>
-<p>B步骤中，客户端发出的HTTP请求，包含以下参数：</p>
-<ul>
-<li>grant_type：表示授权类型，此处的值固定为”password”，必选项。</li>
-<li>username：表示用户名，必选项。</li>
-<li>password：表示用户的密码，必选项。</li>
-<li>scope：表示权限范围，可选项。</li>
-</ul>
-<h2 id="客户端模式"><a href="#客户端模式" class="headerlink" title="客户端模式"></a>客户端模式</h2><p> 这种模式直接根据client的id和密钥即可获取token，无需用户参与。这种模式比较合适消费api的后端服务，不支持refresh token</p>
-<h2 id="简化模式（implicit）"><a href="#简化模式（implicit）" class="headerlink" title="简化模式（implicit）"></a>简化模式（implicit）</h2><p> 这种模式比授权码模式少了code环节，回调url直接携带token，这种模式的使用场景是基于浏览器的应用<br> 这种模式基于安全性考虑，建议把token时效设置短一些，不支持refresh token</p>
-<h2 id="Spring-Security-OAuth2"><a href="#Spring-Security-OAuth2" class="headerlink" title="Spring Security OAuth2"></a>Spring Security OAuth2</h2><p>Spring框架对OAuth2协议进行了实现，<br>Spring Security OAuth2主要包含认证服务器和资源服务器这两大块的实现：</p>
-<p><img src="/images/oauth2/spring-security-oauth2.png" alt="spring-security-oauth2"></p>
-<p>认证服务器主要包含了四种授权模式的实现和Token的生成与存储；<br>资源服务器主要是在Spring Security的过滤器链上加了OAuth2AuthenticationProcessingFilter过滤器，即使用OAuth2协议发放令牌认证的方式来保护我们的资源。</p>
-<h2 id="补充知识：关于scope参数的说明（小黄人语录）"><a href="#补充知识：关于scope参数的说明（小黄人语录）" class="headerlink" title="补充知识：关于scope参数的说明（小黄人语录）"></a>补充知识：关于scope参数的说明（小黄人语录）</h2><div class="note success">
-            <p>a服务 resourceId ： a<br>b服务 resourceId ： b</p><p>Client1：clientid: client1 ,scopse: read,      resourceId:a,b<br>Client2：clientid: client2 ,scopse: read,write,resourceId:a,b</p><p>a服务 某个方法加 @PreAuthorize(“#oauth2.hasScope(‘read’)”)<br>b服务 某个方法加 @PreAuthorize(“#oauth2.hasScope(‘write’)”)</p><p>那么: client1这个客户端就只能访问a服务和b服务的加了read标识的方法<br>      client2这个client就能同时访问加了read 和 write的方法</p><p>每个服务都应该有个 resourceId，新建 clientDetails 的时候也可以指定 resourceId，不指定就能访问所有，指定了只能访问指定的，访问其他的就会抛异常</p>
-          </div>
+<p><font color="red">注意：</font>此处会按小时生成日志文件，Nginx容器需要有文件生成的权限，需要将nginx.conf的第一行改为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line">user root</span></pre></td></tr></table></figure>
 
-
-<p><em>下一章演示代码实例</em></p>
-<p>参考链接：<br><a href="https://mrbird.cc/Spring-Security-OAuth2-Guide.html" target="_blank" rel="noopener">https://mrbird.cc/Spring-Security-OAuth2-Guide.html</a><br><a href="http://www.ruanyifeng.com/blog/2014/05/oauth_2_0.html" target="_blank" rel="noopener">http://www.ruanyifeng.com/blog/2014/05/oauth_2_0.html</a></p>
+<ol start="5">
+<li>创建项目配置文件</li>
+</ol>
+<p>在nginx.conf中我们可以看到 include /etc/nginx/conf.d/*.conf 。Nginx会扫描这个目录下所有以.conf结尾的文件。</p>
+<p>我个人习惯在nginx.conf设置全局配置，在/etc/nginx/conf.d/下创建单独的项目配置文件。这样更清晰一些。</p>
+<p>在/usr/local/nginx/conf.d 目录下创建vip.conf</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line">[root@192 nginx]# vim conf.d&#x2F;vip.conf </span></pre></td></tr><tr><td class="gutter"><pre><span class="line">2</span></pre></td><td class="code"><pre><span class="line"></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">3</span></pre></td><td class="code"><pre><span class="line">server &#123;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">4</span></pre></td><td class="code"><pre><span class="line">    listen       80;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">5</span></pre></td><td class="code"><pre><span class="line">    server_name  vip;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">6</span></pre></td><td class="code"><pre><span class="line">    include log_format.conf;    </span></pre></td></tr><tr><td class="gutter"><pre><span class="line">7</span></pre></td><td class="code"><pre><span class="line"></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">8</span></pre></td><td class="code"><pre><span class="line">    location &#x2F; &#123;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">9</span></pre></td><td class="code"><pre><span class="line">        root   &#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">10</span></pre></td><td class="code"><pre><span class="line">        index  index.html index.htm;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">11</span></pre></td><td class="code"><pre><span class="line">    &#125;</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">12</span></pre></td><td class="code"><pre><span class="line">&#125;</span></pre></td></tr></table></figure>
+<ul>
+<li>include: 引入前面我们定义的日志分割配置文件 log_format.conf</li>
+<li>root：表示匹配成功之后进入的目录，我们创建容器后会把/usr/local/nginx/html/dist 目录下的文件拷贝到容器的/usr/share/nginx/html目录下。</li>
+<li>index：表示默认的首页面</li>
+</ul>
+<ol start="5">
+<li>创建容器</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line">docker run -d -p 80:80 --name nginx80 --restart&#x3D;always \</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">2</span></pre></td><td class="code"><pre><span class="line"> -v &#x2F;usr&#x2F;local&#x2F;nginx&#x2F;html&#x2F;dist&#x2F;:&#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html \</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">3</span></pre></td><td class="code"><pre><span class="line"> -v &#x2F;usr&#x2F;local&#x2F;nginx&#x2F;conf&#x2F;nginx.conf:&#x2F;etc&#x2F;nginx&#x2F;nginx.conf \</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">4</span></pre></td><td class="code"><pre><span class="line"> -v &#x2F;usr&#x2F;local&#x2F;nginx&#x2F;logs&#x2F;:&#x2F;var&#x2F;log&#x2F;nginx \</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">5</span></pre></td><td class="code"><pre><span class="line"> -v &#x2F;usr&#x2F;local&#x2F;nginx&#x2F;conf.d:&#x2F;etc&#x2F;nginx&#x2F;conf.d \</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">6</span></pre></td><td class="code"><pre><span class="line"> -v &#x2F;usr&#x2F;local&#x2F;nginx&#x2F;conf&#x2F;log_format.conf:&#x2F;etc&#x2F;nginx&#x2F;log_format.conf  nginx:latest</span></pre></td></tr></table></figure>
+<p>如果返回一长串字符即为成功。</p>
+<p>参数说明：</p>
+<ul>
+<li>-d 后台运行</li>
+<li>-p 设置端口映射 宿主机端口：容器端口</li>
+<li>--name 设置容器别名</li>
+<li>--restart=always 设置容器开机启动</li>
+<li>-v 数据卷映射 宿主机目录：容器目录。这样方便我们管理容器配置文件及日志文件</li>
+</ul>
+<h2 id="效果验证"><a href="#效果验证" class="headerlink" title="效果验证"></a>效果验证</h2><h3 id="浏览器访问Vue项目"><a href="#浏览器访问Vue项目" class="headerlink" title="浏览器访问Vue项目"></a>浏览器访问Vue项目</h3><p><img src="/images/nginx/vue-index.jpg" alt="vue-index.jpg"></p>
+<p>部署Vue前端项目成功</p>
+<h3 id="查看日志"><a href="#查看日志" class="headerlink" title="查看日志"></a>查看日志</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line">[root@192 logs]# ll</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">2</span></pre></td><td class="code"><pre><span class="line">总用量 8</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">3</span></pre></td><td class="code"><pre><span class="line">-rw-r--r--. 1 root root    0 3月   9 11:08 access.log</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">4</span></pre></td><td class="code"><pre><span class="line">-rw-r--r--. 1 root root  291 3月   9 11:08 error.log</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">5</span></pre></td><td class="code"><pre><span class="line">-rw-r--r--. 1 root root 2110 3月   9 11:08 vip_2020-03-09-03_access.log</span></pre></td></tr></table></figure>
+<p>可以看到分割的日志文件，日志分割也成功。</p>
 
     </div>
 
@@ -401,7 +400,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="/http:/blog.gaoyp.cn/2019/12/08/spring-security-oauth2-01/" title="spring security oauth2 基础知识">http://blog.gaoyp.cn/2019/12/08/spring-security-oauth2-01/</a>
+    <a href="/http:/blog.gaoyp.cn/2020/03/08/nginx-01/" title="使用Docker创建Nginx，并部署Vue项目，同时实现Nginx日志分割">http://blog.gaoyp.cn/2020/03/08/nginx-01/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/zh-CN" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -412,8 +411,8 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/OAuth2/" rel="tag"># OAuth2</a>
-              <a href="/tags/Spring-Security/" rel="tag"># Spring-Security</a>
+              <a href="/tags/Docker/" rel="tag"># Docker</a>
+              <a href="/tags/Nginx/" rel="tag"># Nginx</a>
           </div>
 
         
@@ -422,13 +421,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2019/11/29/markdown-study/" rel="prev" title="Markdown基础语法">
-      <i class="fa fa-chevron-left"></i> Markdown基础语法
+    <a href="/2020/03/01/database-lock/" rel="prev" title="数据库锁机制">
+      <i class="fa fa-chevron-left"></i> 数据库锁机制
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2019/12/10/spring-security-oauth2-02/" rel="next" title="spring security oauth2 授权码模式、密码模式代码实践">
-      spring security oauth2 授权码模式、密码模式代码实践 <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -467,7 +463,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#名词定义"><span class="nav-number">1.</span> <span class="nav-text">名词定义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#授权码模式"><span class="nav-number">2.</span> <span class="nav-text">授权码模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#密码模式"><span class="nav-number">3.</span> <span class="nav-text">密码模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#客户端模式"><span class="nav-number">4.</span> <span class="nav-text">客户端模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#简化模式（implicit）"><span class="nav-number">5.</span> <span class="nav-text">简化模式（implicit）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Spring-Security-OAuth2"><span class="nav-number">6.</span> <span class="nav-text">Spring Security OAuth2</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#补充知识：关于scope参数的说明（小黄人语录）"><span class="nav-number">7.</span> <span class="nav-text">补充知识：关于scope参数的说明（小黄人语录）</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#创建Nginx"><span class="nav-number">1.</span> <span class="nav-text">创建Nginx</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#拉取镜像"><span class="nav-number">1.1.</span> <span class="nav-text">拉取镜像</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#准备工作"><span class="nav-number">1.2.</span> <span class="nav-text">准备工作</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#效果验证"><span class="nav-number">2.</span> <span class="nav-text">效果验证</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#浏览器访问Vue项目"><span class="nav-number">2.1.</span> <span class="nav-text">浏览器访问Vue项目</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查看日志"><span class="nav-number">2.2.</span> <span class="nav-text">查看日志</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
