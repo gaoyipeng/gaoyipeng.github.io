@@ -1225,35 +1225,6 @@ COPY &lt;源路径1&gt;  &lt;目标路径&gt;</code></pre><figure class="highlig
       </tags>
   </entry>
   <entry>
-    <title>centos7设置docker阿里云镜像加速器</title>
-    <url>/2019/12/26/docker-02/</url>
-    <content><![CDATA[<div class="note info">
-            <p>国内从 DockerHub 拉取镜像有时会遇到困难，此时可以配置镜像加速器。本节记录如何配置使用阿里云镜像仓库。</p>
-          </div>
-
-<h2 id="配置使用阿里云镜像仓库下载镜像"><a href="#配置使用阿里云镜像仓库下载镜像" class="headerlink" title="配置使用阿里云镜像仓库下载镜像"></a>配置使用阿里云镜像仓库下载镜像</h2><h3 id="注册阿里云账号，并登陆"><a href="#注册阿里云账号，并登陆" class="headerlink" title="注册阿里云账号，并登陆"></a>注册阿里云账号，并登陆</h3><p><img src="/images/docker/%E9%98%BF%E9%87%8C%E4%BA%91%E7%99%BB%E5%BD%95.png" alt="阿里云登录.png"></p>
-<h3 id="选择容器镜像服务"><a href="#选择容器镜像服务" class="headerlink" title="选择容器镜像服务"></a>选择容器镜像服务</h3><p><img src="/images/docker/%E9%95%9C%E5%83%8F%E6%9C%8D%E5%8A%A1.png" alt="镜像服务.png"></p>
-<h3 id="选择如下目录，并将截图命令在centos系统上执行"><a href="#选择如下目录，并将截图命令在centos系统上执行" class="headerlink" title="选择如下目录，并将截图命令在centos系统上执行"></a>选择如下目录，并将截图命令在centos系统上执行</h3><p><img src="/images/docker/%E8%AE%BE%E7%BD%AE%E9%95%9C%E5%83%8F%E5%9C%B0%E5%9D%80.png" alt="设置镜像地址.png"></p>
-<h3 id="下载镜像"><a href="#下载镜像" class="headerlink" title="下载镜像"></a>下载镜像</h3><p>此时使用 docker pull 命令下载镜像就会默认使用阿里云了。非常快。下载如下Nginx，大概用了不到5秒钟。<br><img src="/images/docker/%E4%B8%8B%E8%BD%BDnginx.png" alt="下载nginx.png"></p>
-<h2 id="推送自定义docker镜像到阿里云"><a href="#推送自定义docker镜像到阿里云" class="headerlink" title="推送自定义docker镜像到阿里云"></a>推送自定义docker镜像到阿里云</h2><p>我们在上面设置了阿里云的镜像库，接下来演示如何将自定义的镜像推送到自己的阿里云镜像库中，这样就可以对外提供下载了。</p>
-<h3 id="阿里云创建一个命名空间"><a href="#阿里云创建一个命名空间" class="headerlink" title="阿里云创建一个命名空间"></a>阿里云创建一个命名空间</h3><p><img src="/images/docker/%E5%91%BD%E5%90%8D%E7%A9%BA%E9%97%B4.png" alt="命名空间.png"></p>
-<h3 id="准备一个可用来打包的容器"><a href="#准备一个可用来打包的容器" class="headerlink" title="准备一个可用来打包的容器"></a>准备一个可用来打包的容器</h3><p>先docker pull 一个Tomcat 镜像，并以此启动一个Tomcat 容器 ,  通过 <a href="http://192.168.230.129:8080/" target="_blank" rel="noopener">http://192.168.230.129:8080/</a> 可以看到Tomcat容器已经启动。<br><img src="/images/docker/tomcat%E5%AE%B9%E5%99%A8.png" alt="tomcat容器.png"></p>
-<h3 id="将上一步的-gaoyp-tomcat-容器打包成为一个新的镜像"><a href="#将上一步的-gaoyp-tomcat-容器打包成为一个新的镜像" class="headerlink" title="将上一步的 gaoyp-tomcat 容器打包成为一个新的镜像"></a>将上一步的 gaoyp-tomcat 容器打包成为一个新的镜像</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker commit -m&#x3D;“提交的描述信息” -a&#x3D;“作者” 容器ID 要创建的目标镜像名:[标签名]</span></pre></td></tr></table></figure>
-<p>此处定义的镜像为 gaoyp/tomcat ,标签为 v1.0<br><img src="/images/docker/%E5%88%9B%E5%BB%BA%E6%9C%AC%E5%9C%B0%E9%95%9C%E5%83%8F.png" alt="创建本地镜像.png"></p>
-<h3 id="创建镜像仓库"><a href="#创建镜像仓库" class="headerlink" title="创建镜像仓库"></a>创建镜像仓库</h3><p><img src="/images/docker/%E5%88%9B%E5%BB%BA%E9%95%9C%E5%83%8F%E4%BB%93%E5%BA%93.png" alt="创建镜像仓库.png"></p>
-<p>点击下一步，创建镜像仓库</p>
-<p><img src="/images/docker/%E8%87%AA%E5%AE%9A%E4%B9%89tomcat%E9%95%9C%E5%83%8F.png" alt="自定义tomcat镜像.png"></p>
-<p>点击管理可以看到镜像信息：<br><img src="/images/docker/%E9%95%9C%E5%83%8F%E4%BF%A1%E6%81%AF.png" alt="镜像信息.png"></p>
-<h3 id="推送镜像（参考上图第三步）"><a href="#推送镜像（参考上图第三步）" class="headerlink" title="推送镜像（参考上图第三步）"></a>推送镜像（参考上图第三步）</h3><p><img src="/images/docker/%E6%8E%A8%E9%80%81%E8%87%AA%E5%AE%9A%E4%B9%89%E9%95%9C%E5%83%8F.png" alt="推送自定义镜像.png"></p>
-<h2 id="拉取自定义镜像"><a href="#拉取自定义镜像" class="headerlink" title="拉取自定义镜像"></a>拉取自定义镜像</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker pull registry.cn-beijing.aliyuncs.com&#x2F;gaoyipeng&#x2F;gaoyp-tomcat:v1.0</span></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>Docker</category>
-      </categories>
-      <tags>
-        <tag>Docker</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>linux（centos7）安装docker</title>
     <url>/2019/12/26/docker-01/</url>
     <content><![CDATA[<div class="note info">
@@ -1324,6 +1295,35 @@ COPY &lt;源路径1&gt;  &lt;目标路径&gt;</code></pre><figure class="highlig
 <p>停止 docker-compose 中的容器并删除容器</p>
 <p>参考博客：<a href="https://www.cnblogs.com/morang/p/9501223.html" target="_blank" rel="noopener">https://www.cnblogs.com/morang/p/9501223.html</a></p>
 ]]></content>
+      <categories>
+        <category>Docker</category>
+      </categories>
+      <tags>
+        <tag>Docker</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>centos7设置docker阿里云镜像加速器</title>
+    <url>/2019/12/26/docker-02/</url>
+    <content><![CDATA[<div class="note info">
+            <p>国内从 DockerHub 拉取镜像有时会遇到困难，此时可以配置镜像加速器。本节记录如何配置使用阿里云镜像仓库。</p>
+          </div>
+
+<h2 id="配置使用阿里云镜像仓库下载镜像"><a href="#配置使用阿里云镜像仓库下载镜像" class="headerlink" title="配置使用阿里云镜像仓库下载镜像"></a>配置使用阿里云镜像仓库下载镜像</h2><h3 id="注册阿里云账号，并登陆"><a href="#注册阿里云账号，并登陆" class="headerlink" title="注册阿里云账号，并登陆"></a>注册阿里云账号，并登陆</h3><p><img src="/images/docker/%E9%98%BF%E9%87%8C%E4%BA%91%E7%99%BB%E5%BD%95.png" alt="阿里云登录.png"></p>
+<h3 id="选择容器镜像服务"><a href="#选择容器镜像服务" class="headerlink" title="选择容器镜像服务"></a>选择容器镜像服务</h3><p><img src="/images/docker/%E9%95%9C%E5%83%8F%E6%9C%8D%E5%8A%A1.png" alt="镜像服务.png"></p>
+<h3 id="选择如下目录，并将截图命令在centos系统上执行"><a href="#选择如下目录，并将截图命令在centos系统上执行" class="headerlink" title="选择如下目录，并将截图命令在centos系统上执行"></a>选择如下目录，并将截图命令在centos系统上执行</h3><p><img src="/images/docker/%E8%AE%BE%E7%BD%AE%E9%95%9C%E5%83%8F%E5%9C%B0%E5%9D%80.png" alt="设置镜像地址.png"></p>
+<h3 id="下载镜像"><a href="#下载镜像" class="headerlink" title="下载镜像"></a>下载镜像</h3><p>此时使用 docker pull 命令下载镜像就会默认使用阿里云了。非常快。下载如下Nginx，大概用了不到5秒钟。<br><img src="/images/docker/%E4%B8%8B%E8%BD%BDnginx.png" alt="下载nginx.png"></p>
+<h2 id="推送自定义docker镜像到阿里云"><a href="#推送自定义docker镜像到阿里云" class="headerlink" title="推送自定义docker镜像到阿里云"></a>推送自定义docker镜像到阿里云</h2><p>我们在上面设置了阿里云的镜像库，接下来演示如何将自定义的镜像推送到自己的阿里云镜像库中，这样就可以对外提供下载了。</p>
+<h3 id="阿里云创建一个命名空间"><a href="#阿里云创建一个命名空间" class="headerlink" title="阿里云创建一个命名空间"></a>阿里云创建一个命名空间</h3><p><img src="/images/docker/%E5%91%BD%E5%90%8D%E7%A9%BA%E9%97%B4.png" alt="命名空间.png"></p>
+<h3 id="准备一个可用来打包的容器"><a href="#准备一个可用来打包的容器" class="headerlink" title="准备一个可用来打包的容器"></a>准备一个可用来打包的容器</h3><p>先docker pull 一个Tomcat 镜像，并以此启动一个Tomcat 容器 ,  通过 <a href="http://192.168.230.129:8080/" target="_blank" rel="noopener">http://192.168.230.129:8080/</a> 可以看到Tomcat容器已经启动。<br><img src="/images/docker/tomcat%E5%AE%B9%E5%99%A8.png" alt="tomcat容器.png"></p>
+<h3 id="将上一步的-gaoyp-tomcat-容器打包成为一个新的镜像"><a href="#将上一步的-gaoyp-tomcat-容器打包成为一个新的镜像" class="headerlink" title="将上一步的 gaoyp-tomcat 容器打包成为一个新的镜像"></a>将上一步的 gaoyp-tomcat 容器打包成为一个新的镜像</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker commit -m&#x3D;“提交的描述信息” -a&#x3D;“作者” 容器ID 要创建的目标镜像名:[标签名]</span></pre></td></tr></table></figure>
+<p>此处定义的镜像为 gaoyp/tomcat ,标签为 v1.0<br><img src="/images/docker/%E5%88%9B%E5%BB%BA%E6%9C%AC%E5%9C%B0%E9%95%9C%E5%83%8F.png" alt="创建本地镜像.png"></p>
+<h3 id="创建镜像仓库"><a href="#创建镜像仓库" class="headerlink" title="创建镜像仓库"></a>创建镜像仓库</h3><p><img src="/images/docker/%E5%88%9B%E5%BB%BA%E9%95%9C%E5%83%8F%E4%BB%93%E5%BA%93.png" alt="创建镜像仓库.png"></p>
+<p>点击下一步，创建镜像仓库</p>
+<p><img src="/images/docker/%E8%87%AA%E5%AE%9A%E4%B9%89tomcat%E9%95%9C%E5%83%8F.png" alt="自定义tomcat镜像.png"></p>
+<p>点击管理可以看到镜像信息：<br><img src="/images/docker/%E9%95%9C%E5%83%8F%E4%BF%A1%E6%81%AF.png" alt="镜像信息.png"></p>
+<h3 id="推送镜像（参考上图第三步）"><a href="#推送镜像（参考上图第三步）" class="headerlink" title="推送镜像（参考上图第三步）"></a>推送镜像（参考上图第三步）</h3><p><img src="/images/docker/%E6%8E%A8%E9%80%81%E8%87%AA%E5%AE%9A%E4%B9%89%E9%95%9C%E5%83%8F.png" alt="推送自定义镜像.png"></p>
+<h2 id="拉取自定义镜像"><a href="#拉取自定义镜像" class="headerlink" title="拉取自定义镜像"></a>拉取自定义镜像</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker pull registry.cn-beijing.aliyuncs.com&#x2F;gaoyipeng&#x2F;gaoyp-tomcat:v1.0</span></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>Docker</category>
       </categories>
