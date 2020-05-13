@@ -18,7 +18,7 @@ Spring 源码不是使用我们常用的Maven构建，使用Gradle。 Gradle不�
 
 ### 下载预编译
 
-从Github下载源码包：[下载地址](https://github.com/spring-projects/spring-framework/releases),我下载的是：spring-framework-5.1.0.RC1.zip
+从Github下载源码包：[下载地址](https://github.com/spring-projects/spring-framework/archive/v5.1.0.RC1.zip),我下载的是：spring-framework-5.1.0.RC1.zip
 
 解压文件，查看import-into-idea.md文件：
 ````
