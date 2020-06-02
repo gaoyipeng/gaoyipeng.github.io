@@ -5,6 +5,7 @@ tags: Activiti
 categories: Activiti
 description: Activiti（4）- 七大Service接口
 typora-root-url: ..
+password: kiki
 ---
 
 > 本节我们介绍Activiti提供的 7大Service接口。先了解这7个service的用途，有利于我们更好的学习activiti.
@@ -532,6 +533,64 @@ public class ActivitiServiceTest {
 
 ![image-20200529161311961](/images/activiti/activiti6-04/image-20200529161311961.png)
 
-
+**请记住这个5001，获取流程图时会用到。**
 
 常用的Service已经介绍完毕，有需要再添加其他用例。
+
+# 3、获取流程图
+
+这个是比较固定的代码，不做详解介绍。只做演示。添加代码如下
+
+![image-20200601092940565](/images/activiti/activiti6-04/image-20200601092940565.png)
+
+访问API：http://localhost:8080/process/read-resource/5001  ，pProcessInstanceId是流程实例：5001（**act_ru_execution**表ID_）
+
+```java
+ @RequestMapping(value = "/read-resource/{pProcessInstanceId}")
+    public void readResource(@PathVariable("pProcessInstanceId")String pProcessInstanceId, HttpServletResponse response)
+            throws Exception {
+        // 设置页面不缓存
+        response.setHeader("Pragma", "No-cache");
+        response.setHeader("Cache-Control", "no-cache");
+        response.setDateHeader("Expires", 0);
+
+        String processDefinitionId = "";
+        ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(pProcessInstanceId).singleResult();
+        if(processInstance == null) {
+            HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery().processInstanceId(pProcessInstanceId).singleResult();
+            processDefinitionId = historicProcessInstance.getProcessDefinitionId();
+        } else {
+            processDefinitionId = processInstance.getProcessDefinitionId();
+        }
+        ProcessDefinitionQuery pdq = repositoryService.createProcessDefinitionQuery();
+        ProcessDefinition pd = pdq.processDefinitionId(processDefinitionId).singleResult();
+
+        String resourceName = pd.getDiagramResourceName();
+
+        if(resourceName.endsWith(".png") && StringUtils.isEmpty(pProcessInstanceId) == false)
+        {
+            getActivitiProccessImage(pProcessInstanceId,response);
+            //ProcessDiagramGenerator.generateDiagram(pde, "png", getRuntimeService().getActiveActivityIds(processInstanceId));
+        }
+        else
+        {
+            // 通过接口读取
+            InputStream resourceAsStream = repositoryService.getResourceAsStream(pd.getDeploymentId(), resourceName);
+
+            // 输出资源内容到相应对象
+            byte[] b = new byte[1024];
+            int len = -1;
+            while ((len = resourceAsStream.read(b, 0, 1024)) != -1) {
+                response.getOutputStream().write(b, 0, len);
+            }
+        }
+    }
+```
+
+获取的流程图如下：
+
+![image-20200601093323407](/images/activiti/activiti6-04/image-20200601093323407.png)
+
+
+
+本节到此结束。

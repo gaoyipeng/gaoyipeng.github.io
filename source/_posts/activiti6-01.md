@@ -5,6 +5,7 @@ tags: Activiti
 categories: Activiti
 description: Activiti（1）-基本概念
 typora-root-url: ..
+password: kiki
 ---
 
 > 工作流一直是一个OA系统的灵魂。工作以来一直想要学习一套开源的工作流框架，但是一直因为各种原因耽搁了。今天正式开始学习activiti，记录下学习的过程。与君共勉~~~

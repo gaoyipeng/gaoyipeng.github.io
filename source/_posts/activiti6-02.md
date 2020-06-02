@@ -5,6 +5,7 @@ tags: Activiti
 categories: Activiti
 description: Activiti（2）-环境搭建
 typora-root-url: ..
+password: kiki
 ---
 
 > 本节我们使用springboot集成Activiti 环境。
@@ -12,11 +13,20 @@ typora-root-url: ..
 环境说明：
 
 - IDEA: 2019.3
+
 - JDK1.8
+
 - Maven: 3.6.3
+
 - SpringBoot:2.1.1
+
 - Activiti :6.0.0
+
 - Mysql :5.7
+
+  
+
+代码地址：https://github.com/gaoyipeng/workflow-activiti
 
 # 1、搭建maven聚合工程：
 

@@ -5,6 +5,7 @@ tags: Activiti
 categories: Activiti
 description: Activiti（3）-集成Activiti Modeler
 typora-root-url: ..
+password: kiki
 ---
 
 > Activiti Modeler 是 Activiti 官方提供的一款在线流程设计的前端插件，可以方便流程设计与开发人员绘制流程图，保存流程模型，部署至流程定义等等。
