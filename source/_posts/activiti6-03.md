@@ -1,9 +1,9 @@
 ---
-title: Activiti（3）-集成Activiti Modeler
+title: Activiti（3）集成Activiti Modeler
 date: 2020-05-28 14:00:14
 tags: Activiti
 categories: Activiti
-description: Activiti（3）-集成Activiti Modeler
+description: Activiti（3）集成Activiti Modeler
 typora-root-url: ..
 password: kiki
 ---

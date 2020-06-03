@@ -1,9 +1,9 @@
 ---
-title: Activiti（5）- 流程定义文件—流程定义—流程模型 的相互转化
+title: Activiti（5）流程定义文件—流程定义—流程模型 的相互转化
 date: 2020-06-01 16:38:33
 tags: Activiti
 categories: Activiti
-description: Activiti（5）- 流程定义文件—流程定义—流程模型 的相互转化
+description: Activiti（5）流程定义文件—流程定义—流程模型 的相互转化
 typora-root-url: ..
 password: kiki
 ---
@@ -355,6 +355,63 @@ postman测试结果（参数是流程定义id，即`act_re_procdef`表的主键i
 如果直接使用浏览器访问，则会下载bpmn文件
 
 ![image-20200602194230562](/images/activiti/activiti6-05/image-20200602194230562.png)
+
+# 6、创建流程模型
+
+这个我们在第3节已经介绍过，不做其他介绍。直接贴代码：
+
+```java
+    /**
+     * 创建模型
+     */
+    @RequestMapping(value = "/modeler/create")
+    @ResponseBody
+    public CommonResponse create(@RequestParam(value = "name",required=true) String name,
+                       @RequestParam(value = "key",required=true) String key,
+                       @RequestParam(value = "description",required=true) String description) {
+       /* String name = "请假流程";
+        String key = "qingjia";
+        String description = "这是一个简单的请假流程";*/
+
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            ObjectNode editorNode = objectMapper.createObjectNode();
+            editorNode.put("id", "canvas");
+            editorNode.put("resourceId", "canvas");
+
+            ObjectNode stencilSetNode = objectMapper.createObjectNode();
+            stencilSetNode.put("namespace", "http://b3mn.org/stencilset/bpmn2.0#");
+
+            editorNode.put("stencilset", stencilSetNode);
+
+            ObjectNode modelObjectNode = objectMapper.createObjectNode();
+            modelObjectNode.put(MODEL_NAME, name);
+            modelObjectNode.put(ModelDataJsonConstants.MODEL_REVISION, 1);
+            description = StringUtils.defaultString(description);
+            modelObjectNode.put(MODEL_DESCRIPTION, description);
+
+            Model newModel = repositoryService.newModel();
+            newModel.setMetaInfo(modelObjectNode.toString());
+            newModel.setName(name);
+            newModel.setKey(StringUtils.defaultString(key));
+
+            repositoryService.saveModel(newModel);
+            repositoryService.addModelEditorSource(newModel.getId(), editorNode.toString().getBytes("utf-8"));
+
+            System.out.println("生成的moduleId:"+newModel.getId());
+            return new CommonResponse().code(CodeEnum.SUCCESS.getCode()).message("部署成功").data(newModel);
+        } catch (Exception e) {
+            logger.error("创建模型失败");
+        }
+        return new CommonResponse().code(CodeEnum.SUCCESS.getCode()).message("部署成功");
+    }
+```
+
+![image-20200603164205645](/images/activiti/activiti6-05/image-20200603164205645.png)
+
+访问 http://localhost:8080/modeler/modeler.html?modelId=1，就可以愉快的在上面设计流程图了。
+
+![image-20200603164324344](/images/activiti/activiti6-05/image-20200603164324344.png)
 
 
 

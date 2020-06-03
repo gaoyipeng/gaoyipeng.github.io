@@ -1,9 +1,9 @@
 ---
-title: Activiti（2）-环境搭建
+title: Activiti（2）环境搭建
 date: 2020-05-28 10:10:57
 tags: Activiti
 categories: Activiti
-description: Activiti（2）-环境搭建
+description: Activiti（2）环境搭建
 typora-root-url: ..
 password: kiki
 ---

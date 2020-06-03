@@ -1,9 +1,9 @@
 ---
-title: Activiti（1）-基本概念
+title: Activiti（1） 基本概念
 date: 2020-05-27 14:35:43
 tags: Activiti
 categories: Activiti
-description: Activiti（1）-基本概念
+description: Activiti（1） 基本概念
 typora-root-url: ..
 password: kiki
 ---
