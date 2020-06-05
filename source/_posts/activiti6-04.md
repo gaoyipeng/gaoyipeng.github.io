@@ -314,11 +314,17 @@ public class ActivitiServiceTest {
 
 ![image-20200529143545904](/images/activiti/activiti6-04/image-20200529143545904.png)
 
+
+
 ## 2.3 初始化组
 
 ```java
-/**
+    /**
      * 初始化组 act_id_group: deptLeader, hr
+     * 在Activiti中组分为2种：
+     *   assignment：普通的岗位角色，是用户分配业务中的功能权限
+     *   security-role: 安全角色，全局管理用户组织及整个流程的状态
+     *   如果使用Activiti提供的Explorer，需要security-role才能看到manage页签，需要assignment才能claim任务
      */
     @Test
     public void initGroup(){
@@ -341,6 +347,8 @@ public class ActivitiServiceTest {
 
 ![image-20200529145814813](/images/activiti/activiti6-04/image-20200529145814813.png)
 
+
+
 ## 2.4 初始化人员、组的关系
 
 ```java
@@ -357,6 +365,21 @@ public class ActivitiServiceTest {
 执行结果：
 
 ![image-20200529150116825](/images/activiti/activiti6-04/image-20200529150116825.png)
+
+
+
+API 补充：
+
+```java
+//删除user
+identityService.deleteUser(userId);
+//删除group
+identityService.deleteGroup(groupId);
+//删除user、group关联关系
+identityService.deleteMembership( userId,  groupId);
+```
+
+
 
 ## 2.5 部署流程定义
 
@@ -390,7 +413,7 @@ public class ActivitiServiceTest {
     @Test
     public void submitApplyTest(){
         String applyUserId = "startmen";
-        //设置流程启动发起人
+        //设置流程启动发起人,在流程开始之前设置，会自动在表ACT_HI_PROCINST 中的START_USER_ID_中设置用户ID
         identityService.setAuthenticatedUserId(applyUserId);
         runtimeService.startProcessInstanceByKey("leave");
     }

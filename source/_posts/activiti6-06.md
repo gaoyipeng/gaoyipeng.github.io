@@ -92,7 +92,7 @@ CREATE TABLE `sys_user_role` (
 | sys_role（角色表）            | act_id_group      |
 | sys_user_role(用户角色对照表) | act_id_membership |
 
-
+*用户组其实可以看做是我们平常说的角色*。
 
 ## 3.2 创建视图
 

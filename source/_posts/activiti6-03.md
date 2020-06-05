@@ -60,7 +60,15 @@ password: kiki
 
 ![image-20200528162512739](/images/activiti/activiti6-03/image-20200528162512739.png)
 
+4、将`ModelSaveRestResource`的`saveModel`改为POST访问，否则Activiti Modeler无法保存。
 
+```java 
+ @RequestMapping(value="/modeler/model/{modelId}/save", method = RequestMethod.POST)
+  @ResponseStatus(value = HttpStatus.OK)
+  public void saveModel(@PathVariable String modelId, @RequestBody MultiValueMap<String, String> values) {
+    //省略。。。
+  }
+```
 
 # 3、访问验证
 

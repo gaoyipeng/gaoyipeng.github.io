@@ -166,6 +166,8 @@ public class ProcessDefinitionController {
 
 我们使用postman做测试：
 
+支持单个bpmn文件上传，也支持多个文件压缩成zip包、或者bar包
+
 ![image-20200602183752513](/images/activiti/activiti6-05/image-20200602183752513.png)
 
 然后我们查看`act_re_deployment`和`act_re_procdef`表，可以看到已经生成了对应的流程定义记录（我执行了2次，所以2条记录）
