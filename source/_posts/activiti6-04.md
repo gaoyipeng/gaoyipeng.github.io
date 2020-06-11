@@ -566,7 +566,7 @@ identityService.deleteMembership( userId,  groupId);
 
 ![image-20200601092940565](/images/activiti/activiti6-04/image-20200601092940565.png)
 
-访问API：http://localhost:8080/process/read-resource/5001  ，pProcessInstanceId是流程实例：5001（**act_ru_execution**表ID_）
+访问API：http://localhost:8080/process/read-resource/5001  ，pProcessInstanceId是流程实例：5001（**act_hi_procinst**表ID_）
 
 ```java
  @RequestMapping(value = "/read-resource/{pProcessInstanceId}")
