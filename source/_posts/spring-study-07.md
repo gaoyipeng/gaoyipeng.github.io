@@ -19,6 +19,11 @@ typora-copy-images-to: ..\images\spring\07
 
 上面是我自己画的流程图，若容器注册了以上各种接口，程序那么将会按照以上的流程进行。下面将仔细讲解各接口作用。
 
+下载地址:
+
+链接：https://pan.baidu.com/s/1WLX8Q_zp0Y7bWJPzeRZVqw 
+提取码：b58o
+
 ## 加载配置文件
 
 万里长征第一步。Spring需要加载配置文件，就是我们经常说的applicationContext.xml
