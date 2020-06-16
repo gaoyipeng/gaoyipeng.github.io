@@ -6,6 +6,8 @@ categories: Spring
 description: 本地IDEA导入spring-framework-5.1.0.RC1.zip
 ---
 
+> Spring源码学习所有的代码已经上传到github：https://github.com/gaoyipeng/spring-framework-5.1.0.RC1.git
+
 ## 构建工具 Gradle
 
 Spring 源码不是使用我们常用的Maven构建，使用Gradle。 Gradle不是我们介绍的重点，我们在本地Window10环境下配置好环境即可。
