@@ -4,6 +4,7 @@ date: 2020-02-02 23:53:18
 tags: 其他
 categories: 其他
 description: 系统镜像下载地址
+typora-root-url: ..
 ---
 1. windows镜像 下载地址：https://msdn.itellyou.cn/
 

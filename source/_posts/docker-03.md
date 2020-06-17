@@ -4,6 +4,7 @@ date: 2020-01-19 17:22:19
 tags: [Docker,Nginx]
 categories: [Docker,Nginx]
 description: docker常用命令及Dockerfile笔记
+typora-root-url: ..
 ---
 > docker主要的3个概念：镜像（image）+容器（container）+仓库（repository）
 
@@ -254,7 +255,7 @@ LABEL version="1.0" author="garnett" description="nginx port 82"
 RUN echo '这是一个本地构建的nginx镜像' > /usr/share/nginx/html/index.html
 RUN echo '追加。。。' > /usr/share/nginx/html/index.html
 ```
- 
+
     可以修改为：
 
 ```
@@ -262,7 +263,7 @@ FROM nginx:latest
 LABEL version="1.0" author="garnett" description="nginx port 82"
 RUN echo '这是一个本地构建的nginx镜像' > /usr/share/nginx/html/index.html \
 && echo '追加。。。' > /usr/share/nginx/html/index.html
-``` 
+```
 
 ```
 4.  ADD 和 COPY 
@@ -355,3 +356,4 @@ VOLUME <路径>
 参考链接：
 https://www.cnblogs.com/baizhanshi/p/9655102.html
 https://www.runoob.com/docker
+```

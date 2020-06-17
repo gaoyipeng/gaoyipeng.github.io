@@ -4,7 +4,7 @@ date: 2020-04-12 16:00:29
 tags: Spring
 categories: Spring
 description: Spring源码学习（7）：Bean的生命周期
-typora-copy-images-to: ..\images\spring\07
+typora-root-url: ..
 ---
 
 # Bean的生命周期

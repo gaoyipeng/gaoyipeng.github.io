@@ -4,6 +4,7 @@ date: 2020-05-11 16:01:38
 tags: Spring
 categories: Spring
 description: Spring源码学习（11）：Spring 事务管理
+typora-root-url: ..
 ---
 
 # 事务管理

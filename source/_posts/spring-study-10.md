@@ -4,6 +4,7 @@ date: 2020-04-24 10:10:09
 tags: Spring
 categories: Spring
 description: Spring源码学习（10）：Spring AOP
+typora-root-url: ..
 ---
 
 # Spring AOP 和AspectJ

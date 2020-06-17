@@ -4,6 +4,7 @@ date: 2020-03-25 22:32:20
 tags: [Java,数据结构]
 categories: [Java,数据结构]
 description: Java中的List、Set和Map的各自特征
+typora-root-url: ..
 ---
 
 先通过这张图看看Collection和Map的各自体系

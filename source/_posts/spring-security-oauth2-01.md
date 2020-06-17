@@ -4,6 +4,7 @@ date: 2019-12-08 17:12:08
 tags: [OAuth2,Spring-Security]
 categories: [OAuth2,Spring-Security]
 description: spring security oauth2 基础知识
+typora-root-url: ..
 ---
 
 {% note info %} OAuth（开放授权）是一个开放标准，允许用户授权第三方移动应用访问他们存储在另外的服务提供者上的信息，而不需要将用户名和密码提供给第三方移动应用或分享他们数据的所有内容，OAuth2.0是OAuth协议的延续版本，但不向后兼容OAuth 1.0即完全废止了OAuth1.0。{% endnote %}
@@ -88,16 +89,16 @@ Spring Security OAuth2主要包含认证服务器和资源服务器这两大块�
 {% note success %}
  a服务 resourceId ： a
  b服务 resourceId ： b
- 
+
  Client1：clientid: client1 ,scopse: read,      resourceId:a,b
  Client2：clientid: client2 ,scopse: read,write,resourceId:a,b
- 
+
  a服务 某个方法加 @PreAuthorize("#oauth2.hasScope('read')")
  b服务 某个方法加 @PreAuthorize("#oauth2.hasScope('write')")
- 
+
  那么: client1这个客户端就只能访问a服务和b服务的加了read标识的方法
        client2这个client就能同时访问加了read 和 write的方法
- 
+
  每个服务都应该有个 resourceId，新建 clientDetails 的时候也可以指定 resourceId，不指定就能访问所有，指定了只能访问指定的，访问其他的就会抛异常
  {% endnote %}
 

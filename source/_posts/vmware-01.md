@@ -4,6 +4,7 @@ date: 2020-03-12 12:29:39
 tags: VMware
 categories: VMware
 description: 解决CentOS7克隆虚拟机，ifconfig命令不显示ip地址问题
+typora-root-url: ..
 ---
 
 ## 事故起因

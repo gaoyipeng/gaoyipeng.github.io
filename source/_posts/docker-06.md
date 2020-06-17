@@ -4,6 +4,7 @@ date: 2020-02-04 10:22:09
 tags: [Docker,Mysql]
 categories: Docker
 description: docker 数据存储笔记
+typora-root-url: ..
 ---
 Docker容器在运行的时候会产生数据，为了不让这些数据随着容器的删除而删除，Docker支持数据持久化。
 

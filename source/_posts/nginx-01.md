@@ -4,6 +4,7 @@ date: 2020-03-08 10:28:34
 tags: [Docker,Nginx]
 categories: [Docker,Nginx]
 description: 使用Docker创建Nginx，并部署Vue项目，同时实现Nginx日志分割
+typora-root-url: ..
 ---
 前面的文章[docker常用命令及Dockerfile笔记](https://blog.gaoyp.cn/2020/01/19/docker-03/)中，我们介绍了Docker、Dcokerfile基本知识，并且使用Docker创建了一个Nginx容器。
 

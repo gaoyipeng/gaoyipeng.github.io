@@ -4,6 +4,7 @@ date: 2020-04-18 10:40:31
 tags: Spring
 categories: Spring
 description: Spring中的代理模式
+typora-root-url: ..
 ---
 
 代理模式是23种设计模式的一种，他是指一个对象A通过持有另一个对象B，可以具有B同样的行为的模式。

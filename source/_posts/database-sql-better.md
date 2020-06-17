@@ -4,6 +4,7 @@ date: 2020-03-01 16:37:15
 tags: [数据库,Mysql,sql调优]
 categories: [数据库,Mysql]
 description: SQL 调优
+typora-root-url: ..
 ---
 
 ## SQL优化方式

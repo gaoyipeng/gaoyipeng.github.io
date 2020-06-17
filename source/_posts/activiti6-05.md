@@ -87,7 +87,9 @@ password: kiki
 
 ![image-20200602185522746](/images/activiti/activiti6-05/image-20200602185522746.png)
 
-# 2、bpmn文件转流程定义（act_re_procdef）
+# 2、流程定义文件—流程定义—流程模型 相互转化
+
+## 2.1 、 bpmn文件转流程定义（act_re_procdef）
 
 > 上面的1.2 中，我们是直接将文件放在了`src/main/resources`目录下。下面我们改造一下。改为上传附件部署流程定义。
 
@@ -178,7 +180,7 @@ public class ProcessDefinitionController {
 
 然后我们就可以根据流程定义来发起流程了，本节我们主要介绍内容不是这个，我们先来介绍流程定义如何转化流程模型。
 
-# 3、流程定义（act_re_procdef）转流程模型（act_re_model）
+## 2.2、流程定义（act_re_procdef）转流程模型（act_re_model）
 
 执行代码如下：
 
@@ -233,7 +235,7 @@ postman测试结果（参数是流程定义id，即`act_re_procdef`表的主键i
 
 ![image-20200602190443001](/images/activiti/activiti6-05/image-20200602190443001.png)
 
-# 4、流程模型（act_re_model）转流程定义（act_re_procdef）
+## 2.3、流程模型（act_re_model）转流程定义（act_re_procdef）
 
 新建ModelerController.java：
 
@@ -317,7 +319,7 @@ postman测试结果（参数是流程定义id，即`act_re_procdef`表的主键i
 
 可以看到生成了对应的流程定义，因为我们使用的是同一个KEY的流程，所以生成的记录的VERSION_字段（版本）自动递增变为了3。有一点需要说明。当我们直接使用流程定义KEY（这里是leaveCounterSign）发起流程时，系统会默认选择吧版本更高的流程定义。
 
-# 5、将流程模型导出为bpmn文件
+## 2.4、将流程模型导出为bpmn文件
 
 ```java
  /**
@@ -358,7 +360,7 @@ postman测试结果（参数是流程定义id，即`act_re_procdef`表的主键i
 
 ![image-20200602194230562](/images/activiti/activiti6-05/image-20200602194230562.png)
 
-# 6、创建流程模型
+## 2.5、创建流程模型
 
 这个我们在第3节已经介绍过，不做其他介绍。直接贴代码：
 
@@ -415,6 +417,43 @@ postman测试结果（参数是流程定义id，即`act_re_procdef`表的主键i
 
 ![image-20200603164324344](/images/activiti/activiti6-05/image-20200603164324344.png)
 
-
-
 流程定义文件—流程定义—流程模型 之间的相互转化，就介绍到这里。
+
+# 7、删除已部署的流程定义
+
+```
+/**
+     * 删除已部署的流程定义
+     * @param deploymentId 流程部署ID
+     */
+    @GetMapping(value = "/process/delete/{deploymentId}")
+    @ApiOperation(value = "删除已部署的流程定义",notes = "删除已部署的流程定义")
+    public CommonResponse delete(@PathVariable("deploymentId") @ApiParam("流程定义ID (act_re_deployment表id)")  String deploymentId) {
+
+        List<ProcessInstance> instanceList = runtimeService.createProcessInstanceQuery()
+                .deploymentId(deploymentId)
+                .list();
+        if (!CollectionUtils.isEmpty(instanceList)) {
+            // 存在流程实例的流程定义
+            throw new CommonException("删除失败，存在运行中的流程实例");
+        }
+        repositoryService.deleteDeployment(deploymentId, true); // true 表示级联删除引用，比如 act_ru_execution 数据
+
+        return new CommonResponse().code(CodeEnum.SUCCESS.getCode()).message("删除流程实例成功");
+    }
+```
+
+![image-20200617155645515](/images/activiti6-05/image-20200617155645515.png)
+
+# 8、删除流程模型
+
+```java
+@GetMapping(value = "/modeler/delete/{modelId}")
+    @ApiOperation(value = "删除流程模型",notes = "删除流程模型")
+    public CommonResponse remove(@PathVariable("modelId") @ApiParam("流程模型Id") String modelId) {
+       repositoryService.deleteModel(modelId);
+       return new CommonResponse().code(CodeEnum.SUCCESS.getCode()).message("删除流程模型成功");
+    }
+```
+
+![image-20200617163620124](/images/activiti6-05/image-20200617163620124.png)

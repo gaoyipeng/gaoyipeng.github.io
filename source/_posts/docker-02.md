@@ -4,6 +4,7 @@ date: 2019-12-26 10:02:36
 tags: Docker
 categories: Docker
 description: centos7设置docker阿里云镜像加速器
+typora-root-url: ..
 ---
 {% note info %} 国内从 DockerHub 拉取镜像有时会遇到困难，此时可以配置镜像加速器。本节记录如何配置使用阿里云镜像仓库。{% endnote %}
 

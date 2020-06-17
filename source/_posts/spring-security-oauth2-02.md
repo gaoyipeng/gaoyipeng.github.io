@@ -4,6 +4,7 @@ date: 2019-12-10 22:15:04
 tags: [OAuth2,Spring-Security]
 categories: [OAuth2,Spring-Security]
 description: spring security oauth2 授权码模式、密码模式代码实践
+typora-root-url: ..
 ---
 上一节 [spring security oauth2 基础知识](https://blog.gaoyp.cn/2019/12/08/spring-security-oauth2-01/) 介绍了spring security oauth2 基础知识.
 
@@ -488,13 +489,13 @@ public class KikiSecurityConfig extends WebSecurityConfigurerAdapter {
 ### 密码模式（resource owner password credentials）
 
  密码模式比起授权码模式来说，相对简单些。我们在postman中请求：localhost:8001/oauth/token?grant_type=password&username=garnett&password=123456
- 
+
  ![unsupported_grant_type.png](/images/oauth2/unsupported_grant_type.png)
- 
+
  这是因为密码模式需要用到 AuthenticationManager。
- 
+
 #### 注入AuthenticationManager
- 
+
 ```
 package com.sxdx.spring.security.oauth2.config;
 import org.springframework.context.annotation.Bean;
@@ -596,11 +597,11 @@ public class KikiAuthorizationServerConfigurer extends AuthorizationServerConfig
 重启服务，再次获取token：
 
  ![密码模式-获取token.png](/images/oauth2/密码模式-获取token.png)
- 
+
  通过token获取资源：
- 
+
   ![密码模式-token获取资源.png](/images/oauth2/密码模式-token获取资源.png)
-  
+
 在这里发现一个问题，就是上面密码模式获取到了对应的资源，我一开始以为万事大吉了。
 当再次启动服务并先通过密码模式获取token，继而通过token获取资源/authentication时发现再次报401错误了。多次试验发现规律：
 先用密码模式的token获取资源就会报401。

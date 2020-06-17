@@ -4,6 +4,7 @@ date: 2019-12-29 18:32:12
 tags: Java8
 categories: Java8
 description: Java8 Lambda表达式
+typora-root-url: ..
 ---
 
 {% note info %} Java 8的Lambda表达式，简化了匿名函数的表达方式。Lambda表达式可以直接以内联的形式为函数式接口的抽象方法提供实现，并把整个表达式作为函数式接口的实例。

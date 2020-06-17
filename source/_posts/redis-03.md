@@ -4,6 +4,7 @@ date: 2020-02-11 11:27:51
 tags: [Docker,Redis]
 categories: [Docker,Redis]
 description: 使用docker安装redis哨兵(sentinel)
+typora-root-url: ..
 ---
 上一节我们搭建了redis主从模式，实现了redis的主从复制，读写分离。主从模式保证了数据备份，但是发生故障依然需要运维人员施工。为了解决主从模式的弊端，本节我们搭建redis哨兵模式。
 

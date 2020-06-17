@@ -4,6 +4,7 @@ date: 2020-03-15 22:13:33
 tags: SpringMVC
 categories: SpringMVC
 description: SpringMVC @ModelAttribute注解的用法
+typora-root-url: ..
 ---
 @ModelAttribute主要的作用是将数据添加到对象模型中，在视图页面展示时使用。
 @ModelAttribute 等价于 model.addAttribute("abc", "abc"); 或 map.put("abc","abc")

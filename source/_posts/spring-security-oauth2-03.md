@@ -4,6 +4,7 @@ date: 2019-12-14 21:58:18
 tags: [OAuth2,Spring-Security]
 categories: [OAuth2,Spring-Security]
 description: spring security oauth2 SSO 单点登录及自定义令牌配置
+typora-root-url: ..
 ---
 
 上一节 [spring security oauth2 授权码模式、密码模式代码实践](https://blog.gaoyp.cn/2019/12/10/spring-security-oauth2-02/) 介绍了spring security oauth2 的3种模式。
@@ -380,7 +381,7 @@ public class OneController {
 .resourceIds("client2-resource","client1-resource")
 ```
  resourceIds("client2-resource","client1-resource")表示client1可以访问sso-resource-one和sso-resource-two的资源。
- 
+
  访问http://127.0.0.1:8002/one/user ，发现可以获取资源。修改URL为http://127.0.0.1:8003/two/user.也可以获取到资源。
 
 ### scopes 作用演示
@@ -396,7 +397,7 @@ public class OneController {
 因为client1 的scope为read,而/one/index 需要 write.
 
 ### SSO 单点登录
-    
+
 其实上面的演示过程已经实现了单点登录，我们通过token可以同时获取到sso-resource-one和sso-resource-two的资源,不过这个只适合密码模式。
 浏览器直接访问 http://127.0.0.1:8002/one/user 会报Full authentication is required to access this resource。
 

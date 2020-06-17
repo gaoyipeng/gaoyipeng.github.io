@@ -4,6 +4,7 @@ date: 2020-02-09 16:26:11
 tags: [Docker,Redis]
 categories: [Docker,Redis]
 description: 使用docker安装redis 主从模式
+typora-root-url: ..
 ---
 ## redis主从复制
 

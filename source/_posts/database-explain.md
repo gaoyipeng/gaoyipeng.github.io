@@ -4,6 +4,7 @@ date: 2020-02-29 20:21:19
 tags: [数据库,Mysql]
 categories: [数据库,Mysql]
 description: 使用explain对sql语句进行性能分析
+typora-root-url: ..
 ---
 {% note info %}在日常工作中，我们有时会遇到一些慢查询的情况，些时我们常常用到explain这个命令来查看一个这些SQL语句的执行计划，查看该SQL语句有没有使用上了索引，有没有做全表扫描等。
 

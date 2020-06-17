@@ -4,6 +4,7 @@ date: 2020-04-09 09:16:59
 tags: Spring
 categories: Spring
 description: Spring DI（DI依赖注入）
+typora-root-url: ..
 ---
 
 上一篇介绍了Spring IOC的基本概念及spring实例化bean的三种方式，这节开始介绍DI（依赖注入）。

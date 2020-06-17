@@ -4,6 +4,7 @@ date: 2020-01-26 22:12:54
 tags: [Docker,ELK]
 categories: [Docker,ELK]
 description: Docker Compose笔记
+typora-root-url: ..
 ---
 Docker Compose 是用于定义和运行多容器 Docker 应用程序的工具。微服务架构的应用系统一般包含若干个微服务，每个微服务可能会部署可能需要用到多个Docker容器，比如MySQL，Redis，Nginx等，单独的去管理每个容器可能会比较麻烦。
 
@@ -70,7 +71,7 @@ networks:
     compose与docker版本对应可以查看[https://docs.docker.com/compose/compose-file/](https://docs.docker.com/compose/compose-file/)
     使用 docker version 可以查看docker版本，我虚拟机docker版本是 19.03.5,目前为止 version 3.7 及以下均可。
     ![dockercompose对应关系.png](/images/docker/dockercompose对应关系.png)
-     
+    
 2. services：多个容器集合。一个service代表一个container，可以通过image创建，也可以通过本地的dockerfile来创建。上栗就创建了3个container。
 3. image：使用指定容器运行的镜像
 4. container_name：指定自定义容器名称，而不是生成的默认名称。

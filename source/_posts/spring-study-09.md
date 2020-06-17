@@ -4,6 +4,7 @@ date: 2020-04-21 16:53:03
 tags: Spring
 categories: Spring
 description: Spring源码学习（9）：面向切面编程（AOP）概念引入
+typora-root-url: ..
 ---
 
 前面我们学习了动态代理。这章我们接着讲 Spring 的核心概念---AOP，动态代理是AOP的基础。这也是 Spring 框架中最为核心的一个概念。

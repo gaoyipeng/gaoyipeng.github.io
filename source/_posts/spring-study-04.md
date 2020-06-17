@@ -4,6 +4,7 @@ date: 2020-04-08 10:28:22
 tags: Spring
 categories: Spring
 description: Spring IOC（控制反转）
+typora-root-url: ..
 ---
 
 ## 基本概念

@@ -4,6 +4,7 @@ date: 2020-02-27 00:08:15
 tags: [数据库,Mysql,面试]
 categories: [数据库,Mysql]
 description: 数据库索引
+typora-root-url: ..
 ---
 
 {% note info %}
@@ -75,7 +76,7 @@ ALTER TABLE mytable ADD INDEX name_city_age (name(10),city,age);
 ```
 建表时，usernname长度为 16，这里用 10。这是因为一般情况下名字的长度不会超过10，这样会加速索引查询速度，还会减少索引文件的大小，提高INSERT的更新速度。
 如果分别在 usernname，city，age上建立单列索引，让该表有3个单列索引，查询时和上述的组合索引效率也会大不一样，远远低于我们的组合索引。虽然此时有了三个索引，但MySQL只能用到其中的那个它认为似乎是最有效率的单列索引。
- 
+
 建立这样的组合索引，其实是相当于分别建立了下面三组组合MySQL数据库索引：
 1. usernname,city,age
 2. usernname,city

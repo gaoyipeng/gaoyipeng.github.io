@@ -4,6 +4,7 @@ date: 2020-03-01 19:38:42
 tags: [数据库,Mysql]
 categories: [数据库,Mysql]
 description: 数据库锁机制
+typora-root-url: ..
 ---
 
 ## 数据库引擎

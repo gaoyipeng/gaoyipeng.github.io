@@ -4,6 +4,7 @@ date: 2020-01-27 10:12:59
 tags: Docker
 categories: Docker
 description: Docker网络配置笔记
+typora-root-url: ..
 ---
 
 ## docker网络模式
@@ -60,7 +61,7 @@ Docker自身拥有4种默认的网络模式，另外我们还可以自定义网�
     docker stop busybox2
     docker rm busybox2
     docker run -itd --name busybox2 --link busybox1 busybox
-    
+
 ![busybox2-ping-busybox1.png](/images/docker/busybox2-ping-busybox1.png)
 
 busybox2 容器内部可以通过container name ping通busybox1
@@ -71,7 +72,7 @@ busybox2 容器内部可以通过container name ping通busybox1
     docker stop busybox1
     docker rm busybox1
     docker run -itd --name busybox1 --link busybox2 busybox
-   
+
 ![busybox1-ping-busybox2.png](/images/docker/busybox1-ping-busybox2.png)
 
 这样就可以了.

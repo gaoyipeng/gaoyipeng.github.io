@@ -4,6 +4,7 @@ date: 2020-02-08 16:58:42
 tags: [Docker,Redis]
 categories: [Docker,Redis]
 description: 使用docker安装单点redis
+typora-root-url: ..
 ---
 ## 安装单个redis
 
