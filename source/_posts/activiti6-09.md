@@ -172,7 +172,7 @@ password: kiki
 </definitions>
 ```
 
-可以看到没有了`<activiti:formProperty/>` ，换成 `activiti:formKey=`  设置外置表单，我们以start节点的表单为例：
+可以看到没有了`<activiti:formProperty/>` ，换成 `activiti:formKey=`  设置外置表单，我们以start节点的表单为例，其他节点我们稍后挨个贴出：
 
 ```html
 <div class="control-group">
@@ -199,11 +199,13 @@ password: kiki
 
 ## 1.1 初始化流程审批人员
 
-审批人员和上一篇文章一样，不做修改
+审批人员和上一篇文章一样，不做修改。
 
 ## 1.2  部署流程定义
 
 把流程定义文件和节点表单一起打包，然后部署。
+
+**注意，这里可以看到压缩包中是有一个文件夹（leave-formkey）的，对应bpmn文件的`activiti:formKey="leave-formkey/leave-start.form"`路径，否则会报找不到form表单。**
 
 ![image-20200617145244947](/images/activiti6-09/image-20200617145244947.png)
 
@@ -252,7 +254,7 @@ public class FormKeyController {
 
 下面是测试结果，可以看到返回了HTML片段，前端只需把这些返回片段直接显示在页面即可。
 
-![image-20200617171440325](/images/activiti6-09/image-20200617171440325.png)
+![image-20200618095447986](/images/activiti6-09/image-20200618095447986.png)
 
 ## 1.4  发起流程
 
@@ -316,3 +318,224 @@ public class FormKeyController {
 测试：
 
 ![image-20200617183656129](/images/activiti6-09/image-20200617183656129.png)
+
+## 1.5 获取待办流程列表
+
+流程启动后，下一步是部门经理审批，我们获取**部门经理待办列表**。这个和动态表单是一样的，直接使用公用接口就行。
+
+![image-20200618150336920](/images/activiti6-09/image-20200618150336920.png)
+
+## 1.6 签收任务
+
+上面我们已经获取了部门负责人的待办任务，taskId :22。接下来签收任务。
+
+![image-20200618150937763](/images/activiti6-09/image-20200618150937763.png)
+
+签收后再次查看待办任务，就会发现`assignee`变为了`leaderuser`,其他的部门负责人就不会收到这个任务了。
+
+![image-20200618151022138](/images/activiti6-09/image-20200618151022138.png)
+
+## 1.7  `leaderuser` 读取task的表单信息
+
+这里我们也优化一下，现在发现动态表单和外置表单读取task表单信息是不一样的。动态表单时获取表单信息是`/process/get-form/task/{taskid}`，写在了ProcessController类中。我们把它迁移到`DynamicFromController`类中。并在`FormKeyController`中添加如下代码：
+
+```java
+ /**
+     * 读取Task的表单
+     */
+    @GetMapping(value = "/get-form/task/{taskId}")
+    @ApiOperation(value = "获取外置表单-读取Task的表单",notes = "获取外置表单-读取Task的表单")
+    public Object findTaskForm(@PathVariable("taskId") @ApiParam("任务id")String taskId) throws Exception {
+        Object renderedTaskForm = formService.getRenderedTaskForm(taskId);
+        return renderedTaskForm;
+    }
+```
+
+我们这里贴出`approve-deptLeader.form`的内容
+
+```html
+<div class="control-group">
+	<label class="control-label" for="startDate">申请人：</label>
+	<div class="controls">${applyUserId}</div>
+</div>
+<div class="control-group">
+	<label class="control-label" for="startDate">开始时间：</label>
+	<div class="controls">
+		<input type="text" id="startDate" name="startDate" value="${startDate}" readonly />
+	</div>
+</div>
+<div class="control-group">
+	<label class="control-label" for="endDate">结束时间：</label>
+	<div class="controls">
+		<input type="text" id="endDate" name="endDate" value="${endDate}" readonly />
+	</div>
+</div>
+<div class="control-group">
+	<label class="control-label" for="reason">请假原因：</label>
+	<div class="controls">
+		<textarea id="reason" name="reason" readonly>${reason}</textarea>
+	</div>
+</div>
+<div class="control-group">
+	<label class="control-label" for="deptLeaderApproved">审批意见：</label>
+	<div class="controls">
+		<select name="fp_deptLeaderApproved" id="deptLeaderApproved">
+			<option value="true">同意</option>
+			<option value="false">拒绝</option>
+		</select>
+	</div>
+</div>
+```
+
+![image-20200618155131970](/images/activiti6-09/image-20200618155131970.png)
+
+返回信息如下，可以看到使用`${}`的方式即可获取流程表单里的字段信息。
+
+```html
+<div class="control-group">
+	<label class="control-label" for="startDate">申请人：</label>
+	<div class="controls">kafeitu</div>
+</div>
+<div class="control-group">
+	<label class="control-label" for="startDate">开始时间：</label>
+	<div class="controls">
+		<input type="text" id="startDate" name="startDate" value="2020-02-03" readonly />
+	</div>
+</div>
+<div class="control-group">
+	<label class="control-label" for="endDate">结束时间：</label>
+	<div class="controls">
+		<input type="text" id="endDate" name="endDate" value="2020-02-04" readonly />
+	</div>
+</div>
+<div class="control-group">
+	<label class="control-label" for="reason">请假原因：</label>
+	<div class="controls">
+		<textarea id="reason" name="reason" readonly>兜里没有钱，哪都去不了</textarea>
+	</div>
+</div>
+<div class="control-group">
+	<label class="control-label" for="deptLeaderApproved">审批意见：</label>
+	<div class="controls">
+		<select name="fp_deptLeaderApproved" id="deptLeaderApproved">
+			<option value="true">同意</option>
+			<option value="false">拒绝</option>
+		</select>
+	</div>
+</div>
+```
+
+## 1.8 办理任务
+
+这个和动态表单办理任务是一样的。**注意修改代码中的当前操作人**
+
+![image-20200618160259938](/images/activiti6-09/image-20200618160259938.png)
+
+到这步了，我们来看下流程图走向是否正确
+
+![image-20200618160446001](/images/activiti6-09/image-20200618160446001.png)
+
+好的，没有问题。
+
+## 1.9 人事签收及办理任务
+
+这个过程和部门经理审批类似，不再详细介绍，注意每个节点表单信息是不一样的。
+
+**步骤：获取待办列表（taskId)—签收任务—完成任务**
+
+人事节点表单信息：
+
+```html
+<div class="control-group">
+	<label class="control-label" for="startDate">申请人：</label>
+	<div class="controls">${applyUserId}</div>
+</div>
+<div class="control-group">
+	<label class="control-label" for="startDate">开始时间：</label>
+	<div class="controls">
+		<input type="text" id="startDate" name="startDate" value="${startDate}" readonly />
+	</div>
+</div>
+<div class="control-group">
+	<label class="control-label" for="endDate">结束时间：</label>
+	<div class="controls">
+		<input type="text" id="endDate" name="endDate" value="${endDate}" readonly />
+	</div>
+</div>
+<div class="control-group">
+	<label class="control-label" for="reason">请假原因：</label>
+	<div class="controls">
+		<textarea id="reason" name="reason" readonly>${reason}</textarea>
+	</div>
+</div>
+<div class="control-group">
+	<label class="control-label" for="hrApproved">审批意见：</label>
+	<div class="controls">
+		<select name="fp_hrApproved" id="hrApproved">
+			<option value="true">同意</option>
+			<option value="false">拒绝</option>
+		</select>
+	</div>
+</div>
+```
+
+办理任务：
+
+![image-20200618162237748](/images/activiti6-09/image-20200618162237748.png)
+
+![image-20200618162304259](/images/activiti6-09/image-20200618162304259.png)
+
+## 1.10 销假
+
+销假环节，和前2步大同小异，需要注意的是，销假环节的审批用户是`kafeitu`，且不需要签收。
+
+销假节点form表单信息：
+
+```html
+<div class="control-group">
+	<label class="control-label" for="startDate">申请人：</label>
+	<div class="controls">${applyUserId}</div>
+</div>
+<div class="control-group">
+	<label class="control-label" for="startDate">开始时间：</label>
+	<div class="controls">
+		<input type="text" id="startDate" name="startDate" value="${startDate}" readonly />
+	</div>
+</div>
+<div class="control-group">
+	<label class="control-label" for="endDate">结束时间：</label>
+	<div class="controls">
+		<input type="text" id="endDate" name="endDate" value="${endDate}" readonly />
+	</div>
+</div>
+<div class="control-group">
+	<label class="control-label" for="reason">请假原因：</label>
+	<div class="controls">
+		<textarea id="reason" name="reason" readonly>${reason}</textarea>
+	</div>
+</div>
+<div class="control-group">
+	<label class="control-label" for="reportBackDate">销假日期：</label>
+	<div class="controls">
+		<input type="text" id="reportBackDate" name="fp_reportBackDate" class="datepicker" data-date-format="yyyy-mm-dd" required />
+	</div>
+</div>
+```
+
+获取待办，任务id为5006：
+
+![image-20200618162708058](/images/activiti6-09/image-20200618162708058.png)
+
+![image-20200618163043806](/images/activiti6-09/image-20200618163043806.png)
+
+## 1.11 结束流程
+
+![image-20200618163144369](/images/activiti6-09/image-20200618163144369.png)
+
+# 2、总结
+
+我们完整的走了一遍外置表单流程。
+
+优点：解决了动态表单需要代码生成页面的弊端。
+
+弊端：和动态表单一样，流程业务数据全部保存在Activiti的表（act_hi_detail）中，不利于我们后期的数据处理。初步想法是，企业级应用中，新建一张业务表，保存业务信息，只需要和流程实例关联即可。
