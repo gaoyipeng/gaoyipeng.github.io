@@ -413,6 +413,8 @@ postman测试结果（参数是流程定义id，即`act_re_procdef`表的主键i
 
 ![image-20200603164205645](/images/activiti/activiti6-05/image-20200603164205645.png)
 
+## 2.6 、查看流程模型
+
 访问 http://localhost:8080/modeler/modeler.html?modelId=1，就可以愉快的在上面设计流程图了。
 
 ![image-20200603164324344](/images/activiti/activiti6-05/image-20200603164324344.png)
