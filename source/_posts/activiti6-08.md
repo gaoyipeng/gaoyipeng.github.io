@@ -466,6 +466,10 @@ logging:
 
 ![image-20200609094620979](/images/activiti/activiti6-08/image-20200609094620979.png)
 
+此处我们介绍下Activiti默认支持的表单类型，此外Activiti还支持自定义表单类型，这个我们后面用到了再介绍。
+
+![image-20200705161847399](/images/activiti6-08/image-20200705161847399.png)
+
 ## 2.1、 初始化流程审批人员
 
 可以参考第4节的单元测试代码来初始化数据，（我是直接套用了kft-activiti-demo项目的表数据）最终表结构如下：
