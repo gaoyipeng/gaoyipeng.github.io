@@ -804,6 +804,33 @@ public Leave startForm(Leave leave) {
     return leave;
 }
 
+public interface NormalFormService  {
+    ProcessInstance startWorkflow(String processDefinitionKey, String businessKey, Map<String, Object> variables);
+}
+
+/**
+     * 启动流程
+     * @param processDefinitionKey 流程定义key
+     * @param businessKey 业务数据id
+     * @param variables  表单字段，此处为null,因为普通表单字段存放在单独的表中
+     * @return
+     */
+@Override
+public ProcessInstance startWorkflow(String processDefinitionKey, String businessKey, Map<String, Object> variables) {
+
+    ProcessInstance processInstance = null;
+    try {
+        // 用来设置启动流程的人员ID，引擎会自动把用户ID保存到activiti:initiator中
+        identityService.setAuthenticatedUserId("kafeitu");
+
+        processInstance = runtimeService.startProcessInstanceByKey("leave", businessKey, variables);
+        String processInstanceId = processInstance.getId();
+
+    } finally {
+        identityService.setAuthenticatedUserId(null);
+    }
+    return processInstance;
+}
 ```
 
 注意：需要添加事务控制。防止出现流程数据和业务数据不对应的问题。

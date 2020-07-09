@@ -27,7 +27,7 @@ password: kiki
 5. 任务节点必须支持可以自定义权重。
 6. 任务节点必须支持加签、减签。(就是动态的修改任务节点的处理人)
 
-因为实际上的需求可能比上面的几种情况更加的复杂，上面的6个满足条件，工作流支持前4个，后面的2个条件是不支持的。
+实际上的需求可能比上面的几种情况更加的复杂。
 
 # 2、并行会签
 
@@ -432,7 +432,204 @@ type="users"以及type="javascript"，不是流程引擎支持的类型。需要
 
 ## 2.5 发起流程
 
+![image-20200709100415667](/images/activiti6-11/image-20200709100415667.png)
 
+此时我们查看数据库表，可以看到产生了2条任务
+
+![image-20200709100554207](/images/activiti6-11/image-20200709100554207.png)
+
+## 2.6 获取待办
+
+这种直接分配审批人员的情况，不要签收任务。分别查看`leaderuser`、`hruser`的待办信息。（注意修改代码中的当前操作人），任务id分别为5028、5031
+
+![image-20200709102859010](/images/activiti6-11/image-20200709102859010.png)
+
+![image-20200709103337630](/images/activiti6-11/image-20200709103337630.png)
+
+
+
+## 2.7 计算流程结束条件(任务监听器)
+
+我们在流程定义中设置了一个任务监听器，用于统计`leaderuser`、`hruser`会签任务完成时统计同意的数量，设置`approvedCounter`的值。
+
+```xml
+<activiti:taskListener event="complete" delegateExpression="${leaveCounterSignCompleteListener}"></activiti:taskListener>
+```
+
+![image-20200709104549901](/images/activiti6-11/image-20200709104549901.png)
+
+代码实现
+
+```java
+package com.sxdx.workflow.activiti.rest.listener;
+
+import org.activiti.engine.delegate.DelegateTask;
+import org.activiti.engine.delegate.TaskListener;
+import org.springframework.stereotype.Component;
+
+/**
+ * 请假会签任务监听器，当会签任务完成时统计同意的数量
+ */
+@Component
+public class LeaveCounterSignCompleteListener implements TaskListener {
+    @Override
+    public void notify(DelegateTask delegateTask) {
+        //approved为审批意见字段
+        Boolean approved = Boolean.getBoolean(delegateTask.getVariable("approved").toString()) ;
+        if (approved) {
+            Long agreeCounter = (Long) delegateTask.getVariable("approvedCounter");
+            delegateTask.setVariable("approvedCounter", agreeCounter + 1);
+        }
+    }
+}
+
+```
+
+
+
+## 2.8 读取task的表单信息
+
+1. `leaderuser` 读取task的表单信息
+
+   ![image-20200709111046666](/images/activiti6-11/image-20200709111046666.png)
+
+2. `hruser` 读取task的表单信息
+
+   ![image-20200709111419270.png](/images/activiti6-11/image-20200709111419270.png)
+
+## 2.9  办理任务
+
+我们这里模拟一个场景：`leaderuser` 审批通过，`hruser`审批不通过。
+
+![image-20200709123302866](/images/activiti6-11/image-20200709123302866.png)
+
+![image-20200709123344447](/images/activiti6-11/image-20200709123344447.png)
+
+此时查看流程图，已到达`调整申请`节点，符合我们的预期。
+
+![image-20200709123411187](/images/activiti6-11/image-20200709123411187.png)
+
+## 2.10 重新申请（执行监听器）
+
+`重新申请`这个顺序流除了包含判断条件外，还包含一个执行监听器，用于将前一步审批时产生的`approvedCounter`变量值清零。
+
+```xml
+<extensionElements>
+	<activiti:executionListener event="take" expression="${execution.setVariable('approvedCounter', 0)}"></activiti:executionListener>
+</extensionElements>
+```
+
+![image-20200709135610852](/images/activiti6-11/image-20200709135610852.png)
+
+![image-20200709135501118](/images/activiti6-11/image-20200709135501118.png)
+
+接下来由`kafeitu`来完成重新申请任务。首先获取待办任务，任务id：10006。（注意修改代码中当前操作人）
+
+![image-20200709140236261](/images/activiti6-11/image-20200709140236261.png)
+
+完成任务，发起重新申请。
+
+![image-20200709142611674](/images/activiti6-11/image-20200709142611674.png)
+
+## 2.11  再次办理任务
+
+可以看到数据库再次生成了2条待办数据。
+
+![image-20200709144112256](/images/activiti6-11/image-20200709144112256.png)
+
+此时的流程走向：
+
+![image-20200709144359448](/images/activiti6-11/image-20200709144359448.png)
+
+我们分别使用`leaderuser` 、`hruser`   审批通过。
+
+![image-20200709144538225](/images/activiti6-11/image-20200709144538225.png)
+
+
+
+![image-20200709144736461](/images/activiti6-11/image-20200709144736461.png)
+
+人事审批期间，我们在任务监听器上打个断点，验证一下是否正确执行，符合预期。
+
+![image-20200709144727829](/images/activiti6-11/image-20200709144727829.png)
+
+查看流程图，可以看到已经到达销假节点
+
+![image-20200709144943878](/images/activiti6-11/image-20200709144943878.png)
+
+## 2.12 销假
+
+这个就和前面的步骤一样了，发起人获取待办任务、完成销假任务即可。
+
+![image-20200709145308664](/images/activiti6-11/image-20200709145308664.png)
+
+完成销假任务：![image-20200709145412557](/images/activiti6-11/image-20200709145412557.png)
+
+## 2.13 流程结束
+
+![image-20200709145457616](/images/activiti6-11/image-20200709145457616.png)
+
+# 3、串行会签
+
+所谓串行会签，就是说，会签任务有先后顺序，只需要把 `iSequential`改为`true`即可，其他不变。
+
+## 3.1 区别
+
+- 体现在流程设计器中的区别
+
+![image-20200709150323675](/images/activiti6-11/image-20200709150323675.png)
+
+![image-20200709150720171](/images/activiti6-11/image-20200709150720171.png)
+
+- 串行，顾名思义，任务是一个个来执行的，所以需要注意users参数的顺序
+
+# 4、监听器
+
+我们这里搬运一下《Activiti实战》的概念介绍。
+
+![image-20200709151703680](/images/activiti6-11/image-20200709151703680.png)
+
+## 4.1 执行监听器
+
+![image-20200709151647254](/images/activiti6-11/image-20200709151647254.png)
+
+![image-20200709151136832](/images/activiti6-11/image-20200709151136832.png)
+
+## 4.2 任务监听器
+
+![image-20200709151517106](/images/activiti6-11/image-20200709151517106.png)
+
+![image-20200709151548984](/images/activiti6-11/image-20200709151548984.png)
+
+# 5 扩展
+
+前面我们还提出过一些需求，例如按比例通过需求，即会签人员有60%完成了审批，即通过。这样的需求应该怎么实现呢？
+
+这里介绍一下，任务监听器的几个内置变量。
+
+- nrOfInstances：实例总数
+
+- nrOfActiveInstances：当前活动的，比如，还没完成的，实例数量。 对于顺序执行的多实例，值一直为1。
+
+- nrOfCompletedInstances：已经完成实例的数目。
+
+
+另外，每个创建的分支都会有分支级别的本地变量（比如，其他实例不可见， 不会保存到流程实例级别）：
+
+- loopCounter：表示特定实例的在循环的索引值。可以使用activiti的elementIndexVariable属性修改loopCounter的变量名。
+  
+
+可以通过execution.getVariable(x)方法获得这些变量。
+
+我们可以使用这些内置变量来实现需求，这里不做详细介绍，只是提供一个思路，后期遇到再详细研究。
+
+```xml
+<multiInstanceLoopCharacteristics isSequential="false"
+     activiti:collection="assigneeList" activiti:elementVariable="assignee" >
+    <completionCondition>${nrOfCompletedInstances/nrOfInstances >= 0.6 }</completionCondition>
+ </multiInstanceLoopCharacteristics>
+
+```
 
 
 
@@ -441,3 +638,5 @@ type="users"以及type="javascript"，不是流程引擎支持的类型。需要
 参考：https://blog.csdn.net/qq_30739519/article/details/51239818
 
 https://stackoverflow.com/questions/28022772/how-to-declare-an-activiti-custom-formtype-in-a-spring-boot-application
+
+https://cloud.tencent.com/developer/article/1642728
