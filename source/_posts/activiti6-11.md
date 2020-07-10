@@ -601,7 +601,7 @@ public class LeaveCounterSignCompleteListener implements TaskListener {
 
 ![image-20200709151548984](/images/activiti6-11/image-20200709151548984.png)
 
-# 5 扩展
+# 5 情景扩展
 
 前面我们还提出过一些需求，例如按比例通过需求，即会签人员有60%完成了审批，即通过。这样的需求应该怎么实现呢？
 

@@ -1098,4 +1098,24 @@ public List<Leave> getTodoList(String processDefinitionKey, HttpServletRequest r
 
 优点：解决了动态表单需要代码生成页面的弊端。也解决了流程业务数据全部保存在Activiti的表（act_hi_detail）中的弊端，实现了数据解耦。
 
-弊端：没想到有啥弊端
+弊端：灵活，但是繁琐，通用性很差，所有业务都需要单独编码。
+
+# 5、表单模式选型
+
+​		我们已经学习了动态表单、外置表单、普通表单。它们各有利弊。但是设计流程最重要的是“通用”，选择的表单需要能够支持不同的业务系统。
+
+​		综合考虑，**外置表单是最合适的**，我们前面介绍外置表单时，通过`activiti:formKey`设置外置表单。并且部署时需要将`.form`文件和`.bpmn`一起部署。这样是很麻烦的，后期修改能要了程序员的老命。
+
+​		**解决方案**：`activiti:formKey`的值不再是表单文件（.form），而是一个URL，这个URL返回一个表单页面。在办理Task时，我们只需通过任务id获取Form key.
+
+```java
+TaskFormData formData = formService.getTaskFormData(taskId);;
+String formKey = formData.getFormKey();
+```
+
+Form key的主要是获取任务节点需要展示的页面，当我们要打开任务表单的时候可以转发或重定向到任务表单，如：　　
+
+```java
+return "redirect:/"+formKey+ "?id="+" +objId + "&taskId=" +taskId";//objId为业务对象Id  taskId为任务Id 这样就可以在任务表单获取到想要的信息
+```
+
