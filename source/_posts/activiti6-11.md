@@ -206,7 +206,7 @@ password: kiki
 
 ![image-20200703105612630](/images/activiti6-11/image-20200703105612630.png)
 
-## 2.3 发起流程
+## 2.3 自定义表单字段类型
 
 我们先来查看下启动节点的内容：
 
@@ -224,133 +224,160 @@ password: kiki
 
 type="users"以及type="javascript"，不是流程引擎支持的类型。需要我们自定义类型。
 
-### 2.3.1 自定义类型
-
 前面我们学习动态表单时介绍过Activiti支持的表单字段类型。
 
 ![image-20200705162151989](/images/activiti6-11/image-20200705162151989.png)
 
 现在我们学习如何自定义字段类型。
 
-1. 创建解析类，需要继承`AbstractFormType`类
+### 2.3.1 创建解析类
 
-   ```java
-   package com.sxdx.workflow.activiti.rest.entity.formTypes;
-   
-   import cn.hutool.core.util.ObjectUtil;
-   import freemarker.template.utility.StringUtil;
-   import org.activiti.engine.form.AbstractFormType;
-   import org.springframework.stereotype.Component;
-   
-   import java.util.Arrays;
-   
-   @Component
-   public class KikiUserFormType extends AbstractFormType {
-       /**
-        * 把表单中的值转换为实际的对象
-        * @param s
-        * @return
-        */
-       @Override
-       public Object convertFormValueToModelValue(String s) {
-           String[] split = StringUtil.split(s, ',');
-           return Arrays.asList(split);
-       }
-   
-       /**
-        * 把实际对象的值转换为表单中的值
-        * @param o
-        * @return
-        */
-       @Override
-       public String convertModelValueToFormValue(Object o) {
-           return ObjectUtil.toString(0);
-       }
-   
-       /**
-        * 定义表单类型的标识符
-        */
-       @Override
-       public String getName() {
-           return "users";
-       }
-   }
-   
-   ```
+​	需要继承`AbstractFormType`类。或者继承默认字段类型实现类。
 
-   ```java
-   package com.sxdx.workflow.activiti.rest.entity.formTypes;
-   
-   import org.activiti.engine.form.AbstractFormType;
-   import org.springframework.stereotype.Component;
-   
-   @Component
-   public class JavascriptFormType extends AbstractFormType {
-       /**
-        * 把表单中的值转换为实际的对象
-        * @param propertyValue
-        * @return
-        */
-       @Override
-       public Object convertFormValueToModelValue(String propertyValue) {
-           return propertyValue;
-       }
-   
-       /**
-        * 把实际对象的值转换为表单中的值
-        * @param modelValue
-        * @return
-        */
-       @Override
-       public String convertModelValueToFormValue(Object modelValue) {
-           return (String) modelValue;
-       }
-   
-       /**
-        * 定义表单类型的标识符
-        *
-        * @return
-        */
-       @Override
-       public String getName() {
-           return "javascript";
-       }
-   }
-   
-   ```
+```java
+package com.sxdx.workflow.activiti.rest.entity.formTypes;
 
-   
+import cn.hutool.core.util.ObjectUtil;
+import freemarker.template.utility.StringUtil;
+import org.activiti.engine.form.AbstractFormType;
+import org.springframework.stereotype.Component;
 
-2. 在流程引擎中注册解析类
+import java.util.Arrays;
 
-   此处用到了BeanPostProcessor（后置Bean处理器），对这个不熟悉的可以参考我的另一篇博客 ：[Spring源码学习（7）：Bean的生命周期](https://blog.gaoyp.cn/2020/04/12/spring-study-07/)
+@Component
+public class KikiUserFormType extends AbstractFormType {
+    /**
+     * 把表单中的值转换为实际的对象
+     * @param s
+     * @return
+     */
+    @Override
+    public Object convertFormValueToModelValue(String s) {
+        String[] split = StringUtil.split(s, ',');
+        return Arrays.asList(split);
+    }
 
-   ```java
-   /**
-        * 自定义表单字段类型
-        * @return
-        */
-       @Bean
-       public BeanPostProcessor activitiConfigurer() {
-           return new BeanPostProcessor() {
-               @Override
-               public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-                   if (bean instanceof SpringProcessEngineConfiguration) {
-                       List<AbstractFormType> customFormTypes = Arrays.<AbstractFormType>asList(javascriptFormType,kikiUserFormType);
-                       ((SpringProcessEngineConfiguration)bean).setCustomFormTypes(customFormTypes);
-                   }
-                   return bean;
-               }
-               @Override
-               public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-                   return bean;
-               }
-           };
-   
-       }
-   ```
+    /**
+     * 把实际对象的值转换为表单中的值
+     * @param o
+     * @return
+     */
+    @Override
+    public String convertModelValueToFormValue(Object o) {
+        return ObjectUtil.toString(0);
+    }
 
-   
+    /**
+     * 定义表单类型的标识符
+     */
+    @Override
+    public String getName() {
+        return "users";
+    }
+}
+
+```
+
+```java
+package com.sxdx.workflow.activiti.rest.entity.formTypes;
+
+import org.activiti.engine.form.AbstractFormType;
+import org.springframework.stereotype.Component;
+
+@Component
+public class JavascriptFormType extends AbstractFormType {
+    /**
+     * 把表单中的值转换为实际的对象
+     * @param propertyValue
+     * @return
+     */
+    @Override
+    public Object convertFormValueToModelValue(String propertyValue) {
+        return propertyValue;
+    }
+
+    /**
+     * 把实际对象的值转换为表单中的值
+     * @param modelValue
+     * @return
+     */
+    @Override
+    public String convertModelValueToFormValue(Object modelValue) {
+        return (String) modelValue;
+    }
+
+    /**
+     * 定义表单类型的标识符
+     *
+     * @return
+     */
+    @Override
+    public String getName() {
+        return "javascript";
+    }
+}
+
+```
+
+
+
+### 2.3.2 在流程引擎中注册解析类
+
+此处用到了BeanPostProcessor（后置Bean处理器），对这个不熟悉的可以参考我的另一篇博客 ：[Spring源码学习（7）：Bean的生命周期](https://blog.gaoyp.cn/2020/04/12/spring-study-07/)
+
+```java
+/**
+     * 自定义表单字段类型
+     * @return
+     */
+    @Bean
+    public BeanPostProcessor activitiConfigurer() {
+        return new BeanPostProcessor() {
+            @Override
+            public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+                if (bean instanceof SpringProcessEngineConfiguration) {
+                    List<AbstractFormType> customFormTypes = Arrays.<AbstractFormType>asList(javascriptFormType,kikiUserFormType);
+                    ((SpringProcessEngineConfiguration)bean).setCustomFormTypes(customFormTypes);
+                }
+                return bean;
+            }
+            @Override
+            public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+                return bean;
+            }
+        };
+
+    }
+```
+
+此时，我们已经可以正常发起流程了，不过在图形化工具Activiti Modeler中，我们还是无法选择自定义字段。
+
+### 2.3.3 修改Activiti Modeler UI
+
+修改`static/modeler/editor-app/configuration/properties/form-properties-popup.html`文件
+
+```html
+<div class="form-group">
+    <label for="typeField">{{'PROPERTY.FORMPROPERTIES.TYPE' | translate}}</label>
+    <select id="typeField" class="form-control" ng-model="selectedProperties[0].type" ng-change="propertyTypeChanged()">
+        <option>string</option>
+        <option>long</option>
+        <option>boolean</option>
+        <option>date</option>
+        <option>enum</option>
+        <option>users</option>
+        <option>javascript</option>
+        <option>bigtext</option>
+        <option>double</option>
+    </select>
+</div>
+```
+
+添加对应的自定义类型，效果如下：
+
+![image-20200713145610645](/images/activiti6-11/image-20200713145610645.png)
+
+
 
 ## 2.4 获取流程启动节点表单信息
 
