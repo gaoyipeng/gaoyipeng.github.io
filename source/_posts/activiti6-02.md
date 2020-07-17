@@ -26,7 +26,7 @@ password: kiki
 
   
 
-代码地址：https://github.com/gaoyipeng/workflow-activiti
+代码地址：https://github.com/gaoyipeng/workflow-activiti6.git
 
 # 1、搭建maven聚合工程：
 

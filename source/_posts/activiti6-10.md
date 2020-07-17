@@ -489,6 +489,61 @@ public class CodeGenerator {
 
 ![image-20200627101642117](/images/activiti6-10/image-20200627101642117.png)
 
+## 2.7 配置Druid
+
+我们使用Mybatis-Plus来配置Druid后，再次访问 http://localhost:9090/druid/index.html就会报404.我们需要添加一个配置类来管理
+
+```java
+package com.sxdx.workflow.activiti.rest.config;
+
+import com.alibaba.druid.support.http.StatViewServlet;
+import com.alibaba.druid.support.http.WebStatFilter;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.boot.web.servlet.ServletRegistrationBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+/**
+ * Druid连接池监控平台 http://localhost:9090/druid/index.html
+ */
+@Configuration
+public class DruidConfiguration {
+    @Bean
+    public ServletRegistrationBean startViewServlet(){
+        ServletRegistrationBean servletRegistrationBean = new ServletRegistrationBean(new StatViewServlet(),"/druid/*");
+        // IP白名单
+        servletRegistrationBean.addInitParameter("allow","127.0.0.1");
+        // IP黑名单(共同存在时，deny优先于allow)
+        servletRegistrationBean.addInitParameter("deny","127.0.0.1");
+        //控制台管理用户
+        servletRegistrationBean.addInitParameter("loginUsername","admin");
+        servletRegistrationBean.addInitParameter("loginPassword","123456");
+        //是否能够重置数据
+        servletRegistrationBean.addInitParameter("resetEnable","false");
+        return servletRegistrationBean;
+    }
+
+    @Bean
+    public FilterRegistrationBean statFilter(){
+        FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean(new WebStatFilter());
+        //添加过滤规则
+        filterRegistrationBean.addUrlPatterns("/*");
+        //忽略过滤的格式
+        filterRegistrationBean.addInitParameter("exclusions","*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*");
+        return filterRegistrationBean;
+    }
+}
+
+```
+
+再次访问：http://localhost:9090/druid/index.html
+
+![image-20200716163751538](/images/activiti6-10/image-20200716163751538.png)
+
+输入账号密码：admin   123456
+
+![image-20200716163906802](/images/activiti6-10/image-20200716163906802.png)
+
 # 3、普通表单
 
 ## 3.1 流程定义

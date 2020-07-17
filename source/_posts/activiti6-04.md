@@ -505,7 +505,7 @@ identityService.deleteMembership( userId,  groupId);
 
 ![image-20200529160354305](/images/activiti/activiti6-04/image-20200529160354305.png)
 
-2.9 获取已办
+## 2.9 获取已办
 
 ```java
     /**
@@ -527,7 +527,7 @@ identityService.deleteMembership( userId,  groupId);
 
 ![image-20200529160953048](/images/activiti/activiti6-04/image-20200529160953048.png)
 
-2.10  获取审批意见
+## 2.10  获取审批意见
 
 ```java
 /**

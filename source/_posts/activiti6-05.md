@@ -415,13 +415,15 @@ postman测试结果（参数是流程定义id，即`act_re_procdef`表的主键i
 
 ## 2.6 、查看流程模型
 
-访问 http://localhost:8080/modeler/modeler.html?modelId=1，就可以愉快的在上面设计流程图了。
+访问 http://localhost:8080/modeler/modeler.html?modelId=1, 
+
+就可以愉快的在上面设计流程图了。
 
 ![image-20200603164324344](/images/activiti/activiti6-05/image-20200603164324344.png)
 
 流程定义文件—流程定义—流程模型 之间的相互转化，就介绍到这里。
 
-# 7、删除已部署的流程定义
+## 2.7、删除已部署的流程定义
 
 ```
 /**
@@ -447,7 +449,7 @@ postman测试结果（参数是流程定义id，即`act_re_procdef`表的主键i
 
 ![image-20200617155645515](/images/activiti6-05/image-20200617155645515.png)
 
-# 8、删除流程模型
+## 2.8、删除流程模型
 
 ```java
 @GetMapping(value = "/modeler/delete/{modelId}")
