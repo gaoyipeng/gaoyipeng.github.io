@@ -26,7 +26,9 @@ password: kiki
 
 我们使用《Activiti实战》中的办公用品采购流程来走一遍子流程。眼过千遍不如手过一遍。
 
-![image-20200711175102100](/images/jvm/activiti6-12/image-20200711175102100.png)
+![image-20200725204524077](/images/activiti6-12/image-20200725204524077.png)
+
+
 
 
 

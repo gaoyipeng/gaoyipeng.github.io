@@ -120,11 +120,10 @@ Spring 定义了如下七种传播行为，在上面的`TransactionDefinition`�
 ```java
 //伪代码
 //A方法（testDo）  B方法（transfer或transferException）
-@Transactional(propagation = Propagation.REQUIRED)
-public testDo(){
-    @Transactional(propagation = Propagation.REQUIRED)
+public void testDo(){
+    @Transactional(propagation = Propagation.XXX)
     serviceImpl.transfer();
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.XXX)
     serviceImpl.transferException();
 }
 ```

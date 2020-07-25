@@ -23,8 +23,6 @@ Spring AOP和AscpectJ之间的关系：Spring使用了和AscpectJ一样的注解
 
 ![aop.png](/images/spring/10/aop.png)
 
-![aop.png](I:\Hexo\source\images\spring\10\aop.png)
-
 一般来说，直接使用Spring AOP就可以实现我们大部分的需求了。
 
 # Spring AOP
