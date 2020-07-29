@@ -355,4 +355,70 @@ public PageInfo<HistoricProcessInstance> getFinishedInstanceList(String processD
 
 此处查出了已完结的流程信息，并且包含分页信息。
 
-## 
+## 3、获取流程定义列表
+
+定义模块，补充一个获取流程定义列表的方法。
+
+
+
+## 4、分页插件的问题
+
+在第一步我们就集成了pageHelper分页插件，但是在本地各种测试时发现查询activiti数据和使用mybatis-plus方法时，pageHelper总是不起作用。经过一番查找得出如下结论。
+
+### 4.1 mybatis-plus 在3.x 版本后不再支持pageHelper插件。
+
+具体原因参考：
+
+[https://github.com/baomidou/mybatis-plus/blob/3.0/CHANGELOG.md](https://github.com/baomidou/mybatis-plus/blob/3.0/CHANGELOG.md)
+
+https://github.com/baomidou/mybatis-plus/issues/801
+
+![image-20200729111514298](/images/activiti6-15/image-20200729111514298.png)
+
+Mybatis-Plus3 升级了自己的分页插件，也很强大。使用文档可以参考：https://mybatis.plus/guide/page.html
+
+但是不是意味着在系统中不应该出现pageHelper的包呢？不是的。
+
+我们都知道MP是对mybatis的增强，如果我们不使用Mybatis帮我们封装好的方法（通用mapper等），只使用Mybatis的方法，自己写接口、xml配置，pageHelper依然还是可以使用的。
+
+```java
+public List<Leave>  getAll(){
+        /**
+         * 如果使用MP帮我们封装好的方法，例如这个 selectBatchIds，则PageHelper分页失效。但是getAll方法是自己写的，则可以继续使用
+         * PageHelper.startPage(2,2);
+         * List<Integer> list = new ArrayList<>();
+         *     list.add(1);
+         *     list.add(2);
+         *     list.add(3);
+         *  List<Leave> leaveList = leaveMapper.selectBatchIds(list);
+         *  PageInfo<Leave> pageInfo = new PageInfo<>(leaveList);//分页失效
+         */
+        PageHelper.startPage(2,2);
+        List<Leave> leaveList = leaveMapper.getAll();
+        PageInfo<Leave> pageInfo = new PageInfo<>(leaveList);//分页有效
+        return leaveList;
+    }
+```
+
+```java
+@Repository
+public interface LeaveMapper extends BaseMapper<Leave> {
+    List<Leave> getAll();
+}
+```
+
+```xml
+<select id="getAll" resultType="com.sxdx.workflow.activiti.rest.entity.Leave">
+    select <include refid="Base_Column_List" />
+    from oa_leave where 1=1
+</select>
+```
+
+### 4.2  pageHelper不支持activiti 
+
+各种尝试后，发现`pageHelper`不支持`activiti` 。原因是activiti做复杂查询貌似`activiti`底层会做多次查询，而`pageHelper`默认只查询最近的那条SQL。所以只能使用activiti 自带的 `listPage` 分页方法了。
+
+参考：https://github.com/pagehelper/Mybatis-PageHelper/issues/152
+
+
+
