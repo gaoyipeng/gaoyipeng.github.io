@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<script>
+    (function(){
+        if(''){
+            if (prompt('��������������','') !== ''){
+                alert('�������');
+                history.back();
+            }
+        }
+    })();
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://blog.gaoyp.cn').hostname,
+    root: '/',
+    scheme: 'Mist',
+    version: '7.5.0',
+    exturl: false,
+    sidebar: {"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":true,"color":"#222","save":"auto"},
+    fancybox: true,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="JVM初探（1）- 基本概念">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JVM初探（1）- 基本概念">
+<meta property="og:url" content="http://blog.gaoyp.cn/2020/06/13/jvm-01/index.html">
+<meta property="og:site_name" content="Garnett 的博客">
+<meta property="og:description" content="JVM初探（1）- 基本概念">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://blog.gaoyp.cn/images/jvm-01/image-20200614095110226.png">
+<meta property="og:image" content="http://blog.gaoyp.cn/images/jvm-01/image-20200613202133369.png">
+<meta property="og:image" content="http://blog.gaoyp.cn/images/jvm-01/image-20200613202700803.png">
+<meta property="og:image" content="http://blog.gaoyp.cn/images/jvm-01/image-20200613204620846.png">
+<meta property="og:image" content="http://blog.gaoyp.cn/images/jvm-01/image-20200613204903455.png">
+<meta property="og:image" content="http://blog.gaoyp.cn/images/jvm-01/image-20200614160050397.png">
+<meta property="og:image" content="http://blog.gaoyp.cn/images/jvm-01/image-20200614154911386.png">
+<meta property="og:image" content="http://blog.gaoyp.cn/images/jvm-01/image-20200614155255852.png">
+<meta property="og:image" content="http://blog.gaoyp.cn/images/jvm-01/image-20200614114550691.png">
+<meta property="og:image" content="http://blog.gaoyp.cn/images/jvm-01/image-20200614121242919.png">
+<meta property="og:image" content="http://blog.gaoyp.cn/images/jvm-01/image-20200614155851483.png">
+<meta property="og:image" content="http://blog.gaoyp.cn/images/jvm-01/image-20200614155919953.png">
+<meta property="og:image" content="http://blog.gaoyp.cn/images/jvm-01/image-20200614160006116.png">
+<meta property="og:image" content="http://blog.gaoyp.cn/images/jvm-01/image-20200614161936811.png">
+<meta property="og:image" content="http://blog.gaoyp.cn/images/jvm-01/image-20200614162439090.png">
+<meta property="og:image" content="http://blog.gaoyp.cn/images/jvm-01/image-20200614162727737.png">
+<meta property="og:image" content="http://blog.gaoyp.cn/images/jvm-01/image-20200614163225649.png">
+<meta property="og:image" content="http://blog.gaoyp.cn/images/jvm-01/image-20200614163300251.png">
+<meta property="og:image" content="http://blog.gaoyp.cn/images/jvm-01/image-20200614163519871.png">
+<meta property="article:published_time" content="2020-06-13T03:36:38.000Z">
+<meta property="article:modified_time" content="2020-07-25T12:50:32.100Z">
+<meta property="article:author" content="Garnett">
+<meta property="article:tag" content="JVM">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://blog.gaoyp.cn/images/jvm-01/image-20200614095110226.png">
+
+<link rel="canonical" href="http://blog.gaoyp.cn/2020/06/13/jvm-01/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>JVM初探（1）- 基本概念 | Garnett 的博客</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?657697497431005879fb9fdb4dc9ccd3";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Garnett 的博客" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Garnett 的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">学然后知不足,教然后知困。知不足,然后能自反也;知困,然后能自强也</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://blog.gaoyp.cn/2020/06/13/jvm-01/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/qiqi.jpg">
+      <meta itemprop="name" content="Garnett">
+      <meta itemprop="description" content="学然后知不足,教然后知困。知不足,然后能自反也;知困,然后能自强也">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Garnett 的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          JVM初探（1）- 基本概念
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-06-13 11:36:38" itemprop="dateCreated datePublished" datetime="2020-06-13T11:36:38+08:00">2020-06-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-07-25 20:50:32" itemprop="dateModified" datetime="2020-07-25T20:50:32+08:00">2020-07-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JVM/" itemprop="url" rel="index">
+                    <span itemprop="name">JVM</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <span id="/2020/06/13/jvm-01/" class="post-meta-item leancloud_visitors" data-flag-title="JVM初探（1）- 基本概念" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2020/06/13/jvm-01/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2020/06/13/jvm-01/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+            <div class="post-description">JVM初探（1）- 基本概念</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="1、JVM介绍"><a href="#1、JVM介绍" class="headerlink" title="1、JVM介绍"></a>1、JVM介绍</h1><p>JVM是Java Virtual Machine（Java虚拟机）的缩写，JVM是一种用于计算设备的规范，它是一个虚构出来的计算机，是通过在实际的计算机上仿真模拟各种计算机功能来实现的。</p>
+<p>引入Java语言虚拟机后，Java语言在不同平台上运行时不需要重新编译。Java语言使用Java虚拟机屏蔽了与具体平台相关的信息，使得Java语言编译程序只需生成在Java虚拟机上运行的目标代码（字节码），就可以在多种平台上不加修改地运行。这就是JAVA跨平台的原因。</p>
+<p>三种JVM：</p>
+<ul>
+<li><p><strong>Sun公司的HotSpot 是目前使用范围最广的Java虚拟机。</strong></p>
+<p><img src="/images/jvm-01/image-20200614095110226.png" alt="image-20200614095110226"></p>
+</li>
+<li><p>BEA公司的JRockit（原来的 Bea JRockit）电脑软件，系列产品是一个全面的Java运行时解决方案组合。</p>
+</li>
+<li><p>IBM公司的J9 VM 是一个高性能的企业级 Java 虚拟机</p>
+</li>
+</ul>
+<h1 id="2、JVM的位置"><a href="#2、JVM的位置" class="headerlink" title="2、JVM的位置"></a>2、JVM的位置</h1><p><img src="/images/jvm-01/image-20200613202133369.png" alt="image-20200613202133369"></p>
+<h1 id="3、JVM体系结构"><a href="#3、JVM体系结构" class="headerlink" title="3、JVM体系结构"></a>3、JVM体系结构</h1><p>我们经常说到的JVM调优，就是发生在堆（Heap）区域。</p>
+<p><img src="/images/jvm-01/image-20200613202700803.png" alt="image-20200613202700803"></p>
+<h1 id="4、类加载器"><a href="#4、类加载器" class="headerlink" title="4、类加载器"></a>4、类加载器</h1><h2 id="4-1、类加载器分类"><a href="#4-1、类加载器分类" class="headerlink" title="4.1、类加载器分类"></a>4.1、类加载器分类</h2><ul>
+<li>虚拟机自带加载器</li>
+<li>启动类（根）加载器 (BootstrapClassLoader)</li>
+<li>扩展类加载器(ExtClassLoader)</li>
+<li>应用程序加载器（AppClassLoader）</li>
+</ul>
+<p><img src="/images/jvm-01/image-20200613204620846.png" alt="image-20200613204620846"></p>
+<p><img src="/images/jvm-01/image-20200613204903455.png" alt="image-20200613204903455"></p>
+<h2 id="4-2、双亲委派机制"><a href="#4-2、双亲委派机制" class="headerlink" title="4.2、双亲委派机制"></a>4.2、双亲委派机制</h2><blockquote>
+<p>当某个类加载器需要加载某个<code>.class</code>文件时，它首先把这个任务委托给他的上级类加载器，递归这个操作，如果上级的类加载器没有加载，自己才会去加载这个类。</p>
+</blockquote>
+<p><strong>双亲委派机制的作用</strong>：</p>
+<ul>
+<li>1、防止重复加载同一个<code>.class</code>。类加载器会一直向上委托，询问上级加载器是否可以加载。如果上级都无法加载才是当前加载器加载。</li>
+<li>2、保证核心<code>.class</code>不能被篡改。通过委托方式，不会去篡改核心<code>.clas</code>，即使篡改也不会去加载，即使加载也不会是同一个<code>.class</code>对象了。不同的加载器加载同一个<code>.class</code>也不是同一个<code>Class</code>对象。这样保证了<code>Class</code>执行安全。</li>
+</ul>
+<h1 id="5、Native"><a href="#5、Native" class="headerlink" title="5、Native"></a>5、Native</h1><p>Java平台有个用户和本地C代码进行互操作的API，称为Java Native Interface (本地方法接口)。通过Native方法（保存在本地方法栈）即可调用这些JNI接口。</p>
+<p>Native常见于两种场景里。一个就是多线程。Java的多线程实际上是调用C语言实现的。再有一个就是硬件开发。涉及到和硬件交互，都会涉及到Native，就是我们说的JNI编程。</p>
+<h1 id="6、程序计数器"><a href="#6、程序计数器" class="headerlink" title="6、程序计数器"></a>6、程序计数器</h1><p>每个线程都有一个程序计数器，属于线程私有。本质是一个指针，指向方法区中的方法字节码（用来存储指向一条指令的地址，也即将要执行的指令代码），了解即可。</p>
+<h1 id="7、方法区（Method-Area）"><a href="#7、方法区（Method-Area）" class="headerlink" title="7、方法区（Method Area）"></a>7、方法区（Method Area）</h1><p>方法区被所有线程共享，所有类的的字段和方法都保存在这个地方。</p>
+<p><strong>静态变量、常量、类信息（构造方法、接口定义），运行是的常量池也保存在方法区中。但是实例变量存在堆内存中，与方法区无关</strong></p>
+<h1 id="8、栈（Stack）"><a href="#8、栈（Stack）" class="headerlink" title="8、栈（Stack）"></a>8、栈（Stack）</h1><blockquote>
+<p>栈是一种数据结构。栈的特点：先进后出，后进先出。</p>
+</blockquote>
+<p>举一个好理解的例子，方法栈：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">new</span> Test().test();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">""</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Java 会把main方法放在栈底，上面是test方法。main 方法先执行，但是后弹出。</p>
+<p><strong>栈中存放的内容</strong>：8大基本数据类型+对象的引用+实例的方法（方法栈）</p>
+<h1 id="9、堆-Heap"><a href="#9、堆-Heap" class="headerlink" title="9、堆 (Heap)"></a>9、堆 (Heap)</h1><p>栈和线程是一一对应的，但是一个JVM只有一个堆内存。且内存大小可调节。</p>
+<p>堆内存可以细分为3个区域：</p>
+<ul>
+<li><p>新生区（伊甸园区 Eden Space）</p>
+<p>​    伊甸园区 Eden Space：所有对象都是在这里New出来的。</p>
+<p>​    幸存区form区</p>
+<p>​    幸存区to区</p>
+</li>
+<li><p>养老区</p>
+<p>当一个对象经历了15次GC（默认）后，就会进入养老区。</p>
+</li>
+<li><p>永久存储区（逻辑上存在，物理上不存在）</p>
+<p>存储java运行时的一些环境或类信息。永久存储区常驻内存中，不会有垃圾回收，只有关闭JVM虚拟机，才会释放这个区域的内存。</p>
+</li>
+</ul>
+<p>  <strong>垃圾回收（GC）就发生在新生区、养老区</strong>。</p>
+<h1 id="10、利用Jprofiler分析内存溢出（OOM）原因"><a href="#10、利用Jprofiler分析内存溢出（OOM）原因" class="headerlink" title="10、利用Jprofiler分析内存溢出（OOM）原因"></a>10、利用Jprofiler分析内存溢出（OOM）原因</h1><h2 id="1、安装客户端"><a href="#1、安装客户端" class="headerlink" title="1、安装客户端"></a>1、安装客户端</h2><p>官网：<a href="https://www.ej-technologies.com/download/jprofiler/files，需要破解。" target="_blank" rel="noopener">https://www.ej-technologies.com/download/jprofiler/files，需要破解。</a></p>
+<p><img src="/images/jvm-01/image-20200614160050397.png" alt="image-20200614160050397"></p>
+<p>下面提供了11.1版本的百度云下载地址，包含破解包</p>
+<p>链接：<a href="https://pan.baidu.com/s/1y0AloyIpWfKdJ6S3ZG_Iyg" target="_blank" rel="noopener">https://pan.baidu.com/s/1y0AloyIpWfKdJ6S3ZG_Iyg</a><br>提取码：szvb</p>
+<p>我选择了9.2版本，为啥哩，因为9.2版本网上资料多~~，破解包通用。</p>
+<p>下载好后安装即可，<strong>保证安装路径无中文、无空格</strong>，我的安装路径是</p>
+<p><img src="/images/jvm-01/image-20200614154911386.png" alt="image-20200614154911386"></p>
+<p>生成key:</p>
+<p><img src="/images/jvm-01/image-20200614155255852.png" alt="image-20200614155255852"></p>
+<p>具体安装步骤 不记录，百度即可。</p>
+<h2 id="2、IDEA安装Jprofiler插件"><a href="#2、IDEA安装Jprofiler插件" class="headerlink" title="2、IDEA安装Jprofiler插件"></a>2、IDEA安装Jprofiler插件</h2><p><img src="/images/jvm-01/image-20200614114550691.png" alt="image-20200614114550691"></p>
+<p>安装后重启：</p>
+<p><img src="/images/jvm-01/image-20200614121242919.png" alt="image-20200614121242919"></p>
+<p><img src="/images/jvm-01/image-20200614155851483.png" alt="image-20200614155851483"></p>
+<h2 id="3、测试"><a href="#3、测试" class="headerlink" title="3、测试"></a>3、测试</h2><p><img src="/images/jvm-01/image-20200614155919953.png" alt="image-20200614155919953"></p>
+<p>启动项目，就会看到</p>
+<p><img src="/images/jvm-01/image-20200614160006116.png" alt="image-20200614160006116"></p>
+<h2 id="4、模拟内存溢出"><a href="#4、模拟内存溢出" class="headerlink" title="4、模拟内存溢出"></a>4、模拟内存溢出</h2><p>前面3个步骤主要是监控我们的程序，现在我们模拟一个内存溢出的场景；</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        String  str = <span class="string">"aaaaaaaaaaaaaa"</span>;</span><br><span class="line">        <span class="keyword">while</span>(<span class="keyword">true</span>)&#123;</span><br><span class="line">            str+=str;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>配置这个配的JVM信息：-Xms8m -Xmx16m -XX:+HeapDumpOnOutOfMemoryError</p>
+<p>初始化jvm内存大小8m,最大16，当发生内存溢出情况，输出一个Dump 文件</p>
+<p><img src="/images/jvm-01/image-20200614161936811.png" alt="image-20200614161936811"></p>
+<p>执行程序</p>
+<p><img src="/images/jvm-01/image-20200614162439090.png" alt="image-20200614162439090"></p>
+<p>可以看到，发生了内存溢出。并且在根目录下输出了一个<code>hprof</code>文件，<strong>这个就是JVM的Dump文件</strong>。</p>
+<p><img src="/images/jvm-01/image-20200614162727737.png" alt="image-20200614162727737"></p>
+<p>我们直接双击这个文件</p>
+<p><img src="/images/jvm-01/image-20200614163225649.png" alt="image-20200614163225649"></p>
+<p><img src="/images/jvm-01/image-20200614163300251.png" alt="image-20200614163300251"></p>
+<p>这里就可以 定位到出现问题的地方。</p>
+<h1 id="11、垃圾回收机制（GC）"><a href="#11、垃圾回收机制（GC）" class="headerlink" title="11、垃圾回收机制（GC）"></a>11、垃圾回收机制（GC）</h1><p><img src="/images/jvm-01/image-20200614163519871.png" alt="image-20200614163519871"></p>
+<p>垃圾回收主要是处理 <strong>新生区、幸存区、养老区</strong>的数据。</p>
+<h2 id="11-1-GC两种分类"><a href="#11-1-GC两种分类" class="headerlink" title="11.1 GC两种分类"></a>11.1 GC两种分类</h2><ul>
+<li>轻GC(普通GC)</li>
+<li>重GC（全局）</li>
+</ul>
+<h2 id="11-2-GC的常用算法"><a href="#11-2-GC的常用算法" class="headerlink" title="11.2 GC的常用算法"></a>11.2 GC的常用算法</h2><ul>
+<li>复制算法</li>
+<li>标记清除算法</li>
+<li>标记压缩算法</li>
+</ul>
+<h1 id="12、JMM-（Java-Memory-Model）java内存模型"><a href="#12、JMM-（Java-Memory-Model）java内存模型" class="headerlink" title="12、JMM （Java  Memory Model）java内存模型"></a>12、JMM （Java  Memory Model）java内存模型</h1><p>作用：缓存一致性协议，用于定义数据读写规则。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/uploads/weixin.png" alt="Garnett 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/uploads/zhifubao.png" alt="Garnett 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Garnett
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://blog.gaoyp.cn/2020/06/13/jvm-01/" title="JVM初探（1）- 基本概念">http://blog.gaoyp.cn/2020/06/13/jvm-01/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/zh-CN" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/JVM/" rel="tag"># JVM</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/06/08/activiti6-08/" rel="prev" title="Activiti（8） 动态表单实战、集成Swagger、Logback">
+      <i class="fa fa-chevron-left"></i> Activiti（8） 动态表单实战、集成Swagger、Logback
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/06/16/activiti6-09/" rel="next" title="Activiti（9） 外置表单实战">
+      Activiti（9） 外置表单实战 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="comments"></div>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1、JVM介绍"><span class="nav-number">1.</span> <span class="nav-text">1、JVM介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2、JVM的位置"><span class="nav-number">2.</span> <span class="nav-text">2、JVM的位置</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3、JVM体系结构"><span class="nav-number">3.</span> <span class="nav-text">3、JVM体系结构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4、类加载器"><span class="nav-number">4.</span> <span class="nav-text">4、类加载器</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#4-1、类加载器分类"><span class="nav-number">4.1.</span> <span class="nav-text">4.1、类加载器分类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-2、双亲委派机制"><span class="nav-number">4.2.</span> <span class="nav-text">4.2、双亲委派机制</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5、Native"><span class="nav-number">5.</span> <span class="nav-text">5、Native</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#6、程序计数器"><span class="nav-number">6.</span> <span class="nav-text">6、程序计数器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#7、方法区（Method-Area）"><span class="nav-number">7.</span> <span class="nav-text">7、方法区（Method Area）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#8、栈（Stack）"><span class="nav-number">8.</span> <span class="nav-text">8、栈（Stack）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#9、堆-Heap"><span class="nav-number">9.</span> <span class="nav-text">9、堆 (Heap)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#10、利用Jprofiler分析内存溢出（OOM）原因"><span class="nav-number">10.</span> <span class="nav-text">10、利用Jprofiler分析内存溢出（OOM）原因</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1、安装客户端"><span class="nav-number">10.1.</span> <span class="nav-text">1、安装客户端</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2、IDEA安装Jprofiler插件"><span class="nav-number">10.2.</span> <span class="nav-text">2、IDEA安装Jprofiler插件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3、测试"><span class="nav-number">10.3.</span> <span class="nav-text">3、测试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4、模拟内存溢出"><span class="nav-number">10.4.</span> <span class="nav-text">4、模拟内存溢出</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#11、垃圾回收机制（GC）"><span class="nav-number">11.</span> <span class="nav-text">11、垃圾回收机制（GC）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#11-1-GC两种分类"><span class="nav-number">11.1.</span> <span class="nav-text">11.1 GC两种分类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#11-2-GC的常用算法"><span class="nav-number">11.2.</span> <span class="nav-text">11.2 GC的常用算法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#12、JMM-（Java-Memory-Model）java内存模型"><span class="nav-number">12.</span> <span class="nav-text">12、JMM （Java  Memory Model）java内存模型</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Garnett"
+      src="/uploads/qiqi.jpg">
+  <p class="site-author-name" itemprop="name">Garnett</p>
+  <div class="site-description" itemprop="description">学然后知不足,教然后知困。知不足,然后能自反也;知困,然后能自强也</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">51</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">24</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/gaoyipeng" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;gaoyipeng" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-fw fa-rss"></i>RSS</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/zh-CN" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://mrbird.cc/" title="https:&#x2F;&#x2F;mrbird.cc&#x2F;" rel="noopener" target="_blank">MrBird的博客</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">garnett</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.5.0
+  </div>
+
+        
+
+
+
+
+
+
+  <script>
+  function leancloudSelector(url) {
+    return document.getElementById(url).querySelector('.leancloud-visitors-count');
+  }
+  if (CONFIG.page.isPost) {
+    function addCount(Counter) {
+      var visitors = document.querySelector('.leancloud_visitors');
+      var url = visitors.getAttribute('id').trim();
+      var title = visitors.getAttribute('data-flag-title').trim();
+
+      Counter('get', `/classes/Counter?where=${JSON.stringify({ url })}`)
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            var counter = results[0];
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .then(response => response.json())
+              .then(() => {
+                leancloudSelector(url).innerText = counter.time + 1;
+              })
+              .catch(error => {
+                console.log('Failed to save visitor count', error);
+              })
+          } else {
+              Counter('post', '/classes/Counter', { title: title, url: url, time: 1 })
+                .then(response => response.json())
+                .then(() => {
+                  leancloudSelector(url).innerText = 1;
+                })
+                .catch(error => {
+                  console.log('Failed to create', error);
+                });
+          }
+        })
+        .catch(error => {
+          console.log('LeanCloud Counter Error', error);
+        });
+    }
+  } else {
+    function showTime(Counter) {
+      var visitors = document.querySelectorAll('.leancloud_visitors');
+      var entries = [...visitors].map(element => {
+        return element.getAttribute('id').trim();
+      });
+
+      Counter('get', `/classes/Counter?where=${JSON.stringify({ url: { '$in': entries } })}`)
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length === 0) {
+            document.querySelectorAll('.leancloud_visitors .leancloud-visitors-count').forEach(element => {
+              element.innerText = 0;
+            });
+            return;
+          }
+          for (let item of results) {
+            let { url, time } = item;
+            leancloudSelector(url).innerText = time;
+          }
+          for (let url of entries) {
+            var element = leancloudSelector(url);
+            if (element.innerText == '') {
+              element.innerText = 0;
+            }
+          }
+        })
+        .catch(error => {
+          console.log('LeanCloud Counter Error', error);
+        });
+    }
+  }
+
+  fetch('https://app-router.leancloud.cn/2/route?appId=Sur6vlFkwR817RgctJYRFHKv-gzGzoHsz')
+    .then(response => response.json())
+    .then(({ api_server }) => {
+      var Counter = (method, url, data) => {
+        return fetch(`https://${api_server}/1.1${url}`, {
+          method: method,
+          headers: {
+            'X-LC-Id': 'Sur6vlFkwR817RgctJYRFHKv-gzGzoHsz',
+            'X-LC-Key': 'FtSE43epbKIXCTe2CwG5w2V1',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'Sur6vlFkwR817RgctJYRFHKv-gzGzoHsz',
+    appKey: 'FtSE43epbKIXCTe2CwG5w2V1',
+    placeholder: "good good study day day up",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>

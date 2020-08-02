@@ -2,6 +2,16 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
+<script>
+    (function(){
+        if(''){
+            if (prompt('��������������','') !== ''){
+                alert('�������');
+                history.back();
+            }
+        }
+    })();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
 <meta name="generator" content="Hexo 4.2.0">
@@ -64,7 +74,7 @@
 <meta property="og:image" content="http://blog.gaoyp.cn/images/docker/dockerfile%E6%9E%84%E5%BB%BAnginx%E9%95%9C%E5%83%8F.png">
 <meta property="og:image" content="http://blog.gaoyp.cn/images/docker/nginx82.png">
 <meta property="article:published_time" content="2020-01-19T09:22:19.000Z">
-<meta property="article:modified_time" content="2020-03-11T12:50:04.479Z">
+<meta property="article:modified_time" content="2020-07-01T15:21:14.940Z">
 <meta property="article:author" content="Garnett">
 <meta property="article:tag" content="Docker">
 <meta property="article:tag" content="Nginx">
@@ -261,7 +271,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-11 20:50:04" itemprop="dateModified" datetime="2020-03-11T20:50:04+08:00">2020-03-11</time>
+                <time title="修改时间：2020-07-01 23:21:14" itemprop="dateModified" datetime="2020-07-01T23:21:14+08:00">2020-07-01</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -428,63 +438,21 @@
 <p>可以修改为：</p>
 </li>
 </ol>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">FROM nginx:latest</span><br><span class="line">LABEL version&#x3D;&quot;1.0&quot; author&#x3D;&quot;garnett&quot; description&#x3D;&quot;nginx port 82&quot;</span><br><span class="line">RUN echo &#39;这是一个本地构建的nginx镜像&#39; &gt; &#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html&#x2F;index.html \</span><br><span class="line">&amp;&amp; echo &#39;追加。。。&#39; &gt; &#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html&#x2F;index.html</span><br><span class="line">&#96;&#96;&#96;</span><br></pre></td></tr></table></figure>
-<ol start="4">
-<li>ADD 和 COPY<br>ADD 和COPY都可以将上下文目录中复制文件或者目录到容器里指定路径。<br>语法：<pre><code>ADD  &lt;源路径1&gt;  &lt;目标路径&gt;
-COPY &lt;源路径1&gt;  &lt;目标路径&gt;</code></pre><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ADD ADD test test&#x2F;</span><br><span class="line">COPY ADD test test&#x2F;</span><br></pre></td></tr></table></figure>
-区别：<br>ADD 添加的文件是压缩文件的话，会自动解压。<br>COPY 只能复制构建目录下的文件，ADD可以添加一个构建上下文中的文件或目录，也可以是一个URL，如：</li>
-</ol>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ADD http:&#x2F;&#x2F;wordpress.org&#x2F;latest.zip &#x2F;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">FROM nginx:latest</span><br><span class="line">LABEL version&#x3D;&quot;1.0&quot; author&#x3D;&quot;garnett&quot; description&#x3D;&quot;nginx port 82&quot;</span><br><span class="line">RUN echo &#39;这是一个本地构建的nginx镜像&#39; &gt; &#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html&#x2F;index.html \</span><br><span class="line">&amp;&amp; echo &#39;追加。。。&#39; &gt; &#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html&#x2F;index.html</span><br></pre></td></tr></table></figure>
 
-<ol start="5">
-<li>CMD<br> 类似于 RUN 指令，用于运行程序，但二者运行的时间点不同:<ul>
-<li>CMD 在docker run 时运行。</li>
-<li>RUN 是在 docker build。</li>
-<li>docker run指定了其他命令，CMD命令会被忽略。</li>
-<li>定义了多个CMD，只有最后一个有效。</li>
-</ul>
-</li>
-</ol>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">CMD echo &quot;hello docker&quot;</span><br><span class="line">CMD echo &quot;hello garnett&quot;</span><br></pre></td></tr></table></figure>
-<p>构建镜像并运行docker run<br>输出hello garnett</p>
-<p>运行 docker run -it [image] /bin/bash 则没有输出。因为/bin/bash覆盖了CMD 指令。</p>
-<ol start="6">
-<li>ENTRYPOINT<br> 类似于 CMD 指令，但其不会被 docker run 的命令行参数指定的指令所覆盖<ul>
-<li>设置容器启动时运行的命令。</li>
-<li>不会被忽略，一定会执行。</li>
-<li>一般写一个shell脚本作为ENTRYPOINT。</li>
-<li>如果 Dockerfile 中如果存在多个 ENTRYPOINT 指令，仅最后一个生效。</li>
-</ul>
-</li>
-</ol>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">FROM ubuntu</span><br><span class="line">ENTRYPOINT [&quot;&#x2F;bin&#x2F;ls&quot;]</span><br><span class="line">CMD []</span><br></pre></td></tr></table></figure>
-
-<ol start="7">
-<li>ENV<br>环境变量，定义了环境变量，那么在后续的指令中，就可以使用这个环境变量。</li>
-</ol>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ENV MYSQL_VERSION 5.7</span><br><span class="line">RUN apt-get install -y mysql-server&#x3D;&quot;$&#123;MYSQL_VERSION&#125;&quot;</span><br></pre></td></tr></table></figure>
-<ol start="8">
-<li>WORKDIR<br>指定工作目录。用 WORKDIR 指定的工作目录，会在构建镜像的每一层中都存在。（WORKDIR 指定的工作目录，必须是提前创建好的）。</li>
-</ol>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">FROM ubuntu</span><br><span class="line">WORKDIR &#x2F;test # 没有则自动创建test目录</span><br><span class="line">WORKDIR demo</span><br><span class="line">RUN pwd</span><br></pre></td></tr></table></figure>
-<p>输出 /test/demo。<br>9. VOLUME<br>定义匿名数据卷。在启动容器时忘记挂载数据卷，会自动挂载到匿名卷。</p>
-<ul>
-<li>避免重要的数据，因容器重启而丢失，这是非常致命的。</li>
-<li>避免容器不断变大。</li>
-<li>例如我们用nginx搭建mysql服务，数据文件可以挂到宿主机。以免因容器删除而都是数据</li>
-</ul>
-<p>格式：<br>VOLUME [“&lt;路径1&gt;”, “&lt;路径2&gt;”…]<br>VOLUME &lt;路径&gt;</p>
-<p>在启动容器 docker run 的时候，我们可以通过 -v 参数修改挂载点。</p>
-<ol start="10">
-<li><p>EXPOSE<br>仅仅只是声明端口。</p>
-<ul>
-<li>帮助镜像使用者理解这个镜像服务的守护端口，以方便配置映射。</li>
-<li>在运行时使用随机端口映射时，也就是 docker run -P 时，会自动随机映射 EXPOSE 的端口。<br>格式：<br>EXPOSE &lt;端口1&gt; [&lt;端口2&gt;…]</li>
-</ul>
-</li>
-</ol>
-<p>参考链接：<br><a href="https://www.cnblogs.com/baizhanshi/p/9655102.html" target="_blank" rel="noopener">https://www.cnblogs.com/baizhanshi/p/9655102.html</a><br><a href="https://www.runoob.com/docker" target="_blank" rel="noopener">https://www.runoob.com/docker</a></p>
-
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">4.  ADD 和 COPY </span><br><span class="line">    ADD 和COPY都可以将上下文目录中复制文件或者目录到容器里指定路径。</span><br><span class="line">    语法：</span><br><span class="line">        ADD  &lt;源路径1&gt;  &lt;目标路径&gt;</span><br><span class="line">        COPY &lt;源路径1&gt;  &lt;目标路径&gt;</span><br></pre></td></tr></table></figure>
+<p>ADD ADD test test/<br>COPY ADD test test/</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">区别：</span><br><span class="line">ADD 添加的文件是压缩文件的话，会自动解压。</span><br><span class="line">COPY 只能复制构建目录下的文件，ADD可以添加一个构建上下文中的文件或目录，也可以是一个URL，如：</span><br></pre></td></tr></table></figure>
+<p>ADD <a href="http://wordpress.org/latest.zip" target="_blank" rel="noopener">http://wordpress.org/latest.zip</a> /</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">5. CMD</span><br><span class="line">    类似于 RUN 指令，用于运行程序，但二者运行的时间点不同:</span><br><span class="line">    *  CMD 在docker run 时运行。</span><br><span class="line">    *  RUN 是在 docker build。</span><br><span class="line">    *  docker run指定了其他命令，CMD命令会被忽略。</span><br><span class="line">    *  定义了多个CMD，只有最后一个有效。</span><br></pre></td></tr></table></figure>
+<p>CMD echo “hello docker”<br>CMD echo “hello garnett”</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">构建镜像并运行docker run </span><br><span class="line">输出hello garnett</span><br><span class="line"></span><br><span class="line">运行 docker run -it [image] &#x2F;bin&#x2F;bash 则没有输出。因为&#x2F;bin&#x2F;bash覆盖了CMD 指令。</span><br><span class="line"></span><br><span class="line">6. ENTRYPOINT</span><br><span class="line">    类似于 CMD 指令，但其不会被 docker run 的命令行参数指定的指令所覆盖</span><br><span class="line">    * 设置容器启动时运行的命令。</span><br><span class="line">    * 不会被忽略，一定会执行。</span><br><span class="line">    * 一般写一个shell脚本作为ENTRYPOINT。</span><br><span class="line">    * 如果 Dockerfile 中如果存在多个 ENTRYPOINT 指令，仅最后一个生效。</span><br></pre></td></tr></table></figure>
+<p>FROM ubuntu<br>ENTRYPOINT [“/bin/ls”]<br>CMD []</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">7. ENV </span><br><span class="line">  环境变量，定义了环境变量，那么在后续的指令中，就可以使用这个环境变量。</span><br></pre></td></tr></table></figure>
+<p>ENV MYSQL_VERSION 5.7<br>RUN apt-get install -y mysql-server=”${MYSQL_VERSION}”</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">8. WORKDIR</span><br><span class="line">指定工作目录。用 WORKDIR 指定的工作目录，会在构建镜像的每一层中都存在。（WORKDIR 指定的工作目录，必须是提前创建好的）。</span><br></pre></td></tr></table></figure>
+<p>FROM ubuntu<br>WORKDIR /test # 没有则自动创建test目录<br>WORKDIR demo<br>RUN pwd</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">输出 &#x2F;test&#x2F;demo。</span><br><span class="line">9. VOLUME</span><br><span class="line">定义匿名数据卷。在启动容器时忘记挂载数据卷，会自动挂载到匿名卷。</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">* 避免重要的数据，因容器重启而丢失，这是非常致命的。</span><br><span class="line">* 避免容器不断变大。</span><br><span class="line">* 例如我们用nginx搭建mysql服务，数据文件可以挂到宿主机。以免因容器删除而都是数据</span><br><span class="line"></span><br><span class="line">格式：</span><br><span class="line">VOLUME [&quot;&lt;路径1&gt;&quot;, &quot;&lt;路径2&gt;&quot;...]</span><br><span class="line">VOLUME &lt;路径&gt;</span><br><span class="line"></span><br><span class="line">在启动容器 docker run 的时候，我们可以通过 -v 参数修改挂载点。</span><br><span class="line"></span><br><span class="line">10. EXPOSE</span><br><span class="line">    仅仅只是声明端口。</span><br><span class="line"></span><br><span class="line">    * 帮助镜像使用者理解这个镜像服务的守护端口，以方便配置映射。</span><br><span class="line">    * 在运行时使用随机端口映射时，也就是 docker run -P 时，会自动随机映射 EXPOSE 的端口。</span><br><span class="line">    格式：</span><br><span class="line">    EXPOSE &lt;端口1&gt; [&lt;端口2&gt;...]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">参考链接：</span><br><span class="line">https:&#x2F;&#x2F;www.cnblogs.com&#x2F;baizhanshi&#x2F;p&#x2F;9655102.html</span><br><span class="line">https:&#x2F;&#x2F;www.runoob.com&#x2F;docker</span><br></pre></td></tr></table></figure>
     </div>
 
     
@@ -601,20 +569,20 @@ COPY &lt;源路径1&gt;  &lt;目标路径&gt;</code></pre><figure class="highlig
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">34</span>
+          <span class="site-state-item-count">51</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-count">19</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-count">24</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
