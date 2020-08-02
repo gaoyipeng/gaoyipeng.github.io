@@ -1,9 +1,9 @@
 ---
-title: Activiti（15） 历史数据
+title: Activiti（15） 历史数据模块、补充获取流程定义列表接口
 date: 2020-07-20 10:25:03
 tags: Activiti
 categories: Activiti
-description: Activiti（15） 历史数据
+description: Activiti（15） 历史数据模块、补充获取流程定义列表
 typora-root-url: ..
 password: kiki
 ---
@@ -14,7 +14,7 @@ password: kiki
 
 ## 1、集成 Pagehelper分页插件
 
-因为后面演示需要返回分页信息，所以我们集成下 Pagehelper分页插件。
+此处我们先集成下 Pagehelper分页插件。本来是准备使用这个来实现activiti查询结果分页的，但是实践发现，Pagehelper和Activiti不兼容，既然不兼容为啥还要写出来了。这个在文章末尾会有说明。
 
 - pom.xml
 
@@ -110,15 +110,60 @@ password: kiki
 
   
 
+## 2、自定义activiti分页插件
+
+```java
+package com.sxdx.common.util;
+
+import lombok.Data;
+import java.util.List;
+@Data
+public class Page {
+
+    //当前页
+    private int pageNum;
+    //每页的数量
+    private int pageSize;
+    //总记录数
+    private long total;
+    //总页数
+    private int pages;
+	//对应  listPage(int firstResult, int maxResults)的参数
+    private int firstResult;
+    private int maxResults;
+
+    //结果集
+    private List list;
+
+    public Page(int pageNum, int pageSize) {
+        this.pageNum = pageNum;
+        this.pageSize = pageSize;
+        this.firstResult = (pageNum-1) * pageSize;
+        this.maxResults = pageSize;
+    }
+}
+
+```
+
+因为`activiti`和`pagehelper`不兼容，所以，此处我们自定义一个activiti分页插件。
 
 
 
+## 3、流程历史管理
 
-## 2、流程历史管理
+我们新建一个类来专门管理流程历史：ProcessHistoryController。流程历史主要就是利用7大Service接口中的`HistoryService`。
 
-我们新建一个类来专门管理流程历史：ProcessHistoryController。流程历史主要就是利用7大Service接口中的`HistoryService`
+此处我们先来贴出数据库中现有的数据，用于比对下面的接口返回结果是否正确：
 
-### 2.1  获取流程的历史任务
+- 流程定义（8个）
+
+  ![image-20200802174736720](/images/activiti6-15/image-20200802174736720.png)
+
+- 流程实例
+
+  ![image-20200802175036755](/images/activiti6-15/image-20200802175036755.png)
+
+### 3.1  获取流程的历史任务
 
 ```java
 @Autowired
@@ -136,7 +181,10 @@ public CommonResponse getHistoryTaskList(
 }
 
 
-------------------------------------------------------------------
+```
+
+```java
+
     
 @Override
 public List<HistoricTaskInstance> getHistoryTaskList(String finished,String processInstanceId) {
@@ -170,11 +218,11 @@ public List<HistoricTaskInstance> getHistoryTaskList(String finished,String proc
 }
 ```
 
-![image-20200720182209097](/images/activiti6-15/image-20200720182209097.png)
+![image-20200802173402583](/images/activiti6-15/image-20200802173402583.png)
 
-### 2.2 获取流程的历史活动
+### 3.2 获取流程的历史活动
 
-历史活动和历史任务有什么区别呢？历史活动包含历史任务，历史任务只包含任务节点的数据（用户任务、服务任务等）。历史活动还包含所有节点信息。
+**历史活动和历史任务有什么区别呢？**历史活动包含历史任务，历史任务只包含任务节点的数据（用户任务、服务任务等）。历史活动还包含所有节点信息。
 
 ```java
 @ApiOperation(value = "获取流程的历史活动",notes = "获取流程的历史活动")
@@ -190,7 +238,10 @@ public CommonResponse getHistoryActInstanceList(
 }
 
 
------------------------------------------------------------------------------
+
+```
+
+```java
 @Override
 public List<HistoricActivityInstance> getHistoryActInstanceList(String finished, String processInstanceId) {
     List<HistoricActivityInstance> list = null;
@@ -220,9 +271,13 @@ public List<HistoricActivityInstance> getHistoryActInstanceList(String finished,
 }
 ```
 
-![image-20200720182819300](/images/activiti6-15/image-20200720182819300.png)
 
-### 2.3 获取流程历史流程变量
+
+![image-20200802173433765](/images/activiti6-15/image-20200802173433765.png)
+
+### 3.3 获取流程历史流程变量
+
+通过这个接口，我们可以获取所有流程中的变量。
 
 ```java
 @ApiOperation(value = "获取流程历史流程变量",notes = "获取流程历史流程变量")
@@ -234,7 +289,11 @@ public CommonResponse getHistoryProcessVariables(
     return new CommonResponse().code(CodeEnum.SUCCESS.getCode()).data(list);
 }
 
-------------------------------------------------------------------
+
+```
+
+```java
+
 @Override
 public List<HistoricVariableInstance> getHistoryProcessVariables( String processInstanceId) {
     List<HistoricVariableInstance> list = null;
@@ -246,120 +305,571 @@ public List<HistoricVariableInstance> getHistoryProcessVariables( String process
 }
 ```
 
-![image-20200720183118953](/images/activiti6-15/image-20200720183118953.png)
 
-### 2.4 获取已归档的流程实例
+
+![image-20200802173454152](/images/activiti6-15/image-20200802173454152.png)
+
+### 3.4 获取已归档的流程实例
 
 已归档就是流程结束的实例。
 
 ```java
-@ApiOperation(value = "获取已归档的流程实例",notes = "获取已归档的流程实例")
+ @ApiOperation(value = "获取已归档的流程实例",notes = "获取已归档的流程实例")
 @GetMapping (value = "/getFinishedInstanceList")
 public CommonResponse getFinishedInstanceList(
-          @RequestParam(value = "processInstanceId", required = true)
-          @ApiParam(value = "流程定义ID" ,required = true)String processDefinitionId,
-          @RequestParam(value = "pageNum", required = false,defaultValue = "1")
-          @ApiParam(value = "页码" ,required = false)int pageNum,
-          @RequestParam(value = "pageSize", required = false,defaultValue = "10")
-          @ApiParam(value = "条数" ,required = false)int pageSize){
-    PageInfo<HistoricProcessInstance> list = processHistoryService.getFinishedInstanceList(processDefinitionId,  pageNum,  pageSize);
+    @RequestParam(value = "processDefinitionId", required = true)
+    @ApiParam(value = "流程定义ID" ,required = true)String processDefinitionId,
+    @RequestParam(value = "pageNum", required = false,defaultValue = "1")
+    @ApiParam(value = "页码" ,required = false)int pageNum,
+    @RequestParam(value = "pageSize", required = false,defaultValue = "10")
+    @ApiParam(value = "条数" ,required = false)int pageSize){
+    Page list = processHistoryService.getFinishedInstanceList(pageNum,  pageSize,processDefinitionId);
     return new CommonResponse().code(CodeEnum.SUCCESS.getCode()).data(list);
-}
-
-----------------------------------------------------------
-@Override
-public PageInfo<HistoricProcessInstance> getFinishedInstanceList(String processDefinitionId,int pageNum, int pageSize) {
-    List<HistoricProcessInstance> list = null;
-
-    PageHelper.startPage(pageNum, pageSize);
-    list = historyService.createHistoricProcessInstanceQuery()
-        .processDefinitionId(processDefinitionId)
-        .finished().list();
-    PageInfo<HistoricProcessInstance> pageAttachments = new PageInfo<>(list);
-    return pageAttachments;
 }
 ```
 
-![image-20200720183531375](/images/activiti6-15/image-20200720183531375.png)
+```java
+@Override
+public Page getFinishedInstanceList(int pageNum, int pageSize,String processDefinitionId) {
+    List<HistoricProcessInstance> list = new ArrayList<>();
+    HistoricProcessInstanceQuery historicProcessInstanceQuery = historyService.createHistoricProcessInstanceQuery();
+    Page page = new Page(pageNum,pageSize);
+
+    if (processDefinitionId != null ) {
+        historicProcessInstanceQuery =  historicProcessInstanceQuery.processDefinitionId(processDefinitionId);
+    }
+    list = historicProcessInstanceQuery
+        .orderByProcessInstanceStartTime().asc()//排序
+        .finished()
+        .listPage(page.getFirstResult(),page.getMaxResults());
+
+    int total = (int) historicProcessInstanceQuery.count();
+    page.setTotal(total);
+    page.setList(list);
+    return page;
+}
+```
+
+下图可以看到
+
+![image-20200802173856243](/images/activiti6-15/image-20200802173856243.png)
+
+此处查出了已完结的流程信息，并且包含分页信息。
+
+### 3.5 获取历史流程实例
+
+区别于已归档，这里查询的是所有已经发起的流程实例。
+
+```java
+ @ApiOperation(value = "获取历史流程实例",notes = "获取历史流程实例（所有已发起的流程）")
+@GetMapping (value = "/queryHistoricInstance")
+public CommonResponse queryHistoricInstance(
+    @RequestParam(value = "processDefinitionId", required = true)
+    @ApiParam(value = "流程定义ID" ,required = true)String processDefinitionId,
+    @RequestParam(value = "pageNum", required = false,defaultValue = "1")
+    @ApiParam(value = "页码" ,required = false)int pageNum,
+    @RequestParam(value = "pageSize", required = false,defaultValue = "10")
+    @ApiParam(value = "条数" ,required = false)int pageSize){
+    
+    Page list = processHistoryService.queryHistoricInstance( pageNum,  pageSize,processDefinitionId);
+    return new CommonResponse().code(CodeEnum.SUCCESS.getCode()).data(list);
+}
+```
+
+```java
+@Override
+public Page queryHistoricInstance(int pageNum, int pageSize,String processDefinitionId) {
+    List<HistoricProcessInstance> list = new ArrayList<>();
+    HistoricProcessInstanceQuery historicProcessInstanceQuery = historyService.createHistoricProcessInstanceQuery();
+    Page page = new Page(pageNum,pageSize);
+    if (processDefinitionId != null ) {
+        historicProcessInstanceQuery =  historicProcessInstanceQuery.processDefinitionId(processDefinitionId);
+    }
+    list = historicProcessInstanceQuery
+        .orderByProcessInstanceStartTime().asc()//排序
+        .listPage(page.getFirstResult(),page.getMaxResults());
+    int total = (int) historicProcessInstanceQuery.count();
+    page.setTotal(total);
+    page.setList(list);
+    return page;
+}
+```
+
+![image-20200802174338851](/images/activiti6-15/image-20200802174338851.png)
+
+## 4、获取流程定义列表
+
+忽然发现在之前的定义模块模块还缺失一个接口，补充一个获取流程定义列表的方法，写在`ProcessDefinitionController`类中
+
+- controller
+
+  ```java
+  @PostMapping("/findProcessDefinition")
+  @ApiOperation(value = "查询流程定义列表",notes = "查询流程定义列表")
+  public CommonResponse findProcessDefinition(@RequestParam(value = "processDefinitionKey",required = false) @ApiParam("流程定义Key")String processDefinitionKey,
+                                              @RequestParam(value = "processDefinitionName",required = false) @ApiParam("流程定义Name")String processDefinitionName,
+                                              @RequestParam(value = "pageNum", required = false,defaultValue = "1")@ApiParam(value = "页码" ,required = false)int pageNum,
+                                              @RequestParam(value = "pageSize", required = false,defaultValue = "10")@ApiParam(value = "条数" ,required = false)int pageSize)  {
+      Page  list = processDefinitionService.findProcessDefinition(pageNum,pageSize,processDefinitionKey,processDefinitionName);
+      return new CommonResponse().code(CodeEnum.SUCCESS.getCode()).data(list);
+  }
+  ```
+
+- service
+
+  ```java
+   @Override
+  public Page findProcessDefinition(int pageNum, int pageSize, String processDefinitionKey, String processDefinitionName)  {
+  
+      List<Map<String ,Object>> allList = new ArrayList<>();
+      ProcessDefinitionQuery processDefinitionQuery = repositoryService.createProcessDefinitionQuery();//创建一个流程定义查询
+      List<ProcessDefinition> processDefinitionList = null;
+  
+      if (processDefinitionKey != null) processDefinitionQuery = processDefinitionQuery.processDefinitionKey(processDefinitionKey);//根据流程定义Key查询
+      if (processDefinitionName != null) processDefinitionQuery = processDefinitionQuery.processDefinitionNameLike(processDefinitionName);//根据流程定义name查询
+  
+  
+      processDefinitionQuery = processDefinitionQuery.orderByProcessDefinitionName().desc()//按照流程定义的名称降序排列
+          .orderByProcessDefinitionVersion().desc();//按照版本的降序排列
+  
+      Page page = new Page(pageNum,pageSize);
+  
+      processDefinitionList = processDefinitionQuery.listPage(page.getFirstResult(),page.getMaxResults());
+      //获取总页数
+      int total = (int) processDefinitionQuery.count();
+  
+      for (ProcessDefinition processDefinition : processDefinitionList) {
+          Map<String ,Object> map = new HashMap<>();
+          String deploymentId = processDefinition.getDeploymentId();
+          Deployment deployment = repositoryService.createDeploymentQuery().deploymentId(deploymentId).singleResult();
+          map.put("processDefinition", BeanUtil.beanToMap(processDefinition));
+          map.put("deployment",BeanUtil.beanToMap(deployment));
+          allList.add(map);
+      }
+      page.setTotal(total);
+      page.setList(allList);
+      return page;
+  }
+  ```
+
+  **说明：此处我自定义了一个简单分页插件来替代PageHelper返回一个结构统一的分页数据，并使用了Activiti提供的`listPage`进行分页，为啥呢？前面明明已经集成了PageHelper，为啥不用，这个后面会有说明。**
+
+  
+
+
+我们先来查看一下效果：
+
+![image-20200802174445992](/images/activiti6-15/image-20200802174445992.png)返回结果如下：
 
 ```json
 {
+  "{
   "code": "0000",
   "data": {
-    "total": 1,
+    "pageNum": 1,
+    "pageSize": 10,
+    "total": 8,
+    "pages": 0,
+    "firstResult": 0,
+    "maxResults": 10,
     "list": [
       {
-        "id": "67501",
-        "processInstanceId": "67501",
-        "processDefinitionId": "purchase-error-event-subprocess-kiki:1:65004",
-        "startTime": "2020-07-15 07:06:37",
-        "endTime": "2020-07-15 07:40:16",
-        "durationInMillis": 2018557,
-        "deleteReason": null,
-        "endActivityId": "catchErrorForPayment",
-        "businessKey": null,
-        "startUserId": "kafeitu",
-        "startActivityId": "startevent1",
-        "superProcessInstanceId": null,
-        "tenantId": "",
-        "name": null,
-        "localizedName": null,
-        "description": null,
-        "localizedDescription": null,
-        "processDefinitionKey": "purchase-error-event-subprocess-kiki",
-        "processDefinitionName": "办公用品采购--事件子流程(异常)",
-        "processDefinitionVersion": 1,
-        "deploymentId": "65001",
-        "queryVariables": null,
-        "processVariables": {},
-        "persistentState": {
-          "processDefinitionId": "purchase-error-event-subprocess-kiki:1:65004",
-          "durationInMillis": 2018557,
-          "endStateName": "catchErrorForPayment",
-          "deploymentId": "65001",
-          "businessKey": null,
-          "name": null,
-          "processDefinitionName": "办公用品采购--事件子流程(异常)",
-          "endTime": "2020-07-15 07:40:16",
-          "deleteReason": null,
-          "processDefinitionVersion": 1,
-          "superProcessInstanceId": null,
-          "processDefinitionKey": "purchase-error-event-subprocess-kiki"
+        "processDefinition": {
+          "name": "通用付款流程",
+          "description": null,
+          "key": "payment",
+          "version": 1,
+          "category": "http://www.kafeitu.me/activiti",
+          "deploymentId": "32",
+          "resourceName": "payment.bpmn",
+          "tenantId": "",
+          "historyLevel": null,
+          "diagramResourceName": "payment.png",
+          "isGraphicalNotationDefined": true,
+          "variables": null,
+          "hasStartFormKey": false,
+          "suspensionState": 1,
+          "ioSpecification": null,
+          "engineVersion": null,
+          "id": "payment:1:35",
+          "revision": 1,
+          "isInserted": false,
+          "isUpdated": false,
+          "isDeleted": false
         },
-        "deleted": false,
-        "inserted": false,
-        "updated": false
+        "deployment": {
+          "name": null,
+          "category": null,
+          "key": null,
+          "tenantId": "",
+          "deploymentTime": "2020-08-02 08:25:35",
+          "isNew": false,
+          "engineVersion": null,
+          "id": "32",
+          "isInserted": false,
+          "isUpdated": false,
+          "isDeleted": false
+        }
+      },
+      {
+        "processDefinition": {
+          "name": "请假流程-普通表单",
+          "description": "请假流程演示",
+          "key": "leave",
+          "version": 1,
+          "category": "http://www.kafeitu.me/activiti/leave",
+          "deploymentId": "16",
+          "resourceName": "D:/workflow/uploadPath/processDefiniton/2020/08/02/c692e97e6a24ccf826b7a3e4bea7b38b.bpmn",
+          "tenantId": "",
+          "historyLevel": null,
+          "diagramResourceName": "D:/workflow/uploadPath/processDefiniton/2020/08/02/c692e97e6a24ccf826b7a3e4bea7b38b.leave.png",
+          "isGraphicalNotationDefined": true,
+          "variables": null,
+          "hasStartFormKey": false,
+          "suspensionState": 1,
+          "ioSpecification": null,
+          "engineVersion": null,
+          "id": "leave:1:19",
+          "revision": 1,
+          "isInserted": false,
+          "isUpdated": false,
+          "isDeleted": false
+        },
+        "deployment": {
+          "name": null,
+          "category": null,
+          "key": null,
+          "tenantId": "",
+          "deploymentTime": "2020-08-02 08:24:41",
+          "isNew": false,
+          "engineVersion": null,
+          "id": "16",
+          "isInserted": false,
+          "isUpdated": false,
+          "isDeleted": false
+        }
+      },
+      {
+        "processDefinition": {
+          "name": "请假流程-外置表单",
+          "description": "外置表单",
+          "key": "leave-formkey",
+          "version": 1,
+          "category": "http://www.kafeitu.me/activiti",
+          "deploymentId": "7",
+          "resourceName": "leave-formkey/leave-formkey.bpmn",
+          "tenantId": "",
+          "historyLevel": null,
+          "diagramResourceName": "leave-formkey/leave-formkey.png",
+          "isGraphicalNotationDefined": true,
+          "variables": null,
+          "hasStartFormKey": false,
+          "suspensionState": 1,
+          "ioSpecification": null,
+          "engineVersion": null,
+          "id": "leave-formkey:1:15",
+          "revision": 1,
+          "isInserted": false,
+          "isUpdated": false,
+          "isDeleted": false
+        },
+        "deployment": {
+          "name": null,
+          "category": null,
+          "key": null,
+          "tenantId": "",
+          "deploymentTime": "2020-08-02 08:24:34",
+          "isNew": false,
+          "engineVersion": null,
+          "id": "7",
+          "isInserted": false,
+          "isUpdated": false,
+          "isDeleted": false
+        }
+      },
+      {
+        "processDefinition": {
+          "name": "请假流程-动态表单",
+          "description": "请假流程演示-动态表单",
+          "key": "leave-dynamic-from",
+          "version": 1,
+          "category": "http://www.kafeitu.me/demo/activiti/leave",
+          "deploymentId": "3",
+          "resourceName": "D:/workflow/uploadPath/processDefiniton/2020/08/02/857b4a93eab91afed0cf3f9e4170f39f.bpmn",
+          "tenantId": "",
+          "historyLevel": null,
+          "diagramResourceName": "D:/workflow/uploadPath/processDefiniton/2020/08/02/857b4a93eab91afed0cf3f9e4170f39f.leave-dynamic-from.png",
+          "isGraphicalNotationDefined": true,
+          "variables": null,
+          "hasStartFormKey": false,
+          "suspensionState": 1,
+          "ioSpecification": null,
+          "engineVersion": null,
+          "id": "leave-dynamic-from:1:6",
+          "revision": 1,
+          "isInserted": false,
+          "isUpdated": false,
+          "isDeleted": false
+        },
+        "deployment": {
+          "name": null,
+          "category": null,
+          "key": null,
+          "tenantId": "",
+          "deploymentTime": "2020-08-02 08:23:02",
+          "isNew": false,
+          "engineVersion": null,
+          "id": "3",
+          "isInserted": false,
+          "isUpdated": false,
+          "isDeleted": false
+        }
+      },
+      {
+        "processDefinition": {
+          "name": "请假流程-会签",
+          "description": "请假流程演示-会签",
+          "key": "leave-countersign",
+          "version": 1,
+          "category": "http://www.activiti.org/test",
+          "deploymentId": "20",
+          "resourceName": "leave-countersign.bpmn",
+          "tenantId": "",
+          "historyLevel": null,
+          "diagramResourceName": "leave-countersign.png",
+          "isGraphicalNotationDefined": true,
+          "variables": null,
+          "hasStartFormKey": false,
+          "suspensionState": 1,
+          "ioSpecification": null,
+          "engineVersion": null,
+          "id": "leave-countersign:1:23",
+          "revision": 1,
+          "isInserted": false,
+          "isUpdated": false,
+          "isDeleted": false
+        },
+        "deployment": {
+          "name": null,
+          "category": null,
+          "key": null,
+          "tenantId": "",
+          "deploymentTime": "2020-08-02 08:24:54",
+          "isNew": false,
+          "engineVersion": null,
+          "id": "20",
+          "isInserted": false,
+          "isUpdated": false,
+          "isDeleted": false
+        }
+      },
+      {
+        "processDefinition": {
+          "name": "办公用品采购--事件子流程(异常)",
+          "description": null,
+          "key": "purchase-error-event-subprocess-kiki",
+          "version": 1,
+          "category": "http://www.kafeitu.me/activiti",
+          "deploymentId": "24",
+          "resourceName": "D:/workflow/uploadPath/processDefiniton/2020/08/02/20cf86168832dcdb424ed334fb05e039.bpmn",
+          "tenantId": "",
+          "historyLevel": null,
+          "diagramResourceName": "D:/workflow/uploadPath/processDefiniton/2020/08/02/20cf86168832dcdb424ed334fb05e039.purchase-error-event-subprocess-kiki.png",
+          "isGraphicalNotationDefined": true,
+          "variables": null,
+          "hasStartFormKey": false,
+          "suspensionState": 1,
+          "ioSpecification": null,
+          "engineVersion": null,
+          "id": "purchase-error-event-subprocess-kiki:1:27",
+          "revision": 1,
+          "isInserted": false,
+          "isUpdated": false,
+          "isDeleted": false
+        },
+        "deployment": {
+          "name": null,
+          "category": null,
+          "key": null,
+          "tenantId": "",
+          "deploymentTime": "2020-08-02 08:25:08",
+          "isNew": false,
+          "engineVersion": null,
+          "id": "24",
+          "isInserted": false,
+          "isUpdated": false,
+          "isDeleted": false
+        }
+      },
+      {
+        "processDefinition": {
+          "name": "办公用品采购--callactivity方式",
+          "description": null,
+          "key": "purchase-callactivity",
+          "version": 1,
+          "category": "http://www.kafeitu.me/activiti",
+          "deploymentId": "36",
+          "resourceName": "purchase-callactivity.bpmn",
+          "tenantId": "",
+          "historyLevel": null,
+          "diagramResourceName": "purchase-callactivity.png",
+          "isGraphicalNotationDefined": true,
+          "variables": null,
+          "hasStartFormKey": false,
+          "suspensionState": 1,
+          "ioSpecification": null,
+          "engineVersion": null,
+          "id": "purchase-callactivity:1:39",
+          "revision": 1,
+          "isInserted": false,
+          "isUpdated": false,
+          "isDeleted": false
+        },
+        "deployment": {
+          "name": null,
+          "category": null,
+          "key": null,
+          "tenantId": "",
+          "deploymentTime": "2020-08-02 08:25:39",
+          "isNew": false,
+          "engineVersion": null,
+          "id": "36",
+          "isInserted": false,
+          "isUpdated": false,
+          "isDeleted": false
+        }
+      },
+      {
+        "processDefinition": {
+          "name": "办公用品采购",
+          "description": null,
+          "key": "purchase-subprocess",
+          "version": 1,
+          "category": "http://www.kafeitu.me/activiti",
+          "deploymentId": "28",
+          "resourceName": "purchase-subprocess.bpmn",
+          "tenantId": "",
+          "historyLevel": null,
+          "diagramResourceName": "purchase-subprocess.png",
+          "isGraphicalNotationDefined": true,
+          "variables": null,
+          "hasStartFormKey": false,
+          "suspensionState": 1,
+          "ioSpecification": null,
+          "engineVersion": null,
+          "id": "purchase-subprocess:1:31",
+          "revision": 1,
+          "isInserted": false,
+          "isUpdated": false,
+          "isDeleted": false
+        },
+        "deployment": {
+          "name": null,
+          "category": null,
+          "key": null,
+          "tenantId": "",
+          "deploymentTime": "2020-08-02 08:25:19",
+          "isNew": false,
+          "engineVersion": null,
+          "id": "28",
+          "isInserted": false,
+          "isUpdated": false,
+          "isDeleted": false
+        }
       }
-    ],
-    "pageNum": 1,
-    "pageSize": 1,
-    "size": 1,
-    "startRow": 0,
-    "endRow": 0,
-    "pages": 1,
-    "prePage": 0,
-    "nextPage": 0,
-    "isFirstPage": true,
-    "isLastPage": true,
-    "hasPreviousPage": false,
-    "hasNextPage": false,
-    "navigatePages": 8,
-    "navigatepageNums": [
-      1
-    ],
-    "navigateFirstPage": 1,
-    "navigateLastPage": 1
+    ]
+  }
+}code": "0000",
+  "data": {
+    "pageNum": 2,
+    "pageSize": 2,
+    "total": 9,
+    "pages": 0,
+    "firstResult": 2,
+    "maxResults": 2,
+    "list": [
+      {
+        "processDefinition": {
+          "name": "通用付款流程",
+          "description": null,
+          "key": "payment",
+          "version": 6,
+          "category": "http://www.kafeitu.me/activiti",
+          "deploymentId": "2521",
+          "resourceName": "payment.bpmn",
+          "tenantId": "",
+          "historyLevel": null,
+          "diagramResourceName": "payment.png",
+          "isGraphicalNotationDefined": true,
+          "variables": null,
+          "hasStartFormKey": false,
+          "suspensionState": 1,
+          "ioSpecification": null,
+          "engineVersion": null,
+          "id": "payment:6:2524",
+          "revision": 1,
+          "isInserted": false,
+          "isUpdated": false,
+          "isDeleted": false
+        },
+        "deployment": {
+          "name": null,
+          "category": null,
+          "key": null,
+          "tenantId": "",
+          "deploymentTime": "2020-07-29 13:26:37",
+          "isNew": false,
+          "engineVersion": null,
+          "id": "2521",
+          "isInserted": false,
+          "isUpdated": false,
+          "isDeleted": false
+        }
+      },
+      {
+        "processDefinition": {
+          "name": "通用付款流程",
+          "description": null,
+          "key": "payment",
+          "version": 5,
+          "category": "http://www.kafeitu.me/activiti",
+          "deploymentId": "2517",
+          "resourceName": "payment.bpmn",
+          "tenantId": "",
+          "historyLevel": null,
+          "diagramResourceName": "payment.png",
+          "isGraphicalNotationDefined": true,
+          "variables": null,
+          "hasStartFormKey": false,
+          "suspensionState": 1,
+          "ioSpecification": null,
+          "engineVersion": null,
+          "id": "payment:5:2520",
+          "revision": 1,
+          "isInserted": false,
+          "isUpdated": false,
+          "isDeleted": false
+        },
+        "deployment": {
+          "name": null,
+          "category": null,
+          "key": null,
+          "tenantId": "",
+          "deploymentTime": "2020-07-29 13:26:37",
+          "isNew": false,
+          "engineVersion": null,
+          "id": "2517",
+          "isInserted": false,
+          "isUpdated": false,
+          "isDeleted": false
+        }
+      }
+    ]
   }
 }
 ```
 
-此处查出了已完结的流程信息，并且包含分页信息。
-
-## 3、获取流程定义列表
-
-定义模块，补充一个获取流程定义列表的方法。
-
-
+共8个流程定义。符合预期~~
 
 ## 4、分页插件的问题
 
