@@ -183,7 +183,7 @@ sentinel known-sentinel mymaster 172.20.0.6 26379 d88c61fe5d93be0aaaaff6629196f0
 此时master节点是redis-6380
 ![sentinel-master-6380.png](/images/redis/sentinel-master-6380.png)
 
-我们关掉redis-6380，模式master节点故障情况。
+我们关掉redis-6380，模拟master节点故障情况。
 ```
 docker stop redis-6380
 ```
