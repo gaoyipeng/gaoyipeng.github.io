@@ -461,3 +461,33 @@ postman测试结果（参数是流程定义id，即`act_re_procdef`表的主键i
 ```
 
 ![image-20200617163620124](/images/activiti6-05/image-20200617163620124.png)
+
+# 3、内容补充
+
+## 3.1 获取流程模型列表
+
+此处添加一个获取流程模型列表的接口，其中用到了**自定义分页插件**。自定义分页插件在后面的**第15章节《历史数据模块、补充获取流程定义列表接口》**中会有介绍。
+
+```java
+ @GetMapping(value = "/modelList")
+    @ApiOperation(value = "获取流程模型列表",notes = "获取流程模型列表")
+    public CommonResponse getModelerList(@RequestParam(value = "pageNum", required = false,defaultValue = "1")
+                                   @ApiParam(value = "页码" ,required = false)int pageNum,
+                               @RequestParam(value = "pageSize", required = false,defaultValue = "10")
+                                   @ApiParam(value = "条数" ,required = false)int pageSize){
+        ModelQuery modelQuery = repositoryService.createModelQuery();
+        Page page = new Page(pageNum,pageSize);
+
+        List<Model> list = modelQuery.orderByCreateTime().desc()
+                                    .listPage(page.getFirstResult(),page.getMaxResults());
+
+        int total = (int) modelQuery.count();
+        page.setTotal(total);
+        page.setList(list);
+
+        return new CommonResponse().code(CodeEnum.SUCCESS.getCode()).message("获取流程模型列表成功").data(page);
+    }
+```
+
+![image-20200815164800115](/images/activiti6-05/image-20200815164800115.png)
+
