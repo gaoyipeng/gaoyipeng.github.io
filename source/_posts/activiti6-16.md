@@ -1,15 +1,14 @@
 ---
-title: Activiti（16）Activiti事件
+title: Activiti（16）Activiti启动事件
 date: 2020-08-16 17:08:25
 tags: Activiti
 categories: Activiti
-description: Activiti事件
+description: Activiti启动事件
 typora-root-url: ..
 password: kiki
-
 ---
 
-本节我们介绍Activiti的事件类型。
+本节我们介绍Activiti的启动事件类型。
 
 # 1、启动事件
 
@@ -17,9 +16,38 @@ password: kiki
 
 ![image-20200816171238387](/images/activiti6-16/image-20200816171238387.png)
 
-## 1.1 定时启动事件
+## 1.1 开始事件
+
+“空”启动事件，指的是没有特别指定启动流程实例的触发器。这意味着引擎无法预知何时启动流程实例。可以通过以下方法启动：
+
+```java
+ProcessInstance processInstance = runtimeService.startProcessInstanceByXXX();
+formService.submitStartFormData();
+```
+
+**注意：**子流程（subprocess）总是有空启动事件。
+
+空启动事件的XML表示格式，就是普通的启动事件声明，而没有任何子元素（其他种类的启动事件都有子元素，用于声明其类型）。
+
+```xml
+<startEvent id="start" name="my start event" />
+```
+
+前面我们已经见过很多了，这里不做演示了。
+
+## 1.2 定时启动事件
 
 定时器启动事件用于在给定的时间点创建流程实例。它可以用在只启动一次的流程中，也可以用在特定时间间隔下启动。
+
+XML表示：
+
+```xml
+<startEvent id="theStart">
+    <timerEventDefinition>
+        <timeDate>2020-08-16T12:13:14</timeDate>
+    </timerEventDefinition>
+</startEvent>
+```
 
 **注意：**
 
@@ -40,9 +68,11 @@ password: kiki
   在框中输入2020-08-16T12:13:14代表2020年08月16号，12点13分14秒这个时间点执行此定时器。
 
   ```
-  <timerEventDefinition>
-      <timeDate>2020-08-16T12:13:14</timeDate>
-  </timerEventDefinition>
+  <startEvent id="theStart">
+      <timerEventDefinition>
+          <timeDate>2020-08-16T12:13:14</timeDate>
+      </timerEventDefinition>
+  </startEvent>
   ```
 
 - **timeDuration**：设置多长时间启动
@@ -55,10 +85,11 @@ password: kiki
   ## P1H：代表1小时后执行此时间定时器。
   ## P1M：代表1分钟后执行此时间定时器。
   ## PT1M：代表1分钟后执行此时间定时器。
-  
-  <timerEventDefinition>
-      <timeDuration>P10M</timeDuration>
-  </timerEventDefinition>
+  <startEvent id="theStart">
+      <timerEventDefinition>
+          <timeDuration>P10M</timeDuration>
+      </timerEventDefinition>
+  </startEvent>
   ```
 
 - **timeCycle**：周期性循环启动
@@ -68,19 +99,23 @@ password: kiki
   - 第一种是 ISO 8601 标准的格式。示例：（重复3次，每次间隔10小时）：
 
   ```
-  <timerEventDefinition>
-      <timeCycle>R3/PT10H</timeCycle>
-  </timerEventDefinition>
+  <startEvent id="theStart">
+      <timerEventDefinition>
+          <timeCycle>R3/PT10H</timeCycle>
+      </timerEventDefinition>
+</startEvent>
   ```
 
   - 第二种是使用cron表达式指定timeCycle。示例：（每分钟执行一次）
-
+  
   ```
-  <timerEventDefinition>
-  	<timeCycle>0 0/1 * * * ?</timeCycle>
-  </timerEventDefinition>
+  <startEvent id="theStart">
+      <timerEventDefinition>
+        <timeCycle>0 0/1 * * * ?</timeCycle>
+      </timerEventDefinition>
+  <startEvent id="theStart">
   ```
-
+  
   cron表达式生成器：[https://cron.qqe2.com/](https://cron.qqe2.com/)
 
 ### 1.1.2 示例
@@ -203,11 +238,20 @@ password: kiki
 
 可以看到已经自动生成了很多待办。
 
-## 1.2  消息开始事件
+## 1.3 消息开始事件
 
-> [消息](http://hackday.cn/info/activiti-5.21/Activiti_manual_cn.htm#bpmnMessageEventDefinition)启动事件，使用具名消息启动流程实例。它让我们可以使用消息名，有效地在一组可选的启动事件中*选择*正确的启动事件。
+> 消息启动事件，使用具名消息启动流程实例。它让我们可以使用消息名，有效地在一组可选的启动事件中*选择*正确的启动事件。
 
 上面是官方的介绍，看着拗口，说白了就是通过一个消息ID=xxx，将已部署的流程定义中启动事件是消息启动事件的，并且监听ID的消息为xx的流程启动。
+
+XML 表示：
+
+```xml
+<message id="message-start-01" name="message-start-01"></message>
+<startEvent id="message-start" name="消息启动" activiti:isInterrupting="false">
+      <messageEventDefinition messageRef="message-start-01"></messageEventDefinition>
+</startEvent>
+```
 
 ### 1.2.1 示例
 
@@ -273,9 +317,9 @@ password: kiki
 
   
 
-### 1.2.2  发起流程
+### 1.2.2  启动方式
 
-消息开始事件的发起，和普通开始节点是不同。我们来看一下迄今为止，我们用到过的流程启动方法：
+消息开始事件的发起，和普通开始事件是不同的。我们来看一下迄今为止，我们用到过的流程启动方法：
 
 ```java
  formService.submitStartFormData(processDefinitionId, formProperties);
@@ -284,12 +328,14 @@ password: kiki
 
 而消息开始事件用的是以下的方法
 
-```
+```java
 ProcessInstance startProcessInstanceByMessage(String messageName);
 ProcessInstance startProcessInstanceByMessage(String messageName, String businessKey);
 ProcessInstance startProcessInstanceByMessage(String messageName, Map<String, Object> processVariables);
 ProcessInstance startProcessInstanceByMessage(String messageName, String businessKey, Map<String, Object< processVariables);
 ```
+
+
 
 我们新建一个启动方法，参考`/process/startProcess/{processDefinitionId}`接口即可。
 
@@ -351,4 +397,175 @@ public ProcessInstance messageStartEventInstance(String message, HttpServletRequ
 
 可以看到，部门领导用户已经有了这条流程的待办了。
 
-## 1.3 异常启动事件
+### 1.2.4 注意事项
+
+当**部署**具有一个或多个消息启动事件的流程定义时，需要注意：
+
+- 消息启动事件的名字，在给定流程定义中，必须是唯一的。一个流程定义不得包含多个同名的消息启动事件。如果流程定义中有两个或多个消息启动事件引用 同一个消息，也即两个或多个消息启动事件引用了具有相同消息名字的消息，则Activiti在部署这个流程定义时，会抛出异常。
+- 消息启动事件的名字，在所有已部署的流程定义中，必须是唯一的。如果流程定义中，一个或多个消息启动事件，引用了已经部署的另一流程定义中消息启动事件的消息名，则Activiti在部署这个流程定义时，会抛出异常。
+- 流程版本：在部署流程定义的新版本时，会取消上一版本的消息订阅。即使新版本中并没有这个消息事件，仍然如此（取消上版本的消息订阅）。
+
+## 1.4错误开始事件
+
+ 错误开始事件，可用于触发事件子流程（Event Sub-Process）。**错误启动事件不能用于启动流程实例**。
+
+错误开始事件，往往和错误结束事件一起出现，可以是N对1的关系。异常结束事件抛出一个异常编码，只要和异常启动事件设置的异常编码匹配，即可开启事件子流程。
+
+XML表示:
+
+```xml
+<!--错误结束-->
+<endEvent id="errorendevent1" name="TerminateEndEvent">
+    <errorEventDefinition errorRef="PAYMENT_REJECT"></errorEventDefinition>
+</endEvent>
+<!--错误开始-->
+<startEvent id="messageStart" >
+	<errorEventDefinition errorRef="PAYMENT_REJECT" />
+</startEvent>
+```
+
+在前面的事件子流程章节，我们已经见过了，这里就不再赘述：
+
+![image-20200820104351195](/images/activiti6-16/image-20200820104351195.png)
+
+## 1.5 信号开始事件
+
+> 信号启动事件，使用具名信号启动流程实例。这个信号可以由流程实例中的信号抛出中间事件（intermediary signal throw event），或者`API`（`runtimeService.signalEventReceivedXXX`方法）触发。这些情况下，所有拥有相同名字信号启动事件的流程定义都会被启动。
+
+### 1.5.1 示例
+
+我们创建一个简单流程
+
+![image-20200820145210752](/images/activiti6-16/image-20200820145210752.png)
+
+设置信号定义：
+
+![image-20200820152733416](/images/activiti6-16/image-20200820152733416.png)
+
+![image-20200820153723808](/images/activiti6-16/image-20200820153723808.png)
+
+Scope说明：
+
+- `global`:全局
+- `processInstance`:当前流程
+
+默认信号会在流程引擎范围内进行广播。就是说， 你可以在一个流程实例中抛出一个信号事件，其他不同流程定义的流程实例 都可以监听到这个事件。然而，有时只希望在同一个流程实例中响应这个信号事件。
+
+![image-20200820153815439](/images/activiti6-16/image-20200820153815439.png)
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/processdef">
+  <signal id="signal-start-01" name="signal-start-01" activiti:scope="processInstance"></signal>
+  <signal id="signal-start-02" name="signal-start-02" activiti:scope="global"></signal>
+  <process id="signal-start-event" name="信号开始事件" isExecutable="true">
+    <startEvent id="signal-start" name="信号启动" activiti:isInterrupting="false">
+      <signalEventDefinition signalRef="signal-start-01"></signalEventDefinition>
+    </startEvent>
+    <userTask id="manageApprove" name="部门领导审批" activiti:candidateGroups="deptLeader"></userTask>
+    <sequenceFlow id="sid-A3B56AF2-FEE1-49DB-850D-A7DDB2C11C4B" sourceRef="signal-start" targetRef="manageApprove"></sequenceFlow>
+    <endEvent id="sid-908769D7-DF1B-471F-9BDB-0CCEC7EB0D18"></endEvent>
+    <sequenceFlow id="sid-EBB4CE5E-311A-4BAE-B367-0FF462B103C1" sourceRef="manageApprove" targetRef="sid-908769D7-DF1B-471F-9BDB-0CCEC7EB0D18"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_signal-start-event">
+    <bpmndi:BPMNPlane bpmnElement="signal-start-event" id="BPMNPlane_signal-start-event">
+      <bpmndi:BPMNShape bpmnElement="signal-start" id="BPMNShape_signal-start">
+        <omgdc:Bounds height="30.0" width="30.0" x="191.39999999999998" y="273.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="manageApprove" id="BPMNShape_manageApprove">
+        <omgdc:Bounds height="80.0" width="100.0" x="266.4" y="248.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-908769D7-DF1B-471F-9BDB-0CCEC7EB0D18" id="BPMNShape_sid-908769D7-DF1B-471F-9BDB-0CCEC7EB0D18">
+        <omgdc:Bounds height="28.0" width="28.0" x="411.4" y="274.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="sid-EBB4CE5E-311A-4BAE-B367-0FF462B103C1" id="BPMNEdge_sid-EBB4CE5E-311A-4BAE-B367-0FF462B103C1">
+        <omgdi:waypoint x="366.4" y="288.0"></omgdi:waypoint>
+        <omgdi:waypoint x="411.4" y="288.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-A3B56AF2-FEE1-49DB-850D-A7DDB2C11C4B" id="BPMNEdge_sid-A3B56AF2-FEE1-49DB-850D-A7DDB2C11C4B">
+        <omgdi:waypoint x="221.39999999999998" y="288.0"></omgdi:waypoint>
+        <omgdi:waypoint x="266.4" y="288.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>
+```
+
+### 1.5.2  启动方式
+
+- `API`主动触发：调用 `runtimeService.signalEventReceivedXXX`方法,可以看到提供了异步启动API
+
+  ![image-20200821104915953](/images/activiti6-16/image-20200821104915953.png)
+
+- 由流程实例中的信号抛出中间事件触发
+
+  这个我们后面修学习到信号抛出中间事件再介绍。
+
+我们新建一个启动方法
+
+```java
+/**
+ * 信号启动流程
+ */
+@PostMapping(value = "/signalStartEventInstance/{signalId}")
+@ApiOperation(value = "信号启动流程",notes = "发起启动节点是信号启动类型的流程，key需要以fp_开头")
+public CommonResponse signalStartEventInstance(@PathVariable("signalId") @ApiParam("信号定义的编号")String signalId,
+                                               HttpServletRequest request) throws CommonException {
+    processService.signalStartEventInstance(signalId,request);
+    return new CommonResponse().code(CodeEnum.SUCCESS.getCode()).message("信号启动流程成功");
+}
+```
+
+```java
+/**
+* 信号启动流程
+* @param signalId
+* @param request
+* @return
+* @throws CommonException
+*/
+@Override
+public void signalStartEventInstance(String signalId, HttpServletRequest request) throws CommonException {
+    Map<String, Object> formProperties = new HashMap<String, Object>();
+    // 从request中读取参数然后转换
+    Map<String, String[]> parameterMap = request.getParameterMap();
+    if (parameterMap.size()>0){
+        Set<Map.Entry<String, String[]>> entrySet = parameterMap.entrySet();
+        for (Map.Entry<String, String[]> entry : entrySet) {
+            String key = entry.getKey();
+            // fp_的意思是form paremeter
+            if (StringUtils.defaultString(key).startsWith("fp_")) {
+                formProperties.put(key.split("_")[1], entry.getValue()[0]);
+            }
+        }
+    }
+
+    log.debug("start form parameters: {}", formProperties);
+
+    UserQueryImpl user = new UserQueryImpl();
+    user = (UserQueryImpl)identityService.createUserQuery().userId(GlobalConfig.getOperator());
+
+    ProcessInstance processInstance = null;
+    try {
+        identityService.setAuthenticatedUserId(user.getId());
+        runtimeService.signalEventReceived(signalId,formProperties);
+    } finally {
+        identityService.setAuthenticatedUserId(null);
+    }
+}
+```
+
+### 1.5.3 测试
+
+部署流程后开始测试。
+
+![image-20200821110616766](/images/activiti6-16/image-20200821110616766.png)
+
+使用leaderuser启动系统，获取待办
+
+![image-20200821110642761](/images/activiti6-16/image-20200821110642761.png)
+
+![image-20200821111436096](/images/activiti6-16/image-20200821111436096.png)
+
+可以看到已经获取了待办。
+
