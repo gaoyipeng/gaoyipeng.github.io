@@ -26,3 +26,24 @@ XML表示：
 <endEvent id="end" name="endEvent" />
 ```
 
+## 1.2 错误结束事件
+
+当流程执行到达**错误结束事件**时，结束执行的当前分支，并抛出错误。
+
+XML表示：
+
+错误结束事件，表示为结束事件，加上*errorEventDefinition*子元素：
+
+```xml
+<endEvent id="myErrorEndEvent">
+  <errorEventDefinition errorRef="myError" />
+</endEvent>
+```
+
+错误开始事件，往往和错误结束事件一起出现。错误结束事件抛出一个异常编码，只要和异常启动事件设置的异常编码匹配，即可开启事件子流程。在前面的事件子流程章节，我们已经见过了，这里就不再赘述：
+
+![image-20200820104351195](/images/activiti6-17/image-20200820104351195.png)
+
+除此之外**错误结束事件**抛出的错误编码还可以被错误边界事件捕获。这个我们学习边界事件时再介绍。
+
+## 1.3 终止结束事件
