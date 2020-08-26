@@ -94,3 +94,61 @@ XML表示：
 </endEvent>
 ```
 
+我们画一个简单流程来验证一下。流程启动后有一个并行网关，分别是一个`子流程`、一个`人事审批`节点。终止结束事件勾选了终止全部。我们先走完子流程，看看人事这条线是否会随之结束。
+
+![image-20200826112351885](/images/activiti6-17/image-20200826112351885.png)
+
+流程定义如下：
+
+```xml
+<!-- -->
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/processdef">
+  <process id="terminateEndEvent" name="终止结束事件" isExecutable="true">
+    <startEvent id="startevent1" activiti:initiator="applyUserId"></startEvent>
+    <subProcess id="sid-050C0CDB-2A9B-4C97-993B-6E5A194537D0" name="subProcess">
+      <startEvent id="sid-3EFEFC9A-02C4-447F-8359-42D132E8CB5A"></startEvent>
+      <userTask id="manageApprove" name="部门领导审批" activiti:candidateUsers="leaderuser"></userTask>
+      <endEvent id="hruser">
+        <terminateEventDefinition activiti:terminateAll="true"></terminateEventDefinition>
+      </endEvent>
+      <sequenceFlow id="sid-DE7A6A1E-0C9D-45D3-849E-D38DA6AEE574" sourceRef="sid-3EFEFC9A-02C4-447F-8359-42D132E8CB5A" targetRef="manageApprove"></sequenceFlow>
+      <sequenceFlow id="sid-B0BD8E26-9C66-46D8-9468-234AFBB8CCE0" sourceRef="manageApprove" targetRef="hruser"></sequenceFlow>
+    </subProcess>
+    <userTask id="hrApprove" name="人事审批" activiti:candidateUsers="hruser"></userTask>
+    <endEvent id="sid-C6D99B13-C7EF-4D71-8A93-7B086ECAD8CA"></endEvent>
+    <sequenceFlow id="sid-C5FC93E8-D838-4F4E-B076-EDC38353FDE5" sourceRef="hrApprove" targetRef="sid-C6D99B13-C7EF-4D71-8A93-7B086ECAD8CA"></sequenceFlow>
+    <parallelGateway id="sid-485D8B29-FC51-479A-B33D-4182C26B1BB6"></parallelGateway>
+    <sequenceFlow id="sid-44C4A09F-4671-47BA-88A4-14D516FFCD71" sourceRef="startevent1" targetRef="sid-485D8B29-FC51-479A-B33D-4182C26B1BB6"></sequenceFlow>
+    <sequenceFlow id="sid-572C0962-598F-45C4-9363-B5A00E276C42" sourceRef="sid-485D8B29-FC51-479A-B33D-4182C26B1BB6" targetRef="hrApprove"></sequenceFlow>
+    <sequenceFlow id="sid-67524AB4-99E0-4A10-8ACB-6D69C279A6F2" sourceRef="sid-485D8B29-FC51-479A-B33D-4182C26B1BB6" targetRef="sid-050C0CDB-2A9B-4C97-993B-6E5A194537D0"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_terminateEndEvent">
+    //连线信息省略
+  </bpmndi:BPMNDiagram>
+</definitions>
+```
+
+启动流程：
+
+![image-20200826112714350](/images/activiti6-17/image-20200826112714350.png)
+
+![image-20200826112730272](/images/activiti6-17/image-20200826112730272.png)
+
+我们在部门领导审批节点、人事审批节点分别指定了审批人：`leaderuser`，`hruser`。我们先来查看一下他们的待办：
+
+![image-20200826113449516](/images/activiti6-17/image-20200826113449516.png)
+
+![image-20200826113528952](/images/activiti6-17/image-20200826113528952.png)
+
+接下来部门领导审批通过：
+
+![image-20200826113930104](/images/activiti6-17/image-20200826113930104.png)
+
+再次查看流程图，发现整个流程都已关闭：
+
+![image-20200826114038834](/images/activiti6-17/image-20200826114038834.png)
+
+而且`hruser`已经没有对应的待办了，符合我们的预期。
+
+![image-20200826114159645](/images/activiti6-17/image-20200826114159645.png)
