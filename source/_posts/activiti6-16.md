@@ -55,11 +55,11 @@ XML表示：
 
 2、当部署带有定时器启动事件的流程的新版本时，上一版本的定时器作业会被移除。这是因为通常并不希望旧版本的流程仍然自动启动新的流程实例。
 
-### 1.1.1 定时器分类
+### 1.2.1 定时器分类
 
-- ![image-20200816184632442](/images/activiti6-16/image-20200816184632442.png)
+![image-20200816184632442](/images/activiti6-16/image-20200816184632442.png)
 
-  
+
 
 - **timeDate**：一次性启动
 
@@ -118,7 +118,7 @@ XML表示：
   
   cron表达式生成器：[https://cron.qqe2.com/](https://cron.qqe2.com/)
 
-### 1.1.2 示例
+### 1.2.2 示例
 
 此处我们画一个简单的流程来验证一下：
 
@@ -253,7 +253,7 @@ XML 表示：
 </startEvent>
 ```
 
-### 1.2.1 示例
+### 1.3.1 示例
 
 此处我们依然画一个简单流程图来验证。
 
@@ -317,7 +317,7 @@ XML 表示：
 
   
 
-### 1.2.2  启动方式
+### 1.3.2  启动方式
 
 消息开始事件的发起，和普通开始事件是不同的。我们来看一下迄今为止，我们用到过的流程启动方法：
 
@@ -389,7 +389,7 @@ public ProcessInstance messageStartEventInstance(String message, HttpServletRequ
 }
 ```
 
-### 1.2.3 测试
+### 1.3.3 测试
 
 ![image-20200819185928285](/images/activiti6-16/image-20200819185928285.png)
 
@@ -397,7 +397,7 @@ public ProcessInstance messageStartEventInstance(String message, HttpServletRequ
 
 可以看到，部门领导用户已经有了这条流程的待办了。
 
-### 1.2.4 注意事项
+### 1.3.4 注意事项
 
 当**部署**具有一个或多个消息启动事件的流程定义时，需要注意：
 
