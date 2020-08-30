@@ -67,7 +67,7 @@ XML表示：
 
   在框中输入2020-08-16T12:13:14代表2020年08月16号，12点13分14秒这个时间点执行此定时器。
 
-  ```
+  ```xml
   <startEvent id="theStart">
       <timerEventDefinition>
           <timeDate>2020-08-16T12:13:14</timeDate>
@@ -79,7 +79,7 @@ XML表示：
 
   指定定时器之前要等待多长时间。 使用ISO 8601规定的格式 （由BPMN 2.0规定）
 
-  ```
+  ```xml
   
   ## P1D：代表1天后执行此时间定时器。
   ## P1H：代表1小时后执行此时间定时器。
@@ -98,7 +98,7 @@ XML表示：
 
   - 第一种是 ISO 8601 标准的格式。示例：（重复3次，每次间隔10小时）：
 
-  ```
+  ```xml
   <startEvent id="theStart">
       <timerEventDefinition>
           <timeCycle>R3/PT10H</timeCycle>
@@ -108,7 +108,7 @@ XML表示：
 
   - 第二种是使用cron表达式指定timeCycle。示例：（每分钟执行一次）
   
-  ```
+  ```xml
   <startEvent id="theStart">
       <timerEventDefinition>
         <timeCycle>0 0/1 * * * ?</timeCycle>

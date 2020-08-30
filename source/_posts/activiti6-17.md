@@ -1,5 +1,5 @@
 ---
-title: Activiti（17）Activiti启动事件
+title: Activiti（17）Activiti结束事件
 date: 2020-08-21 15:38:58
 tags: Activiti
 categories: Activiti
@@ -40,7 +40,7 @@ XML表示：
 </endEvent>
 ```
 
-错误开始事件，往往和错误结束事件一起出现。错误结束事件抛出一个异常编码，只要和异常启动事件设置的异常编码匹配，即可开启事件子流程。在前面的事件子流程章节，我们已经见过了，这里就不再赘述：
+**错误结束事件**，往往和**错误开始事件**一起出现。**错误结束事件**抛出一个异常编码，只要和**错误启动事件**设置的异常编码匹配，即可开启事件子流程。在前面的事件子流程章节，我们已经见过了，这里就不再赘述：
 
 ![image-20200820104351195](/images/activiti6-17/image-20200820104351195.png)
 
@@ -59,6 +59,8 @@ XML表示：
 ```
 
 错误边界事件XML：
+
+*attachedToRef="subprocessPay"*表示这个错误边界事件的监听对象是这个id为subprocessPay的子流程。
 
 ```xml
 <boundaryEvent id="boundaryerror1" name="Error" attachedToRef="subprocessPay">
@@ -152,3 +154,17 @@ XML表示：
 而且`hruser`已经没有对应的待办了，符合我们的预期。
 
 ![image-20200826114159645](/images/activiti6-17/image-20200826114159645.png)
+
+## 1.4 取消结束事件
+
+取消结束事件只能与BPMN事务子流程结合使用。 当到达取消结束事件时，会抛出取消事件，它必须被取消边界事件捕获。 取消边界事件会取消事务，并触发补偿机制。
+
+XML :
+
+```xml
+<endEvent id="myCancelEndEvent">
+  <cancelEventDefinition />
+</endEvent>
+```
+
+这个我们后面学习事务子流程时再介绍。
