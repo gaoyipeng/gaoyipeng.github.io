@@ -3,7 +3,7 @@ title: Activiti（11） 多实例（会签）
 date: 2020-07-02 16:51:27
 tags: Activiti
 categories: Activiti
-description: Activiti（11） 多实例（会签）、监听器
+description: Activiti（11） 多实例（会签）、任务监听器、执行监听器
 typora-root-url: ..
 password: kiki
 ---
