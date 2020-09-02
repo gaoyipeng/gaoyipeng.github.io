@@ -346,9 +346,11 @@ public Page signalEventSubscriptionName(int pageNum, int pageSize, String signal
 
 ![image-20200901151727374](/images/activiti6-19/image-20200901151727374.png)
 
-然后我们获取一下信号事件的执行列表：
+#### 3.4.2 获取信号事件的执行列表
 
 ![image-20200901152045201](/images/activiti6-19/image-20200901152045201.png)
+
+#### 3.4.3 旧接口改造
 
 最后，调用API触发，此处我们改造一下下面的这个接口，让它同时支持**信号启动事件**和**信号边界事件**：
 
@@ -409,7 +411,7 @@ public void signalStartEventInstance(String signalName,  String executionId ,Htt
 }
 ```
 
-
+#### 3.4.4 API触发
 
 因为不涉及表单字段，无需使用postman来测试，直接使用swagger来执行触发操作![image-20200901162207039](/images/activiti6-19/image-20200901162207039.png)
 
@@ -417,7 +419,7 @@ public void signalStartEventInstance(String signalName,  String executionId ,Htt
 
 ![image-20200901163035231](/images/activiti6-19/image-20200901163035231.png)
 
-#### 3.4.2 Scope作用域
+#### 3.4.5 Scope作用域
 
 上图**发现信号边界事件并没有生效，为啥呢？？**这里就涉及到了我们之前介绍过的信号的Scope作用域（信号开始事件时介绍过），因为我们在流程设计时`signal001`的`Scope`为`processInstance`，表示这个信号只能在当前流程中起作用，及只可以是本流程抛出的信号才能被捕获。
 
@@ -433,3 +435,281 @@ public void signalStartEventInstance(String signalName,  String executionId ,Htt
 
 可以看到，信号边界事件成功捕获了API抛出的信号。
 
+## 4、消息边界事件
+
+**消息边界事件**，捕获与其消息定义具有相同消息名的消息。
+
+消息边界事件和信号边界事件很相似，**不同的是**信号边界事件既可以通过**中间信号抛出事件**来触发，也可以使用API方式触发。而消息边界事件只能通过API方式触发。
+
+### 4.1 流程定义
+
+我们依然画一个简单的流程图来验证一下：
+
+![image-20200902135737156](/images/activiti6-19/image-20200902135737156.png)
+
+![image-20200902142039098](/images/activiti6-19/image-20200902142039098.png)
+
+bpmn流程定义：
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/processdef">
+  <message id="message01" name="message01"></message>
+  <process id="messageBoundaryEvent" name="消息边界事件" isExecutable="true">
+    <startEvent id="sid-170C9C8A-F77E-42B9-874D-55E335035D07"></startEvent>
+    <parallelGateway id="sid-218D406B-55E9-464B-B076-702AE7AF3B80"></parallelGateway>
+    <sequenceFlow id="sid-3EED251F-5504-4D57-AB7D-77EF2731ADE6" sourceRef="sid-170C9C8A-F77E-42B9-874D-55E335035D07" targetRef="sid-218D406B-55E9-464B-B076-702AE7AF3B80"></sequenceFlow>
+    <userTask id="sid-5F455106-F1CE-457A-9FB5-32D7A361CD98" name="部门经理审批" activiti:candidateGroups="deptLeader"></userTask>
+    <sequenceFlow id="sid-0AB4B167-C0E9-4F57-A18D-F041C1ACA4F7" sourceRef="sid-218D406B-55E9-464B-B076-702AE7AF3B80" targetRef="sid-5F455106-F1CE-457A-9FB5-32D7A361CD98"></sequenceFlow>
+    <userTask id="sid-9C72719B-59D2-4F1A-934E-885828AE42AC" name="HR审批" activiti:candidateGroups="hr"></userTask>
+    <sequenceFlow id="sid-B888CFA6-66A5-4E6D-B4D5-0F6426330FDB" sourceRef="sid-218D406B-55E9-464B-B076-702AE7AF3B80" targetRef="sid-9C72719B-59D2-4F1A-934E-885828AE42AC"></sequenceFlow>
+    <userTask id="sid-18CB148C-D621-409F-A7CF-064F4A292193" name="manage审批" activiti:candidateGroups="generalManager"></userTask>
+    <endEvent id="sid-0B1FBE89-725A-4952-810E-F1193F60BB81"></endEvent>
+    <sequenceFlow id="sid-AFC2FD4C-58A2-4FF3-84E9-452DB0373E72" sourceRef="sid-9C72719B-59D2-4F1A-934E-885828AE42AC" targetRef="sid-0B1FBE89-725A-4952-810E-F1193F60BB81"></sequenceFlow>
+    <sequenceFlow id="sid-9289A120-5DE9-423C-8698-9E4F41B8396B" sourceRef="sid-18CB148C-D621-409F-A7CF-064F4A292193" targetRef="sid-0B1FBE89-725A-4952-810E-F1193F60BB81"></sequenceFlow>
+    <sequenceFlow id="sid-DC0FEF87-A08E-4B3A-AA1A-1D6341A563EE" sourceRef="sid-BE932A79-1947-4FF2-94FB-F3A04F7D7059" targetRef="sid-18CB148C-D621-409F-A7CF-064F4A292193"></sequenceFlow>
+    <boundaryEvent id="sid-BE932A79-1947-4FF2-94FB-F3A04F7D7059" attachedToRef="sid-9C72719B-59D2-4F1A-934E-885828AE42AC" cancelActivity="false">
+      <messageEventDefinition messageRef="message01"></messageEventDefinition>
+    </boundaryEvent>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_messageBoundaryEvent">
+    <bpmndi:BPMNPlane bpmnElement="messageBoundaryEvent" id="BPMNPlane_messageBoundaryEvent">
+      <bpmndi:BPMNShape bpmnElement="sid-170C9C8A-F77E-42B9-874D-55E335035D07" id="BPMNShape_sid-170C9C8A-F77E-42B9-874D-55E335035D07">
+        <omgdc:Bounds height="30.0" width="30.0" x="125.89999999999998" y="215.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-218D406B-55E9-464B-B076-702AE7AF3B80" id="BPMNShape_sid-218D406B-55E9-464B-B076-702AE7AF3B80">
+        <omgdc:Bounds height="40.0" width="40.0" x="210.0" y="210.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-5F455106-F1CE-457A-9FB5-32D7A361CD98" id="BPMNShape_sid-5F455106-F1CE-457A-9FB5-32D7A361CD98">
+        <omgdc:Bounds height="80.0" width="100.0" x="345.0" y="105.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-9C72719B-59D2-4F1A-934E-885828AE42AC" id="BPMNShape_sid-9C72719B-59D2-4F1A-934E-885828AE42AC">
+        <omgdc:Bounds height="80.0" width="100.0" x="345.0" y="285.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-18CB148C-D621-409F-A7CF-064F4A292193" id="BPMNShape_sid-18CB148C-D621-409F-A7CF-064F4A292193">
+        <omgdc:Bounds height="80.0" width="100.0" x="340.33218883279585" y="435.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-0B1FBE89-725A-4952-810E-F1193F60BB81" id="BPMNShape_sid-0B1FBE89-725A-4952-810E-F1193F60BB81">
+        <omgdc:Bounds height="28.0" width="28.0" x="570.0" y="311.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-BE932A79-1947-4FF2-94FB-F3A04F7D7059" id="BPMNShape_sid-BE932A79-1947-4FF2-94FB-F3A04F7D7059">
+        <omgdc:Bounds height="30.0" width="30.0" x="375.33218883279585" y="350.7654312023694"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="sid-AFC2FD4C-58A2-4FF3-84E9-452DB0373E72" id="BPMNEdge_sid-AFC2FD4C-58A2-4FF3-84E9-452DB0373E72">
+        <omgdi:waypoint x="445.0" y="325.0"></omgdi:waypoint>
+        <omgdi:waypoint x="570.0" y="325.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-DC0FEF87-A08E-4B3A-AA1A-1D6341A563EE" id="BPMNEdge_sid-DC0FEF87-A08E-4B3A-AA1A-1D6341A563EE">
+        <omgdi:waypoint x="390.33218883279585" y="380.7654312023694"></omgdi:waypoint>
+        <omgdi:waypoint x="390.33218883279585" y="435.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-3EED251F-5504-4D57-AB7D-77EF2731ADE6" id="BPMNEdge_sid-3EED251F-5504-4D57-AB7D-77EF2731ADE6">
+        <omgdi:waypoint x="155.89976645256073" y="230.08370405386475"></omgdi:waypoint>
+        <omgdi:waypoint x="210.38776655443323" y="230.38776655443323"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-0AB4B167-C0E9-4F57-A18D-F041C1ACA4F7" id="BPMNEdge_sid-0AB4B167-C0E9-4F57-A18D-F041C1ACA4F7">
+        <omgdi:waypoint x="239.28688524590163" y="219.28688524590163"></omgdi:waypoint>
+        <omgdi:waypoint x="297.5" y="145.0"></omgdi:waypoint>
+        <omgdi:waypoint x="345.0" y="145.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-B888CFA6-66A5-4E6D-B4D5-0F6426330FDB" id="BPMNEdge_sid-B888CFA6-66A5-4E6D-B4D5-0F6426330FDB">
+        <omgdi:waypoint x="237.8409090909091" y="242.1590909090909"></omgdi:waypoint>
+        <omgdi:waypoint x="290.0" y="325.0"></omgdi:waypoint>
+        <omgdi:waypoint x="345.0" y="325.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-9289A120-5DE9-423C-8698-9E4F41B8396B" id="BPMNEdge_sid-9289A120-5DE9-423C-8698-9E4F41B8396B">
+        <omgdi:waypoint x="440.33218883279585" y="475.0"></omgdi:waypoint>
+        <omgdi:waypoint x="584.0" y="475.0"></omgdi:waypoint>
+        <omgdi:waypoint x="584.0" y="339.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>
+```
+
+### 4.2 发起流程
+
+![image-20200902140706434](/images/activiti6-19/image-20200902140706434.png)
+
+![image-20200902140746066](/images/activiti6-19/image-20200902140746066.png)
+
+### 4.3 API触发消息边界事件
+
+Activiti提供了以下2个API 来抛出消息：
+
+```java
+void messageEventReceived(String messageName, String executionId);
+void messageEventReceived(String messageName, String executionId, HashMap<String, Object> processVariables);
+```
+
+我们先来获取`executionId`参数。
+
+#### 4.3.1 获取某一消息事件的执行（Execution）
+
+以下代码可以让我们获取某个流程实例中的待触发的消息事件。
+
+```java
+/**
+ * 获取消息事件的执行列表
+*/
+@PostMapping(value = "/getMessageEventSubscription/{processInstanceId}/{messageName}")
+@ApiOperation(value = "获取某一消息事件的所有执行",notes = "获取某一消息事件的所有执行")
+public CommonResponse messageEventSubscriptionName(@RequestParam(value = "pageNum", required = true,defaultValue = "1")@ApiParam(value = "页码" ,required = true)int pageNum,
+                                                   @RequestParam(value = "pageSize", required = true,defaultValue = "10")@ApiParam(value = "条数" ,required = true)int pageSize,
+                                                   @PathVariable(value ="processInstanceId", required = false) @ApiParam(value = "流程实例",required = false)String processInstanceId,
+                                                   @PathVariable(value ="messageName", required = true) @ApiParam(value = "消息定义的名称",required = true)String messageName)  {
+    Page page = processService.messageEventSubscriptionName(pageNum, pageSize, messageName, processInstanceId);
+    return new CommonResponse().code(CodeEnum.SUCCESS.getCode()).data(page);
+}
+```
+
+```java
+/**
+ * 获取消息事件的执行列表
+ * @param pageNum
+ * @param pageSize
+ * @param messageName
+ * @param processInstanceId
+ * @return
+*/
+@Override
+public Page messageEventSubscriptionName(int pageNum, int pageSize, String messageName, String processInstanceId) {
+    Page page = new Page(pageNum,pageSize);
+
+    UserQueryImpl user = new UserQueryImpl();
+    user = (UserQueryImpl)identityService.createUserQuery().userId(GlobalConfig.getOperator());
+
+    List<AcExecutionEntityImpl> Acexecutions = new ArrayList<AcExecutionEntityImpl>();
+
+    ExecutionQuery executionQuery = runtimeService.createExecutionQuery();
+    if (!processInstanceId.isEmpty()){
+        executionQuery = executionQuery.processInstanceId(processInstanceId);
+    }
+
+    List<Execution> executions = executionQuery
+        .messageEventSubscriptionName(messageName)
+        .listPage(page.getFirstResult(),page.getMaxResults());
+
+    for (int i = 0; i <executions.size(); i++) {
+        ExecutionEntityImpl execution = (ExecutionEntityImpl) executions.get(i);
+        AcExecutionEntityImpl acExecutionEntity = new AcExecutionEntityImpl();
+
+        acExecutionEntity.setId(execution.getId());
+        acExecutionEntity.setActivitiId(execution.getActivityId());
+        acExecutionEntity.setActivitiName(execution.getActivityName());
+        acExecutionEntity.setParentId(execution.getParentId());
+        acExecutionEntity.setProcessDefinitionId(execution.getProcessDefinitionId());
+        acExecutionEntity.setProcessDefinitionKey(execution.getProcessDefinitionKey());
+        acExecutionEntity.setRootProcessInstanceId(execution.getRootProcessInstanceId());
+        acExecutionEntity.setProcessInstanceId(execution.getProcessInstanceId());
+        Acexecutions.add(acExecutionEntity);
+    }
+
+    //获取总页数
+    int total = (int) executionQuery.count();
+    page.setTotal(total);
+    page.setList(Acexecutions);
+    return page;
+}
+```
+
+首先我们需要获取一下processInstanceId参数：147501（前面发起流程时已经返回了，实际编码中应该通过下面的接口获取）
+
+![image-20200902143219786](/images/activiti6-19/image-20200902143219786.png)
+
+#### 4.3.2 获取消息事件的执行列表
+
+![image-20200902143405319](/images/activiti6-19/image-20200902143405319.png)
+
+#### 4.3.3 API触发
+
+消息边界的触发与消息启动事件的API是不同的，我们单独写一个接口：
+
+```java
+/**
+     * 消息触发
+     */
+@PostMapping(value = "/messageEventReceived/{messageName}")
+@ApiOperation(value = "消息触发",notes = "消息触发，表单元素key需要以fp_开头")
+public CommonResponse messageEventReceived(@PathVariable(value = "messageName",required = true) @ApiParam(value = "消息定义的名称",required = true)String messageName,
+                                           @RequestParam(value = "executionId",required = false) @ApiParam(value = "执行ID",required = false)String executionId,
+                                           HttpServletRequest request) throws CommonException {
+    processService.messageEventReceived(messageName,executionId,request);
+    return new CommonResponse().code(CodeEnum.SUCCESS.getCode()).message("消息触发成功");
+}
+```
+
+```java
+ /**
+     * 消息触发
+     * @param messageName
+     * @param executionId
+     * @param request
+     */
+@Override
+public void messageEventReceived(String messageName, String executionId, HttpServletRequest request) {
+    Map<String, Object> formProperties = new HashMap<String, Object>();
+    // 从request中读取参数然后转换
+    Map<String, String[]> parameterMap = request.getParameterMap();
+    if (parameterMap.size()>0){
+        Set<Map.Entry<String, String[]>> entrySet = parameterMap.entrySet();
+        for (Map.Entry<String, String[]> entry : entrySet) {
+            String key = entry.getKey();
+            // fp_的意思是form paremeter
+            if (StringUtils.defaultString(key).startsWith("fp_")) {
+                formProperties.put(key.split("_")[1], entry.getValue()[0]);
+            }
+        }
+    }
+
+    log.debug("start form parameters: {}", formProperties);
+
+    UserQueryImpl user = new UserQueryImpl();
+    user = (UserQueryImpl)identityService.createUserQuery().userId(GlobalConfig.getOperator());
+
+    if (!executionId.isEmpty() && formProperties.size() > 0){
+        runtimeService.messageEventReceived(messageName,executionId,formProperties);
+    }else if(!executionId.isEmpty()){
+        runtimeService.messageEventReceived(messageName,executionId);
+    }
+}
+```
+
+此时我们已经获取了所需的messageName和executionId：
+
+![image-20200902144507090](/images/activiti6-19/image-20200902144507090.png)
+
+此时再看流程图，可以看到消息已经被消息边界事件捕获了：
+
+![image-20200902144555281](/images/activiti6-19/image-20200902144555281.png)
+
+#### 4.3.4 cancelActivity参数说明
+
+本流程还有一个需要注意的地方，这个消息边界事件的外面2个圆圈是虚线（cancelActivity="false"），表示触发后原流程流转方向不会中断，例如本流程中**HR审批节点**依然可以审批，并结束流程。
+
+若cancelActivity="true",则原流程环节就中断了，只能通过`manage审批`节点来继续此流程的审批。
+
+![image-20200902144805834](/images/activiti6-19/image-20200902144805834.png)
+
+我们使用hr审批流程来验证一下：
+
+![image-20200902145509534](/images/activiti6-19/image-20200902145509534.png)
+
+再次查看流程图，可以看到流程已经结束了。
+
+![image-20200902145541799](/images/activiti6-19/image-20200902145541799.png)
+
+## 5、边界修正事件（边界补偿事件）
+
+**补偿边界事件**，可以为活动附加补偿处理器。
+
+补偿边界事件必须通过直接关联的方式，引用单个的补偿处理器。
+
+补偿边界事件与其它边界事件的活动策略不同。其它边界事件，例如信号边界事件，当其依附的活动启动时激活；当离开该活动时，会被解除，并取消相应的事件订阅。而补偿边界事件不是这样。补偿边界事件在其依附的活动**成功完成**时激活，同时创建补偿事件的相应订阅。当补偿事件被触发，或者相应的流程实例结束时，才会移除订阅。请考虑下列因素：
+
+- 当补偿被触发时，补偿边界事件关联的补偿处理器会被调用，次数与其依附的活动成功完成的次数相同。
+- 如果补偿边界事件依附在具有多实例特性的活动上，则会为每一个实例创建补偿事件订阅。
+- 如果补偿边界事件依附在位于循环内部的活动上，则每次该活动执行时，都会创建一个补偿事件订阅。
+- 如果流程实例结束，则取消补偿事件的订阅。
+
+**请注意：**嵌入式子流程不支持补偿边界事件。
