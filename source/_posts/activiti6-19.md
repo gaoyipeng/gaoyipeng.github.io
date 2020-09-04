@@ -699,7 +699,7 @@ public void messageEventReceived(String messageName, String executionId, HttpSer
 
 ![image-20200902145541799](/images/activiti6-19/image-20200902145541799.png)
 
-## 5、边界修正事件（边界补偿事件）
+## 5、边界补偿事件（边界修正事件）
 
 **补偿边界事件**，可以为活动附加补偿处理器。
 
@@ -713,3 +713,328 @@ public void messageEventReceived(String messageName, String executionId, HttpSer
 - 如果流程实例结束，则取消补偿事件的订阅。
 
 **请注意：**嵌入式子流程不支持补偿边界事件。
+
+### 5.1 触发条件
+
+- 事务子流程中**取消结束事件**触发**边界补偿事件**。
+
+- **补偿中间抛出事件**触发**边界补偿事件**。
+
+  
+  
+  第一种触发条件我们在事务子流程中一起介绍，这里只介绍第2种。
+
+### 5.2 补偿中间抛出事件触发边界补偿事件
+
+此处我们画一个流程：
+
+![image-20200904111109326](/images/activiti6-19/image-20200904111109326.png)
+
+说明：这是简单的付款流程，流程启动后按照：A付款——B收钱——多实例——补偿中间抛出事件——结束的顺序来执行。
+
+另外3个点为补偿操作，通过补偿边界事件与主流程环节相连。假设流程出现错误，需要回滚，补偿中间抛出事件会触发第二行的3个补偿操作。
+
+`多实例`节点我们设置了3个并行操作。
+
+![image-20200904101937066](/images/activiti6-19/image-20200904101937066.png)
+
+#### 5.2.1 流程定义
+
+下面是完整的bpmn定义：
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <process id="boundaryCompensationEvent" name="边界补偿事件" isExecutable="true">
+    <startEvent id="startevent1" name="Start"></startEvent>
+    <serviceTask id="servicetask1" name="A付款" activiti:class="com.sxdx.workflow.activiti.rest.serviceTask.boundaryCompensationEvent.APaymentService"></serviceTask>
+    <serviceTask id="servicetask2" name="B收钱" activiti:class="com.sxdx.workflow.activiti.rest.serviceTask.boundaryCompensationEvent.BReceivePaymentService"></serviceTask>
+    <intermediateThrowEvent id="compensationintermediatethrowevent1" name="CompensationThrowingEvent">
+		<compensateEventDefinition></compensateEventDefinition>
+	</intermediateThrowEvent>
+    <endEvent id="endevent1" name="End"></endEvent>
+    <sequenceFlow id="flow1" sourceRef="startevent1" targetRef="servicetask1"></sequenceFlow>
+    <sequenceFlow id="flow2" sourceRef="servicetask1" targetRef="servicetask2"></sequenceFlow>
+    <sequenceFlow id="flow4" sourceRef="compensationintermediatethrowevent1" targetRef="endevent1"></sequenceFlow>
+    <serviceTask id="servicetask3" name="补偿操作（A撤销付款操作）" activiti:class="com.sxdx.workflow.activiti.rest.serviceTask.boundaryCompensationEvent.AMakeUpService" isForCompensation="true"></serviceTask>
+    <serviceTask id="servicetask4" name="补偿操作（B撤销收钱操作）" activiti:class="com.sxdx.workflow.activiti.rest.serviceTask.boundaryCompensationEvent.BMakeUpService" isForCompensation="true"></serviceTask>
+    <serviceTask id="sid-05354E87-3CC4-4F1C-9C73-A2816D33D1CF" name="多实例补偿" activiti:class="com.sxdx.workflow.activiti.rest.serviceTask.boundaryCompensationEvent.MultiInstanceMakeUpService" isForCompensation="true"></serviceTask>
+    <serviceTask id="sid-2310FA00-EFE0-4E98-AA31-E2AEF1DD1AD6" name="多实例" activiti:class="com.sxdx.workflow.activiti.rest.serviceTask.boundaryCompensationEvent.MultiInstanceService">
+      <multiInstanceLoopCharacteristics isSequential="false">
+        <loopCardinality>3</loopCardinality>
+      </multiInstanceLoopCharacteristics>
+    </serviceTask>
+    <sequenceFlow id="sid-B628EA27-7AC3-4D84-BF02-088D1CC92C19" sourceRef="servicetask2" targetRef="sid-2310FA00-EFE0-4E98-AA31-E2AEF1DD1AD6"></sequenceFlow>
+    <sequenceFlow id="sid-1948505E-385D-4AB5-8FD6-8ADC4507B559" sourceRef="sid-2310FA00-EFE0-4E98-AA31-E2AEF1DD1AD6" targetRef="compensationintermediatethrowevent1"></sequenceFlow>
+    <boundaryEvent id="sid-B9CFEB1B-2A60-440C-AA13-6F74DD8E6A7F" attachedToRef="sid-2310FA00-EFE0-4E98-AA31-E2AEF1DD1AD6" cancelActivity="false">
+      <compensateEventDefinition></compensateEventDefinition>
+    </boundaryEvent>
+    <boundaryEvent id="boundarycompensation2" attachedToRef="servicetask2" cancelActivity="true">
+      <compensateEventDefinition></compensateEventDefinition>
+    </boundaryEvent>
+    <boundaryEvent id="boundarycompensation1" attachedToRef="servicetask1" cancelActivity="true">
+      <compensateEventDefinition></compensateEventDefinition>
+    </boundaryEvent>
+    <association id="association1" sourceRef="boundarycompensation1" targetRef="servicetask3" associationDirection="None"></association>
+    <association id="association2" sourceRef="boundarycompensation2" targetRef="servicetask4" associationDirection="None"></association>
+    <association id="sid-65D72081-517C-4095-8D72-1785ED71CFEF" sourceRef="sid-B9CFEB1B-2A60-440C-AA13-6F74DD8E6A7F" targetRef="sid-05354E87-3CC4-4F1C-9C73-A2816D33D1CF" associationDirection="None"></association>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_boundaryCompensationEvent">
+    <bpmndi:BPMNPlane bpmnElement="boundaryCompensationEvent" id="BPMNPlane_boundaryCompensationEvent">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="30.0" width="30.0" x="70.0" y="155.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask1" id="BPMNShape_servicetask1">
+        <omgdc:Bounds height="55.0" width="105.0" x="165.0" y="140.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask2" id="BPMNShape_servicetask2">
+        <omgdc:Bounds height="55.0" width="105.0" x="340.0" y="140.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="compensationintermediatethrowevent1" id="BPMNShape_compensationintermediatethrowevent1">
+        <omgdc:Bounds height="30.0" width="30.0" x="765.0" y="155.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="28.0" width="28.0" x="900.0" y="156.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask3" id="BPMNShape_servicetask3">
+        <omgdc:Bounds height="80.0" width="134.99999999999997" x="159.46846851919068" y="270.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask4" id="BPMNShape_servicetask4">
+        <omgdc:Bounds height="71.0" width="135.0" x="327.05801075438586" y="277.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="association1" id="BPMNShape_association1">
+        <omgdc:Bounds height="58.796701737861724" width="0.7432082881786926" x="226.22526023101196" y="211.20329826213828"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="association2" id="BPMNShape_association2">
+        <omgdc:Bounds height="66.80624613905798" width="0.0" x="394.55801075438586" y="210.19375386094202"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-05354E87-3CC4-4F1C-9C73-A2816D33D1CF" id="BPMNShape_sid-05354E87-3CC4-4F1C-9C73-A2816D33D1CF">
+        <omgdc:Bounds height="71.0" width="145.0" x="531.0698320860189" y="274.5"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-65D72081-517C-4095-8D72-1785ED71CFEF" id="BPMNShape_sid-65D72081-517C-4095-8D72-1785ED71CFEF">
+        <omgdc:Bounds height="47.73368688736619" width="0.0" x="603.5698320860189" y="226.29731451995437"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-2310FA00-EFE0-4E98-AA31-E2AEF1DD1AD6" id="BPMNShape_sid-2310FA00-EFE0-4E98-AA31-E2AEF1DD1AD6">
+        <omgdc:Bounds height="80.0" width="100.0" x="535.4" y="130.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-B9CFEB1B-2A60-440C-AA13-6F74DD8E6A7F" id="BPMNShape_sid-B9CFEB1B-2A60-440C-AA13-6F74DD8E6A7F">
+        <omgdc:Bounds height="30.0" width="30.0" x="588.5698320860189" y="195.5326262252675"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="boundarycompensation2" id="BPMNShape_boundarycompensation2">
+        <omgdc:Bounds height="30.0" width="30.0" x="379.55801075438586" y="180.12075937925076"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="boundarycompensation1" id="BPMNShape_boundarycompensation1">
+        <omgdc:Bounds height="30.0" width="30.0" x="211.02916278342167" y="180.6896349716271"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="association1" id="BPMNEdge_association1">
+        <omgdi:waypoint x="226.21875222451516" y="210.68843678523294"></omgdi:waypoint>
+        <omgdi:waypoint x="226.96846851919065" y="270.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
+        <omgdi:waypoint x="99.99733072335283" y="169.7170314957858"></omgdi:waypoint>
+        <omgdi:waypoint x="165.0" y="168.49056603773585"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="association2" id="BPMNEdge_association2">
+        <omgdi:waypoint x="394.55801075438586" y="210.12075937925076"></omgdi:waypoint>
+        <omgdi:waypoint x="394.55801075438586" y="277.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
+        <omgdi:waypoint x="270.0" y="167.5"></omgdi:waypoint>
+        <omgdi:waypoint x="340.0" y="167.5"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-65D72081-517C-4095-8D72-1785ED71CFEF" id="BPMNEdge_sid-65D72081-517C-4095-8D72-1785ED71CFEF">
+        <omgdi:waypoint x="603.5698320860189" y="225.5326262252675"></omgdi:waypoint>
+        <omgdi:waypoint x="603.5698320860189" y="274.5"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
+        <omgdi:waypoint x="795.0" y="170.0"></omgdi:waypoint>
+        <omgdi:waypoint x="900.0" y="170.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-1948505E-385D-4AB5-8FD6-8ADC4507B559" id="BPMNEdge_sid-1948505E-385D-4AB5-8FD6-8ADC4507B559">
+        <omgdi:waypoint x="635.4" y="170.0"></omgdi:waypoint>
+        <omgdi:waypoint x="765.0" y="170.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-B628EA27-7AC3-4D84-BF02-088D1CC92C19" id="BPMNEdge_sid-B628EA27-7AC3-4D84-BF02-088D1CC92C19">
+        <omgdi:waypoint x="445.0" y="168.18040435458786"></omgdi:waypoint>
+        <omgdi:waypoint x="535.4" y="169.35199585277346"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>
+```
+
+#### 5.2.2 手动修改流程定义
+
+这里说明一下：直接使用流程设计器设计的流程图有些问题，下图中标出的4个地方，是后面手动加上去的，目前的流程设计器不支持这几个选项。（可能是这个版本的流程设计器的问题，后期再看看是否能修改）
+
+![image-20200904093012762](/images/activiti6-19/image-20200904093012762.png)
+
+第一处：
+
+`<cancelEventDefinition></cancelEventDefinition>`表示这是一个**中间抛出补偿事件**，而目前流程设计器只支持无触发器的中间抛出事件。
+
+![image-20200904095614642](/images/activiti6-19/image-20200904095614642.png)
+
+```xml
+<!--无触发器的中间抛出事件-->
+<intermediateThrowEvent id="compensationintermediatethrowevent1" name="CompensationThrowingEvent">
+</intermediateThrowEvent>
+
+<!--中间抛出补偿事件 在上面的代码基础上包含了<compensateEventDefinition></compensateEventDefinition> -->
+<intermediateThrowEvent id="compensationintermediatethrowevent1" name="CompensationThrowingEvent">
+		<compensateEventDefinition></compensateEventDefinition>
+</intermediateThrowEvent>
+```
+
+剩余三处：`isForCompensation="true"`表示这是一个补偿，加在3个补偿操作上
+
+![image-20200904095802532](/images/activiti6-19/image-20200904095802532.png)
+
+修改后重新部署即可
+
+#### 5.2.3  节点服务任务
+
+流程图中我们一共用到了6个Java Service任务 `<serviceTask>`。
+
+![image-20200715155238237](/images/activiti6-19/image-20200715155238237.png)
+
+此处我们使用的是第一种，这里我们贴出6个Java Service：
+
+```java
+package com.sxdx.workflow.activiti.rest.serviceTask.boundaryCompensationEvent;
+
+import org.activiti.engine.delegate.DelegateExecution;
+import org.activiti.engine.delegate.JavaDelegate;
+import org.springframework.stereotype.Component;
+
+@Component
+public class APaymentService implements JavaDelegate {
+    @Override
+    public void execute(DelegateExecution delegateExecution) {
+        System.out.println("A扣款~~~"+delegateExecution.getEventName());
+    }
+}
+```
+
+```java
+package com.sxdx.workflow.activiti.rest.serviceTask.boundaryCompensationEvent;
+
+import org.activiti.engine.delegate.DelegateExecution;
+import org.activiti.engine.delegate.JavaDelegate;
+import org.springframework.stereotype.Component;
+
+@Component
+public class AMakeUpService implements JavaDelegate {
+    @Override
+    public void execute(DelegateExecution delegateExecution) {
+        System.out.println("A补偿~~~"+delegateExecution.getEventName());
+    }
+}
+```
+
+```java
+package com.sxdx.workflow.activiti.rest.serviceTask.boundaryCompensationEvent;
+
+import org.activiti.engine.delegate.DelegateExecution;
+import org.activiti.engine.delegate.JavaDelegate;
+import org.springframework.stereotype.Component;
+
+@Component
+public class BReceivePaymentService implements JavaDelegate {
+    @Override
+    public void execute(DelegateExecution delegateExecution) {
+        System.out.println("B收款~~~"+delegateExecution.getEventName());
+    }
+}
+
+```
+
+```java
+package com.sxdx.workflow.activiti.rest.serviceTask.boundaryCompensationEvent;
+
+import org.activiti.engine.delegate.DelegateExecution;
+import org.activiti.engine.delegate.JavaDelegate;
+import org.springframework.stereotype.Component;
+
+@Component
+public class BMakeUpService implements JavaDelegate {
+    @Override
+    public void execute(DelegateExecution delegateExecution) {
+        System.out.println("B补偿~~~"+delegateExecution.getEventName());
+    }
+}
+
+```
+
+```java
+package com.sxdx.workflow.activiti.rest.serviceTask.boundaryCompensationEvent;
+
+import org.activiti.engine.delegate.DelegateExecution;
+import org.activiti.engine.delegate.JavaDelegate;
+import org.springframework.stereotype.Component;
+
+@Component
+public class MultiInstanceService implements JavaDelegate {
+    @Override
+    public void execute(DelegateExecution delegateExecution) {
+        System.out.println("多实例~~~"+delegateExecution.getEventName());
+    }
+}
+
+```
+
+```java
+package com.sxdx.workflow.activiti.rest.serviceTask.boundaryCompensationEvent;
+
+import org.activiti.engine.delegate.DelegateExecution;
+import org.activiti.engine.delegate.JavaDelegate;
+import org.springframework.stereotype.Component;
+
+@Component
+public class MultiInstanceMakeUpService implements JavaDelegate {
+    @Override
+    public void execute(DelegateExecution delegateExecution) {
+        System.out.println("多实例补偿操作~~~"+delegateExecution.getEventName());
+    }
+}
+
+```
+
+#### 5.2.4 发起流程
+
+![image-20200904100133263](/images/activiti6-19/image-20200904100133263.png)
+
+我们流程图和打印结果：
+
+![image-20200904101638227](/images/activiti6-19/image-20200904101638227.png)
+
+```
+A扣款~~~null
+B收款~~~null
+多实例~~~null
+多实例~~~null
+多实例~~~null
+多实例补偿操作~~~null
+多实例补偿操作~~~null
+多实例补偿操作~~~null
+B补偿~~~null
+A补偿~~~null
+```
+
+可以看到补偿顺利执行了。
+
+#### 5.2.5 执行顺序
+
+我们通过查看打印结果即可得出流程的执行顺序：先执行后补偿，后执行先补偿。例如A先扣款B后收款，而在触发补偿后却是B先补偿A后补偿。
+
+#### 5.2.6 多实例补偿规则
+
+我们通过查看打印结果即可得出：
+
+如果补偿边界事件依附在具有多实例特性的活动上，则会为每一个实例创建补偿事件订阅。
+
+## 6、边界取消事件
+
+**取消边界事件**是依附在事务子流程边界上的，使用**取消结束事件**在事务取消时触发。当取消边界事件触发时，首先会中断当前范围的所有活动执行。接下来，启动事务范围内所有有效的的补偿边界事件（compensation boundary event）。补偿会同步执行，也就是说在离开事务前，边界事件会等待补偿完成。当补偿完成时，使用取消边界事件的出口顺序流，离开事务子流程。
+
+**取消边界事件**和**取消结束事件**一样，我们都在事务子流程中一起介绍。
