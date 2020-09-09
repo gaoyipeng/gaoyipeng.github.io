@@ -110,7 +110,7 @@ public CommonResponse getTaskComments(@RequestParam(value = "taskId",required = 
 
 
 
-## 2、通过commentId获取审批意见
+## 3、通过commentId获取审批意见
 
 ```java
 /**
@@ -139,7 +139,7 @@ public Comment 	getComment(String commentId) {
 
 
 
-## 3、通过type获取审批意见
+## 4、通过type获取审批意见
 
 ```java
 /**
@@ -168,7 +168,7 @@ public List<Comment> getCommentsByType(String type) {
 
 
 
-## 4、获取流程实例的全部审批意见
+## 5、获取流程实例的全部审批意见
 
 ```java
 /**

@@ -61,7 +61,20 @@ description: Activiti6工作流系统搭建教程
  [七、事件](https://www.kancloud.cn/gaoyipeng/garnett/1881705)
 
 - ​     [事件类别](https://www.kancloud.cn/gaoyipeng/garnett/1902088)
+
 - ​     [Activiti启动事件](https://www.kancloud.cn/gaoyipeng/garnett/1881706)
+
 - ​     [Activiti结束事件](https://www.kancloud.cn/gaoyipeng/garnett/1902089)
+
 - ​     [边界事件（一）](https://www.kancloud.cn/gaoyipeng/garnett/1902090)
+
 - ​     [边界事件（二）](https://www.kancloud.cn/gaoyipeng/garnett/1902091)
+
+  
+
+ [八、网关](https://www.kancloud.cn/gaoyipeng/garnett/1912370)
+
+ [九、接口完善](https://www.kancloud.cn/gaoyipeng/garnett/1912371)
+
+- ​	  [审批意见管理](https://www.kancloud.cn/gaoyipeng/garnett/1912372)
+
