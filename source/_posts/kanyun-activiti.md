@@ -77,4 +77,7 @@ description: Activiti6工作流系统搭建教程
  [九、接口完善](https://www.kancloud.cn/gaoyipeng/garnett/1912371)
 
 - ​	  [审批意见管理](https://www.kancloud.cn/gaoyipeng/garnett/1912372)
+- ​	  [Activiti流程驳回、流程回退](https://www.kancloud.cn/gaoyipeng/garnett/1934888)
+- ​	  [Activiti任务委托](https://www.kancloud.cn/gaoyipeng/garnett/1934889)
+- ​	  [Activiti流程的挂起、激活](https://www.kancloud.cn/gaoyipeng/garnett/1934890)
 
