@@ -10,7 +10,7 @@ typora-root-url: ..
 上一节 [spring security oauth2 授权码模式、密码模式代码实践](https://blog.gaoyp.cn/2019/12/10/spring-security-oauth2-02/) 介绍了spring security oauth2 的3种模式。
 本节我们将在上一节的基础上实现SSO单点登录，及自定义自定义令牌配置。SSO单点登录的概念就不做解释了，请自行百度。
 
-## 自定义令牌配置
+## 1、自定义令牌配置
 
 上一节我们在认证服务器 spring-security-oauth2 的资源配置类 KikiAuthorizationServerConfigurer 中定义了 ClientDetails：
 
@@ -73,7 +73,7 @@ clients.inMemory()
 对于scopes和resourceIds不熟悉的，可以参考 [https://blog.gaoyp.cn/2019/12/08/spring-security-oauth2-01/](https://blog.gaoyp.cn/2019/12/08/spring-security-oauth2-01/)
 
 
-## 新建2个资源服务器
+## 2、新建2个资源服务器
 
 为了实现功能，我们需要新建2个资源服务器。现约定如下（于认证服务器的clients配置相对应）：
 
@@ -82,7 +82,7 @@ clients.inMemory()
 |sso-resource-one  |8002 |client1 |123456 |
 |sso-resource-two  |8003 |client2 |123456 |
 
-### 新建资源服务器sso-resource-one：
+### 1.1 新建资源服务器sso-resource-one：
 
 新建一个module，pom.xml如下:
 
@@ -339,11 +339,11 @@ public class OneController {
 
 至此资源服务器sso-resource-one搭建完成
 
-### 新建资源服务器module：sso-resource-two
+### 1.2 新建资源服务器module：sso-resource-two
 
 仿照sso-resource-one,新建sso-resource-two即可。不再贴出代码。
 
-## 演示
+## 3、演示
 
 ### resourceIds 作用演示
 

@@ -12,9 +12,9 @@ typora-root-url: ..
 
 > 环境说明：IDEA2019.2 、jdk 1.8 、maven 3.6.2 
 
-## 搭建 spring-all 
+## 1、搭建 spring-all 
 
-### 创建父级 maven项目： spring-all
+### 1.1创建父级 maven项目： spring-all
 
 ![创建spring-all](/images/oauth2/创建spring-all.png)
 
@@ -71,7 +71,7 @@ typora-root-url: ..
 |Edgware | 1.5.x|
 |Dalston | 1.5.x|
 
-### 创建一个 module项目： spring-security-oauth2
+### 1.2 创建一个 module项目： spring-security-oauth2
 
 ![创建security-oauth2.png](/images/oauth2/创建security-oauth2.png)
 
@@ -140,7 +140,7 @@ typora-root-url: ..
 
 > lombok说明：因为项目里使用了Lombok注解,除引用lombok jar包外，我们还需要在IDEA里安装Lombok插件。[https://www.cnblogs.com/pcheng/p/10945476.html](https://www.cnblogs.com/pcheng/p/10945476.html)
 
-### 授权码模式（authorization code）
+### 1.3 授权码模式（authorization code）
 
 #### 创建一个实体类 
 
@@ -486,7 +486,7 @@ public class KikiSecurityConfig extends WebSecurityConfigurerAdapter {
 ![authentication请求.png](/images/oauth2/authentication请求.png)
 
 
-### 密码模式（resource owner password credentials）
+### 1.4 密码模式（resource owner password credentials）
 
  密码模式比起授权码模式来说，相对简单些。我们在postman中请求：localhost:8001/oauth/token?grant_type=password&username=garnett&password=123456
 
@@ -640,7 +640,7 @@ public class KikiAuthorizationServerConfigurer extends AuthorizationServerConfig
 
 至此，我们的项目已经同时支持授权码模式、密码模式了。
 
-### 客户端模式（client credentials）
+### 1.5 客户端模式（client credentials）
 
 这里简单介绍下客户端模式：这种模式直接根据client的id和密钥即可获取token，无需用户参与。这种模式比较合适消费api的后端服务，不支持refresh token。
 
@@ -670,7 +670,7 @@ clients.inMemory()
 
 ![客户端模式token获取资源.png](/images/oauth2/客户端模式token获取资源.png)
 
-### 授权码模式扩展
+### 1.6 授权码模式扩展
 
 #### 使用自定义登录页
 
