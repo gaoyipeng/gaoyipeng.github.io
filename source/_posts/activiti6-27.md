@@ -80,6 +80,23 @@ typora-root-url: ..
 </project>
 ```
 
+这里有一点说明，我们此处引入了`workflow-common`依赖，因为`workflow-common`中包含pagehelper依赖，会要求有数据源，这里我们先把pagehelper的依赖，放入`workflow-activiti-rest`的`pom` 文件中。并在`workflow-common`中添加`spring-boot-starter`
+
+```xml
+<!--把workflow-common的pagehelper删除，添加到workflow-activiti-rest中-->
+<dependency>
+    <groupId>com.github.pagehelper</groupId>
+    <artifactId>pagehelper-spring-boot-starter</artifactId>
+</dependency>
+<!--workflow-common添加这个-->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter</artifactId>
+</dependency>
+```
+
+
+
 在`main/java`目录下补全`SpringBoot`启动文件：
 
 ```java
@@ -275,9 +292,9 @@ server:
 
 认证服务器需要创建**三大配置**：
 
-- 认证服务配置：负责发放、校验令牌
+- 认证服务配置：负责发放、校验令牌是否正确
 - 资源服务配置：这一项是可选的，因为认证服务器同样也可以是一个资源服务器。
-- WebSecurity配置：Security配置，主要处理除资源服务外的其他服务请求。
+- WebSecurity配置：Security配置，主要处理除资源服务外的其他服务请求以及**验证token的授权信息**。
 
 我们先创建认证服务类 `AuthorizationServerConfig`：
 
@@ -750,7 +767,7 @@ public class AuthorizationController {
     @DeleteMapping("signout")
     public CommonResponse signout(HttpServletRequest request) throws CommonException {
         String authorization = request.getHeader("Authorization");
-        String token = StringUtils.replace(authorization, "bearer ", "");
+        String token = StringUtils.replace(authorization, "Bearer ", "");
 
         if (!consumerTokenServices.revokeToken(token)) {
             throw new CommonException("退出登录失败");
@@ -783,7 +800,15 @@ public class AuthorizationController {
 
 通过code向认证服务器申请token:
 
-![image-20201001085808205](/images/activiti6-27/image-20201001085808205.png)可以看到我们成功的获取到了token。我们试着通过token获取当前用户信息：
+![image-20201001085808205](/images/activiti6-27/image-20201001085808205.png)
+
+除此之外还需要设置请求头：
+
+![image-20201005200803722](/images/activiti6-27/image-20201005200803722.png)
+
+key为Authorization，value为Basic加上client_id:client_secret经过base64加密后的值（可以使用http://tool.chinaz.com/Tools/Base64.aspx）
+
+然后调用接口，可以看到我们成功的获取到了token。我们试着通过token获取当前用户信息：
 
 ![image-20201001085950332](/images/activiti6-27/image-20201001085950332.png)
 
@@ -823,7 +848,7 @@ public class AuthorizationController {
 
 可以看到返回值中不包含`refresh_token`
 
-#### 2.4 简化模式
+### 2.4 简化模式
 
 以上的3种模式都是需要后端协助的。如果有一个应用，是个纯前端应用，那么如果获取token呢？这就用到了简化模式。
 
