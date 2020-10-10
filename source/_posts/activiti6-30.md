@@ -299,6 +299,8 @@ public AuthorizationCodeServices authorizationCodeServices(DataSource dataSource
 
 这样就修改为通过数据库保存client和code信息了。可以发现，此处我们并没有指定表名，那么不需要告诉程序从那张表获取数据吗，不需要，这是因为Oauth2已经设置了默认的表名和表结构，我们只需创建好对应的表即可。
 
+表结构可以参考github：https://github.com/spring-projects/spring-security-oauth/blob/master/spring-security-oauth2/src/test/resources/schema.sql
+
 ## 5、验证
 
 我们重启服务后验证授权码模式。
