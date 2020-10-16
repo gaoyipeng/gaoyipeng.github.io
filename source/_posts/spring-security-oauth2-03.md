@@ -1,8 +1,8 @@
 ---
 title: spring security oauth2 SSO 单点登录及自定义令牌配置
 date: 2019-12-14 21:58:18
-tags: [OAuth2,Spring-Security]
-categories: [OAuth2,Spring-Security]
+tags: [Spring-Security-OAuth2]
+categories: [Spring-Security-OAuth2]
 description: spring security oauth2 SSO 单点登录及自定义令牌配置
 typora-root-url: ..
 ---

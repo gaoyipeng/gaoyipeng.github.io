@@ -1,8 +1,8 @@
 ---
 title: spring security oauth2 基础知识
 date: 2019-12-08 17:12:08
-tags: [Spring-Security-OAuth2,Spring-Security]
-categories: [Spring-Security-OAuth2,Spring-Security]
+tags: [Spring-Security-OAuth2]
+categories: [Spring-Security-OAuth2]
 description: spring security oauth2 基础知识
 typora-root-url: ..
 ---

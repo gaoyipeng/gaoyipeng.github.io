@@ -1,8 +1,8 @@
 ---
 title: spring security oauth2 授权码模式、密码模式代码实践
 date: 2019-12-10 22:15:04
-tags: [OAuth2,Spring-Security]
-categories: [OAuth2,Spring-Security]
+tags: [Spring-Security-OAuth2]
+categories: [Spring-Security-OAuth2]
 description: spring security oauth2 授权码模式、密码模式代码实践
 typora-root-url: ..
 ---

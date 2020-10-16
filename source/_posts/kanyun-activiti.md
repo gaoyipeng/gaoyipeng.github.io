@@ -1,8 +1,8 @@
 ---
 title: Activiti6工作流系统搭建教程
 date: 2200-09-07 09:50:37
-tags: Activiti
-categories: Activiti
+tags: [Activiti]
+categories: [Activiti]
 description: Activiti6工作流系统搭建教程
 ---
 
