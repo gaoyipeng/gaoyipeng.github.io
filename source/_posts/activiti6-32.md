@@ -44,7 +44,7 @@ DROP VIEW  IF EXISTS ACT_ID_GROUP;
  
 CREATE OR REPLACE VIEW act_id_user  AS   
   SELECT  
-    u.user_id    AS ID_,  
+    u.username    AS ID_,  
     1               AS REV_,  
     u.username     AS FIRST_,  
     ''              AS LAST_,  
@@ -57,7 +57,7 @@ CREATE OR REPLACE VIEW act_id_user  AS
  
 CREATE VIEW act_id_group   
 AS  
-  SELECT r.role_id AS ID_,
+  SELECT r.role_name AS ID_,
          r.rev_ AS REV_,
          r.role_name AS NAME_,
          r.type_ AS TYPE_
@@ -67,14 +67,14 @@ AS
 
 CREATE VIEW act_id_membership  
 AS  
-   SELECT (SELECT u.user_id FROM base_user u WHERE u.user_id=ur.user_id) AS USER_ID_,
-       (SELECT r.role_id FROM base_role r WHERE r.role_id=ur.role_id) AS GROUP_ID_  
+   SELECT (SELECT u.username FROM base_user u WHERE u.user_id=ur.user_id) AS USER_ID_,
+       (SELECT r.role_name FROM base_role r WHERE r.role_id=ur.role_id) AS GROUP_ID_  
    FROM base_user_role ur;
 ```
 
-![image-20201017223049528](/images/activiti6-32/image-20201017223049528.png)
-
 可以看到表中只保留act_id_info，另外3张表使用视图代替。
+
+![image-20201019201245069](/images/activiti6-32/image-20201019201245069.png)
 
 ### 1.3、禁止自动生成用户表
 
@@ -93,197 +93,146 @@ spring:
 
 
 
-## 2、验证
+## 2、流程验证
 
 我们修改一下动态表单章节使用的`leave-dynamic-from.bpmn`请假流程。
 
 ![image-20201018112505899](/images/activiti6-32/image-20201018112505899.png)
 
-我们以`部门领导审批`节点为例,之前`部门领导审批`节点的设置是这样的：
+首先我们获取一个token：
 
-![image-20201018113528117](/images/activiti6-32/image-20201018113528117.png)
-
-现在我们使用视图代替Activiti用户表后，userId不再是之前的deptLeader，应该改为3
-
-![image-20201018113600942](/images/activiti6-32/image-20201018113600942.png)
-
-其他节点类似，修改后的流程定义文件如下：
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.kafeitu.me/demo/activiti/leave">
-  <process id="leave-dynamic-from" name="请假流程-动态表单" isExecutable="true">
-    <documentation>请假流程演示-动态表单</documentation>
-    <startEvent id="startevent1" name="Start" activiti:initiator="applyUserId">
-      <extensionElements>
-        <activiti:formProperty id="startDate" name="请假开始日期" type="date" datePattern="yyyy-MM-dd" required="true"></activiti:formProperty>
-        <activiti:formProperty id="endDate" name="请假结束日期" type="date" datePattern="yyyy-MM-dd" required="true"></activiti:formProperty>
-        <activiti:formProperty id="reason" name="请假原因" type="string" required="true"></activiti:formProperty>
-      </extensionElements>
-    </startEvent>
-    <userTask id="deptLeaderAudit" name="部门领导审批" activiti:candidateGroups="3">
-      <extensionElements>
-        <activiti:formProperty id="startDate" name="请假开始日期" type="date" datePattern="yyyy-MM-dd" writable="false"></activiti:formProperty>
-        <activiti:formProperty id="endDate" name="请假结束日期" type="date" datePattern="yyyy-MM-dd" writable="false"></activiti:formProperty>
-        <activiti:formProperty id="reason" name="请假原因" type="string" writable="false"></activiti:formProperty>
-        <activiti:formProperty id="deptLeaderPass" name="审批意见" type="enum" required="true">
-          <activiti:value id="true" name="同意"></activiti:value>
-          <activiti:value id="false" name="不同意"></activiti:value>
-        </activiti:formProperty>
-      </extensionElements>
-    </userTask>
-    <exclusiveGateway id="exclusivegateway5" name="Exclusive Gateway"></exclusiveGateway>
-    <userTask id="modifyApply" name="调整申请" activiti:assignee="${applyUserId}">
-      <extensionElements>
-        <activiti:formProperty id="startDate" name="请假开始日期" type="date" datePattern="yyyy-MM-dd" required="true"></activiti:formProperty>
-        <activiti:formProperty id="endDate" name="请假结束日期" type="date" datePattern="yyyy-MM-dd" required="true"></activiti:formProperty>
-        <activiti:formProperty id="reason" name="请假原因" type="string" required="true"></activiti:formProperty>
-        <activiti:formProperty id="reApply" name="重新申请" type="enum" required="true">
-          <activiti:value id="true" name="重新申请"></activiti:value>
-          <activiti:value id="false" name="取消申请"></activiti:value>
-        </activiti:formProperty>
-        <modeler:initiator-can-complete xmlns:modeler="http://activiti.com/modeler"><![CDATA[false]]></modeler:initiator-can-complete>
-      </extensionElements>
-    </userTask>
-    <userTask id="hrAudit" name="人事审批" activiti:candidateGroups="5">
-      <extensionElements>
-        <activiti:formProperty id="startDate" name="请假开始日期" type="date" datePattern="yyyy-MM-dd" writable="false"></activiti:formProperty>
-        <activiti:formProperty id="endDate" name="请假结束日期" type="date" datePattern="yyyy-MM-dd" writable="false"></activiti:formProperty>
-        <activiti:formProperty id="reason" name="请假原因" type="string" writable="false"></activiti:formProperty>
-        <activiti:formProperty id="hrPass" name="审批意见" type="enum" required="true">
-          <activiti:value id="true" name="同意"></activiti:value>
-          <activiti:value id="false" name="不同意"></activiti:value>
-        </activiti:formProperty>
-      </extensionElements>
-    </userTask>
-    <exclusiveGateway id="exclusivegateway6" name="Exclusive Gateway"></exclusiveGateway>
-    <userTask id="reportBack" name="销假" activiti:assignee="${applyUserId}">
-      <extensionElements>
-        <activiti:formProperty id="startDate" name="请假开始日期" type="date" datePattern="yyyy-MM-dd" writable="false"></activiti:formProperty>
-        <activiti:formProperty id="endDate" name="请假结束日期" type="date" datePattern="yyyy-MM-dd" writable="false"></activiti:formProperty>
-        <activiti:formProperty id="reason" name="请假原因" type="string" writable="false"></activiti:formProperty>
-        <activiti:formProperty id="reportBackDate" name="销假日期" type="date" datePattern="yyyy-MM-dd" required="true"></activiti:formProperty>
-        <modeler:initiator-can-complete xmlns:modeler="http://activiti.com/modeler"><![CDATA[false]]></modeler:initiator-can-complete>
-      </extensionElements>
-    </userTask>
-    <endEvent id="endevent1" name="End"></endEvent>
-    <exclusiveGateway id="exclusivegateway7" name="Exclusive Gateway"></exclusiveGateway>
-    <sequenceFlow id="flow2" sourceRef="startevent1" targetRef="deptLeaderAudit"></sequenceFlow>
-    <sequenceFlow id="flow3" sourceRef="deptLeaderAudit" targetRef="exclusivegateway5"></sequenceFlow>
-    <sequenceFlow id="flow4" name="不同意" sourceRef="exclusivegateway5" targetRef="modifyApply">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${deptLeaderPass == 'false'}]]></conditionExpression>
-    </sequenceFlow>
-    <sequenceFlow id="flow5" name="同意" sourceRef="exclusivegateway5" targetRef="hrAudit">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${deptLeaderPass == 'true'}]]></conditionExpression>
-    </sequenceFlow>
-    <sequenceFlow id="flow6" sourceRef="hrAudit" targetRef="exclusivegateway6"></sequenceFlow>
-    <sequenceFlow id="flow7" name="同意" sourceRef="exclusivegateway6" targetRef="reportBack">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${hrPass == 'true'}]]></conditionExpression>
-    </sequenceFlow>
-    <sequenceFlow id="flow8" sourceRef="reportBack" targetRef="endevent1"></sequenceFlow>
-    <sequenceFlow id="flow9" name="不同意" sourceRef="exclusivegateway6" targetRef="modifyApply">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${hrPass == 'false'}]]></conditionExpression>
-    </sequenceFlow>
-    <sequenceFlow id="flow10" name="重新申请" sourceRef="exclusivegateway7" targetRef="deptLeaderAudit">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${reApply == 'true'}]]></conditionExpression>
-    </sequenceFlow>
-    <sequenceFlow id="flow11" sourceRef="modifyApply" targetRef="exclusivegateway7"></sequenceFlow>
-    <sequenceFlow id="flow12" name="结束流程" sourceRef="exclusivegateway7" targetRef="endevent1">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${reApply == 'false'}]]></conditionExpression>
-    </sequenceFlow>
-  </process>
-  <bpmndi:BPMNDiagram id="BPMNDiagram_leave-dynamic-from">
-    <bpmndi:BPMNPlane bpmnElement="leave-dynamic-from" id="BPMNPlane_leave-dynamic-from">
-      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
-        <omgdc:Bounds height="30.0" width="30.0" x="10.0" y="90.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="deptLeaderAudit" id="BPMNShape_deptLeaderAudit">
-        <omgdc:Bounds height="55.0" width="105.0" x="90.0" y="80.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="exclusivegateway5" id="BPMNShape_exclusivegateway5">
-        <omgdc:Bounds height="40.0" width="40.0" x="250.0" y="87.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="modifyApply" id="BPMNShape_modifyApply">
-        <omgdc:Bounds height="55.0" width="105.0" x="218.0" y="190.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="hrAudit" id="BPMNShape_hrAudit">
-        <omgdc:Bounds height="55.0" width="105.0" x="358.0" y="80.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="exclusivegateway6" id="BPMNShape_exclusivegateway6">
-        <omgdc:Bounds height="40.0" width="40.0" x="495.0" y="87.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="reportBack" id="BPMNShape_reportBack">
-        <omgdc:Bounds height="55.0" width="105.0" x="590.0" y="80.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
-        <omgdc:Bounds height="28.0" width="28.0" x="625.0" y="283.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="exclusivegateway7" id="BPMNShape_exclusivegateway7">
-        <omgdc:Bounds height="40.0" width="40.0" x="250.0" y="280.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
-        <omgdi:waypoint x="39.99660595085598" y="105.31907672235864"></omgdi:waypoint>
-        <omgdi:waypoint x="90.0" y="106.38297872340425"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
-        <omgdi:waypoint x="195.0" y="107.29411764705883"></omgdi:waypoint>
-        <omgdi:waypoint x="250.078125" y="107.078125"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
-        <omgdi:waypoint x="270.0900900900901" y="126.90990990990991"></omgdi:waypoint>
-        <omgdi:waypoint x="270.3755656108597" y="190.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5">
-        <omgdi:waypoint x="289.92907801418437" y="107.0709219858156"></omgdi:waypoint>
-        <omgdi:waypoint x="358.0" y="107.31316725978647"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6">
-        <omgdi:waypoint x="463.0" y="107.2488038277512"></omgdi:waypoint>
-        <omgdi:waypoint x="495.0952380952381" y="107.0952380952381"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
-        <omgdi:waypoint x="534.921875" y="107.078125"></omgdi:waypoint>
-        <omgdi:waypoint x="590.0" y="107.29411764705883"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow10" id="BPMNEdge_flow10">
-        <omgdi:waypoint x="250.15503875968992" y="299.84496124031006"></omgdi:waypoint>
-        <omgdi:waypoint x="142.0" y="299.0"></omgdi:waypoint>
-        <omgdi:waypoint x="142.42819843342036" y="135.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
-        <omgdi:waypoint x="641.9920844327177" y="135.0"></omgdi:waypoint>
-        <omgdi:waypoint x="639.25853110552" y="283.002387286845"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow11" id="BPMNEdge_flow11">
-        <omgdi:waypoint x="270.3333333333333" y="245.0"></omgdi:waypoint>
-        <omgdi:waypoint x="270.12048192771084" y="280.12048192771084"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow9" id="BPMNEdge_flow9">
-        <omgdi:waypoint x="514.8198198198198" y="126.81981981981981"></omgdi:waypoint>
-        <omgdi:waypoint x="514.0" y="217.0"></omgdi:waypoint>
-        <omgdi:waypoint x="323.0" y="217.39219712525667"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow12" id="BPMNEdge_flow12">
-        <omgdi:waypoint x="289.83870967741933" y="299.83870967741933"></omgdi:waypoint>
-        <omgdi:waypoint x="625.0004626646179" y="297.1138173767104"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-    </bpmndi:BPMNPlane>
-  </bpmndi:BPMNDiagram>
-</definitions>
-```
-
-然后我们修改当前操作人配置 ，4表示这个流程是部门领导发起的：
-
-![image-20201018122045599](/images/activiti6-32/image-20201018122045599.png)
+![image-20201019214050819](/images/activiti6-32/image-20201019214050819.png)
 
 我们发起一个流程（注意添加请求头）：
 
-![image-20201018122342465](/images/activiti6-32/image-20201018122342465.png)
+![image-20201019201545213](/images/activiti6-32/image-20201019201545213.png)
 
-![image-20201018122406474](/images/activiti6-32/image-20201018122406474.png)
+![image-20201019201526076](/images/activiti6-32/image-20201019201526076.png)
 
-然后部门经理获取待办，可以看到已经返回了待办信息：
+然后`部门经理`获取待办，可以看到已经返回了待办信息：
 
-![image-20201018122510979](/images/activiti6-32/image-20201018122510979.png)
+![image-20201019201812189](/images/activiti6-32/image-20201019201812189.png)
 
 ## 3、Spring-Security获取当前操作人
+
+我们在介绍`Activiti`部分时，设置当前流程操作人是通过硬编码的方式：
+
+![image-20201019211817418](/images/activiti6-32/image-20201019211817418.png)
+
+现在我们已经集成了spring-security-oauth2，我们可以通过Spring-Security获取当前操作人。
+
+因为这个是个通用操作，所以我们把这个代码写在workflow-common中。我们首先需要在workflow-common中添加Spring-Security Jar包：
+
+```xml
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-oauth2</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-security</artifactId>
+</dependency>
+```
+
+然后新建工具类：
+
+```java
+package com.sxdx.common.util;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails;
+
+import java.util.Collection;
+
+/**
+ * @program: workflow-activiti
+ * @description: 常用工具类
+ * @author: garnett
+ * @create: 2020-10-18 18:02
+ **/
+@Slf4j
+public class workFlowUtil {
+
+    private static Authentication getOauth2Authentication() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication;
+    }
+
+    /**
+     * 获取当前用户名称
+     *
+     * @return String 用户名
+     */
+    public static String getCurrentUsername() {
+        String name = getOauth2Authentication().getName();
+        return name;
+    }
+
+    /**
+     * 获取当前用户权限集
+     *
+     * @return Collection<GrantedAuthority>权限集
+     */
+    public static Collection<GrantedAuthority> getCurrentUserAuthority() {
+        return (Collection<GrantedAuthority>) getOauth2Authentication().getAuthorities();
+    }
+
+    /**
+     * 获取当前令牌内容
+     *
+     * @return String 令牌内容
+     */
+    public static String getCurrentTokenValue() {
+        try {
+            OAuth2AuthenticationDetails details = (OAuth2AuthenticationDetails) getOauth2Authentication().getDetails();
+            return details.getTokenValue();
+        } catch (Exception ignore) {
+            return null;
+        }
+    }
+}
+
+```
+
+然后我们替换原先代码中的获取当前登录人的方法：
+
+```java
+UserQueryImpl user = new UserQueryImpl();
+user = (UserQueryImpl)identityService.createUserQuery().userId(GlobalConfig.getOperator());
+```
+
+修改为：
+
+```java
+UserQueryImpl user = new UserQueryImpl();
+user = (UserQueryImpl)identityService.createUserQuery().userId(workFlowUtil.getCurrentUsername());
+```
+
+此处我们可以选择IDEA的批量替换，快捷键：`ctrl + shift + r`
+
+![image-20201019213906187](/images/activiti6-32/image-20201019213906187.png)
+
+点击`Replace All`即可。之后在修改的文件中引入包依赖：
+
+```jav
+import com.sxdx.common.util.workFlowUtil;
+```
+
+重启服务，我们再次获取当前操作人的待办信息：
+
+![image-20201019214535147](/images/activiti6-32/image-20201019214535147.png)
+
+返回为空，这是因为我们获取token时，用户名输入的是garnett,我们重新获取token
+
+![image-20201019214748273](/images/activiti6-32/image-20201019214748273.png)
+
+![image-20201019214839079](/images/activiti6-32/image-20201019214839079.png)
+
+再次获取待办信息：
+
+![image-20201019214907604](/images/activiti6-32/image-20201019214907604.png)
+
+成功返回待办信息。
