@@ -14,7 +14,7 @@ password: kiki
 
 ![image-20201015100138801](/images/activiti6-31/image-20201015100138801.png)
 
-![image-20201015100928766](/images/activiti6-31/image-20201015100928766.png)
+![image-20201017213317296](/images/activiti6-31/image-20201017213317296.png)
 
 比如获取用户名为 Garnett 的用户权限过程为：
 
@@ -27,6 +27,14 @@ password: kiki
 接下里我们贴出建表SQL：
 
 ```sql
+DROP TABLE IF EXISTS base_user;
+DROP TABLE IF EXISTS base_dept;
+DROP TABLE IF EXISTS base_role;
+DROP TABLE IF EXISTS base_menu;
+DROP TABLE IF EXISTS base_user_role;
+DROP TABLE IF EXISTS base_role_menu;
+
+
 CREATE TABLE `base_user`  (
   `user_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '用户ID',
   `username` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '用户名',
@@ -35,13 +43,13 @@ CREATE TABLE `base_user`  (
   `email` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '邮箱',
   `mobile` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '联系电话',
   `status` char(1) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '状态 0锁定 1有效',
-	`order_num` double(20, 0) NULL DEFAULT NULL COMMENT '排序',
+  `order_num` double(20, 0) NULL DEFAULT NULL COMMENT '排序',
   `create_time` datetime(0) NOT NULL COMMENT '创建时间',
   `modify_time` datetime(0) NULL DEFAULT NULL COMMENT '修改时间',
   `last_login_time` datetime(0) NULL DEFAULT NULL COMMENT '最近访问时间',
   `gender` char(1) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '性别 0男 1女 2保密',
-  `avatar` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '头像',
-  `description` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '描述',
+  `avatar` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '头像',
+  `description` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '描述',
   PRIMARY KEY (`user_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '用户表' ROW_FORMAT = Dynamic;
 
@@ -58,7 +66,7 @@ INSERT INTO `base_user` VALUES (7, 'treasurer', '$2a$10$v8hx0S0I2XTOMcDnDGhb3uwS
 CREATE TABLE `base_dept`  (
   `dept_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '部门ID',
   `parent_id` bigint(20) NOT NULL COMMENT '上级部门ID',
-  `dept_name` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '部门名称',
+  `dept_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '部门名称',
   `order_num` double(20, 0) NULL DEFAULT NULL COMMENT '排序',
   `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
   `modify_time` datetime(0) NULL DEFAULT NULL COMMENT '修改时间',
@@ -73,8 +81,8 @@ INSERT INTO `base_dept` VALUES (3, 0, '人事部', 1, '2020-01-04 15:42:26', '20
 
 CREATE TABLE `base_role`  (
   `role_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '角色ID',
-  `role_name` varchar(10) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '角色名称',
-  `remark` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '角色描述',
+  `role_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '角色名称',
+  `remark` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '角色描述',
   `create_time` datetime(0) NOT NULL COMMENT '创建时间',
   `modify_time` datetime(0) NULL DEFAULT NULL COMMENT '修改时间',
 	`rev_` int(11) DEFAULT NULL,
@@ -84,12 +92,12 @@ CREATE TABLE `base_role`  (
 
 INSERT INTO `base_role` VALUES (1, 'Admin', 'Admin', '2020-08-08 16:23:11', '2020-08-09 14:38:59',1,'security-role');
 INSERT INTO `base_role` VALUES (2, 'cashier', '出纳员', '2020-08-08 16:23:11', '2020-08-09 14:38:59',1,'assignment');
-INSERT INTO `base_role` VALUES (3, 'deptLeader', '部门经理', '2020-08-08 16:23:11', '2020-08-09 14:38:59'1,'assignment');
-INSERT INTO `base_role` VALUES (4, 'generalManager', '总经理', '2020-08-08 16:23:11', '2020-08-09 14:38:59'1,'assignment');
-INSERT INTO `base_role` VALUES (5, 'hr', 'HR管理员', '2020-08-08 16:23:11', '2020-08-09 14:38:59'1,'assignment');
-INSERT INTO `base_role` VALUES (6, 'supportCrew', '后勤人员', '2020-08-08 16:23:11', '2020-08-09 14:38:59'1,'assignment');
-INSERT INTO `base_role` VALUES (7, 'treasurer', '财务人员', '2020-08-08 16:23:11', '2020-08-09 14:38:59'1,'assignment');
-INSERT INTO `base_role` VALUES (8, 'user', 'User', '2020-08-08 16:23:11', '2020-08-09 14:38:59',1,'security-role'1,'assignment');
+INSERT INTO `base_role` VALUES (3, 'deptLeader', '部门经理', '2020-08-08 16:23:11', '2020-08-09 14:38:59',1,'assignment');
+INSERT INTO `base_role` VALUES (4, 'generalManager', '总经理', '2020-08-08 16:23:11', '2020-08-09 14:38:59',1,'assignment');
+INSERT INTO `base_role` VALUES (5, 'hr', 'HR管理员', '2020-08-08 16:23:11', '2020-08-09 14:38:59',1,'assignment');
+INSERT INTO `base_role` VALUES (6, 'supportCrew', '后勤人员', '2020-08-08 16:23:11', '2020-08-09 14:38:59',1,'assignment');
+INSERT INTO `base_role` VALUES (7, 'treasurer', '财务人员', '2020-08-08 16:23:11', '2020-08-09 14:38:59',1,'assignment');
+INSERT INTO `base_role` VALUES (8, 'user', 'User', '2020-08-08 16:23:11', '2020-08-09 14:38:59',1,'security-role');
 
 
 
@@ -101,8 +109,8 @@ CREATE TABLE `base_menu`  (
   `menu_name` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '菜单/按钮名称',
   `path` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '对应路由path',
   `component` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '对应路由组件component',
-  `perms` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '权限标识',
-  `icon` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '图标',
+  `perms` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '权限标识',
+  `icon` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '图标',
   `type` char(2) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '类型 0菜单 1按钮',
   `order_num` double(20, 0) NULL DEFAULT NULL COMMENT '排序',
   `create_time` datetime(0) NOT NULL COMMENT '创建时间',
@@ -870,7 +878,24 @@ public class CodeGenerator {
 
 ![image-20201016155939098](/images/activiti6-31/image-20201016155939098.png)
 
-这些代码还需要自定义修改一下，这里就不再赘述了。
+这些代码还需要自定义修改一下，
 
+在启动类上添加`@MapperScan("com.sxdx.workflow.web.mapper")`
 
+```java
+@SpringBootApplication
+@MapperScan("com.sxdx.workflow.web.mapper")
+public class WorkFlowWebApplication {
 
+    public static void main(String[] args) {
+        SpringApplication.run(WorkFlowWebApplication.class, args);
+    }
+}
+
+```
+
+在Mapper接口上添加`@Repository`
+
+![image-20201017225131697](/images/activiti6-31/image-20201017225131697.png)
+
+表和基本代码已经都有了，后期需要什么接口，再补充就行，这里不再赘述。
