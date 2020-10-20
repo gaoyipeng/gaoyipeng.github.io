@@ -117,6 +117,13 @@ CREATE TABLE `base_menu`  (
   `modify_time` datetime(0) NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`menu_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '菜单表' ROW_FORMAT = Dynamic;
+
+insert into `base_menu`(`menu_id`, `parent_id`, `menu_name`, `path`, `component`, `perms`, `icon`, `type`, `order_num`, `create_time`, `modify_time`) values (1, 0, '系统管理', '/system', 'layout', null, 'el-icon-set-up', '0', 1, '2020-12-27 16:39:07', '2020-07-20 16:19:04');
+insert into `base_menu`(`menu_id`, `parent_id`, `menu_name`, `path`, `component`, `perms`, `icon`, `type`, `order_num`, `create_time`, `modify_time`) values (2, 0, '系统监控', '/monitor', 'layout', null, 'el-icon-data-line', '0', 2, '2020-12-27 16:45:51', '2020-01-23 06:27:12');
+insert into `base_menu`(`menu_id`, `parent_id`, `menu_name`, `path`, `component`, `perms`, `icon`, `type`, `order_num`, `create_time`, `modify_time`) values (3, 1, '用户管理', '/system/user', 'system/user/index', 'user:view', '', '0', 1, '2020-12-27 16:47:13', '2020-01-22 06:45:55');
+insert into `base_menu`(`menu_id`, `parent_id`, `menu_name`, `path`, `component`, `perms`, `icon`, `type`, `order_num`, `create_time`, `modify_time`) values (4, 1, '角色管理', '/system/role', 'system/role/index', 'role:view', '', '0', 2, '2020-12-27 16:48:09', '2020-04-25 09:01:12');
+insert into `base_menu`(`menu_id`, `parent_id`, `menu_name`, `path`, `component`, `perms`, `icon`, `type`, `order_num`, `create_time`, `modify_time`) values (5, 1, '菜单管理', '/system/menu', 'system/menu/index', 'menu:view', '', '0', 3, '2020-12-27 16:48:57', '2020-04-25 09:01:30');
+
 /****-----------------------------------------------------------------****/
 
 CREATE TABLE `base_user_role`  (
@@ -137,6 +144,18 @@ CREATE TABLE `base_role_menu`  (
   `role_id` bigint(20) NOT NULL,
   `menu_id` bigint(20) NOT NULL
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '角色菜单关联表' ROW_FORMAT = Dynamic;
+
+INSERT INTO `base_role_menu`(`role_id`, `menu_id`) VALUES (1, 1);
+INSERT INTO `base_role_menu`(`role_id`, `menu_id`) VALUES (1, 2);
+INSERT INTO `base_role_menu`(`role_id`, `menu_id`) VALUES (1, 3);
+INSERT INTO `base_role_menu`(`role_id`, `menu_id`) VALUES (1, 4);
+INSERT INTO `base_role_menu`(`role_id`, `menu_id`) VALUES (1, 5);
+INSERT INTO `base_role_menu`(`role_id`, `menu_id`) VALUES (3, 1);
+INSERT INTO `base_role_menu`(`role_id`, `menu_id`) VALUES (3, 2);
+INSERT INTO `base_role_menu`(`role_id`, `menu_id`) VALUES (3, 3);
+INSERT INTO `base_role_menu`(`role_id`, `menu_id`) VALUES (3, 4);
+INSERT INTO `base_role_menu`(`role_id`, `menu_id`) VALUES (3, 5);
+
 ```
 
 上面我们不仅给出了建表语句，而且提供了数据插入SQL。可以发现用户表和角色表插入的数据，和我们activiti用户和用户组中的数据是一样的，稍后我们会让Activcit使用上面的用户体系。到这里，我们的库表就准备完了。

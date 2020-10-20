@@ -85,6 +85,14 @@ public void test1(){
     <groupId>com.baomidou</groupId>
     <artifactId>mybatis-plus-extension</artifactId>
 </dependency>
+<dependency>
+    <groupId>com.baomidou</groupId>
+    <artifactId>mybatis-plus-generator</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.freemarker</groupId>
+    <artifactId>freemarker</artifactId>
+</dependency>
 <!-- Mysql驱动包 -->
 <dependency>
     <groupId>mysql</groupId>
