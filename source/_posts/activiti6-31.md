@@ -34,24 +34,24 @@ DROP TABLE IF EXISTS base_menu;
 DROP TABLE IF EXISTS base_user_role;
 DROP TABLE IF EXISTS base_role_menu;
 
-
-CREATE TABLE `base_user`  (
+CREATE TABLE `base_user` (
   `user_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '用户ID',
-  `username` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '用户名',
-  `password` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '密码',
-  `dept_id` bigint(20) NULL DEFAULT NULL COMMENT '部门ID',
-  `email` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '邮箱',
-  `mobile` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '联系电话',
-  `status` char(1) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '状态 0锁定 1有效',
-  `order_num` double(20, 0) NULL DEFAULT NULL COMMENT '排序',
-  `create_time` datetime(0) NOT NULL COMMENT '创建时间',
-  `modify_time` datetime(0) NULL DEFAULT NULL COMMENT '修改时间',
-  `last_login_time` datetime(0) NULL DEFAULT NULL COMMENT '最近访问时间',
-  `gender` char(1) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '性别 0男 1女 2保密',
-  `avatar` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '头像',
-  `description` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '描述',
-  PRIMARY KEY (`user_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '用户表' ROW_FORMAT = Dynamic;
+  `username` varchar(50) NOT NULL COMMENT '用户名',
+  `password` varchar(128) NOT NULL COMMENT '密码',
+  `dept_id` bigint(20) DEFAULT NULL COMMENT '部门ID',
+  `email` varchar(128) DEFAULT NULL COMMENT '邮箱',
+  `mobile` varchar(20) DEFAULT NULL COMMENT '联系电话',
+  `status` char(1) NOT NULL COMMENT '状态 0锁定 1有效',
+  `order_num` double(20,0) DEFAULT NULL COMMENT '排序',
+  `create_time` datetime NOT NULL COMMENT '创建时间',
+  `modify_time` datetime DEFAULT NULL COMMENT '修改时间',
+  `last_login_time` datetime DEFAULT NULL COMMENT '最近访问时间',
+  `gender` char(1) DEFAULT NULL COMMENT '性别 0男 1女 2保密',
+  `avatar` varchar(255) DEFAULT NULL COMMENT '头像',
+  `description` varchar(255) DEFAULT NULL COMMENT '描述',
+  PRIMARY KEY (`user_id`) USING BTREE,
+  UNIQUE KEY `username` (`username`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='用户表';
 
 INSERT INTO `base_user` VALUES (1, 'admin', '$2a$10$v8hx0S0I2XTOMcDnDGhb3uwSWnMgy9ckgVM5x6GfwepuBwPnGv7bK', 1, 'admin@qq.com', '15935887412', '1', 1,'2020-10-10 20:39:22', '2020-10-10 10:18:36', '2020-10-10 15:57:00', '0', 'default.jpg', '我是Garnett');
 INSERT INTO `base_user` VALUES (2, 'hruser', '$2a$10$v8hx0S0I2XTOMcDnDGhb3uwSWnMgy9ckgVM5x6GfwepuBwPnGv7bK', 1, 'hruser@qq.com', '15935887412', '1', 1,'2020-10-10 20:39:22', '2020-10-10 10:18:36', '2020-10-10 15:57:00', '0', 'default.jpg', '我是Garnett');
@@ -79,16 +79,17 @@ INSERT INTO `base_dept` VALUES (3, 0, '人事部', 1, '2020-01-04 15:42:26', '20
 
 /****-----------------------------------------------------------------****/
 
-CREATE TABLE `base_role`  (
+CREATE TABLE `base_role` (
   `role_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '角色ID',
-  `role_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '角色名称',
-  `remark` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '角色描述',
-  `create_time` datetime(0) NOT NULL COMMENT '创建时间',
-  `modify_time` datetime(0) NULL DEFAULT NULL COMMENT '修改时间',
-	`rev_` int(11) DEFAULT NULL,
-	`type_` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '类型',
-  PRIMARY KEY (`role_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '角色表' ROW_FORMAT = Dynamic;
+  `role_name` varchar(255) NOT NULL COMMENT '角色名称',
+  `remark` varchar(255) DEFAULT NULL COMMENT '角色描述',
+  `create_time` datetime NOT NULL COMMENT '创建时间',
+  `modify_time` datetime DEFAULT NULL COMMENT '修改时间',
+  `rev_` int(11) DEFAULT NULL,
+  `type_` varchar(255) NOT NULL COMMENT '类型',
+  PRIMARY KEY (`role_id`) USING BTREE,
+  UNIQUE KEY `role_name` (`role_name`) USING BTREE COMMENT '唯一索引，保证role_name值唯一'
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='角色表';
 
 INSERT INTO `base_role` VALUES (1, 'Admin', 'Admin', '2020-08-08 16:23:11', '2020-08-09 14:38:59',1,'security-role');
 INSERT INTO `base_role` VALUES (2, 'cashier', '出纳员', '2020-08-08 16:23:11', '2020-08-09 14:38:59',1,'assignment');
@@ -98,7 +99,6 @@ INSERT INTO `base_role` VALUES (5, 'hr', 'HR管理员', '2020-08-08 16:23:11', '
 INSERT INTO `base_role` VALUES (6, 'supportCrew', '后勤人员', '2020-08-08 16:23:11', '2020-08-09 14:38:59',1,'assignment');
 INSERT INTO `base_role` VALUES (7, 'treasurer', '财务人员', '2020-08-08 16:23:11', '2020-08-09 14:38:59',1,'assignment');
 INSERT INTO `base_role` VALUES (8, 'user', 'User', '2020-08-08 16:23:11', '2020-08-09 14:38:59',1,'security-role');
-
 
 
 /****-----------------------------------------------------------------****/
