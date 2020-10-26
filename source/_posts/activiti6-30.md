@@ -305,6 +305,24 @@ public AuthorizationCodeServices authorizationCodeServices(DataSource dataSource
 }
 ```
 
+另外，我们上面重新定义了ClientDetailsService ，会和`org/springframework/security/oauth2/config/annotation/configuration/ClientDetailsServiceConfiguration.class`中的Bean冲突：
+
+![image-20201026120728154](/images/activiti6-30/image-20201026120728154.png)
+
+启动会报如下错误：
+
+```
+The bean 'clientDetailsService', defined in class path resource [org/sxdx/workflowauth/config/AuthorizationServerConfig.class], could not be registered. A bean with that name has already been defined in BeanDefinition defined in class path resource [org/springframework/security/oauth2/config/annotation/configuration/ClientDetailsServiceConfiguration.class] and overriding is disabled.
+```
+
+此处我们添加如下配置来解决这个问题:l
+
+```yaml
+spring:
+  main:
+    allow-bean-definition-overriding: true
+```
+
 这样就修改为通过数据库保存client和code信息了。可以发现，此处我们并没有指定表名，那么不需要告诉程序从那张表获取数据吗，不需要，这是因为Oauth2已经设置了默认的表名和表结构，我们只需创建好对应的表即可。
 
 表结构可以参考github：https://github.com/spring-projects/spring-security-oauth/blob/master/spring-security-oauth2/src/test/resources/schema.sql
