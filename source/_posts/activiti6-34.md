@@ -210,7 +210,7 @@ public class SwaggerTests {
 
 然后我们打开Maven：
 
-![image-20201023102128525](/images/activiti6-34/image-20201023102128525.png)
+![image-20201027140841101](/images/activiti6-34/image-20201027140841101.png)
 
 执行结束后，就可以看到HTML文件了：
 
