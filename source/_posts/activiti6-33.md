@@ -1,14 +1,11 @@
 ---
-title: Activiti（33） Spring-Security获取当前操作人信息
-date: 2020-10-19 09:04:04
+title: Activiti（34） Spring-Security获取当前操作人信息
+date: 2020-10-23 09:19:39
 tags: [Activiti]
 categories: [Activiti]
-description: Activiti（33） Spring-Security获取当前操作人信息
+description: Activiti（34） Spring-Security获取当前操作人信息
 typora-root-url: ..
-password: kiki
 ---
-
-## 1、SpringSecurity获取当前操作人
 
 我们在介绍`Activiti`部分时，设置当前流程操作人是通过硬编码的方式：
 
