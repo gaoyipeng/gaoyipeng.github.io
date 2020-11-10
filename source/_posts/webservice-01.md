@@ -346,7 +346,7 @@ public class Test {
 
 ![image-20201110161115767](/images/webservice-01/image-20201110161115767.png)
 
-4.2 CXF 调用方式
+### 4.2 CXF 调用方式
 
 ```java
 package com.sxdx.service.consumer;
