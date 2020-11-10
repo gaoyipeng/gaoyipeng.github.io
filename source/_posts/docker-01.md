@@ -111,6 +111,8 @@ rm -rf /var/lib/docker
 > Docker Compose 是一个用来定义和运行复杂应用的 Docker 工具。
  使用 Docker Compose 不再需要使用 shell 脚本来启动容器。(通过 docker-compose.yml 配置)
 
+官网地址：https://docs.docker.com/compose/compose-file/
+
 ### 安装命令
 
 官网的安装命令太慢，有时无法连接，查阅其他人博客后发现如下安装方式：
