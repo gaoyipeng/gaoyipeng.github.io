@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<script>
+    (function(){
+        if(''){
+            if (prompt('��������������','') !== ''){
+                alert('�������');
+                history.back();
+            }
+        }
+    })();
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://blog.gaoyp.cn').hostname,
+    root: '/',
+    scheme: 'Mist',
+    version: '7.5.0',
+    exturl: false,
+    sidebar: {"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":true,"color":"#222","save":"auto"},
+    fancybox: true,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="Activiti（30） 数据库存储Code,Client信息">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Activiti（30） 数据库存储Code,Client信息">
+<meta property="og:url" content="http://blog.gaoyp.cn/2020/10/05/activiti6-30/index.html">
+<meta property="og:site_name" content="Garnett 的博客">
+<meta property="og:description" content="Activiti（30） 数据库存储Code,Client信息">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://blog.gaoyp.cn/images/activiti6-30/image-20201005195451023.png">
+<meta property="og:image" content="http://blog.gaoyp.cn/images/activiti6-30/image-20201005195132971.png">
+<meta property="og:image" content="http://blog.gaoyp.cn/images/activiti6-30/image-20201005215018337.png">
+<meta property="og:image" content="http://blog.gaoyp.cn/images/activiti6-30/image-20201005215030074.png">
+<meta property="og:image" content="http://blog.gaoyp.cn/images/activiti6-30/image-20201026120728154.png">
+<meta property="og:image" content="http://blog.gaoyp.cn/images/activiti6-30/image-20201005195328343.png">
+<meta property="og:image" content="http://blog.gaoyp.cn/images/activiti6-30/image-20201005200143937.png">
+<meta property="og:image" content="http://blog.gaoyp.cn/images/activiti6-30/image-20201005200229939.png">
+<meta property="og:image" content="http://blog.gaoyp.cn/images/activiti6-30/image-20201005201246472.png">
+<meta property="og:image" content="http://blog.gaoyp.cn/images/activiti6-30/image-20201005201034760.png">
+<meta property="og:image" content="http://blog.gaoyp.cn/images/activiti6-30/image-20201005201306951.png">
+<meta property="og:image" content="http://blog.gaoyp.cn/images/activiti6-30/image-20201005201329024.png">
+<meta property="og:image" content="http://blog.gaoyp.cn/images/activiti6-30/image-20201005201407526.png">
+<meta property="article:published_time" content="2020-10-05T07:09:49.000Z">
+<meta property="article:modified_time" content="2020-10-26T04:08:38.942Z">
+<meta property="article:author" content="Garnett">
+<meta property="article:tag" content="Activiti">
+<meta property="article:tag" content="Spring-Security-OAuth2">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://blog.gaoyp.cn/images/activiti6-30/image-20201005195451023.png">
+
+<link rel="canonical" href="http://blog.gaoyp.cn/2020/10/05/activiti6-30/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Activiti（30） 数据库存储Code,Client信息 | Garnett 的博客</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?657697497431005879fb9fdb4dc9ccd3";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Garnett 的博客" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Garnett 的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">学然后知不足,教然后知困。知不足,然后能自反也;知困,然后能自强也</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://blog.gaoyp.cn/2020/10/05/activiti6-30/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/qiqi.jpg">
+      <meta itemprop="name" content="Garnett">
+      <meta itemprop="description" content="学然后知不足,教然后知困。知不足,然后能自反也;知困,然后能自强也">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Garnett 的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Activiti（30） 数据库存储Code,Client信息
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-10-05 15:09:49" itemprop="dateCreated datePublished" datetime="2020-10-05T15:09:49+08:00">2020-10-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-10-26 12:08:38" itemprop="dateModified" datetime="2020-10-26T12:08:38+08:00">2020-10-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Activiti/" itemprop="url" rel="index">
+                    <span itemprop="name">Activiti</span>
+                  </a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Activiti/Spring-Security-OAuth2/" itemprop="url" rel="index">
+                    <span itemprop="name">Spring-Security-OAuth2</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <span id="/2020/10/05/activiti6-30/" class="post-meta-item leancloud_visitors" data-flag-title="Activiti（30） 数据库存储Code,Client信息" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2020/10/05/activiti6-30/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2020/10/05/activiti6-30/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+            <div class="post-description">Activiti（30） 数据库存储Code,Client信息</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>前面我们我们在集成Oauth2功能的的时候，授权码和客户端信息都是保存在内存中的，但是在生产环境下，这些信息都应该保存在数据库中，否则服务重启后，内存信息都会清空，而且不方便配置。</p>
+<h2 id="1、数据库表"><a href="#1、数据库表" class="headerlink" title="1、数据库表"></a>1、数据库表</h2><p>首先我们需要新建2张表来保存授权码和客户端信息：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`oauth_client_details`</span> (</span><br><span class="line">  <span class="string">`client_id`</span> <span class="built_in">varchar</span>(<span class="number">255</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'客户端标识'</span>,</span><br><span class="line">  <span class="string">`resource_ids`</span> <span class="built_in">varchar</span>(<span class="number">255</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'接入资源列表'</span>,</span><br><span class="line">  <span class="string">`client_secret`</span> <span class="built_in">varchar</span>(<span class="number">255</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'客户端秘钥'</span>,</span><br><span class="line">  <span class="string">`scope`</span> <span class="built_in">varchar</span>(<span class="number">255</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`authorized_grant_types`</span> <span class="built_in">varchar</span>(<span class="number">255</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`web_server_redirect_uri`</span> <span class="built_in">varchar</span>(<span class="number">255</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`authorities`</span> <span class="built_in">varchar</span>(<span class="number">255</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`access_token_validity`</span> <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`refresh_token_validity`</span> <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`additional_information`</span> longtext,</span><br><span class="line">  <span class="string">`create_time`</span> <span class="built_in">timestamp</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="keyword">CURRENT_TIMESTAMP</span> <span class="keyword">ON</span> <span class="keyword">UPDATE</span> <span class="keyword">CURRENT_TIMESTAMP</span>,</span><br><span class="line">  <span class="string">`archived`</span> <span class="built_in">tinyint</span>(<span class="number">4</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`trusted`</span> <span class="built_in">tinyint</span>(<span class="number">4</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`autoapprove`</span> <span class="built_in">varchar</span>(<span class="number">255</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span>,</span><br><span class="line">  PRIMARY <span class="keyword">KEY</span> (<span class="string">`client_id`</span>) <span class="keyword">USING</span> BTREE</span><br><span class="line">) <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span> <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8 ROW_FORMAT=DYNAMIC <span class="keyword">COMMENT</span>=<span class="string">'接入客户端信息'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`oauth_code`</span> (</span><br><span class="line">  <span class="string">`code`</span> <span class="built_in">varchar</span>(<span class="number">255</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`create_time`</span> <span class="built_in">timestamp</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="keyword">CURRENT_TIMESTAMP</span>,</span><br><span class="line">  <span class="string">`authentication`</span> <span class="built_in">blob</span>,</span><br><span class="line">  <span class="keyword">KEY</span> <span class="string">`code_index`</span> (<span class="string">`code`</span>) <span class="keyword">USING</span> BTREE</span><br><span class="line">) <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span> <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8 ROW_FORMAT=<span class="keyword">COMPACT</span>;</span><br></pre></td></tr></table></figure>
+
+<p>表中插入数据：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="string">`activiti-demo`</span>.<span class="string">`oauth_client_details`</span>(<span class="string">`client_id`</span>, <span class="string">`resource_ids`</span>, <span class="string">`client_secret`</span>, <span class="string">`scope`</span>, <span class="string">`authorized_grant_types`</span>, <span class="string">`web_server_redirect_uri`</span>, <span class="string">`authorities`</span>, <span class="string">`access_token_validity`</span>, <span class="string">`refresh_token_validity`</span>, <span class="string">`additional_information`</span>, <span class="string">`create_time`</span>, <span class="string">`archived`</span>, <span class="string">`trusted`</span>, <span class="string">`autoapprove`</span>) <span class="keyword">VALUES</span> (<span class="string">'activiti-rest'</span>, <span class="string">'activiti-rest,activiti-web,activiti-auth'</span>, <span class="string">'$2a$10$RwjayO3IOpr0L8t8We2YC.FoEodRUQJowNPsOOKmkF8hZ4Mfn/V8y'</span>, <span class="string">'ROLE_ADMIN,ROLE_USER,ROLE_API'</span>, <span class="string">'client_credentials,password,authorization_code,implicit,refresh_token'</span>, <span class="string">'https://www.baidu.com'</span>, <span class="literal">NULL</span>, <span class="number">7200</span>, <span class="number">259200</span>, <span class="literal">NULL</span>, <span class="string">'2020-09-28 13:50:46'</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="string">'true'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="string">`activiti-demo`</span>.<span class="string">`oauth_client_details`</span>(<span class="string">`client_id`</span>, <span class="string">`resource_ids`</span>, <span class="string">`client_secret`</span>, <span class="string">`scope`</span>, <span class="string">`authorized_grant_types`</span>, <span class="string">`web_server_redirect_uri`</span>, <span class="string">`authorities`</span>, <span class="string">`access_token_validity`</span>, <span class="string">`refresh_token_validity`</span>, <span class="string">`additional_information`</span>, <span class="string">`create_time`</span>, <span class="string">`archived`</span>, <span class="string">`trusted`</span>, <span class="string">`autoapprove`</span>) <span class="keyword">VALUES</span> (<span class="string">'activiti-web'</span>, <span class="string">'activiti-rest,activiti-web,activiti-auth'</span>, <span class="string">'$2a$10$RwjayO3IOpr0L8t8We2YC.FoEodRUQJowNPsOOKmkF8hZ4Mfn/V8y'</span>, <span class="string">'ROLE_ADMIN,ROLE_USER,ROLE_API'</span>, <span class="string">'client_credentials,password,authorization_code,implicit,refresh_token'</span>, <span class="string">'https://www.baidu.com'</span>, <span class="literal">NULL</span>, <span class="number">7200</span>, <span class="number">259200</span>, <span class="literal">NULL</span>, <span class="string">'2020-09-28 13:51:00'</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="string">'true'</span>);</span><br></pre></td></tr></table></figure>
+
+<p><img src="/images/activiti6-30/image-20201005195451023.png" alt="image-20201005195451023"></p>
+<p>此处定义了2个客户端信息，其中的<code>client_secret</code>字段，明文是123456，此处需要保存加密后的字符串，因为我们代码中使用的是<code>BCryptPasswordEncoder</code>加密，所以使用如下方法即可获取加密串：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test1</span><span class="params">()</span></span>&#123;</span><br><span class="line">    System.out.println(<span class="string">"-------------"</span>+<span class="keyword">new</span> BCryptPasswordEncoder().encode(<span class="string">"123456"</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2、认证服务器集成Mybatis-Plus、Druid"><a href="#2、认证服务器集成Mybatis-Plus、Druid" class="headerlink" title="2、认证服务器集成Mybatis-Plus、Druid"></a>2、认证服务器集成Mybatis-Plus、Druid</h2><p>因为涉及到了数据库操作，所以我们需要在认证服务器中集成Mybatis-plus。这个集成步骤在前面搭建workflow-activiti-rest服务时已经介绍过了。</p>
+<h3 id="2-1-添加依赖"><a href="#2-1-添加依赖" class="headerlink" title="2.1 添加依赖"></a>2.1 添加依赖</h3><p>在<code>workflow-auth</code>服务的pom中添加：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.baomidou<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mybatis-plus-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>p6spy<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>p6spy<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.baomidou<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>dynamic-datasource-spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.baomidou<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mybatis-plus-extension<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.baomidou<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mybatis-plus-generator<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.freemarker<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>freemarker<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- Mysql驱动包 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>mysql<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mysql-connector-java<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!--阿里数据库连接池 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>druid-spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-spy-properties"><a href="#2-2-spy-properties" class="headerlink" title="2.2 spy.properties"></a>2.2 spy.properties</h3><p>在<code>src/main/resources/spy.properties</code>路径下新建spy.properties文件。用于格式化SQL语句。</p>
+<p>spy.properties内容如下：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">appender</span>=<span class="string">com.p6spy.engine.spy.appender.Slf4JLogger</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-3-修改配置"><a href="#2-3-修改配置" class="headerlink" title="2.3 修改配置"></a>2.3 修改配置</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># mybatis-plus相关配置</span></span><br><span class="line"><span class="attr">mybatis-plus:</span></span><br><span class="line">  <span class="comment"># xml扫描，多个目录用逗号或者分号分隔（告诉 Mapper 所对应的 XML 文件位置）</span></span><br><span class="line">  <span class="attr">mapper-locations:</span> <span class="string">classpath:mapper/*.xml</span></span><br><span class="line">  <span class="comment"># 以下配置均有默认值,可以不设置</span></span><br><span class="line">  <span class="attr">global-config:</span></span><br><span class="line">    <span class="attr">banner:</span> <span class="literal">false</span></span><br><span class="line">    <span class="attr">db-config:</span></span><br><span class="line">      <span class="comment">#主键类型 AUTO:"数据库ID自增" INPUT:"用户输入ID",ID_WORKER:"全局唯一ID (数字类型唯一ID)", UUID:"全局唯一ID UUID";</span></span><br><span class="line">      <span class="attr">id-type:</span> <span class="string">auto</span></span><br><span class="line">      <span class="comment">#字段策略 IGNORED:"忽略判断"  NOT_NULL:"非 NULL 判断")  NOT_EMPTY:"非空判断"</span></span><br><span class="line">      <span class="attr">field-strategy:</span> <span class="string">NOT_EMPTY</span></span><br><span class="line">      <span class="comment">#数据库类型</span></span><br><span class="line">      <span class="attr">db-type:</span> <span class="string">MYSQL</span></span><br><span class="line">  <span class="attr">configuration:</span></span><br><span class="line">    <span class="attr">jdbc-type-for-null:</span> <span class="literal">null</span></span><br><span class="line">    <span class="comment"># 是否开启自动驼峰命名规则映射:从数据库列名到Java属性驼峰命名的类似映射</span></span><br><span class="line">    <span class="attr">map-underscore-to-camel-case:</span> <span class="literal">true</span></span><br><span class="line">    <span class="comment"># 如果查询结果中包含空值的列，则 MyBatis 在映射的时候，不会映射这个字段</span></span><br><span class="line">    <span class="attr">call-setters-on-nulls:</span> <span class="literal">true</span></span><br><span class="line">    <span class="comment"># 这个配置会将执行的sql打印出来，在开发或测试的时候可以用</span></span><br><span class="line">    <span class="attr">log-impl:</span> <span class="string">org.apache.ibatis.logging.stdout.StdOutImpl</span></span><br><span class="line">    </span><br><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">autoconfigure:</span></span><br><span class="line">    <span class="attr">exclude:</span> <span class="string">com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceAutoConfigure</span></span><br><span class="line">  <span class="comment"># activiti 模块</span></span><br><span class="line">  <span class="comment"># 解决启动报错：class path resource [processes/] cannot be resolved to URL because it does not exist</span></span><br><span class="line">  <span class="attr">activiti:</span></span><br><span class="line">    <span class="attr">check-process-definitions:</span> <span class="literal">false</span></span><br><span class="line">    <span class="comment"># 检测身份信息表是否存在</span></span><br><span class="line">    <span class="comment">#db-identity-used: false</span></span><br><span class="line">    <span class="attr">history-level:</span> <span class="string">full</span></span><br><span class="line">  <span class="attr">datasource:</span></span><br><span class="line">    <span class="attr">dynamic:</span></span><br><span class="line">      <span class="attr">p6spy:</span> <span class="literal">true</span></span><br><span class="line">      <span class="comment">#druid配置</span></span><br><span class="line">      <span class="attr">druid:</span></span><br><span class="line">        <span class="comment">#初始化大小,最小,最大</span></span><br><span class="line">        <span class="attr">initial-size:</span> <span class="number">5</span></span><br><span class="line">        <span class="attr">min-idle:</span> <span class="number">5</span></span><br><span class="line">        <span class="attr">max-active:</span> <span class="number">20</span></span><br><span class="line">        <span class="comment">#配置获取连接等待超时的时间</span></span><br><span class="line">        <span class="attr">max-wait:</span> <span class="number">60000</span></span><br><span class="line">        <span class="comment">#配置间隔多久才进行一次检测,检测需要关闭的空闲连接,单位是毫秒</span></span><br><span class="line">        <span class="attr">time-between-eviction-runs-millis:</span> <span class="number">60000</span></span><br><span class="line">        <span class="comment">#配置一个连接在池中最小生存的时间,单位是毫秒</span></span><br><span class="line">        <span class="attr">min-evictable-idle-time-millis:</span> <span class="number">300000</span></span><br><span class="line">        <span class="attr">validation-query:</span> <span class="string">SELECT</span> <span class="number">1</span> <span class="string">FROM</span> <span class="string">DUAL</span></span><br><span class="line">        <span class="attr">test-while-idle:</span> <span class="literal">true</span></span><br><span class="line">        <span class="attr">test-on-borrow:</span> <span class="literal">false</span></span><br><span class="line">        <span class="attr">test-on-return:</span> <span class="literal">false</span></span><br><span class="line">        <span class="comment">#打开PSCache,并且指定每个连接上PSCache的大小</span></span><br><span class="line">        <span class="attr">pool-prepared-statements:</span> <span class="literal">true</span></span><br><span class="line">        <span class="attr">max-pool-prepared-statement-per-connection-size:</span> <span class="number">20</span></span><br><span class="line">        <span class="comment">#配置监控统计拦截的filters,去掉后监控界面sql无法统计,'wall'用于防火墙</span></span><br><span class="line">        <span class="attr">filters:</span> <span class="string">stat,wall</span> <span class="comment"># 注意这个值和druid原生不一致，默认启动了stat,wall</span></span><br><span class="line">        <span class="attr">filter:</span></span><br><span class="line">          <span class="attr">log4j:</span></span><br><span class="line">            <span class="attr">enabled:</span> <span class="literal">true</span></span><br><span class="line">          <span class="attr">wall:</span></span><br><span class="line">            <span class="attr">config:</span></span><br><span class="line">              <span class="comment"># 允许多个语句一起执行</span></span><br><span class="line">              <span class="attr">multi-statement-allow:</span> <span class="literal">true</span></span><br><span class="line">            <span class="attr">enabled:</span> <span class="literal">true</span></span><br><span class="line">            <span class="attr">db-type:</span> <span class="string">mysql</span></span><br><span class="line">          <span class="attr">stat:</span></span><br><span class="line">            <span class="attr">enabled:</span> <span class="literal">true</span></span><br><span class="line">            <span class="attr">db-type:</span> <span class="string">mysql</span></span><br><span class="line">      <span class="comment"># 默认源</span></span><br><span class="line">      <span class="attr">primary:</span> <span class="string">activiti-demo</span></span><br><span class="line">      <span class="attr">datasource:</span></span><br><span class="line">        <span class="attr">activiti-demo:</span></span><br><span class="line">          <span class="attr">url:</span> <span class="string">jdbc:mysql://localhost:3306/activiti-demo?useUnicode=true&amp;characterEncoding=utf8&amp;zeroDateTimeBehavior=convertToNull&amp;useSSL=true&amp;serverTimezone=GMT%2B8&amp;nullCatalogMeansCurrent=true</span></span><br><span class="line">          <span class="attr">username:</span> <span class="string">root</span></span><br><span class="line">          <span class="attr">password:</span> <span class="string">*******</span></span><br><span class="line">          <span class="attr">driver-class-name:</span> <span class="string">com.mysql.jdbc.Driver</span></span><br><span class="line">          <span class="comment">#slave:</span></span><br><span class="line">          <span class="comment">#url: jdbc:mysql://localhost:3306/slave1?useUnicode=true&amp;characterEncoding=utf8&amp;zeroDateTimeBehavior=convertToNull&amp;useSSL=true&amp;serverTimezone=GMT%2B8&amp;nullCatalogMeansCurrent=true</span></span><br><span class="line">          <span class="comment">#username: root</span></span><br><span class="line">          <span class="comment">#password: 123456</span></span><br><span class="line">          <span class="comment">#driver-class-name: com.mysql.jdbc.Driver</span></span><br><span class="line">          <span class="comment">#schema: db/schema.sql</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-4-Druid配置"><a href="#2-4-Druid配置" class="headerlink" title="2.4 Druid配置"></a>2.4 Druid配置</h3><p>将workflow-activiti-rest服务config目录下的DruidConfiguration.java拷贝到workflow-auth的config目录下：</p>
+<p><img src="/images/activiti6-30/image-20201005195132971.png" alt="image-20201005195132971"></p>
+<h2 id="3、修改资源拦截配置"><a href="#3、修改资源拦截配置" class="headerlink" title="3、修改资源拦截配置"></a>3、修改资源拦截配置</h2><p>我们需要修改一下资源配置类<code>ResourceServerConfig</code>，将druid、swagger等资源放行。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">configure</span><span class="params">(HttpSecurity http)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">    http</span><br><span class="line">        .csrf().disable()</span><br><span class="line">        .requestMatchers().antMatchers(<span class="string">"/**"</span>)</span><br><span class="line">        .and()</span><br><span class="line">        .authorizeRequests()</span><br><span class="line">        .antMatchers(<span class="string">"/v2/api-docs"</span>, <span class="string">"/swagger-resources/configuration/ui"</span>,</span><br><span class="line">                     <span class="string">"/swagger-resources"</span>, <span class="string">"/swagger-resources/configuration/security"</span>,</span><br><span class="line">                     <span class="string">"/swagger-ui.html"</span>, <span class="string">"/webjars/**"</span>).permitAll()</span><br><span class="line">        .antMatchers(<span class="string">"/druid/**"</span>).permitAll()</span><br><span class="line">        .antMatchers(<span class="string">"/**"</span>).authenticated();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/images/activiti6-30/image-20201005215018337.png" alt="image-20201005215018337"></p>
+<p><img src="/images/activiti6-30/image-20201005215030074.png" alt="image-20201005215030074"></p>
+<h2 id="4、修改授权服务"><a href="#4、修改授权服务" class="headerlink" title="4、修改授权服务"></a>4、修改授权服务</h2><h3 id="4-1-修改AuthorizationServerConfig"><a href="#4-1-修改AuthorizationServerConfig" class="headerlink" title="4.1 修改AuthorizationServerConfig"></a>4.1 修改AuthorizationServerConfig</h3><p>之前的客户端信息、授权码服务，我们是这样配置的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 配置客户端详情信息</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> clients</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">configure</span><span class="params">(ClientDetailsServiceConfigurer clients)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">    clients.inMemory()</span><br><span class="line">        .withClient(<span class="string">"kiki"</span>)</span><br><span class="line">        .secret(passwordEncoder.encode(<span class="string">"123456"</span>))</span><br><span class="line">        .authorizedGrantTypes(<span class="string">"password"</span>,<span class="string">"authorization_code"</span>,<span class="string">"client_credentials"</span> ,<span class="string">"implicit"</span>,<span class="string">"refresh_token"</span>)</span><br><span class="line">        .autoApprove(<span class="keyword">true</span>)</span><br><span class="line">        .scopes(<span class="string">"all"</span>)</span><br><span class="line">        .redirectUris(<span class="string">"https://www.baidu.com"</span>)</span><br><span class="line">        .resourceIds(<span class="string">"activiti-rest"</span>,<span class="string">"activiti-web"</span>,<span class="string">"activiti-auth"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * 授权码服务：配置授权码模式下授权码存储方式</span></span><br><span class="line"><span class="comment">  * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> AuthorizationCodeServices <span class="title">authorizationCodeServices</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> InMemoryAuthorizationCodeServices();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>现在我们修改为：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="meta">@Autowired</span></span><br><span class="line"><span class="keyword">private</span> ClientDetailsService clientDetailsService;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * 配置客户端详情信息</span></span><br><span class="line"><span class="comment">  * <span class="doctag">@param</span> clients</span></span><br><span class="line"><span class="comment">  * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">configure</span><span class="params">(ClientDetailsServiceConfigurer clients)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">    clients.withClientDetails(clientDetailsService);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * 数据库获取客户端信息</span></span><br><span class="line"><span class="comment">  * <span class="doctag">@param</span> dataSource</span></span><br><span class="line"><span class="comment">  * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> ClientDetailsService <span class="title">clientDetailsService</span><span class="params">(DataSource dataSource)</span> </span>&#123;</span><br><span class="line">    ClientDetailsService clientDetailsService = <span class="keyword">new</span> JdbcClientDetailsService(dataSource);</span><br><span class="line">    ((JdbcClientDetailsService) clientDetailsService).setPasswordEncoder(passwordEncoder);</span><br><span class="line">    <span class="keyword">return</span> clientDetailsService;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * 授权码服务：配置授权码模式下授权码存储方式</span></span><br><span class="line"><span class="comment">  * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> AuthorizationCodeServices <span class="title">authorizationCodeServices</span><span class="params">(DataSource dataSource)</span></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> JdbcAuthorizationCodeServices(dataSource);<span class="comment">//设置授权码模式的授权码如何存取</span></span><br><span class="line">    <span class="comment">//return new InMemoryAuthorizationCodeServices();</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>另外，我们上面重新定义了ClientDetailsService ，会和<code>org/springframework/security/oauth2/config/annotation/configuration/ClientDetailsServiceConfiguration.class</code>中的Bean冲突：</p>
+<p><img src="/images/activiti6-30/image-20201026120728154.png" alt="image-20201026120728154"></p>
+<p>启动会报如下错误：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">The bean &#39;clientDetailsService&#39;, defined in class path resource [org&#x2F;sxdx&#x2F;workflowauth&#x2F;config&#x2F;AuthorizationServerConfig.class], could not be registered. A bean with that name has already been defined in BeanDefinition defined in class path resource [org&#x2F;springframework&#x2F;security&#x2F;oauth2&#x2F;config&#x2F;annotation&#x2F;configuration&#x2F;ClientDetailsServiceConfiguration.class] and overriding is disabled.</span><br></pre></td></tr></table></figure>
+
+<p>此处我们添加如下配置来解决这个问题:l</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">main:</span></span><br><span class="line">    <span class="attr">allow-bean-definition-overriding:</span> <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+<p>这样就修改为通过数据库保存client和code信息了。可以发现，此处我们并没有指定表名，那么不需要告诉程序从那张表获取数据吗，不需要，这是因为Oauth2已经设置了默认的表名和表结构，我们只需创建好对应的表即可。</p>
+<p>表结构可以参考github：<a href="https://github.com/spring-projects/spring-security-oauth/blob/master/spring-security-oauth2/src/test/resources/schema.sql" target="_blank" rel="noopener">https://github.com/spring-projects/spring-security-oauth/blob/master/spring-security-oauth2/src/test/resources/schema.sql</a></p>
+<h2 id="5、验证"><a href="#5、验证" class="headerlink" title="5、验证"></a>5、验证</h2><p>我们重启服务后验证授权码模式。</p>
+<p>浏览器访问：<a href="http://localhost:8101/oauth/authorize?response_type=code&amp;client_id=activiti-rest&amp;redirect_uri=https://www.baidu.com&amp;state=state" target="_blank" rel="noopener">http://localhost:8101/oauth/authorize?response_type=code&amp;client_id=activiti-rest&amp;redirect_uri=https://www.baidu.com&amp;state=state</a></p>
+<p><img src="/images/activiti6-30/image-20201005195328343.png" alt="image-20201005195328343"></p>
+<p><img src="/images/activiti6-30/image-20201005200143937.png" alt="image-20201005200143937"></p>
+<p>此时查看<code>oauth_code</code>表：</p>
+<p><img src="/images/activiti6-30/image-20201005200229939.png" alt="image-20201005200229939"></p>
+<p>可以看到授权码已经保存到了数据库中。我们使用code获取token：</p>
+<p><img src="/images/activiti6-30/image-20201005201246472.png" alt="image-20201005201246472"></p>
+<p>我们还需要设置请求头，key为Authorization，value为Basic加上client_id:client_secret经过base64加密后的值（可以使用<a href="http://tool.chinaz.com/Tools/Base64.aspx）" target="_blank" rel="noopener">http://tool.chinaz.com/Tools/Base64.aspx）</a></p>
+<p><img src="/images/activiti6-30/image-20201005201034760.png" alt="image-20201005201034760"></p>
+<p><img src="/images/activiti6-30/image-20201005201306951.png" alt="image-20201005201306951"></p>
+<p><img src="/images/activiti6-30/image-20201005201329024.png" alt="image-20201005201329024"></p>
+<p>可以看到我们成功获取了token。</p>
+<p>此时再次查看<code>oauth_code</code>表：</p>
+<p><img src="/images/activiti6-30/image-20201005201407526.png" alt="image-20201005201407526"></p>
+<p>发现记录已经被清空了。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/uploads/weixin.png" alt="Garnett 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/uploads/zhifubao.png" alt="Garnett 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Garnett
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://blog.gaoyp.cn/2020/10/05/activiti6-30/" title="Activiti（30） 数据库存储Code,Client信息">http://blog.gaoyp.cn/2020/10/05/activiti6-30/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/zh-CN" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Activiti/" rel="tag"># Activiti</a>
+              <a href="/tags/Spring-Security-OAuth2/" rel="tag"># Spring-Security-OAuth2</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/10/01/activiti6-29/" rel="prev" title="Activiti（29） 添加JWT支持">
+      <i class="fa fa-chevron-left"></i> Activiti（29） 添加JWT支持
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/10/10/activiti6-31/" rel="next" title="Activiti（31） RBAC基于角色的访问控制">
+      Activiti（31） RBAC基于角色的访问控制 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="comments"></div>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1、数据库表"><span class="nav-number">1.</span> <span class="nav-text">1、数据库表</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2、认证服务器集成Mybatis-Plus、Druid"><span class="nav-number">2.</span> <span class="nav-text">2、认证服务器集成Mybatis-Plus、Druid</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-添加依赖"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 添加依赖</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-spy-properties"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 spy.properties</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-修改配置"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 修改配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-Druid配置"><span class="nav-number">2.4.</span> <span class="nav-text">2.4 Druid配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3、修改资源拦截配置"><span class="nav-number">3.</span> <span class="nav-text">3、修改资源拦截配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4、修改授权服务"><span class="nav-number">4.</span> <span class="nav-text">4、修改授权服务</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-修改AuthorizationServerConfig"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 修改AuthorizationServerConfig</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5、验证"><span class="nav-number">5.</span> <span class="nav-text">5、验证</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Garnett"
+      src="/uploads/qiqi.jpg">
+  <p class="site-author-name" itemprop="name">Garnett</p>
+  <div class="site-description" itemprop="description">学然后知不足,教然后知困。知不足,然后能自反也;知困,然后能自强也</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">74</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">24</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/gaoyipeng" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;gaoyipeng" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-fw fa-rss"></i>RSS</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/zh-CN" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://mrbird.cc/" title="https:&#x2F;&#x2F;mrbird.cc&#x2F;" rel="noopener" target="_blank">MrBird的博客</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">garnett</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.5.0
+  </div>
+
+        
+
+
+
+
+
+
+  <script>
+  function leancloudSelector(url) {
+    return document.getElementById(url).querySelector('.leancloud-visitors-count');
+  }
+  if (CONFIG.page.isPost) {
+    function addCount(Counter) {
+      var visitors = document.querySelector('.leancloud_visitors');
+      var url = visitors.getAttribute('id').trim();
+      var title = visitors.getAttribute('data-flag-title').trim();
+
+      Counter('get', `/classes/Counter?where=${JSON.stringify({ url })}`)
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            var counter = results[0];
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .then(response => response.json())
+              .then(() => {
+                leancloudSelector(url).innerText = counter.time + 1;
+              })
+              .catch(error => {
+                console.log('Failed to save visitor count', error);
+              })
+          } else {
+              Counter('post', '/classes/Counter', { title: title, url: url, time: 1 })
+                .then(response => response.json())
+                .then(() => {
+                  leancloudSelector(url).innerText = 1;
+                })
+                .catch(error => {
+                  console.log('Failed to create', error);
+                });
+          }
+        })
+        .catch(error => {
+          console.log('LeanCloud Counter Error', error);
+        });
+    }
+  } else {
+    function showTime(Counter) {
+      var visitors = document.querySelectorAll('.leancloud_visitors');
+      var entries = [...visitors].map(element => {
+        return element.getAttribute('id').trim();
+      });
+
+      Counter('get', `/classes/Counter?where=${JSON.stringify({ url: { '$in': entries } })}`)
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length === 0) {
+            document.querySelectorAll('.leancloud_visitors .leancloud-visitors-count').forEach(element => {
+              element.innerText = 0;
+            });
+            return;
+          }
+          for (let item of results) {
+            let { url, time } = item;
+            leancloudSelector(url).innerText = time;
+          }
+          for (let url of entries) {
+            var element = leancloudSelector(url);
+            if (element.innerText == '') {
+              element.innerText = 0;
+            }
+          }
+        })
+        .catch(error => {
+          console.log('LeanCloud Counter Error', error);
+        });
+    }
+  }
+
+  fetch('https://app-router.leancloud.cn/2/route?appId=Sur6vlFkwR817RgctJYRFHKv-gzGzoHsz')
+    .then(response => response.json())
+    .then(({ api_server }) => {
+      var Counter = (method, url, data) => {
+        return fetch(`https://${api_server}/1.1${url}`, {
+          method: method,
+          headers: {
+            'X-LC-Id': 'Sur6vlFkwR817RgctJYRFHKv-gzGzoHsz',
+            'X-LC-Key': 'FtSE43epbKIXCTe2CwG5w2V1',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'Sur6vlFkwR817RgctJYRFHKv-gzGzoHsz',
+    appKey: 'FtSE43epbKIXCTe2CwG5w2V1',
+    placeholder: "good good study day day up",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>

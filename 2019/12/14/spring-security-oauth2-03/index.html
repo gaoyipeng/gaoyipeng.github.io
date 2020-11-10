@@ -72,10 +72,9 @@
 <meta property="og:image" content="http://blog.gaoyp.cn/images/oauth2/sso-client2.png">
 <meta property="og:image" content="http://blog.gaoyp.cn/images/oauth2/sso-403.png">
 <meta property="article:published_time" content="2019-12-14T13:58:18.000Z">
-<meta property="article:modified_time" content="2020-07-01T15:21:14.956Z">
+<meta property="article:modified_time" content="2020-10-17T13:20:14.316Z">
 <meta property="article:author" content="Garnett">
-<meta property="article:tag" content="OAuth2">
-<meta property="article:tag" content="Spring-Security">
+<meta property="article:tag" content="Spring-Security-OAuth2">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://blog.gaoyp.cn/images/oauth2/%E8%8E%B7%E5%8F%96client1%E7%9A%84%E8%B5%84%E6%BA%90.png">
 
@@ -269,7 +268,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-07-01 23:21:14" itemprop="dateModified" datetime="2020-07-01T23:21:14+08:00">2020-07-01</time>
+                <time title="修改时间：2020-10-17 21:20:14" itemprop="dateModified" datetime="2020-10-17T21:20:14+08:00">2020-10-17</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -277,14 +276,8 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/OAuth2/" itemprop="url" rel="index">
-                    <span itemprop="name">OAuth2</span>
-                  </a>
-                </span>
-                  ，
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/OAuth2/Spring-Security/" itemprop="url" rel="index">
-                    <span itemprop="name">Spring-Security</span>
+                  <a href="/categories/Spring-Security-OAuth2/" itemprop="url" rel="index">
+                    <span itemprop="name">Spring-Security-OAuth2</span>
                   </a>
                 </span>
             </span>
@@ -323,7 +316,7 @@
 
       
         <p>上一节 <a href="https://blog.gaoyp.cn/2019/12/10/spring-security-oauth2-02/">spring security oauth2 授权码模式、密码模式代码实践</a> 介绍了spring security oauth2 的3种模式。<br>本节我们将在上一节的基础上实现SSO单点登录，及自定义自定义令牌配置。SSO单点登录的概念就不做解释了，请自行百度。</p>
-<h2 id="自定义令牌配置"><a href="#自定义令牌配置" class="headerlink" title="自定义令牌配置"></a>自定义令牌配置</h2><p>上一节我们在认证服务器 spring-security-oauth2 的资源配置类 KikiAuthorizationServerConfigurer 中定义了 ClientDetails：</p>
+<h2 id="1、自定义令牌配置"><a href="#1、自定义令牌配置" class="headerlink" title="1、自定义令牌配置"></a>1、自定义令牌配置</h2><p>上一节我们在认证服务器 spring-security-oauth2 的资源配置类 KikiAuthorizationServerConfigurer 中定义了 ClientDetails：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public void configure(ClientDetailsServiceConfigurer clients) throws Exception &#123;</span><br><span class="line">    clients.inMemory()</span><br><span class="line">            .withClient(&quot;kiki&quot;)</span><br><span class="line">            .secret(passwordEncoder.encode(&quot;123456&quot;))</span><br><span class="line">            .authorizedGrantTypes(&quot;password&quot;, &quot;refresh_token&quot;,&quot;authorization_code&quot;,&quot;client_credentials&quot;)</span><br><span class="line">            .autoApprove(true)</span><br><span class="line">            .scopes(&quot;all&quot;)</span><br><span class="line">            .redirectUris(&quot;http:&#x2F;&#x2F;localhost:8001&#x2F;getCode&quot;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>指定了 client-id为kiki ，client-secret为123456，scopes范围为all,以及redirectUris。并且配置了它支持的认证类型：</p>
 <ul>
@@ -343,7 +336,7 @@
 <li>resourceIds：指定了Client 所能访问的资源ID。client1可以访问带有resourceId为client1-resource的资源，client2可以访问带有resourceId为client2-resource的资源，</li>
 </ul>
 <p>对于scopes和resourceIds不熟悉的，可以参考 <a href="https://blog.gaoyp.cn/2019/12/08/spring-security-oauth2-01/">https://blog.gaoyp.cn/2019/12/08/spring-security-oauth2-01/</a></p>
-<h2 id="新建2个资源服务器"><a href="#新建2个资源服务器" class="headerlink" title="新建2个资源服务器"></a>新建2个资源服务器</h2><p>为了实现功能，我们需要新建2个资源服务器。现约定如下（于认证服务器的clients配置相对应）：</p>
+<h2 id="2、新建2个资源服务器"><a href="#2、新建2个资源服务器" class="headerlink" title="2、新建2个资源服务器"></a>2、新建2个资源服务器</h2><p>为了实现功能，我们需要新建2个资源服务器。现约定如下（于认证服务器的clients配置相对应）：</p>
 <table>
 <thead>
 <tr>
@@ -366,7 +359,7 @@
 <td align="center">123456</td>
 </tr>
 </tbody></table>
-<h3 id="新建资源服务器sso-resource-one："><a href="#新建资源服务器sso-resource-one：" class="headerlink" title="新建资源服务器sso-resource-one："></a>新建资源服务器sso-resource-one：</h3><p>新建一个module，pom.xml如下:</p>
+<h3 id="1-1-新建资源服务器sso-resource-one："><a href="#1-1-新建资源服务器sso-resource-one：" class="headerlink" title="1.1 新建资源服务器sso-resource-one："></a>1.1 新建资源服务器sso-resource-one：</h3><p>新建一个module，pom.xml如下:</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version&#x3D;&quot;1.0&quot; encoding&#x3D;&quot;UTF-8&quot;?&gt;</span><br><span class="line">&lt;project xmlns&#x3D;&quot;http:&#x2F;&#x2F;maven.apache.org&#x2F;POM&#x2F;4.0.0&quot; xmlns:xsi&#x3D;&quot;http:&#x2F;&#x2F;www.w3.org&#x2F;2001&#x2F;XMLSchema-instance&quot;</span><br><span class="line">         xsi:schemaLocation&#x3D;&quot;http:&#x2F;&#x2F;maven.apache.org&#x2F;POM&#x2F;4.0.0 https:&#x2F;&#x2F;maven.apache.org&#x2F;xsd&#x2F;maven-4.0.0.xsd&quot;&gt;</span><br><span class="line">    &lt;modelVersion&gt;4.0.0&lt;&#x2F;modelVersion&gt;</span><br><span class="line">    &lt;parent&gt;</span><br><span class="line">        &lt;groupId&gt;com.sxdx&lt;&#x2F;groupId&gt;</span><br><span class="line">        &lt;artifactId&gt;spring-all&lt;&#x2F;artifactId&gt;</span><br><span class="line">        &lt;version&gt;1.0-SNAPSHOT&lt;&#x2F;version&gt;</span><br><span class="line">        &lt;relativePath&gt;..&#x2F;spring-all&#x2F;pom.xml&lt;&#x2F;relativePath&gt;</span><br><span class="line">    &lt;&#x2F;parent&gt;</span><br><span class="line">    &lt;groupId&gt;com.sxdx&lt;&#x2F;groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;sso-resource-one&lt;&#x2F;artifactId&gt;</span><br><span class="line">    &lt;version&gt;0.0.1-SNAPSHOT&lt;&#x2F;version&gt;</span><br><span class="line">    &lt;name&gt;sso-resource-one&lt;&#x2F;name&gt;</span><br><span class="line">    &lt;description&gt;资源服务器和sso客户端&lt;&#x2F;description&gt;</span><br><span class="line"></span><br><span class="line">    &lt;properties&gt;</span><br><span class="line">        &lt;java.version&gt;1.8&lt;&#x2F;java.version&gt;</span><br><span class="line">    &lt;&#x2F;properties&gt;</span><br><span class="line"></span><br><span class="line">    &lt;dependencies&gt;</span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.projectlombok&lt;&#x2F;groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;lombok&lt;&#x2F;artifactId&gt;</span><br><span class="line">        &lt;&#x2F;dependency&gt;</span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.springframework.boot&lt;&#x2F;groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;spring-boot-starter-web&lt;&#x2F;artifactId&gt;</span><br><span class="line">        &lt;&#x2F;dependency&gt;</span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.springframework.cloud&lt;&#x2F;groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;spring-cloud-starter&lt;&#x2F;artifactId&gt;</span><br><span class="line">        &lt;&#x2F;dependency&gt;</span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.springframework.cloud&lt;&#x2F;groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;spring-cloud-starter-oauth2&lt;&#x2F;artifactId&gt;</span><br><span class="line">        &lt;&#x2F;dependency&gt;</span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.springframework.cloud&lt;&#x2F;groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;spring-cloud-starter-security&lt;&#x2F;artifactId&gt;</span><br><span class="line">        &lt;&#x2F;dependency&gt;</span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.apache.commons&lt;&#x2F;groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;commons-lang3&lt;&#x2F;artifactId&gt;</span><br><span class="line">        &lt;&#x2F;dependency&gt;</span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.springframework.boot&lt;&#x2F;groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;spring-boot-starter-actuator&lt;&#x2F;artifactId&gt;</span><br><span class="line">        &lt;&#x2F;dependency&gt;</span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.springframework.boot&lt;&#x2F;groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;spring-boot-starter-test&lt;&#x2F;artifactId&gt;</span><br><span class="line">            &lt;scope&gt;test&lt;&#x2F;scope&gt;</span><br><span class="line">        &lt;&#x2F;dependency&gt;</span><br><span class="line">    &lt;&#x2F;dependencies&gt;</span><br><span class="line"></span><br><span class="line">    &lt;build&gt;</span><br><span class="line">        &lt;plugins&gt;</span><br><span class="line">            &lt;plugin&gt;</span><br><span class="line">                &lt;groupId&gt;org.springframework.boot&lt;&#x2F;groupId&gt;</span><br><span class="line">                &lt;artifactId&gt;spring-boot-maven-plugin&lt;&#x2F;artifactId&gt;</span><br><span class="line">            &lt;&#x2F;plugin&gt;</span><br><span class="line">        &lt;&#x2F;plugins&gt;</span><br><span class="line">    &lt;&#x2F;build&gt;</span><br><span class="line"></span><br><span class="line">&lt;&#x2F;project&gt;</span><br></pre></td></tr></table></figure>
 
 <p>再贴出sso-resource-one的application.yaml：</p>
@@ -402,8 +395,8 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException &#123;</span><br><span class="line">       KikiSecurityUser user &#x3D; new KikiSecurityUser();</span><br><span class="line">       user.setUsername(username);</span><br><span class="line">       user.setPassword(this.passwordEncoder.encode(&quot;123456&quot;));</span><br><span class="line"></span><br><span class="line">       return new User(username, user.getPassword(), user.isEnabled(),</span><br><span class="line">               user.isAccountNonExpired(), user.isCredentialsNonExpired(),</span><br><span class="line">               user.isAccountNonLocked(), AuthorityUtils.commaSeparatedStringToAuthorityList(&quot;user:add&quot;));</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
 
 <p>至此资源服务器sso-resource-one搭建完成</p>
-<h3 id="新建资源服务器module：sso-resource-two"><a href="#新建资源服务器module：sso-resource-two" class="headerlink" title="新建资源服务器module：sso-resource-two"></a>新建资源服务器module：sso-resource-two</h3><p>仿照sso-resource-one,新建sso-resource-two即可。不再贴出代码。</p>
-<h2 id="演示"><a href="#演示" class="headerlink" title="演示"></a>演示</h2><h3 id="resourceIds-作用演示"><a href="#resourceIds-作用演示" class="headerlink" title="resourceIds 作用演示"></a>resourceIds 作用演示</h3><p>查询 <a href="http://127.0.0.1:8002/one/user。" target="_blank" rel="noopener">http://127.0.0.1:8002/one/user。</a></p>
+<h3 id="1-2-新建资源服务器module：sso-resource-two"><a href="#1-2-新建资源服务器module：sso-resource-two" class="headerlink" title="1.2 新建资源服务器module：sso-resource-two"></a>1.2 新建资源服务器module：sso-resource-two</h3><p>仿照sso-resource-one,新建sso-resource-two即可。不再贴出代码。</p>
+<h2 id="3、演示"><a href="#3、演示" class="headerlink" title="3、演示"></a>3、演示</h2><h3 id="resourceIds-作用演示"><a href="#resourceIds-作用演示" class="headerlink" title="resourceIds 作用演示"></a>resourceIds 作用演示</h3><p>查询 <a href="http://127.0.0.1:8002/one/user。" target="_blank" rel="noopener">http://127.0.0.1:8002/one/user。</a></p>
 <p><img src="/images/oauth2/%E8%8E%B7%E5%8F%96client1%E7%9A%84%E8%B5%84%E6%BA%90.png" alt="获取client1的资源.png"></p>
 <p>我们通过postman 密码模式获取token</p>
 <p><img src="/images/oauth2/%E8%8E%B7%E5%8F%96client1%E7%9A%84token.png" alt="获取client1的token.png"></p>
@@ -480,8 +473,7 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/OAuth2/" rel="tag"># OAuth2</a>
-              <a href="/tags/Spring-Security/" rel="tag"># Spring-Security</a>
+              <a href="/tags/Spring-Security-OAuth2/" rel="tag"># Spring-Security-OAuth2</a>
           </div>
 
         
@@ -535,7 +527,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#自定义令牌配置"><span class="nav-number">1.</span> <span class="nav-text">自定义令牌配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#新建2个资源服务器"><span class="nav-number">2.</span> <span class="nav-text">新建2个资源服务器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#新建资源服务器sso-resource-one："><span class="nav-number">2.1.</span> <span class="nav-text">新建资源服务器sso-resource-one：</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#添加-EnableOAuth2Sso"><span class="nav-number">2.1.1.</span> <span class="nav-text">添加@EnableOAuth2Sso</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#新建WebSecurity配置类"><span class="nav-number">2.1.2.</span> <span class="nav-text">新建WebSecurity配置类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#新建ResourceServerConfig资源配置类"><span class="nav-number">2.1.3.</span> <span class="nav-text">新建ResourceServerConfig资源配置类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#新建测试类"><span class="nav-number">2.1.4.</span> <span class="nav-text">新建测试类</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#新建资源服务器module：sso-resource-two"><span class="nav-number">2.2.</span> <span class="nav-text">新建资源服务器module：sso-resource-two</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#演示"><span class="nav-number">3.</span> <span class="nav-text">演示</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#resourceIds-作用演示"><span class="nav-number">3.1.</span> <span class="nav-text">resourceIds 作用演示</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#scopes-作用演示"><span class="nav-number">3.2.</span> <span class="nav-text">scopes 作用演示</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SSO-单点登录"><span class="nav-number">3.3.</span> <span class="nav-text">SSO 单点登录</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1、自定义令牌配置"><span class="nav-number">1.</span> <span class="nav-text">1、自定义令牌配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2、新建2个资源服务器"><span class="nav-number">2.</span> <span class="nav-text">2、新建2个资源服务器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-新建资源服务器sso-resource-one："><span class="nav-number">2.1.</span> <span class="nav-text">1.1 新建资源服务器sso-resource-one：</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#添加-EnableOAuth2Sso"><span class="nav-number">2.1.1.</span> <span class="nav-text">添加@EnableOAuth2Sso</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#新建WebSecurity配置类"><span class="nav-number">2.1.2.</span> <span class="nav-text">新建WebSecurity配置类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#新建ResourceServerConfig资源配置类"><span class="nav-number">2.1.3.</span> <span class="nav-text">新建ResourceServerConfig资源配置类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#新建测试类"><span class="nav-number">2.1.4.</span> <span class="nav-text">新建测试类</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-新建资源服务器module：sso-resource-two"><span class="nav-number">2.2.</span> <span class="nav-text">1.2 新建资源服务器module：sso-resource-two</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3、演示"><span class="nav-number">3.</span> <span class="nav-text">3、演示</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#resourceIds-作用演示"><span class="nav-number">3.1.</span> <span class="nav-text">resourceIds 作用演示</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#scopes-作用演示"><span class="nav-number">3.2.</span> <span class="nav-text">scopes 作用演示</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SSO-单点登录"><span class="nav-number">3.3.</span> <span class="nav-text">SSO 单点登录</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -551,20 +543,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">62</span>
+          <span class="site-state-item-count">74</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-count">24</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-count">28</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
