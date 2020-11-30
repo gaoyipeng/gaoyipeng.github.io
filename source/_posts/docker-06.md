@@ -70,7 +70,7 @@ docker run -d --name mysql-5.7.29 --restart=always -p 3306:3306 -e MYSQL_ROOT_PA
 
 我们修改mysql容器创建命令：
 ```
-docker run -d --name mysql-5.7.29 --restart=always -p 3306:3306 -e MYSQL_ROOT_PASSWORD=gaoyipeng -v /usr/local/mysql:/var/lib/mysql mysql:5.7.29
+docker run -d --name mysql-5.7.29 --restart=always -p 3306:3306 -e MYSQL_ROOT_PASSWORD=gaoyipeng -v /usr/local/mysql:/var/lib/mysql mysql:5.7.29 --lower_case_table_names=1
 ```
 这样，容器卷的位置就被指到了宿主机的/usr/local/mysql目录下，而不是/var/lib/docker/volumes。bind mount方式更为灵活。
 ![bind-volume-mysql.png](/images/docker/bind-volume-mysql.png)
