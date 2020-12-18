@@ -38,6 +38,14 @@ description: CentOS7安装JDK1.8
 export JAVA_HOME=/usr/local/java/jdk1.8.0_271
 export CLASSPATH=.:${JAVA_HOME}/jre/lib/rt.jar:${JAVA_HOME}/lib/dt.jar:${JAVA_HOME}/lib/tools.jar
 export PATH=$PATH:${JAVA_HOME}/bin
+
+rpm -e java_cup-0.10k-5.el6.x86_64 --nodeps
+rpm -e tzdata-java-2012j-1.el6.noarch --nodeps
+rpm -e java-1.7.0-openjdk-1.7.0.9-2.3.4.1.el6_3.x86_64 --nodeps
+rpm -e java-1.5.0-gcj-1.5.0.0-29.1.el6.x86_64 --nodeps
+rpm -e gcc-java-4.4.7-3.el6.x86_64 --nodeps
+rpm -e java-1.6.0-openjdk-1.6.0.0-1.50.1.11.5.el6_3.x86_64 --nodeps
+rpm -e xxx --nodeps
 ```
 
 ![image-20201105111852140](../images/centos7-jdk/image-20201105111852140.png)
