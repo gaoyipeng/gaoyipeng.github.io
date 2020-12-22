@@ -266,6 +266,177 @@ typora-root-url: ..
 
 说明：style后面跟的是一个数组类型，多个值以，分割即可。
 
+
+
+#### 2.2 v-model
+
+前面我们学习了`v-bind`，可以通过模型数据去影响视图。我们都知道Vue是支持双向数据绑定的，那么视图是如何影响数据的呢？Vue中使用v-model指令来实现表单元素和数据的双向绑定。v-model其实是一个语法糖，它的背后本质上是包含两个操作：
+
+- 1.v-bind绑定一个value属性
+
+- 2.v-on指令给当前元素绑定input事件
+
+  ```html
+  <input type="text" v-model="message">
+  等同于
+  <input type="text" v-bind:value="message" v-on:input="message = $event.target.value">
+  ```
+
+##### 2.2.1 v-model的基本使用
+
+```html
+<div id="app">
+  <input type="text" v-model="message">
+  {{message}}
+</div>
+
+<script src="../js/vue.js"></script>
+<script>
+  const app = new Vue({
+    el: '#app',
+    data: {
+      message: '你好啊'
+    }
+  })
+</script>
+```
+
+![image-20201221151130670](/images/vue-02/image-20201221151130670.png)
+
+##### 2.2.2 v-model绑定radio和checkbox
+
+在表单操作中，我们不只要收集文本输入的数据，我们还可能用到单选和多选。通常，实现单选和多选有以下的方式：
+
+- 第一种：input标签type=radio实现单选和type=checkbox实现的多选
+
+```html
+<body>
+
+<div id="app">
+  <label for="male">
+    <input type="radio" id="male" value="男" v-model="sex">男
+  </label>
+  <label for="female">
+    <input type="radio" id="female" value="女" v-model="sex">女
+  </label>
+  <h2>您选择的性别是: {{sex}}</h2>
+</div>
+
+<script src="../js/vue.js"></script>
+<script>
+  const app = new Vue({
+    el: '#app',
+    data: {
+      sex: '女'
+    }
+  })
+</script>
+
+</body>
+```
+
+![image-20201221152215292](/images/vue-02/image-20201221152215292.png)
+
+```html
+<body>
+<div id="app">
+  1.checkbox单选框
+  <label for="agree">
+    <input type="checkbox" id="agree" v-model="isAgree">同意协议
+  </label>
+  <h2>您选择的是: {{isAgree}}</h2>
+  <button :disabled="!isAgree">下一步</button>
+
+  <br/><p> </p>
+
+  <!--2.checkbox多选框-->
+  <input type="checkbox" value="篮球" v-model="hobbies">篮球
+  <input type="checkbox" value="足球" v-model="hobbies">足球
+  <input type="checkbox" value="乒乓球" v-model="hobbies">乒乓球
+  <input type="checkbox" value="羽毛球" v-model="hobbies">羽毛球
+  <h2>您的爱好是: {{hobbies}}</h2>
+
+  <label v-for="item in originHobbies" :for="item">
+    <input type="checkbox" :value="item" :id="item" v-model="hobbies">{{item}}
+  </label>
+</div>
+<script src="../js/vue.js"></script>
+<script>
+  const app = new Vue({
+    el: '#app',
+    data: {
+      message: '你好啊',
+      isAgree: false, // 单选框
+      hobbies: [], // 多选框,
+      originHobbies: ['篮球', '足球', '乒乓球', '羽毛球', '台球', '高尔夫球']
+    }
+  })
+</script>
+
+</body>
+```
+
+![image-20201221152732894](/images/vue-02/image-20201221152732894.png)
+
+1. 使用radio实现单选，v-model绑定的数据应该是同一个，这样实现单选选项之间的互斥
+2. 使用checkbox实现多选，v-model绑定的数据应该是同一个，这样多选的数据才属于同一个数组
+
+- 第二种：select标签-option标签实现的单选与多选
+
+```html
+<body>
+
+<div id="app">
+  <!--1.选择一个-->
+  <select name="abc" v-model="fruit">
+    <option value="苹果">苹果</option>
+    <option value="香蕉">香蕉</option>
+    <option value="榴莲">榴莲</option>
+    <option value="葡萄">葡萄</option>
+  </select>
+  <h2>您选择的水果是: {{fruit}}</h2>
+
+  <!--2.选择多个-->
+  <select name="abc" v-model="fruits" multiple>
+    <option value="苹果">苹果</option>
+    <option value="香蕉">香蕉</option>
+    <option value="榴莲">榴莲</option>
+    <option value="葡萄">葡萄</option>
+  </select>
+  <h2>您选择的水果是: {{fruits}}</h2>
+</div>
+
+<script src="../js/vue.js"></script>
+<script>
+  const app = new Vue({
+    el: '#app',
+    data: {
+      message: '你好啊',
+      fruit: '香蕉',
+      fruits: []
+    }
+  })
+</script>
+
+</body>
+```
+
+![image-20201221154430087](/images/vue-02/image-20201221154430087.png)
+
+##### 2.2.3 v-model的修饰符
+
+- lazy修饰符：
+
+  默认情况下，v-model默认是在input事件中同步输入框的数据的。也就是说，一旦有数据发生改变对应的data中的数据就会自动发生改变。lazy修饰符可以让数据在失去焦点或者回车时才会更新。
+
+- number修饰符：
+  默认情况下，在输入框中无论我们输入的是字母还是数字，都会被当做字符串类型进行处理。但是如果我们希望处理的是数字类型，那么最好直接将内容当做数字处理。number修饰符可以让在输入框中输入的内容自动转成数字类型。
+
+- trim修饰符：
+  如果输入的内容首尾有很多空格，通常我们希望将其去除，trim修饰符可以过滤内容左右两边的空格。
+
+![image-20201221162540806](/images/vue-02/image-20201221162540806.png)
+
 ### 3、事件监听指令
 
 #### 3.1 v-on指令
@@ -396,9 +567,12 @@ typora-root-url: ..
 
 ![image-20201218141806612](/images/vue-02/image-20201218141806612.png)
 
-- stop修饰符，可以阻止事件向上级标签的冒泡行为
-- self修饰符，表示被该修饰符修饰的父元素不接收子元素的事件冒泡行为
-- prevent修饰符，可以阻止一些html标签的默认行为，比如a标签
+- stop修饰符，可以阻止事件向上级标签的冒泡行为。**子元素**加上stop修饰符号之后，点击子元素div，只有childMethod方法被触发，parentMethod方法不会被触发。
+
+- self修饰符，表示被该修饰符修饰的父元素不接收子元素的事件冒泡行为。**父元素**加上self修饰符之后，点击子元素div，只有childMethod方法被触发，parentMethod方法不会被触发。
+- prevent修饰符，可以阻止一些html标签的默认行为。
+  - 比如：`<a>`标签的默认行为是，实现跳转
+  - 比如： `<input type="submit"/>`默认行为是提交表单
 - enter修饰符（按键监听修饰符的一种），可以监听回车按键的操作。
 - once修饰符，表示事件只可以被触发监听一次，以后再操作则无效。
 - capture修饰符，表示开启事件传播的捕获模式，事件由父元素向子元素传播，较少用到
@@ -609,3 +783,4 @@ v-show的用法和v-if非常相似，也用于决定一个元素是否渲染，�
 <li v-for="item in players"  v-bind:key="item.id">
 ```
 
+### 
