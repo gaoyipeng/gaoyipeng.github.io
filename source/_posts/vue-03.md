@@ -1,9 +1,9 @@
 ---
-title: Vue中数组的响应时方法
+title: 数组的响应式方法
 date: 2020-12-22 16:52:24
 tags: Vue
 categories: Vue
-description: Vue指令学习
+description: V数组的响应式方法
 typora-root-url: ..
 ---
 
@@ -12,6 +12,8 @@ typora-root-url: ..
 > 对于数组，如果通过下标的方式修改数组中的内容，Vue无法测数据变化，则视图也不会随着数据的变化而变化。
 >
 > Vue中包含了一组观察数组编译的方法，使用它们改变数组也会触发视图的更新。
+
+# 一、数组的响应式方法
 
 先来看一个栗子：
 
@@ -169,5 +171,24 @@ arr.reverse();
 // arr 等于  ['d', 'c', 'b', 'a']
 ```
 
+# 二、数组的其他常用方法
 
+**ES6 引入了许多有用的数组方法，例如：**
 
+- `find()`，查找列表中的成员，返回 null 表示没找到
+- `findIndex()`，查找列表成员的索引
+- `some()`，检查某个断言是否至少在列表的一个成员上为真
+- `includes`，列表是否包含某项
+
+**下面的代码有助于你理解它们的用法：**
+
+```js
+const array = [{ id: 1, checked: true }, { id: 2 }];
+arr.find(item => item.id === 2) // { id: 2 }
+arr.findIndex(item => item.id === 2) // 1
+arr.some(item => item.checked) // true
+
+const numberArray = [1,2,3,4];
+numberArray.includes(2) // true
+Promises + Async/Await
+```
