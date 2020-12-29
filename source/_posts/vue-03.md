@@ -3,7 +3,7 @@ title: 数组的响应式方法
 date: 2020-12-22 16:52:24
 tags: Vue
 categories: Vue
-description: V数组的响应式方法
+description: 数组的响应式方法
 typora-root-url: ..
 ---
 

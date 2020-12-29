@@ -434,8 +434,38 @@ typora-root-url: ..
 
 - trim修饰符：
   如果输入的内容首尾有很多空格，通常我们希望将其去除，trim修饰符可以过滤内容左右两边的空格。
-
-![image-20201221162540806](/images/vue-02/image-20201221162540806.png)
+  
+  
+  
+  ```html
+  <div id="app">
+    <!--1.修饰符: lazy-->
+    <input type="text" v-model.lazy="message">
+    <h2>{{message}}</h2>
+  
+    <!--2.修饰符: number-->
+    <input type="number" v-model.number="age">
+    <h2>{{age}}-{{typeof age}}</h2>
+  
+    <!--3.修饰符: trim-->
+    <input type="text" v-model.trim="name">
+    <h2>您输入的名字:{{name}}</h2>
+  </div>
+  
+  <script src="../js/vue.js"></script>
+  <script>
+    const app = new Vue({
+      el: '#app',
+      data: {
+        message: '你好啊',
+        age: 0,
+        name: ''
+      }
+    })
+  </script>
+  ```
+  
+  ![image-20201221162540806](/images/vue-02/image-20201221162540806.png)
 
 ### 3、事件监听指令
 
