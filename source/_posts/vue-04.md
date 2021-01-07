@@ -1,9 +1,9 @@
 ---
-title: Vue 计算器和侦听器
+title: Vue (04) 计算器和侦听器
 date: 2020-12-29 10:28:06
 tags: Vue
 categories: Vue
-description: Vue计算属性和侦听
+description: Vue (04) 计算属性和侦听
 typora-root-url: ..
 ---
 
