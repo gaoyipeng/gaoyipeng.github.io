@@ -93,7 +93,7 @@ typora-root-url: ..
 
   
 
-- components: { cpnChild：cpnChild: cpnC }
+- components: { cpnChild: cpnC }
 
   > ​       在Vue实例下的components中添加的组件是局部组件，只能在当前实例中使用。
 
@@ -281,9 +281,6 @@ Vue.component('cpn', {
 ```html
 
 <div id="app">
-  <!--<cpn v-bind:cmovies="movies"></cpn>-->
-  <!--<cpn cmovies="movies" cmessage="message"></cpn>-->
-
   <cpn :cmessage="message" :cmovies="movies"></cpn>
 </div>
 
@@ -732,3 +729,197 @@ $refs的使用：$refs和ref指令通常是一起使用的。
 ![image-20210107183603728](/images/vue-06/image-20210107183603728.png)
 
 ## 4、插槽
+
+### 4.1 编译作用域
+
+![image-20210108101958745](/images/vue-06/image-20210108101958745.png)
+
+考虑上面截图的代码是否最终是可以渲染出来的：
+
+`<my-cpn v-show="isShow"></my-cpn>`中，我们使用了isShow属性。isShow属性包含在组件中，也包含在Vue实例中。
+
+答案：最终可以渲染出来，也就是使用的是Vue实例的属性。为什么呢？
+
+官方给出了一条准则：父组件模板的所有东西都会在父级作用域内编译；子组件模板的所有东西都会在子级作用域内编译。
+
+而我们在使用`<my-cpn v-show="isShow"></my-cpn>`的时候，整个组件的使用过程是相当于在父组件中出现的。那么他的作用域就是父组件，使用的属性也是属于父组件的属性。因此，isShow使用的是Vue实例中的属性，而不是子组件的属性。
+
+### 4.2 插槽的使用场景
+
+移动开发中，几乎每个页面都有导航栏。导航栏我们必然会封装成一个插件，比如nav-bar组件。
+
+- 但是，每个页面的导航是一样的吗？
+
+  它们也很多区别，但是也有很多共性。如果，我们每一个单独去封装一个组件，显然不合适：比如每个页面都返回，这部分内容我们就要重复去封装。但是，如果我们封装成一个，好像也不合理：有些左侧是菜单，有些是返回，有些中间是搜索，有些是文字，等等。
+
+- 如何封装合适呢？
+
+  抽取共性，保留不同。最好的封装方式就是将共性抽取到组件中，将不同暴露为插槽。一旦我们预留了插槽，就可以让使用者根据自己的需求，决定插槽中插入什么内容。是搜索框，还是文字，还是菜单。由调用者自己来决定。这就是为什么我们要学习组件中的插槽slot的原因。
+
+#### 4.2.1 插槽的基本使用
+
+```html
+<body>
+
+<!--
+1.插槽的基本使用 <slot></slot>
+2.插槽可以设置默认值：例如 <slot><button>按钮</button></slot>。
+    如果有多个值, 同时放入到组件进行替换时, 一起作为替换元素
+-->
+
+<div id="app">
+  <cpn></cpn>
+  <cpn><span>哈哈哈</span></cpn>
+</div>
+
+
+<template id="cpn">
+  <div>
+    <h2>我是组件</h2>
+    <p>我是组件, 哈哈哈</p>
+    <slot><button>按钮</button></slot>
+  </div>
+</template>
+
+<script src="../js/vue.js"></script>
+<script>
+  const app = new Vue({
+    el: '#app',
+    data: {
+      message: '你好啊'
+    },
+    components: {
+      cpn: {
+        template: '#cpn'
+      }
+    }
+  })
+</script>
+```
+
+效果如下：
+
+![image-20210108142538148](/images/vue-06/image-20210108142538148.png)
+
+在`template`中添加`<slot></slot>`代表插槽，我们只需在组件中添加内容即可。（如果不添加，显示插槽默认内容）
+
+#### 4.2.2 具名插槽
+
+子组件的功能复杂时，子组件的插槽可能并非是一个。比如我们封装一个导航栏的子组件，可能就需要三个插槽，分别代表左边、中间、右边。
+
+那么，外面在给插槽插入内容时，如何区分插入的是哪一个呢？这个时候，我们就需要给插槽起一个名字。
+
+如何使用具名插槽呢？非常简单，只要给slot元素一个name属性即可。
+
+```html
+<body>
+<div id="app">
+  <cpn></cpn>
+  <cpn>
+    <button slot="left">返回</button>
+    <span slot="center">首页</span>
+    <button slot="right">个人中心</button>
+  </cpn>
+</div>
+
+<template id="cpn">
+  <div>
+    <slot name="left"><span>左边</span></slot>
+    <slot name="center"><span>中间</span></slot>
+    <slot name="right"><span>右边</span></slot>
+  </div>
+</template>
+<script src="../js/vue.js"></script>
+<script>
+  const app = new Vue({
+    el: '#app',
+    data: {
+      message: '你好啊'
+    },
+    components: {
+      cpn: {
+        template: '#cpn'
+      }
+    }
+  })
+</script>
+</body>
+```
+
+![image-20210108143851440](/images/vue-06/image-20210108143851440.png)
+
+#### 4.2.3 作用域插槽
+
+> 父组件替换插槽的标签，但是内容由子组件来提供。
+
+需求：
+子组件中包括一组数据，比如：
+
+```
+pLanguages: ['JavaScript', 'Python', 'Swift', 'Go', 'C++']
+```
+
+需要在多个界面进行展示：
+	某些界面是以水平方向一一展示的，
+	某些界面是以列表形式展示的，
+	某些界面直接展示一个数组
+内容在子组件，希望父组件告诉我们如何展示，利用slot作用域插槽如何实现？
+
+```html
+<body>
+<div id="app">
+  <cpn></cpn>
+  <cpn>
+    <!--目的是获取子组件中的pLanguages-->
+    <template slot-scope="slot">
+      <!--<span v-for="item in slot.data"> - {{item}}</span>-->
+      <span>{{slot.data.join(' - ')}}</span>
+    </template>
+  </cpn>
+    
+  <cpn>
+    <!--目的是获取子组件中的pLanguages-->
+    <template slot-scope="slot">
+      <!--<span v-for="item in slot.data">{{item}} * </span>-->
+      <span>{{slot.data.join(' * ')}}</span>
+    </template>
+  </cpn>
+
+</div>
+
+<template id="cpn">
+  <div>
+    <slot :data="pLanguages">
+      <ul>
+        <li v-for="item in pLanguages">{{item}}</li>
+      </ul>
+    </slot>
+  </div>
+</template>
+<script src="../js/vue.js"></script>
+<script>
+  const app = new Vue({
+    el: '#app',
+    data: {
+      message: '你好啊'
+    },
+    components: {
+      cpn: {
+        template: '#cpn',
+        data() {
+          return {
+            pLanguages: ['JavaScript', 'C++', 'Java', 'C#', 'Python', 'Go', 'Swift']
+          }
+        }
+      }
+    }
+  })
+</script>
+</body>
+```
+
+![](/images/vue-06/image-20210108151647318.png)
+
+我们通过 `<template slot-scope="slotProps">` 获取到slotProps属性.
+
+在通过slotProps.data就可以获取到刚才我们传入的`data`了。
