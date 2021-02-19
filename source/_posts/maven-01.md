@@ -4,6 +4,7 @@ date: 2021-02-04 17:10:09
 tags: Maven
 categories: Maven
 description:  Maven聚合工程-多环境打包配置
+typora-root-url: ..
 ---
 
 ## 1、问题场景
@@ -14,7 +15,7 @@ description:  Maven聚合工程-多环境打包配置
 
 先贴出示例工程：
 
-![image-20210204172257678](D:\hexo\gaoyipeng.github.io\source\images\maven-01\image-20210204172257678.png)
+![image-20210204172257678](/images/maven-01/image-20210204172257678.png)
 
 `sms-platform`是一个聚合工程，其中`sms-nafmii`、`sms-provider`是两个`springboot`应用，都分别有4个环境（`dev`、`moni`、`prod`、`officeprod`）,切换环境只需修改`application.yaml`如下代码：
 
@@ -105,15 +106,15 @@ spring:
 
 2、修改各个子工程的`application.yaml`
 
-![image-20210204173903899](D:\hexo\gaoyipeng.github.io\source\images\maven-01\image-20210204173903899.png)
+![image-20210204173903899](/images/maven-01/image-20210204173903899.png)
 
 3、打包
 
-![image-20210204174009314](D:\hexo\gaoyipeng.github.io\source\images\maven-01\image-20210204174009314.png)
+![image-20210204174009314](/images/maven-01/image-20210204174009314.png)
 
 
 
-![image-20210204174214571](D:\hexo\gaoyipeng.github.io\source\images\maven-01\image-20210204174214571.png)
+![image-20210204174214571](/images/maven-01/image-20210204174214571.png)
 
 打出包中只包含公共配置文件和对应环境的文件。
 
