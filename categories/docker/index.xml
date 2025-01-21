@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Docker on 十一爸爸的博客</title>
+    <link>https://garnettboy.gitee.io/categories/docker/</link>
+    <description>Recent content in Docker on 十一爸爸的博客</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Sun, 08 Mar 2020 10:28:34 +0000</lastBuildDate><atom:link href="https://garnettboy.gitee.io/categories/docker/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>使用Docker创建Nginx，并部署Vue项目，同时实现Nginx日志分割</title>
+      <link>https://garnettboy.gitee.io/p/%E4%BD%BF%E7%94%A8docker%E5%88%9B%E5%BB%BAnginx%E5%B9%B6%E9%83%A8%E7%BD%B2vue%E9%A1%B9%E7%9B%AE%E5%90%8C%E6%97%B6%E5%AE%9E%E7%8E%B0nginx%E6%97%A5%E5%BF%97%E5%88%86%E5%89%B2/</link>
+      <pubDate>Sun, 08 Mar 2020 10:28:34 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/%E4%BD%BF%E7%94%A8docker%E5%88%9B%E5%BB%BAnginx%E5%B9%B6%E9%83%A8%E7%BD%B2vue%E9%A1%B9%E7%9B%AE%E5%90%8C%E6%97%B6%E5%AE%9E%E7%8E%B0nginx%E6%97%A5%E5%BF%97%E5%88%86%E5%89%B2/</guid>
+      <description>前面的文章docker常用命令及Dockerfile笔记中，我们介绍了Docker、Dcokerfile基本知识，并且使用Docker创建了一个Nginx容器。
+本节我们主要介绍，如何介绍如何使用Docker创建Nginx，并部署Vue项目，同时实现Nginx日志分割。
+为了阅读方便，我们重新介绍使用Docker创建Nginx的步骤，和docker常用命令及Dockerfile笔记相比，有一些小的修改项。
+创建Nginx 拉取镜像 拉取nginx镜像到本地：
+docker pull nginx:latest 说明：docker pull 镜像名称:镜像tags。如果不加 tags，默认拉取最新镜像（latest）。
+准备工作 创建挂载目录 mkdir -p /usr/local/nginx/{conf,html,logs,conf.d} conf : 存放外置nginx配置文件 html : 存放Vue包 logs : 存放nginx日志文件 conf.d : 存放具体项目的nginx配置文件 将打包好的Vue项目包（一个名为dist的文件夹）放到 /usr/local/nginx/html 目录下。 [root@192 html]# ls -l /usr/local/nginx/html/总用量 4drwxrwxr-x. 9 admin admin 250 3月 7 17:17 dist 在/usr/local/nginx/conf下创建 nginx.conf 文件，作为外置配置文件使用。 user nginx;worker_processes 1;error_log /var/log/nginx/error.log warn;pid /var/run/nginx.pid;events {worker_connections 1024;}http {include /etc/nginx/mime.types;default_type application/octet-stream;log_format main &amp;#39;$remote_addr - $remote_user [$time_local] &amp;#34;$request&amp;#34; &amp;#39;&amp;#39;$status $body_bytes_sent &amp;#34;$http_referer&amp;#34; &amp;#39;&amp;#39;&amp;#34;$http_user_agent&amp;#34; &amp;#34;$http_x_forwarded_for&amp;#34;&amp;#39;;access_log /var/log/nginx/access.</description>
+    </item>
+    
+    <item>
+      <title>使用docker安装redis哨兵(sentinel)</title>
+      <link>https://garnettboy.gitee.io/p/%E4%BD%BF%E7%94%A8docker%E5%AE%89%E8%A3%85redis%E5%93%A8%E5%85%B5sentinel/</link>
+      <pubDate>Tue, 11 Feb 2020 11:27:51 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/%E4%BD%BF%E7%94%A8docker%E5%AE%89%E8%A3%85redis%E5%93%A8%E5%85%B5sentinel/</guid>
+      <description>上一节我们搭建了redis主从模式，实现了redis的主从复制，读写分离。主从模式保证了数据备份，但是发生故障依然需要运维人员施工。为了解决主从模式的弊端，本节我们搭建redis哨兵模式。
+本节我们搭建一主二从三哨兵。
+redis哨兵模式 sentinel 通常翻译成哨兵，用来监控主从节点的健康情况。客户端连接redis主从的时候，先连接 sentinel，sentinel告诉客户端主redis的地址是多少，然后客户端连接上redis并进行后续的操作。
+当主节点挂掉的时候，客户端就得不到连接了因而报错了，客户端重新向sentinel询问主master的地址，然后客户端得到了新选举出来的主redis。当原来的主机恢复后，会将其作为新主的从机。
+我们直接在上一节的已经搭建好的主从基础上搭建redis哨兵模式，上一节的主从模式节点信息如下：
+角色 端口 密码 容器名称 master 6380 123456 redis-6380 slaver 6381 123456 redis-6381 slaver 6382 123456 redis-6382 各容器network信心如下：
+&amp;#34;Containers&amp;#34;: {&amp;#34;3729ea952faade7c3bf37467f00f8a8c6676b9a98e27a897582272f1edce2087&amp;#34;: {&amp;#34;Name&amp;#34;: &amp;#34;redis-6382&amp;#34;,&amp;#34;EndpointID&amp;#34;: &amp;#34;95f9a05d2b6d10c13eb3d8df706a2700f33a6704ddda290bc6840676eebc6676&amp;#34;,&amp;#34;MacAddress&amp;#34;: &amp;#34;02:42:ac:14:00:04&amp;#34;,&amp;#34;IPv4Address&amp;#34;: &amp;#34;172.20.0.4/16&amp;#34;,&amp;#34;IPv6Address&amp;#34;: &amp;#34;&amp;#34;},&amp;#34;a7f4ccfa8e8aa87efb697f3ee5fef686e5138ebb0ad5faac282e7850d8cb176f&amp;#34;: {&amp;#34;Name&amp;#34;: &amp;#34;redis-6380&amp;#34;,&amp;#34;EndpointID&amp;#34;: &amp;#34;71af5cda52f5026aba9b4040890629d5ca560c2a7208b2bc7f0682a97a19d9bf&amp;#34;,&amp;#34;MacAddress&amp;#34;: &amp;#34;02:42:ac:14:00:02&amp;#34;,&amp;#34;IPv4Address&amp;#34;: &amp;#34;172.20.0.2/16&amp;#34;,&amp;#34;IPv6Address&amp;#34;: &amp;#34;&amp;#34;},&amp;#34;ff3d51f269c40912a21b2a8686078d963f292b32d32bce6dad089d9008377a36&amp;#34;: {&amp;#34;Name&amp;#34;: &amp;#34;redis-6381&amp;#34;,&amp;#34;EndpointID&amp;#34;: &amp;#34;405a1e61ea2afae2fca8b0ce31f6ac83b7c03440668b3f7ec42072a0ebff18e3&amp;#34;,&amp;#34;MacAddress&amp;#34;: &amp;#34;02:42:ac:14:00:03&amp;#34;,&amp;#34;IPv4Address&amp;#34;: &amp;#34;172.20.0.3/16&amp;#34;,&amp;#34;IPv6Address&amp;#34;: &amp;#34;&amp;#34;}} 现在我们约定sentinel哨兵节点信息：
+名称 端口 sentinel-26379 26379 sentinel-26380 26380 sentinel-26381 26381 创建工作目录 mkdir -p /usr/local/redis/sentinel/sentinel-26379/confmkdir -p /usr/local/redis/sentinel/sentinel-26379/datamkdir -p /usr/local/redis/sentinel/sentinel-26380/confmkdir -p /usr/local/redis/sentinel/sentinel-26380/datamkdir -p /usr/local/redis/sentinel/sentinel-26381/confmkdir -p /usr/local/redis/sentinel/sentinel-26381/data 用来存放3个哨兵的配置文件及日志文件。</description>
+    </item>
+    
+    <item>
+      <title>使用docker安装redis主从模式</title>
+      <link>https://garnettboy.gitee.io/p/%E4%BD%BF%E7%94%A8docker%E5%AE%89%E8%A3%85redis%E4%B8%BB%E4%BB%8E%E6%A8%A1%E5%BC%8F/</link>
+      <pubDate>Sun, 09 Feb 2020 16:26:11 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/%E4%BD%BF%E7%94%A8docker%E5%AE%89%E8%A3%85redis%E4%B8%BB%E4%BB%8E%E6%A8%A1%E5%BC%8F/</guid>
+      <description>redis主从复制 前一节我们搭建了单体redis应用，假设我们生产环境使用了一台redis，redis挂了怎么办？ redis主从复制：是备份关系，我们操作主库，数据会同步到从库。
+那么redis主从复制有什么作用呢？
+数据冗余：主从复制实现了数据的热备份，是持久化之外的一种数据冗余方式。 读写分离：可以用于实现读写分离，主库写、从库读，读写分离不仅可以提高服务器的负载能力，同时可根据需求的变化，改变从库的数量； 负载均衡：可以在主从复制的基础上，配合读写分离，由主节点负责写，从节点负责读取数据，从而分担服务器的负载压力，大大提高redis的并发量。 高可用基石：除了上述作用以外，主从复制还是哨兵和集群能够实施的基础，因此说主从复制是Redis高可用的基础。 本节我们搭建redis 一主二从，读写分离。redis主从是实现redis集群和redis哨兵高可用的基础.
+创建工作目录 mkdir -p /usr/local/redis/master-slaver/master/confmkdir -p /usr/local/redis/master-slaver/master/datamkdir -p /usr/local/redis/master-slaver/slaver/confmkdir -p /usr/local/redis/master-slaver/slaver/datamkdir -p /usr/local/redis/master-slaver/slaver1/confmkdir -p /usr/local/redis/master-slaver/slaver1/data 端口约定 角色 端口 密码 容器名称 master 6380 123456 redis-6380 slaver 6381 123456 redis-6381 slaver 6382 123456 redis-6382 准备redis.conf 准备一份redis.conf文件 https://redis.io/download。复制3份，分别存放到： /usr/local/redis/master-slave/master/conf /usr/local/redis/master-slave/slaver/conf /usr/local/redis/master-slave/slaver/conf 2.创建自定义网桥
+docker network inspect redis-master-slaver 这样我们容器间就可以使用容器名来通信了，避免出现ip变化后主从容器无法通信问题。
+分别修改这3份redis.conf的以下内容 master: requirepass 123456 #给redis设置密码bind 0.0.0.0 # 表示任意ip可连appendonly yes #开启redis aof持久化 slaver:</description>
+    </item>
+    
+    <item>
+      <title>使用docker安装单点redis</title>
+      <link>https://garnettboy.gitee.io/p/%E4%BD%BF%E7%94%A8docker%E5%AE%89%E8%A3%85%E5%8D%95%E7%82%B9redis/</link>
+      <pubDate>Sat, 08 Feb 2020 16:58:42 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/%E4%BD%BF%E7%94%A8docker%E5%AE%89%E8%A3%85%E5%8D%95%E7%82%B9redis/</guid>
+      <description>安装单个redis 拉取镜像,我使用的是5.0.7版本。https://hub.docker.com/_/redis/?tab=tags docker pull redis:5.0.7 准备一份redis.conf文件 https://redis.io/download，使用 xftp 上传到 /usr/local/redis/conf下。 注意：默认docker运行的redis是不存在配置文件的，即无配置启动. 另外还可以通过wget下载redis.conf：
+wget http://download.redis.io/redis-stable/redis.conf mkdir /usr/local/redis/datamkdir /usr/local/redis/conf 上传时发现一直报错，因为我是使用admin登录的，传输到虚拟机（服务器）的文件夹（目的地的文件夹）的权限不够。
+chmod 777 /usr/local/redis/conf 再次上传,然后把权限改回来，777权限很危险，尽量不要这么设置。
+修改redis.conf中的以下内容
+requirepass 123456 #给redis设置密码 bind 127.0.0.1 # 注释掉这部分，表示任意ip可连 appendonly yes #开启redis aof持久化 创建redis容器 docker run -d -p 6379:6379 --name redis-6379 -v /usr/local/redis/conf/redis.conf:/etc/redis/redis.conf -v /usr/local/redis/data:/data redis:5.0.7 redis-server /etc/redis/redis.conf docker-redis-single -p 6379:6379:把容器内的6379端口映射到宿主机6379端口 -v /usr/local/redis/conf/redis.conf:/etc/redis/redis.conf:把宿主机配置好的redis.conf放到容器内的这个位置中 -v /usr/local/redis/data:/data:把redis持久化的数据在宿主机内显示，做数据备份 redis-server /etc/redis/redis.conf：这个是关键配置，让redis不是无配置启动，而是按照这个redis.conf的配置启动 –appendonly yes：redis启动后数据持久化 使用redis-Desktop连接 redis-Desktop-single.png 我们使用命令向redis中插入几个String类型的值，再次查看/usr/local/redis/data目录,发现已经生成了持久化文件。
+single-data.png 单体redis较为简单，完工！</description>
+    </item>
+    
+    <item>
+      <title>docker 数据存储笔记</title>
+      <link>https://garnettboy.gitee.io/p/docker-%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%E7%AC%94%E8%AE%B0/</link>
+      <pubDate>Tue, 04 Feb 2020 10:22:09 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/docker-%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%E7%AC%94%E8%AE%B0/</guid>
+      <description>Docker容器在运行的时候会产生数据，为了不让这些数据随着容器的删除而删除，Docker支持数据持久化。
+Docker数据持久化主要有三种种方式：volume, bind mounts, tmpfs mounts
+types-of-mounts-volume.png 这张图很好的说明了三者的关系:
+volume 使用volume数据将持久化在Docker管理的volume中（保存在宿主机 /var/lib/docker/volumes目录下） bind mount是直接挂载的宿主机的文件目录，将宿主机的目录映射到容器中； tmpfs mount是将数据写入缓存，容器停止后就会被清理。这种模式不太常用，不做太多介绍。 使用bind mount，数据将持久化在我们指定的宿主机的某个目录中。挂载宿主机目录时数据覆盖有两个规则：
+如果宿主机目录下内容为空，容器映射目录有数据，则会把容器数据复制到宿主机目录 如果宿主机目录下内容不为空，则会把宿主机目录下内容映射到容器里，并且容器原数据会隐藏。 volume方式 Linux环境下，docker 默认在主机上会有一个特定的区域（/var/lib/docker/volumes/ ），该区域用来存放 volume。
+volume 可以通过 docker volume 进行管理，如创建、删除等操作。volume 在生成的时候如果不指定名称，便会随机生成。我们使用docker创建一个mysql容器来验证一下，首先我们看一下mysql:5.7.29的 Dockerfile内容
+......VOLUME [/var/lib/mysql]......EXPOSE 3306 33060CMD [&amp;#34;mysqld&amp;#34;] 其中的 VOLUME [/var/lib/mysql] 表示在Docker创建MySQL容器时，Docker会自动创建一个volume，将MySQL容器中/var/lib/mysql目录下的内容将同步到这个volume中。
+docker pull mysql:5.7.29docker run -d --name mysql-5.7.29 --restart=always -p 3306:3306 -e MYSQL_ROOT_PASSWORD=gaoyipeng mysql:5.7.29 然后就可以看到我们已经创建好了mysql-5.7.29，以及创建的卷信息 mysql-volume.png volume 在生成的时候如果不指定名称，便会随机生成（eg:09f037735adf1&amp;hellip;.）很长不好理解。我们也可以指定名称。 我们删除这个容器，使用如下的命令再次创建，指定volume名称为mysql
+docker run -d --name mysql-5.7.29 --restart=always -p 3306:3306 -e MYSQL_ROOT_PASSWORD=gaoyipeng -v mysql:/var/lib/mysql mysql:5.</description>
+    </item>
+    
+    <item>
+      <title>Docker网络配置笔记</title>
+      <link>https://garnettboy.gitee.io/p/docker%E7%BD%91%E7%BB%9C%E9%85%8D%E7%BD%AE%E7%AC%94%E8%AE%B0/</link>
+      <pubDate>Mon, 27 Jan 2020 10:12:59 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/docker%E7%BD%91%E7%BB%9C%E9%85%8D%E7%BD%AE%E7%AC%94%E8%AE%B0/</guid>
+      <description>docker网络模式 Docker自身拥有4种默认的网络模式，另外我们还可以自定义网络。
+在安装Docker时，会在宿主机上创建一个新的网络接口，名字是docker0。docker0是一个虚拟的以太网桥，它专门用于连接容器和本地宿主机网络. 每个Docker容器都会在这个接口上分配一个IP地址，接口本身的地址是172.17.0.1，子网掩码是255.255.0.0，也就是说Docker会默认使用172.17.X.X作为子网地址。
+docker0 四种默认网络模式 bridge模式（默认模式）：使用--net=bridge指定
+此模式会为每一个容器分配、设置IP等，并将容器连接到一个docker0虚拟网桥，通过docker0网桥以及Iptables nat表配置与宿主机通信。
+Host模式：使用--net=host指定
+容器和宿主机共享Network namespace。容器将不会虚拟出自己的网卡，配置自己的IP等，而是使用宿主机的IP和端口。使用host模式的容器可以直接使用宿主机的IP地址与外界通信，容器内部的服务端口也可以使用宿主机的端口，不需要进行NAT。
+host模式的优势就是网络性能比较好，但是docker host上已经使用的端口就不能再用了，网络的隔离性不好。
+Container模式：使用--net=container:NAME_or_ID指定
+容器和另外一个容器共享Network namespace。新创建的容器不会创建自己的网卡，配置自己的 IP，而是和一个指定的容器共享 IP、端口范围等。
+None模式（默认模式）：使用--net=none指定
+容器有独立的Network namespace，但并没有对其进行任何网络设置，如分配veth pair 和网桥连接，配置IP等。
+注意：这种类型的网络没有办法联网，封闭的网络能很好的保证容器的安全性。
+bridge模式（重点） 我们先来创建2个busybox容器。docker run -itd --name busybox1 busyboxdocker run -itd --name busybox2 busybox我们使用 docker network inspect bridge 可以查看bridge网络的详情 bridge详情.png 可以看到容器名称，IP地址，Container Id 信息。
+我们进入busybox1容器
+docker exec -it busybox1 sh我们看下在 busybox1 容器内部是否可以ping通busybox2的IP。再尝试下是否可以ping通busybox2的 Container Name ping-ip-busybox2.png 我们发现busybox1和busybox2可以通过IP互通，但是无法通知container name通讯。所以默认bridge只支持ip互通。
+-- link 如果我们想让bridge模式的Container之间支持通过Container Name通讯。我们可以使用--link 的方式。 我们删除busybox2容器。重新创建busybox2容器，并且让其和busybox1建立网络映射关系。
+docker stop busybox2docker rm busybox2docker run -itd --name busybox2 --link busybox1 busyboxbusybox2-ping-busybox1.</description>
+    </item>
+    
+    <item>
+      <title>Docker Compose笔记</title>
+      <link>https://garnettboy.gitee.io/p/docker-compose%E7%AC%94%E8%AE%B0/</link>
+      <pubDate>Sun, 26 Jan 2020 22:12:54 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/docker-compose%E7%AC%94%E8%AE%B0/</guid>
+      <description>Docker Compose 是用于定义和运行多容器 Docker 应用程序的工具。微服务架构的应用系统一般包含若干个微服务，每个微服务可能会部署可能需要用到多个Docker容器，比如MySQL，Redis，Nginx等，单独的去管理每个容器可能会比较麻烦。
+Docker Compose 可以通过一个yml文件来统一管理这些容器，可以极大简化我们的应用部署过程。
+安装Docker Compose 可以参考我的博客：linux（centos7）安装docker
+Docker Compose 配置指令 我们先来看一个docker-compose.yml文件，这个是直接抄鸟哥的，感谢鸟哥。鸟哥博客：https://mrbird.cc/
+version: &amp;#39;3&amp;#39;services:elasticsearch:image: elasticsearch:6.4.1container_name: elasticsearchenvironment:- &amp;#34;cluster.name=elasticsearch&amp;#34; #集群名称为elasticsearch- &amp;#34;discovery.type=single-node&amp;#34; #单节点启动- &amp;#34;ES_JAVA_OPTS=-Xms512m -Xmx512m&amp;#34; #jvm内存分配为512MBvolumes:- /kiki/elasticsearch/plugins:/usr/share/elasticsearch/plugins- /kiki/elasticsearch/data:/usr/share/elasticsearch/dataports:- 9200:9200networks:- my-bridge kibana:image: kibana:6.4.1container_name: kibanalinks:- elasticsearch:es #配置elasticsearch域名为esdepends_on:- elasticsearchenvironment:- &amp;#34;elasticsearch.hosts=http://es:9200&amp;#34; #因为上面配置了域名，所以这里可以简写为http://es:9200ports:- 5601:5601networks:- my-bridgelogstash:image: logstash:6.4.1container_name: logstashvolumes:- /kiki/logstash/logstash-febs.</description>
+    </item>
+    
+    <item>
+      <title>docker常用命令及Dockerfile笔记</title>
+      <link>https://garnettboy.gitee.io/p/docker%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E5%8F%8Adockerfile%E7%AC%94%E8%AE%B0/</link>
+      <pubDate>Sun, 19 Jan 2020 17:22:19 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/docker%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E5%8F%8Adockerfile%E7%AC%94%E8%AE%B0/</guid>
+      <description>docker主要的3个概念：镜像（image）+容器（container）+仓库（repository）
+docker镜像：概念类似虚拟机的镜像，可以用来创建新的容器。 docker仓库：docker仓库概念和git类似。docker仓库是用来包含镜像的位置。 docker容器：是由docker镜像创建的运行实例。docker容器类似虚拟机，可以执行包含启动，停止，删除等。每个容器间是相互隔离的。容器中会运行特定的运用，包含特定应用的代码及所需的依赖文件。可以把容器看作一个简易版的linux环境（包含root用户权限，进程空间，用户空间和网络空间等）和运行在其中的应用程序。 仓库-镜像-容器关系图.png 我们在这个过程中熟悉经常使用的命令。
+Docker 镜像和容器 镜像查询 docker镜像查询地址dockerhub：https://hub.docker.com/search hub.docker.com.png 我们也可以使用docker search:镜像名称 的方式，搜索镜像,这种方式无法查询镜像tags。 搜索镜像.png 各个选项说明:
+NAME: 镜像仓库源的名称 DESCRIPTION: 镜像的描述 OFFICIAL: 是否 docker 官方发布 stars: 类似 Github 里面的 star，表示点赞、喜欢的意思。 AUTOMATED: 自动构建。 拉取镜像 我们以nginx 为例
+拉取nginx镜像到本地 docker pull 镜像名称:镜像tags。如果不加 tags，默认拉取最新镜像（latest）。
+docker pull nginx:latest 直接执行命令报： Got permission denied while trying to connect to the Docker daemon socket &amp;hellip;.: connect: permission denied
+我们使用su root 命令切换到root用户，再次执行docker pull nginx:latest。 下载nginx镜像.png 使用docker images 命令即可查看已经拥有的镜像。 查看已下载images.png 各个选项说明:</description>
+    </item>
+    
+    <item>
+      <title>centos7设置docker阿里云镜像加速器</title>
+      <link>https://garnettboy.gitee.io/p/centos7%E8%AE%BE%E7%BD%AEdocker%E9%98%BF%E9%87%8C%E4%BA%91%E9%95%9C%E5%83%8F%E5%8A%A0%E9%80%9F%E5%99%A8/</link>
+      <pubDate>Thu, 26 Dec 2019 10:02:36 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/centos7%E8%AE%BE%E7%BD%AEdocker%E9%98%BF%E9%87%8C%E4%BA%91%E9%95%9C%E5%83%8F%E5%8A%A0%E9%80%9F%E5%99%A8/</guid>
+      <description>{% note info %} 国内从 DockerHub 拉取镜像有时会遇到困难，此时可以配置镜像加速器。本节记录如何配置使用阿里云镜像仓库。{% endnote %}
+配置使用阿里云镜像仓库下载镜像 注册阿里云账号，并登陆 阿里云登录.png 选择容器镜像服务 镜像服务.png 选择如下目录，并将截图命令在centos系统上执行 设置镜像地址.png 下载镜像 此时使用 docker pull 命令下载镜像就会默认使用阿里云了。非常快。下载如下Nginx，大概用了不到5秒钟。 下载nginx.png 推送自定义docker镜像到阿里云 我们在上面设置了阿里云的镜像库，接下来演示如何将自定义的镜像推送到自己的阿里云镜像库中，这样就可以对外提供下载了。
+阿里云创建一个命名空间 命名空间.png 准备一个可用来打包的容器 先docker pull 一个Tomcat 镜像，并以此启动一个Tomcat 容器 , 通过 http://192.168.230.129:8080/ 可以看到Tomcat容器已经启动。 tomcat容器.png 将上一步的 gaoyp-tomcat 容器打包成为一个新的镜像 docker commit -m=“提交的描述信息” -a=“作者” 容器ID 要创建的目标镜像名:[标签名] 此处定义的镜像为 gaoyp/tomcat ,标签为 v1.0 创建本地镜像.png 创建镜像仓库 创建镜像仓库.png 点击下一步，创建镜像仓库
+自定义tomcat镜像.png 点击管理可以看到镜像信息： 镜像信息.png 推送镜像（参考上图第三步） 推送自定义镜像.png 拉取自定义镜像 docker pull registry.cn-beijing.aliyuncs.com/gaoyipeng/gaoyp-tomcat:v1.0 </description>
+    </item>
+    
+    <item>
+      <title>linux（centos7）安装docker</title>
+      <link>https://garnettboy.gitee.io/p/linuxcentos7%E5%AE%89%E8%A3%85docker/</link>
+      <pubDate>Thu, 26 Dec 2019 10:02:36 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/linuxcentos7%E5%AE%89%E8%A3%85docker/</guid>
+      <description>{% note info %} Docker 是一个开源的应用容器引擎，让开发者可以打包他们的应用以及依赖包到一个可移植的容器中,然后发布到任何流行的Linux机器或Windows 机器上,也可以实现虚拟化,容器是完全使用沙箱机制,相互之间不会有任何接口。{% endnote %}
+检查内核版本 centos7 必须是3.10及以上: uname ‐r
+版本检查.png 安装docker前的准备 官网地址：https://docs.docker.com/install/linux/docker-ce/centos/
+安装所需的软件包 yum install -y yum-utils \&amp;gt; device-mapper-persistent-data \&amp;gt; lvm2 安装所需的软件包.png 设置存储库 yum-config-manager \&amp;gt; --add-repo \&amp;gt; https://download.docker.com/linux/centos/docker-ce.repo 设置存储库.png 安装docker 安装最新版本docker yum install docker-ce 安装docker.png 安装指定版本的docker yum install docker-ce-&amp;lt;VERSION_STRING&amp;gt; docker-ce-cli-&amp;lt;VERSION_STRING&amp;gt; containerd.io 其中&amp;lt;VERSION_STRING&amp;gt;可以通过以下命令查看
+yum list docker-ce --showduplicates | sort -r 查询docker版本.png 最终命令如下：
+我们以第一个截图第一个为例，以下命令未实践，根据官网说明自己写的，所以没有截图，仅供参考，本人安装的是最新docker
+yum install docker-ce-19.03.4.ce docker-ce-cli-19.03.4.ce containerd.io 安装成功确认 docker version 版本查询.png docker启动、关闭 启动docker</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,1423 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Spring源码学习（7）：Bean的生命周期'><title>Spring源码学习（7）：Bean的生命周期</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A07bean%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Spring源码学习（7）：Bean的生命周期'>
+<meta property='og:description' content='Spring源码学习（7）：Bean的生命周期'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A07bean%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Spring' /><meta property='article:published_time' content='2020-04-12T16:00:29&#43;00:00'/><meta property='article:modified_time' content='2020-04-12T16:00:29&#43;00:00'/>
+<meta name="twitter:title" content="Spring源码学习（7）：Bean的生命周期">
+<meta name="twitter:description" content="Spring源码学习（7）：Bean的生命周期">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/spring/" >
+                Spring
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A07bean%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/">Spring源码学习（7）：Bean的生命周期</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        Spring源码学习（7）：Bean的生命周期
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Apr 12, 2020</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 8 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <h1 id="bean的生命周期">Bean的生命周期</h1>
+<p><code>这节呢，我们来学习下spring bean的生命周期。</code></p>
+<h2 id="bean的生命周期流程图">Bean的生命周期流程图</h2>
+<p><figure 
+	>
+	<a href="/../../../../../hexo/gaoyipeng.github.io/source/images/spring/07/index.png" >
+		<img src="/../../../../../hexo/gaoyipeng.github.io/source/images/spring/07/index.png"
+			
+			
+			
+			loading="lazy"
+			alt="index.png">
+	</a>
+	
+	<figcaption>index.png</figcaption>
+	
+</figure></p>
+<p>上面是我自己画的流程图，若容器注册了以上各种接口，程序那么将会按照以上的流程进行。下面将仔细讲解各接口作用。</p>
+<p>下载地址:</p>
+<p>链接：https://pan.baidu.com/s/1WLX8Q_zp0Y7bWJPzeRZVqw 
+提取码：b58o</p>
+<h2 id="加载配置文件">加载配置文件</h2>
+<p>万里长征第一步。Spring需要加载配置文件，就是我们经常说的applicationContext.xml</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">ApplicationContext</span> <span class="n">applicationContext</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ClassPathXmlApplicationContext</span><span class="o">(</span><span class="s">&#34;applicationContext.xml&#34;</span><span class="o">);</span>
+</span></span></code></pre></div><h2 id="解析配置文件">解析配置文件</h2>
+<p>这一步是为了将配置文件中的<!-- raw HTML omitted -->等标签信息解析成Spring内部的BeanDefinition对象。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">BeanDefinition</span> <span class="kd">extends</span> <span class="n">AttributeAccessor</span><span class="o">,</span> <span class="n">BeanMetadataElement</span><span class="o">{......}</span>
+</span></span></code></pre></div><p>BeanDefinition继承了AttributeAccessor和BeanMetadataElement接口。</p>
+<ul>
+<li>
+<p>AttributeAccessor:这是一个属性访问者，它提供了访问属性的能力。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">AttributeAccessor</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">void</span> <span class="nf">setAttribute</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">,</span> <span class="nd">@Nullable</span> <span class="n">Object</span> <span class="n">value</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nd">@Nullable</span>
+</span></span><span class="line"><span class="cl">	<span class="n">Object</span> <span class="nf">getAttribute</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nd">@Nullable</span>
+</span></span><span class="line"><span class="cl">	<span class="n">Object</span> <span class="nf">removeAttribute</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">boolean</span> <span class="nf">hasAttribute</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">String</span><span class="o">[]</span> <span class="nf">attributeNames</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div></li>
+<li>
+<p>BeanMetadataElement：只有一个方法，用来获取元数据元素的配置源对象：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">BeanMetadataElement</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nd">@Nullable</span>
+</span></span><span class="line"><span class="cl">	<span class="n">Object</span> <span class="nf">getSource</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div></li>
+</ul>
+<p><code>BeanDefinition</code>接口是Spring对bean的抽象。我们可以看下它包含的方法。</p>
+<p><figure 
+	>
+	<a href="/images/spring-study-07/BeanDefinition.png" >
+		<img src="/images/spring-study-07/BeanDefinition.png"
+			
+			
+			
+			loading="lazy"
+			alt="BeanDefinition.png">
+	</a>
+	
+	<figcaption>BeanDefinition.png</figcaption>
+	
+</figure></p>
+<p><code>BeanDefinition</code>包含了Bean需要的所有信息，这样Spring就可以利用<code>BeanDefinition</code>生成Bean了。</p>
+<h2 id="beanfactorypostprocessor和beanpostprocessor对比">BeanFactoryPostProcessor和BeanPostProcessor对比</h2>
+<hr>
+<p>此处我们把这2个接口放在一起介绍。这2个接口很相似，但是有一些区别：</p>
+<ul>
+<li>
+<p>BeanFactoryPostProcessor：</p>
+<p>可以对bean的定义信息（BeanDefinition）进行处理。也就是说，Spring IoC容器允许BeanFactoryPostProcessor在容器实际实例化bean之前读取 BeanDefinition 数据，并且可以修改它。比如修改Property或者scope。</p>
+<p>我们可以配置多个BeanFactoryPostProcessor。你还能通过设置order属性来控制BeanFactoryPostProcessor的执行次序。</p>
+</li>
+<li>
+<p>BeanPostProcessor：后置bean处理器</p>
+<p>后置bean处理器，应用在允许自定义修改新的bean实例。此时，IOC已经帮我们生成了对应的Bean对象。我们可以配置多个BeanPostProcessor。你还能通过设置order属性来控制BeanPostProcessor的执行次序。</p>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">对比</th>
+<th style="text-align:center"><strong>BeanFactoryPostProcessor</strong></th>
+<th style="text-align:center">BeanPostProcessor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">生命周期</td>
+<td style="text-align:center">Bean实例化完成之前</td>
+<td style="text-align:center">Bean实例化完成之后，初始化方法前</td>
+</tr>
+<tr>
+<td style="text-align:center">是否可修改bean定义信息（BeanDefinition）</td>
+<td style="text-align:center">是</td>
+<td style="text-align:center">否</td>
+</tr>
+<tr>
+<td style="text-align:center">是否可修改bean实例信息</td>
+<td style="text-align:center">否</td>
+<td style="text-align:center">是</td>
+</tr>
+<tr>
+<td style="text-align:center">是否支持排序接口</td>
+<td style="text-align:center">是</td>
+<td style="text-align:center">是</td>
+</tr>
+<tr>
+<td style="text-align:center">方法级别</td>
+<td style="text-align:center">ApplicationContext级别</td>
+<td style="text-align:center">ApplicationContext级别</td>
+</tr>
+<tr>
+<td style="text-align:center">实现方式</td>
+<td style="text-align:center">实现BeanFactoryPostProcessor接口</td>
+<td style="text-align:center">实现BeanPostProcessor接口</td>
+</tr>
+</tbody>
+</table>
+<h3 id="beanfactorypostprocessor-接口">BeanFactoryPostProcessor 接口</h3>
+<p><strong>现在比较流行注解的方式来配置spring，所以我们只保留applicationContext.xml，不再用xml 注册Bean。</strong></p>
+<ul>
+<li>
+<p>applicationContext.xml</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="c">&lt;!--设置扫描目录--&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;context:component-scan</span> <span class="na">base-package=</span><span class="s">&#34;com.sxdx&#34;</span> <span class="nt">/&gt;</span>
+</span></span></code></pre></div></li>
+<li>
+<p>实体类</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.entity</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.stereotype.Component</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="c1">//使用注解注入一个名为processor的Bean
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nd">@Component</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Processor</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">private</span> <span class="kt">int</span> <span class="n">age</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="nf">Processor</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="nf">Processor</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">,</span> <span class="kt">int</span> <span class="n">age</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">		<span class="k">this</span><span class="o">.</span><span class="na">age</span> <span class="o">=</span> <span class="n">age</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="c1">//get set...
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="n">String</span> <span class="nf">toString</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="s">&#34;Processor{&#34;</span> <span class="o">+</span>
+</span></span><span class="line"><span class="cl">				<span class="s">&#34;name=&#39;&#34;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="sc">&#39;\&#39;&#39;</span> <span class="o">+</span>
+</span></span><span class="line"><span class="cl">				<span class="s">&#34;, age=&#34;</span> <span class="o">+</span> <span class="n">age</span> <span class="o">+</span>
+</span></span><span class="line"><span class="cl">				<span class="sc">&#39;}&#39;</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div></li>
+<li>
+<p>BeanFactoryPostProcessor实现类</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Java" data-lang="Java"><span class="line"><span class="cl"><span class="nd">@Component</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">BeanFactoryPostProcessorOne</span> <span class="kd">implements</span> <span class="n">BeanFactoryPostProcessor</span> <span class="o">,</span><span class="n">Ordered</span><span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">postProcessBeanFactory</span><span class="o">(</span><span class="n">ConfigurableListableBeanFactory</span> <span class="n">beanFactory</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">BeansException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;BeanFactoryPostProcessorOne&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">BeanDefinition</span> <span class="n">dog</span> <span class="o">=</span> <span class="n">beanFactory</span><span class="o">.</span><span class="na">getBeanDefinition</span><span class="o">(</span><span class="s">&#34;processor&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">		<span class="c1">//通过BeanDefinition修改bean定义信息
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="k">if</span> <span class="o">(</span><span class="n">dog</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">){</span>
+</span></span><span class="line"><span class="cl">			<span class="n">MutablePropertyValues</span> <span class="n">mv</span> <span class="o">=</span> <span class="n">dog</span><span class="o">.</span><span class="na">getPropertyValues</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">			<span class="n">mv</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">&#34;name&#34;</span><span class="o">,</span><span class="s">&#34;拉布拉多&#34;</span><span class="o">).</span><span class="na">add</span><span class="o">(</span><span class="s">&#34;age&#34;</span><span class="o">,</span><span class="n">22</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">		<span class="o">}</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">int</span> <span class="nf">getOrder</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="n">1</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@Component</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">BeanFactoryPostProcessorTwo</span> <span class="kd">implements</span> <span class="n">BeanFactoryPostProcessor</span> <span class="o">,</span> <span class="n">Ordered</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">postProcessBeanFactory</span><span class="o">(</span><span class="n">ConfigurableListableBeanFactory</span> <span class="n">beanFactory</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">BeansException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;BeanFactoryPostProcessorTwo&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">int</span> <span class="nf">getOrder</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="n">2</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div></li>
+</ul>
+<p>​        BeanFactoryPostProcessorTwo存在的意义主要是验证是否支持排序接口。我们实现了Ordered</p>
+<ul>
+<li>
+<p>测试类</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Test1</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">private</span> <span class="n">ApplicationContext</span> <span class="n">applicationContext</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nd">@Before</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">initXmlBeanFactory</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;\n========测试方法开始=======\n&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">applicationContext</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ClassPathXmlApplicationContext</span><span class="o">(</span><span class="s">&#34;applicationContext.xml&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nd">@After</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">after</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;\n========测试方法结束=======\n&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nd">@Test</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">test</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">Processor</span> <span class="n">processor</span> <span class="o">=</span> <span class="n">applicationContext</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="s">&#34;processor&#34;</span><span class="o">,</span><span class="n">Processor</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">processor</span><span class="o">.</span><span class="na">toString</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>打印结果：</p>
+<pre tabindex="0"><code>========测试方法开始=======
+
+BeanFactoryPostProcessorOne
+BeanFactoryPostProcessorTwo
+Processor{name=&#39;拉布拉多&#39;, age=22}
+
+========测试方法结束=======
+</code></pre></li>
+</ul>
+<p>注意：</p>
+<ol>
+<li>不要在BeanFactoryPostProcessor实现类中使用beanFactory.getBean()。此时尚未实例化。</li>
+<li>BeanFactoryPostProcessorOne在BeanFactoryPostProcessorTwo前执行，说明了BeanFactoryPostProcessor支持排序接口，且数字越小越先执行。</li>
+</ol>
+<h3 id="beanpostprocessor-接口">BeanPostProcessor 接口</h3>
+<p>我们在上面代码的基础上做修改。</p>
+<ul>
+<li>
+<p>BeanPostProcessor实现类</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Java" data-lang="Java"><span class="line"><span class="cl"><span class="nd">@Component</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">BeanPostProcessorOne</span> <span class="kd">implements</span> <span class="n">BeanPostProcessor</span> <span class="o">,</span> <span class="n">Ordered</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="n">Object</span> <span class="nf">postProcessBeforeInitialization</span><span class="o">(</span><span class="n">Object</span> <span class="n">bean</span><span class="o">,</span> <span class="n">String</span> <span class="n">beanName</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">BeansException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;BeanPostProcessorOne&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">		<span class="c1">//获取Bean实例，并修改
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="k">if</span> <span class="o">(</span><span class="n">beanName</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="s">&#34;processor&#34;</span><span class="o">)){</span>
+</span></span><span class="line"><span class="cl">			<span class="o">((</span><span class="n">Processor</span><span class="o">)</span><span class="n">bean</span><span class="o">).</span><span class="na">setAge</span><span class="o">(</span><span class="n">100</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">		<span class="o">}</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="n">bean</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="n">Object</span> <span class="nf">postProcessAfterInitialization</span><span class="o">(</span><span class="n">Object</span> <span class="n">bean</span><span class="o">,</span> <span class="n">String</span> <span class="n">beanName</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">BeansException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="n">bean</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">int</span> <span class="nf">getOrder</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="n">2</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Java" data-lang="Java"><span class="line"><span class="cl"><span class="nd">@Component</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">BeanPostProcessorTwo</span> <span class="kd">implements</span> <span class="n">BeanPostProcessor</span> <span class="o">,</span> <span class="n">Ordered</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="n">Object</span> <span class="nf">postProcessBeforeInitialization</span><span class="o">(</span><span class="n">Object</span> <span class="n">bean</span><span class="o">,</span> <span class="n">String</span> <span class="n">beanName</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">BeansException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;BeanPostProcessorTwo&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="n">bean</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="n">Object</span> <span class="nf">postProcessAfterInitialization</span><span class="o">(</span><span class="n">Object</span> <span class="n">bean</span><span class="o">,</span> <span class="n">String</span> <span class="n">beanName</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">BeansException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="n">bean</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">int</span> <span class="nf">getOrder</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="n">1</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div></li>
+<li>
+<p>测试类</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Java" data-lang="Java"><span class="line"><span class="cl">	<span class="nd">@Test</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">test</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">Processor</span> <span class="n">processor</span> <span class="o">=</span> <span class="n">applicationContext</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="s">&#34;processor&#34;</span><span class="o">,</span><span class="n">Processor</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">processor</span><span class="o">.</span><span class="na">toString</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span></code></pre></div></li>
+<li>
+<p>测试结果</p>
+<pre tabindex="0"><code>========测试方法开始=======
+
+BeanFactoryPostProcessorOne
+BeanFactoryPostProcessorTwo
+BeanPostProcessorTwo
+BeanPostProcessorOne
+BeanPostProcessorTwo
+BeanPostProcessorOne
+BeanPostProcessorTwo
+BeanPostProcessorOne
+Processor{name=&#39;拉布拉多&#39;, age=100}
+
+========测试方法结束=======
+</code></pre><p><strong>说明：</strong></p>
+<p>我们可以看到BeanFactoryPostProcessor先执行，验证了BeanFactoryPostProcessor和BeanPostProcessor的生命周期执行顺序。</p>
+<p>BeanPostProcessorTwo在BeanPostProcessorOne前执行，说明了BeanPostProcessor 支持排序接口，且数字越小越先执行。</p>
+</li>
+</ul>
+<h2 id="instantiationawarebeanpostprocessor-接口">InstantiationAwareBeanPostProcessor 接口</h2>
+<hr>
+<p><strong>InstantiationAwareBeanPostProcessor</strong> 接口本质是<strong>BeanPostProcessor</strong>的子接口，所以实现InstantiationAwareBeanPostProcessor 除了可以实现InstantiationAwareBeanPostProcessor自身的方法，同时也具有了<strong>BeanPostProcessor</strong>的特性。</p>
+<p>可以在一个实现类中同时实现 Bean<strong>实例化</strong>和<strong>初始化</strong>前后的业务代码。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">InstantiationAwareBeanPostProcessor</span> <span class="kd">extends</span> <span class="n">BeanPostProcessor</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nd">@Nullable</span>
+</span></span><span class="line"><span class="cl">	<span class="k">default</span> <span class="n">Object</span> <span class="nf">postProcessBeforeInstantiation</span><span class="o">(</span><span class="n">Class</span><span class="o">&lt;?&gt;</span> <span class="n">beanClass</span><span class="o">,</span> <span class="n">String</span> <span class="n">beanName</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">BeansException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">	<span class="k">default</span> <span class="kt">boolean</span> <span class="nf">postProcessAfterInstantiation</span><span class="o">(</span><span class="n">Object</span> <span class="n">bean</span><span class="o">,</span> <span class="n">String</span> <span class="n">beanName</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">BeansException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">	<span class="nd">@Nullable</span>
+</span></span><span class="line"><span class="cl">	<span class="k">default</span> <span class="n">PropertyValues</span> <span class="nf">postProcessProperties</span><span class="o">(</span><span class="n">PropertyValues</span> <span class="n">pvs</span><span class="o">,</span> <span class="n">Object</span> <span class="n">bean</span><span class="o">,</span> <span class="n">String</span> <span class="n">beanName</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">			<span class="kd">throws</span> <span class="n">BeansException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nd">@Deprecated</span>
+</span></span><span class="line"><span class="cl">	<span class="nd">@Nullable</span>
+</span></span><span class="line"><span class="cl">	<span class="k">default</span> <span class="n">PropertyValues</span> <span class="nf">postProcessPropertyValues</span><span class="o">(</span>
+</span></span><span class="line"><span class="cl">			<span class="n">PropertyValues</span> <span class="n">pvs</span><span class="o">,</span> <span class="n">PropertyDescriptor</span><span class="o">[]</span> <span class="n">pds</span><span class="o">,</span> <span class="n">Object</span> <span class="n">bean</span><span class="o">,</span> <span class="n">String</span> <span class="n">beanName</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">BeansException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="n">pvs</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>上面可以看到<strong>InstantiationAwareBeanPostProcessor</strong>共有4个方法，其中postProcessPropertyValues已经过期，使用postProcessProperties替代。</p>
+<p>该接口除了具有父接口中的两个方法以外还自己额外定义了三个方法。所以该接口一共定义了6个方法。</p>
+<p>Instantiation：表示实例化,对象还未生成</p>
+<p>Initialization：表示初始化,对象已经生成</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">方法名</th>
+<th style="text-align:left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">postProcessBeforeInitialization</td>
+<td style="text-align:left">BeanPostProcessor接口中的方法,在Bean的自定义初始化方法之前执行</td>
+</tr>
+<tr>
+<td style="text-align:center">postProcessAfterInitialization</td>
+<td style="text-align:left">BeanPostProcessor接口中的方法 在Bean的自定义初始化方法执行完成之后执行</td>
+</tr>
+<tr>
+<td style="text-align:center">postProcessBeforeInstantiation</td>
+<td style="text-align:left">自身方法，是最先执行的方法，它在目标对象实例化之前调用，该方法的返回值类型是Object，我们可以返回任何类型的值。由于这个时候目标对象还未实例化，所以这个返回值可以用来代替原本该生成的目标对象的实例(比如代理对象)。如果该方法的返回值代替原本该生成的目标对象，后续只有postProcessAfterInitialization方法会调用，其它方法不再调用；否则按照正常的流程走</td>
+</tr>
+<tr>
+<td style="text-align:center">postProcessAfterInstantiation</td>
+<td style="text-align:left">在目标对象实例化之后调用，这个时候对象已经被实例化，但是该实例的属性还未被设置，都是null。因为它的返回值是决定要不要调用postProcessPropertyValues方法的其中一个因素（因为还有一个因素是mbd.getDependencyCheck()）；如果该方法返回false,并且不需要check，那么postProcessProperties就会被忽略不执行；如果返回true，postProcessProperties 就会被执行</td>
+</tr>
+<tr>
+<td style="text-align:center">postProcessPropertyValues（已废弃）</td>
+<td style="text-align:left">postProcessProperties代替它</td>
+</tr>
+<tr>
+<td style="text-align:center">postProcessProperties</td>
+<td style="text-align:left">对属性值进行修改，如果postProcessAfterInstantiation方法返回false，该方法可能不会被调用。可以在该方法内对属性值进行修改</td>
+</tr>
+</tbody>
+</table>
+<p>我们来代码验证上面表格中的内容：</p>
+<ul>
+<li>
+<p>实体类</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Processor</span>   <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">private</span> <span class="kt">int</span> <span class="n">age</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="nf">Processor</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;Processor 实例化&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="nf">Processor</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">,</span> <span class="kt">int</span> <span class="n">age</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">		<span class="k">this</span><span class="o">.</span><span class="na">age</span> <span class="o">=</span> <span class="n">age</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">initMethod</span><span class="o">(){</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;初始化方法&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">   <span class="c1">//get set
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="n">String</span> <span class="nf">toString</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="s">&#34;Processor{&#34;</span> <span class="o">+</span>
+</span></span><span class="line"><span class="cl">				<span class="s">&#34;name=&#39;&#34;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="sc">&#39;\&#39;&#39;</span> <span class="o">+</span>
+</span></span><span class="line"><span class="cl">				<span class="s">&#34;, age=&#34;</span> <span class="o">+</span> <span class="n">age</span> <span class="o">+</span>
+</span></span><span class="line"><span class="cl">				<span class="sc">&#39;}&#39;</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>我们在原先实体类的基础上，新加了initMethod初始化方法。</p>
+</li>
+<li>
+<p>配置类</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@Configuration</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">LifeCycle</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nd">@Bean</span><span class="o">(</span><span class="n">initMethod</span> <span class="o">=</span> <span class="s">&#34;initMethod&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="n">Processor</span> <span class="nf">processor</span><span class="o">(){</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="k">new</span> <span class="n">Processor</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>LifeCycle配置类中定义了bean（beanName = &ldquo;processor&rdquo;）</p>
+</li>
+<li>
+<p>InstantiationAwareBeanPostProcessor实现类</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@Component</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyInstantiationAwareBeanPostProcessor</span> <span class="kd">implements</span> <span class="n">InstantiationAwareBeanPostProcessor</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * BeanPostProcessor接口中的方法
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * 在Bean的自定义初始化方法之前执行
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * Bean对象已经存在了
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 */</span>
+</span></span><span class="line"><span class="cl">	<span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="n">Object</span> <span class="nf">postProcessBeforeInitialization</span><span class="o">(</span><span class="n">Object</span> <span class="n">bean</span><span class="o">,</span> <span class="n">String</span> <span class="n">beanName</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">BeansException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="o">(</span><span class="n">beanName</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="s">&#34;processor&#34;</span><span class="o">)){</span>
+</span></span><span class="line"><span class="cl">			<span class="o">((</span><span class="n">Processor</span><span class="o">)</span><span class="n">bean</span><span class="o">).</span><span class="na">setAge</span><span class="o">(</span><span class="n">100</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">			<span class="o">((</span><span class="n">Processor</span><span class="o">)</span><span class="n">bean</span><span class="o">).</span><span class="na">setName</span><span class="o">(</span><span class="s">&#34;特朗普&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">		<span class="o">}</span>
+</span></span><span class="line"><span class="cl">		<span class="c1">// TODO Auto-generated method stub
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;&gt;&gt;postProcessBeforeInitialization&#34;</span><span class="o">+</span><span class="s">&#34;-----&#34;</span><span class="o">+</span><span class="n">beanName</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="n">bean</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * InstantiationAwareBeanPostProcessor中自定义的方法
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * 在方法实例化之前执行  Bean对象还没有创建
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 */</span>
+</span></span><span class="line"><span class="cl">	<span class="nd">@Nullable</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="n">Object</span> <span class="nf">postProcessBeforeInstantiation</span><span class="o">(</span><span class="n">Class</span><span class="o">&lt;?&gt;</span> <span class="n">beanClass</span><span class="o">,</span> <span class="n">String</span> <span class="n">beanName</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">BeansException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;---&gt;postProcessBeforeInstantiation&#34;</span><span class="o">+</span><span class="s">&#34;-----&#34;</span><span class="o">+</span><span class="n">beanName</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * BeanPostProcessor接口中的方法
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * 在Bean的自定义初始化方法执行完成之后执行
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * Bean对象已经存在了
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 */</span>
+</span></span><span class="line"><span class="cl">	<span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="n">Object</span> <span class="nf">postProcessAfterInitialization</span><span class="o">(</span><span class="n">Object</span> <span class="n">bean</span><span class="o">,</span> <span class="n">String</span> <span class="n">beanName</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">BeansException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;&lt;&lt;postProcessAfterInitialization&#34;</span><span class="o">+</span><span class="s">&#34;-----&#34;</span><span class="o">+</span><span class="n">beanName</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="n">bean</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * InstantiationAwareBeanPostProcessor中自定义的方法
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * 在方法实例化之后执行  Bean对象已经创建出来了
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 */</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">postProcessAfterInstantiation</span><span class="o">(</span><span class="n">Object</span> <span class="n">bean</span><span class="o">,</span> <span class="n">String</span> <span class="n">beanName</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">BeansException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;&lt;---postProcessAfterInstantiation&#34;</span><span class="o">+</span><span class="s">&#34;-----&#34;</span><span class="o">+</span><span class="n">beanName</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * InstantiationAwareBeanPostProcessor中自定义的方法
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * 可以用来修改Bean中属性的内容
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 */</span>
+</span></span><span class="line"><span class="cl">	<span class="nd">@Nullable</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="n">PropertyValues</span> <span class="nf">postProcessProperties</span><span class="o">(</span><span class="n">PropertyValues</span> <span class="n">pvs</span><span class="o">,</span> <span class="n">Object</span> <span class="n">bean</span><span class="o">,</span> <span class="n">String</span> <span class="n">beanName</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">			<span class="kd">throws</span> <span class="n">BeansException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;&lt;---postProcessPropertyValues---&gt;&#34;</span><span class="o">+</span><span class="s">&#34;-----&#34;</span><span class="o">+</span><span class="n">beanName</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div></li>
+<li>
+<p>测试类</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Test1</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="kd">private</span> <span class="n">ApplicationContext</span> <span class="n">applicationContext</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="nd">@Before</span>
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="kt">void</span> <span class="nf">initXmlBeanFactory</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;\n========测试方法开始=======\n&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="n">applicationContext</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ClassPathXmlApplicationContext</span><span class="o">(</span><span class="s">&#34;applicationContext.xml&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="nd">@After</span>
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="kt">void</span> <span class="nf">after</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;\n========测试方法结束=======\n&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="nd">@Test</span>
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span> <span class="kt">void</span> <span class="nf">test</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">Processor</span> <span class="n">processor</span> <span class="o">=</span> <span class="n">applicationContext</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="s">&#34;processor&#34;</span><span class="o">,</span><span class="n">Processor</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">processor</span><span class="o">.</span><span class="na">toString</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div></li>
+<li>
+<p>测试结果（processor Bean的信息）</p>
+<pre tabindex="0"><code>========测试方法开始=======
+---&gt;postProcessBeforeInstantiation-----processor
+Processor 实例化
+&lt;---postProcessAfterInstantiation-----processor
+&lt;---postProcessPropertyValues---&gt;-----processor
+&gt;&gt;postProcessBeforeInitialization-----processor
+初始化方法
+&lt;&lt;postProcessAfterInitialization-----processor
+Processor{name=&#39;特朗普&#39;, age=100}
+========测试方法结束=======
+</code></pre><p>通过输出结果，我们可以看到几个方法的执行顺序。</p>
+</li>
+</ul>
+<h3 id="postprocessbeforeinstantiation方法">postProcessBeforeInstantiation方法</h3>
+<p><strong>InstantiationAwareBeanPostProcessor</strong> 接口自身的方法，是最先执行的方法，它在目标对象实例化之前调用，该方法的返回值类型是Object，我们可以返回任何类型的值。由于这个时候目标对象还未实例化，所以这个返回值可以用来代替原本该生成的目标对象的实例(比如代理对象)。如果该方法的返回值代替原本该生成的目标对象，后续只有postProcessAfterInitialization方法会调用，其它方法不再调用；否则按照正常的流程走。</p>
+<p>我们修改postProcessBeforeInstantiation实现方法，利用cglib动态代理生成对象替换返回值：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@Nullable</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="n">Object</span> <span class="nf">postProcessBeforeInstantiation</span><span class="o">(</span><span class="n">Class</span><span class="o">&lt;?&gt;</span> <span class="n">beanClass</span><span class="o">,</span> <span class="n">String</span> <span class="n">beanName</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">BeansException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;---&gt;postProcessBeforeInstantiation&#34;</span><span class="o">+</span><span class="s">&#34;-----&#34;</span><span class="o">+</span><span class="n">beanName</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="c1">// 利用cglib动态代理生成对象返回
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="k">if</span> <span class="o">(</span><span class="n">beanClass</span> <span class="o">==</span> <span class="n">Processor</span><span class="o">.</span><span class="na">class</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">			<span class="n">Enhancer</span> <span class="n">e</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Enhancer</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">			<span class="n">e</span><span class="o">.</span><span class="na">setSuperclass</span><span class="o">(</span><span class="n">beanClass</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">			<span class="n">e</span><span class="o">.</span><span class="na">setCallback</span><span class="o">(</span><span class="k">new</span> <span class="n">MethodInterceptor</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">				<span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">				<span class="kd">public</span> <span class="n">Object</span> <span class="nf">intercept</span><span class="o">(</span><span class="n">Object</span> <span class="n">obj</span><span class="o">,</span> <span class="n">Method</span> <span class="n">method</span><span class="o">,</span> <span class="n">Object</span><span class="o">[]</span> <span class="n">objects</span><span class="o">,</span> <span class="n">MethodProxy</span> <span class="n">methodProxy</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Throwable</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">					<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;目标方法执行前:&#34;</span> <span class="o">+</span> <span class="n">method</span> <span class="o">+</span> <span class="s">&#34;\n&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">					<span class="n">Object</span> <span class="n">object</span> <span class="o">=</span> <span class="n">methodProxy</span><span class="o">.</span><span class="na">invokeSuper</span><span class="o">(</span><span class="n">obj</span><span class="o">,</span> <span class="n">objects</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">					<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;目标方法执行后:&#34;</span> <span class="o">+</span> <span class="n">method</span> <span class="o">+</span> <span class="s">&#34;\n&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">					<span class="k">return</span> <span class="n">object</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">				<span class="o">}</span>
+</span></span><span class="line"><span class="cl">			<span class="o">});</span>
+</span></span><span class="line"><span class="cl">			<span class="n">Processor</span> <span class="n">processor</span> <span class="o">=</span> <span class="o">(</span><span class="n">Processor</span><span class="o">)</span> <span class="n">e</span><span class="o">.</span><span class="na">create</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">			<span class="c1">// 返回代理类
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>			<span class="k">return</span> <span class="n">processor</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">		<span class="o">}</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span></code></pre></div><p>再次执行测试方法：</p>
+<pre tabindex="0"><code>---&gt;postProcessBeforeInstantiation-----processor
+Processor 实例化
+&lt;&lt;postProcessAfterInitialization-----processor
+目标方法执行前:public java.lang.String com.sxdx.entity.Processor.toString()
+
+目标方法执行后:public java.lang.String com.sxdx.entity.Processor.toString()
+
+Processor{name=&#39;null&#39;, age=0}
+</code></pre><p>可以看到只有 postProcessBeforeInstantiation、postProcessAfterInitialization方法被执行了。具体的源码解释可以参考：</p>
+<p><a class="link" href="https://cloud.tencent.com/developer/article/1409273"  target="_blank" rel="noopener"
+    >https://cloud.tencent.com/developer/article/1409273</a></p>
+<h3 id="postprocessafterinstantiation和postprocessproperties方法">postProcessAfterInstantiation和postProcessProperties方法</h3>
+<p>这个postProcessAfterInstantiation返回值要注意，因为它的返回值是决定要不要调用postProcessProperty方法的其中一个因素（因为还有一个因素是mbd.getDependencyCheck());如果该方法返回false,并且不需要check，那么postProcessProperty就会被忽略不执行；如果返true，postProcessPropertyValues就会被执行。</p>
+<p>我们修改如下方法：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="n">Object</span> <span class="nf">postProcessBeforeInitialization</span><span class="o">(</span><span class="n">Object</span> <span class="n">bean</span><span class="o">,</span> <span class="n">String</span> <span class="n">beanName</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">BeansException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//注释掉这个，postProcessBeforeInitialization在postProcessAfterInstantiation后执行，会影响我们的测试
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">    if (beanName.equals(&#34;processor&#34;)){
+</span></span></span><span class="line"><span class="cl"><span class="cm">        ((Processor)bean).setAge(100);
+</span></span></span><span class="line"><span class="cl"><span class="cm">        ((Processor)bean).setName(&#34;特朗普&#34;);
+</span></span></span><span class="line"><span class="cl"><span class="cm">    }*/</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// TODO Auto-generated method stub
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;&gt;&gt;postProcessBeforeInitialization&#34;</span><span class="o">+</span><span class="s">&#34;-----&#34;</span><span class="o">+</span><span class="n">beanName</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">bean</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="c1">//返回值需要为true,才会执行postProcessProperties
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">postProcessAfterInstantiation</span><span class="o">(</span><span class="n">Object</span> <span class="n">bean</span><span class="o">,</span> <span class="n">String</span> <span class="n">beanName</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">BeansException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;&lt;---postProcessAfterInstantiation&#34;</span><span class="o">+</span><span class="s">&#34;-----&#34;</span><span class="o">+</span><span class="n">beanName</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nd">@Nullable</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="n">PropertyValues</span> <span class="nf">postProcessProperties</span><span class="o">(</span><span class="n">PropertyValues</span> <span class="n">pvs</span><span class="o">,</span> <span class="n">Object</span> <span class="n">bean</span><span class="o">,</span> <span class="n">String</span> <span class="n">beanName</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">throws</span> <span class="n">BeansException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;&lt;---postProcessPropertyValues---&gt;&#34;</span><span class="o">+</span><span class="s">&#34;-----&#34;</span><span class="o">+</span><span class="n">beanName</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//为bean设置属性值
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span><span class="o">(</span><span class="n">bean</span> <span class="k">instanceof</span> <span class="n">Processor</span><span class="o">){</span>
+</span></span><span class="line"><span class="cl">        <span class="o">((</span><span class="n">Processor</span><span class="o">)</span> <span class="n">bean</span><span class="o">).</span><span class="na">setName</span><span class="o">(</span><span class="s">&#34;Garnett&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">pvs</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>返回测试结果：</p>
+<pre tabindex="0"><code>---&gt;postProcessBeforeInstantiation-----processor
+Processor 实例化
+&lt;---postProcessAfterInstantiation-----processor
+&lt;---postProcessPropertyValues---&gt;-----processor
+&gt;&gt;postProcessBeforeInitialization-----processor
+初始化方法
+&lt;&lt;postProcessAfterInitialization-----processor
+Processor{name=&#39;Garnett&#39;, age=0}
+</code></pre><p>可以看到我们成功的为Processor设置了name值。</p>
+<p><strong>该方法执行的条件要注意postProcessAfterInstantiation返回true，且postProcessBeforeInstantiation返回null。</strong></p>
+<h3 id="总结">总结</h3>
+<ol>
+<li>InstantiationAwareBeanPostProcessor接口继承BeanPostProcessor接口，它内部提供了3个方法，再加上BeanPostProcessor接口内部的2个方法，所以实现这个接口需要实现5个方法。InstantiationAwareBeanPostProcessor接口的主要作用在于目标对象的实例化过程中需要处理的事情，包括实例化对象的前后过程以及实例的属性设置</li>
+<li>postProcessBeforeInstantiation方法是最先执行的方法，它在目标对象实例化之前调用，该方法的返回值类型是Object，我们可以返回任何类型的值。由于这个时候目标对象还未实例化，所以这个返回值可以用来代替原本该生成的目标对象的实例(比如代理对象)。如果该方法的返回值代替原本该生成的目标对象，后续只有postProcessAfterInitialization方法会调用，其它方法不再调用；否则按照正常的流程走</li>
+<li>postProcessAfterInstantiation方法在目标对象实例化之后调用，这个时候对象已经被实例化，但是该实例的属性还未被设置，都是null。因为它的返回值是决定要不要调用postProcessPropertyValues方法的其中一个因素（因为还有一个因素是mbd.getDependencyCheck()）；如果该方法返回false,并且不需要check，那么postProcessPropertyValues就会被忽略不执行；如果返回true, postProcessPropertyValues就会被执行</li>
+<li>postProcessPropertyValues方法对属性值进行修改(这个时候属性值还未被设置，但是我们可以修改原本该设置进去的属性值)。如果postProcessAfterInstantiation方法返回false，该方法可能不会被调用。可以在该方法内对属性值进行修改</li>
+<li>父接口BeanPostProcessor的2个方法postProcessBeforeInitialization和postProcessAfterInitialization都是在目标对象被实例化之后，并且属性也被设置之后调用的</li>
+</ol>
+<h2 id="beannameaware接口">BeanNameAware接口</h2>
+<p>如果Bean实现了BeanNameAware接口，则调用setBeanName(String name)返回beanName，<strong>该方法不是设置beanName</strong>，而只是让Bean获取自己在BeanFactory配置中的名字。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@Configuration</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">LifeCycle</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nd">@Bean</span><span class="o">(</span><span class="n">initMethod</span> <span class="o">=</span> <span class="s">&#34;initMethod&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="n">Processor</span> <span class="nf">processor</span><span class="o">(){</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="k">new</span> <span class="n">Processor</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Java" data-lang="Java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Processor</span> <span class="kd">implements</span> <span class="n">BeanNameAware</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	<span class="c1">//......其余代码不变,Processor完整的代码，放在文章最后贴出
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">	<span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">setBeanName</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;BeanNameAware返回BeanName：&#34;</span><span class="o">+</span><span class="n">name</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>测试方法：</p>
+<pre tabindex="0"><code>	@Before
+	public void initXmlBeanFactory() {
+		System.out.println(&#34;\n========测试方法开始=======\n&#34;);
+		applicationContext = new ClassPathXmlApplicationContext(&#34;applicationContext.xml&#34;);
+	}
+
+	@After
+	public void after() {
+		((ClassPathXmlApplicationContext) applicationContext).close();
+		System.out.println(&#34;\n========测试方法结束=======\n&#34;);
+	}
+
+	@Test
+	public void test() throws Exception {
+		Processor processor = applicationContext.getBean(&#34;processor&#34;,Processor.class);
+		System.out.println(processor.toString());
+	}
+</code></pre><pre tabindex="0"><code>========测试方法开始=======
+
+Processor 实例化
+BeanNameAware返回BeanName：processor
+初始化方法
+Processor{name=&#39;null&#39;, age=0}
+
+========测试方法结束=======
+</code></pre><p>这样我们就可以让Bean获取自己在BeanFactory配置中的名字。</p>
+<h2 id="beanfactoryaware接口">BeanFactoryAware接口</h2>
+<p>如果Bean实现BeanFactoryAware接口，会回调该接口的setBeanFactory(BeanFactory beanFactory)方法，传入该Bean的BeanFactory，这样该Bean就获得了自己所在的BeanFactory。这样获得了IOC容器，不用使用@Autowired即可获取容器内的Bean.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Processor</span> <span class="kd">implements</span> <span class="n">BeanNameAware</span> <span class="o">,</span> <span class="n">BeanFactoryAware</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//......其余代码不变
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>     
+</span></span><span class="line"><span class="cl">	<span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">setBeanName</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;BeanNameAware返回BeanName：&#34;</span><span class="o">+</span><span class="n">name</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">setBeanFactory</span><span class="o">(</span><span class="n">BeanFactory</span> <span class="n">beanFactory</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">BeansException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">beanFactory</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="s">&#34;countProxy&#34;</span><span class="o">,</span><span class="n">CountProxy</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">queryCount</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><pre tabindex="0"><code>Processor 实例化
+BeanNameAware返回BeanName：processor
+查询账户
+初始化方法
+Processor{name=&#39;null&#39;, age=0}
+</code></pre><p>可以看到，我们通过beanFactory直接获取到了countProxy对象，并调用了countProxy的queryCount()方法，输出了“查询账户”</p>
+<h2 id="applicationcontextaware接口">ApplicationContextAware接口</h2>
+<p>如果Bean实现了ApplicationContextAware接口，需要实现该接口的setApplicationContext(ApplicationContext applicationContext)方法，获取applicationContext</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Processor</span> <span class="kd">implements</span> <span class="n">BeanNameAware</span> <span class="o">,</span> <span class="n">BeanFactoryAware</span><span class="o">,</span> <span class="n">ApplicationContextAware</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">setBeanName</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;BeanNameAware返回BeanName：&#34;</span><span class="o">+</span><span class="n">name</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">setBeanFactory</span><span class="o">(</span><span class="n">BeanFactory</span> <span class="n">beanFactory</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">BeansException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">beanFactory</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="s">&#34;countProxy&#34;</span><span class="o">,</span><span class="n">CountProxy</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">queryCount</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">setApplicationContext</span><span class="o">(</span><span class="n">ApplicationContext</span> <span class="n">applicationContext</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">BeansException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">applicationContext</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="s">&#34;countProxy&#34;</span><span class="o">,</span><span class="n">CountProxy</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">queryCount</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><pre tabindex="0"><code>Processor 实例化
+BeanNameAware返回BeanName：processor
+查询账户
+查询账户
+初始化方法
+Processor{name=&#39;null&#39;, age=0}
+</code></pre><p>同样返回了“查询账户”。那BeanFactoryAware、ApplicationContextAware这俩接口有什么不同的地方呢？这就要说到ApplicationContext和BeanFactory的区别了。</p>
+<h3 id="applicationcontext和beanfactory的对比"><strong>ApplicationContext</strong>和<strong>BeanFactory</strong>的对比</h3>
+<p>BeanFactory：是Spring里面最底层的接口，常用的实现类是DefaultListableBeanFactory，包含了各种Bean的定义，读取bean配置文档，管理bean的加载、实例化，控制bean的生命周期，维护bean之间的依赖关系。</p>
+<p>ApplicationContext：作为BeanFactory的派生，除了提供BeanFactory所具有的功能外，还提供了更完整的框架功能。</p>
+<ul>
+<li>
+<p>默认初始化所有的Singleton，也可以通过配置取消预初始化。</p>
+</li>
+<li>
+<p>继承MessageSource，因此支持国际化。</p>
+</li>
+<li>
+<p>资源访问，比如访问URL和文件。</p>
+</li>
+<li>
+<p>事件机制。</p>
+</li>
+<li>
+<p>同时加载多个配置文件。</p>
+</li>
+<li>
+<p>以声明式方式启动并创建Spring容器。</p>
+</li>
+</ul>
+<p>我们来看看2个对象提供的可调用方法即可发现：applicationContext提供了更多的功能。</p>
+<p><figure 
+	>
+	<a href="/images/spring-study-07/BeanFactory-method.png" >
+		<img src="/images/spring-study-07/BeanFactory-method.png"
+			
+			
+			
+			loading="lazy"
+			alt="BeanFactory-method.png">
+	</a>
+	
+	<figcaption>BeanFactory-method.png</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/spring-study-07/applicationContext-method.png" >
+		<img src="/images/spring-study-07/applicationContext-method.png"
+			
+			
+			
+			loading="lazy"
+			alt="applicationContext-method.png">
+	</a>
+	
+	<figcaption>applicationContext-method.png</figcaption>
+	
+</figure></p>
+<h2 id="initializingbean接口">InitializingBean接口</h2>
+<p>InitializingBean接口是Spring为bean提供了初始化方法。另外一种方法就是配置init-method。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Processor</span> <span class="kd">implements</span> <span class="n">BeanNameAware</span> <span class="o">,</span> <span class="n">BeanFactoryAware</span><span class="o">,</span> <span class="n">ApplicationContextAware</span><span class="o">,</span><span class="n">InitializingBean</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">//省略其他代码
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">initMethod</span><span class="o">(){</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;初始化方法&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">setBeanName</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;BeanNameAware返回BeanName：&#34;</span><span class="o">+</span><span class="n">name</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">setBeanFactory</span><span class="o">(</span><span class="n">BeanFactory</span> <span class="n">beanFactory</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">BeansException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">beanFactory</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="s">&#34;countProxy&#34;</span><span class="o">,</span><span class="n">CountProxy</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">queryCount</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">setApplicationContext</span><span class="o">(</span><span class="n">ApplicationContext</span> <span class="n">applicationContext</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">BeansException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="n">applicationContext</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="s">&#34;countProxy&#34;</span><span class="o">,</span><span class="n">CountProxy</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">queryCount</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">afterPropertiesSet</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;afterPropertiesSet初始化&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><pre tabindex="0"><code>Processor 实例化
+BeanNameAware返回BeanName：processor
+查询账户
+查询账户
+afterPropertiesSet初始化
+初始化方法
+Processor{name=&#39;null&#39;, age=0}
+</code></pre><p><strong>总结：</strong></p>
+<ul>
+<li>Spring为bean提供了两种初始化bean的方式，实现InitializingBean接口，实现afterPropertiesSet方法，或者配置init-method指定，两种方式可以同时使用，不建议使用InitializingBean接口，因为它将你的代码紧耦合到 Spring 代码。 一个更好的做法应该是在bean的配置文件属性指定init-method</li>
+<li><strong>afterPropertiesSet先于initMethod执行</strong>，实现InitializingBean接口是直接调用afterPropertiesSet方法，比通过反射调用init-method指定的方法效率要高一点，但是init-method方式消除了对spring的依赖。</li>
+<li><strong>如果调用afterPropertiesSet方法时出错，则不调用init-method指定的方法</strong>。</li>
+</ul>
+<p><strong>到此为止，spring中的bean已经可以使用了，这里又涉及到了bean的作用域问题，对于singleton类型的bean，Spring会将其缓存;对于prototype类型的bean，不缓存，每次都创建新的bean的实例</strong></p>
+<h2 id="disposablebean接口">DisposableBean接口</h2>
+<p>DisposableBean，是容器关闭时销毁bean的一种方式。另外一种方法就是配置destroyMethod。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.entity</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">com.sxdx.proxy.CountProxy</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.beans.BeansException</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.beans.factory.*</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.context.ApplicationContext</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.context.ApplicationContextAware</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.stereotype.Component</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @program: spring
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @description: cc
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @author: garnett
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @create: 2020-04-16 16:59
+</span></span></span><span class="line"><span class="cl"><span class="cm"> **/</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Processor</span> <span class="kd">implements</span> <span class="n">BeanNameAware</span> <span class="o">,</span> <span class="n">BeanFactoryAware</span><span class="o">,</span> <span class="n">ApplicationContextAware</span><span class="o">,</span><span class="n">InitializingBean</span><span class="o">,</span> <span class="n">DisposableBean</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">initMethod</span><span class="o">(){</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;初始化方法&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">destroyMethod</span><span class="o">(){</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;destroy-method方法被调动了&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">setBeanName</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;BeanNameAware返回BeanName：&#34;</span><span class="o">+</span><span class="n">name</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">setBeanFactory</span><span class="o">(</span><span class="n">BeanFactory</span> <span class="n">beanFactory</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">BeansException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">beanFactory</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="s">&#34;countProxy&#34;</span><span class="o">,</span><span class="n">CountProxy</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">queryCount</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">setApplicationContext</span><span class="o">(</span><span class="n">ApplicationContext</span> <span class="n">applicationContext</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">BeansException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="n">applicationContext</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="s">&#34;countProxy&#34;</span><span class="o">,</span><span class="n">CountProxy</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">queryCount</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">afterPropertiesSet</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;afterPropertiesSet初始化&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">destroy</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;destroy 销毁&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@Configuration</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">LifeCycle</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nd">@Bean</span><span class="o">(</span><span class="n">initMethod</span> <span class="o">=</span> <span class="s">&#34;initMethod&#34;</span><span class="o">,</span><span class="n">destroyMethod</span> <span class="o">=</span> <span class="s">&#34;destroyMethod&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="n">Processor</span> <span class="nf">processor</span><span class="o">(){</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="k">new</span> <span class="n">Processor</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>测试：</p>
+<pre tabindex="0"><code>========测试方法开始=======
+
+Processor 实例化
+BeanNameAware返回BeanName：processor
+查询账户
+查询账户
+afterPropertiesSet初始化
+初始化方法
+Processor{name=&#39;null&#39;, age=0}
+destroy 销毁
+destroy-method方法被调动了
+
+========测试方法结束=======
+</code></pre><p><strong>总结：</strong></p>
+<ul>
+<li>在对象销毁的时候，会去调用<code>DisposableBean</code>的<code>destroy</code>方法。先执行 <code>DisposableBean</code>的<code>destroy</code>方法，后执行 <code>destroy-method</code>声明的方法。</li>
+<li>如果一个原型（多例）实现了DisposableBean是没有啥意义的，因为相应的方法根本不会被调用，当然在XML配置文件中指定了destroy方法，也是没有意义的。</li>
+</ul>
+<p>最后附上Processor完整代码</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Processor</span> <span class="kd">implements</span> <span class="n">BeanNameAware</span> <span class="o">,</span> <span class="n">BeanFactoryAware</span><span class="o">,</span> <span class="n">ApplicationContextAware</span><span class="o">,</span><span class="n">InitializingBean</span><span class="o">,</span> <span class="n">DisposableBean</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">private</span> <span class="kt">int</span> <span class="n">age</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="nf">Processor</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;Processor 实例化&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="nf">Processor</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">,</span> <span class="kt">int</span> <span class="n">age</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">		<span class="k">this</span><span class="o">.</span><span class="na">age</span> <span class="o">=</span> <span class="n">age</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">initMethod</span><span class="o">(){</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;初始化方法&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">destroyMethod</span><span class="o">(){</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;destroy-method方法被调动了&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="n">String</span> <span class="nf">getName</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="n">name</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">setName</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">int</span> <span class="nf">getAge</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="n">age</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">setAge</span><span class="o">(</span><span class="kt">int</span> <span class="n">age</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">this</span><span class="o">.</span><span class="na">age</span> <span class="o">=</span> <span class="n">age</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="n">String</span> <span class="nf">toString</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="s">&#34;Processor{&#34;</span> <span class="o">+</span>
+</span></span><span class="line"><span class="cl">				<span class="s">&#34;name=&#39;&#34;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="sc">&#39;\&#39;&#39;</span> <span class="o">+</span>
+</span></span><span class="line"><span class="cl">				<span class="s">&#34;, age=&#34;</span> <span class="o">+</span> <span class="n">age</span> <span class="o">+</span>
+</span></span><span class="line"><span class="cl">				<span class="sc">&#39;}&#39;</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">sayGood</span><span class="o">(){</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;大家好, 我叫&#34;</span> <span class="o">+</span> <span class="n">getName</span><span class="o">()</span> <span class="o">+</span> <span class="s">&#34;, 我今年&#34;</span> <span class="o">+</span> <span class="n">getAge</span><span class="o">()</span> <span class="o">+</span> <span class="s">&#34;岁了&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">setBeanName</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;BeanNameAware返回BeanName：&#34;</span><span class="o">+</span><span class="n">name</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">setBeanFactory</span><span class="o">(</span><span class="n">BeanFactory</span> <span class="n">beanFactory</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">BeansException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">beanFactory</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="s">&#34;countProxy&#34;</span><span class="o">,</span><span class="n">CountProxy</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">queryCount</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">setApplicationContext</span><span class="o">(</span><span class="n">ApplicationContext</span> <span class="n">applicationContext</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">BeansException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="n">applicationContext</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="s">&#34;countProxy&#34;</span><span class="o">,</span><span class="n">CountProxy</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">queryCount</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">afterPropertiesSet</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;afterPropertiesSet初始化&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">destroy</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;destroy 销毁&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>OK，Bean的生命周期学习，就到这里了。与君共勉~~</p>
+<p>参考：</p>
+<p><a class="link" href="https://blog.csdn.net/fuzhongmin05/article/details/73389779"  target="_blank" rel="noopener"
+    >https://blog.csdn.net/fuzhongmin05/article/details/73389779</a></p>
+<p><a class="link" href="https://www.cnblogs.com/zrtqsk/p/3735273.html"  target="_blank" rel="noopener"
+    >https://www.cnblogs.com/zrtqsk/p/3735273.html</a></p>
+<p><a class="link" href="https://www.jianshu.com/p/1dec08d290c1"  target="_blank" rel="noopener"
+    >https://www.jianshu.com/p/1dec08d290c1</a></p>
+<p><a class="link" href="https://www.jianshu.com/p/1be623493294"  target="_blank" rel="noopener"
+    >https://www.jianshu.com/p/1be623493294</a></p>
+<p><a class="link" href="https://www.sohu.com/a/166804449_714863"  target="_blank" rel="noopener"
+    >https://www.sohu.com/a/166804449_714863</a></p>
+<p><a class="link" href="https://cloud.tencent.com/developer/article/1409273"  target="_blank" rel="noopener"
+    >https://cloud.tencent.com/developer/article/1409273</a></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/spring/">Spring</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A011spring-%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Spring源码学习（11）：Spring 事务管理</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A010spring-aop/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Spring源码学习（10）：Spring AOP</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A09%E9%9D%A2%E5%90%91%E5%88%87%E9%9D%A2%E7%BC%96%E7%A8%8Baop%E6%A6%82%E5%BF%B5%E5%BC%95%E5%85%A5/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Spring源码学习（9）：面向切面编程（AOP）概念引入</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A08spring%E4%B8%AD%E7%9A%84%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Spring源码学习（8）：Spring中的代理模式</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A06beanfactory%E5%92%8Cfactorybean/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Spring源码学习（6）：BeanFactory和FactoryBean</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#bean的生命周期流程图">Bean的生命周期流程图</a></li>
+    <li><a href="#加载配置文件">加载配置文件</a></li>
+    <li><a href="#解析配置文件">解析配置文件</a></li>
+    <li><a href="#beanfactorypostprocessor和beanpostprocessor对比">BeanFactoryPostProcessor和BeanPostProcessor对比</a>
+      <ol>
+        <li><a href="#beanfactorypostprocessor-接口">BeanFactoryPostProcessor 接口</a></li>
+        <li><a href="#beanpostprocessor-接口">BeanPostProcessor 接口</a></li>
+      </ol>
+    </li>
+    <li><a href="#instantiationawarebeanpostprocessor-接口">InstantiationAwareBeanPostProcessor 接口</a>
+      <ol>
+        <li><a href="#postprocessbeforeinstantiation方法">postProcessBeforeInstantiation方法</a></li>
+        <li><a href="#postprocessafterinstantiation和postprocessproperties方法">postProcessAfterInstantiation和postProcessProperties方法</a></li>
+        <li><a href="#总结">总结</a></li>
+      </ol>
+    </li>
+    <li><a href="#beannameaware接口">BeanNameAware接口</a></li>
+    <li><a href="#beanfactoryaware接口">BeanFactoryAware接口</a></li>
+    <li><a href="#applicationcontextaware接口">ApplicationContextAware接口</a>
+      <ol>
+        <li><a href="#applicationcontext和beanfactory的对比"><strong>ApplicationContext</strong>和<strong>BeanFactory</strong>的对比</a></li>
+      </ol>
+    </li>
+    <li><a href="#initializingbean接口">InitializingBean接口</a></li>
+    <li><a href="#disposablebean接口">DisposableBean接口</a></li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

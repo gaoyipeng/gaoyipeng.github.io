@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>FastDFS on 十一爸爸的博客</title>
+    <link>https://garnettboy.gitee.io/categories/fastdfs/</link>
+    <description>Recent content in FastDFS on 十一爸爸的博客</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Mon, 19 Jun 2023 10:00:40 +0000</lastBuildDate><atom:link href="https://garnettboy.gitee.io/categories/fastdfs/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Java 客户端操作 FastDFS</title>
+      <link>https://garnettboy.gitee.io/p/java-%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%93%8D%E4%BD%9C-fastdfs/</link>
+      <pubDate>Mon, 19 Jun 2023 10:00:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/java-%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%93%8D%E4%BD%9C-fastdfs/</guid>
+      <description>一、springboot集成FastDFS客户端 FastDFS 的 Java 对应的 SDK（fastdfs-client-java）。Maven 中央仓库最新版仍旧是 1.27 版。目前最新版本是 v1.3.0。所以我们需要通过 Gitee：https://gitee.com/fastdfs100/fastdfs-client-java.git下载项目源码，再通过命令 mvn clean install 编译打包导入 Maven 本地仓库使用。
+image-20230620085935651 我们新建springboot项目，引入fastdfs-client-java依赖。
+&amp;lt;?xml version=&amp;#34;1.0&amp;#34; encoding=&amp;#34;UTF-8&amp;#34;?&amp;gt; &amp;lt;project xmlns=&amp;#34;http://maven.apache.org/POM/4.0.0&amp;#34; xmlns:xsi=&amp;#34;http://www.w3.org/2001/XMLSchema-instance&amp;#34; xsi:schemaLocation=&amp;#34;http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd&amp;#34;&amp;gt; &amp;lt;modelVersion&amp;gt;4.0.0&amp;lt;/modelVersion&amp;gt; &amp;lt;parent&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.boot&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-boot-starter-parent&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;2.7.12&amp;lt;/version&amp;gt; &amp;lt;relativePath/&amp;gt; &amp;lt;!-- lookup parent from repository --&amp;gt; &amp;lt;/parent&amp;gt; &amp;lt;groupId&amp;gt;com.example&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;fastsfs-java&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;0.0.1-SNAPSHOT&amp;lt;/version&amp;gt; &amp;lt;name&amp;gt;fastsfs-java&amp;lt;/name&amp;gt; &amp;lt;description&amp;gt;fastsfs-java&amp;lt;/description&amp;gt; &amp;lt;properties&amp;gt; &amp;lt;java.version&amp;gt;1.8&amp;lt;/java.version&amp;gt; &amp;lt;/properties&amp;gt; &amp;lt;dependencies&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.boot&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-boot-starter-web&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.boot&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-boot-starter-test&amp;lt;/artifactId&amp;gt; &amp;lt;scope&amp;gt;test&amp;lt;/scope&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.csource&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;fastdfs-client-java&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.30-SNAPSHOT&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;/dependencies&amp;gt; &amp;lt;build&amp;gt; &amp;lt;plugins&amp;gt; &amp;lt;plugin&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.boot&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-boot-maven-plugin&amp;lt;/artifactId&amp;gt; &amp;lt;/plugin&amp;gt; &amp;lt;/plugins&amp;gt; &amp;lt;/build&amp;gt; &amp;lt;/project&amp;gt; 二、FastDFS配置文件 在resources下新建配置文件fdfs-client-dev.</description>
+    </item>
+    
+    <item>
+      <title>FastDFS整合Nginx</title>
+      <link>https://garnettboy.gitee.io/p/fastdfs%E6%95%B4%E5%90%88nginx/</link>
+      <pubDate>Thu, 15 Jun 2023 15:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/fastdfs%E6%95%B4%E5%90%88nginx/</guid>
+      <description>一、前言 前面我们已经搭建好了Fastdfs集群。实现了文件的上传和下载测试，但是目前有2个问题：
+无法通过HTTP的方式直接下载文件。 storage server写完文件后，会由后台线程将文件同步至同group内其他的storage server。但是同步有时间间隔。客户端下载时如果没有完成同步操作，就会出现文件无法访问的错误。 为了解决以上2个问题，我们可以整合Nginx+fastdfs-nginx-module模块的方式来解决。
+fastdfs-nginx-module可以重定向文件连接到文件上传时的源服务器取文件,避免客户端由于复制延迟导致的文件无法访问错误 。 Nginx可以实现通过http的方式访问已上传文件。 二、FastDFS整合Nginx 2.1、下载资源 首先我们准备好 fastdfs-nginx-module和nginx安装包：
+Nginx下载地址：http://nginx.org/download/
+wget http://nginx.org/download/nginx-1.18.0.tar.gz image-20230616105335072 2.2、修改mod_fastdfs配置 我们本次只在10.10.81.74上部署Nginx，首先我们复制配置文件 mod_fastdfs.conf 到 /etc/fdfs 目录中
+cp /usr/local/fastdfs/fastdfs-nginx-module-V1.20/src/mod_fastdfs.conf /etc/fdfs/ image-20230616105639066 分别vim /etc/fdfs/mod_fastdfs.conf 编辑配置文件，主要关注以下部分：
+tracker_server=10.10.81.74:22122tracker_server=10.10.81.75:22122group_name=group1/group2url_have_group_name = truestore_path_count=2store_path0=/data/FASTDFS/fastdfs_storage_datastore_path1=/data/FASTDFS/fastdfs_storage_data1group_count = 2[group1]group_name=group1storage_server_port=23000store_path_count=2store_path0=/data/FASTDFS/fastdfs_storage_datastore_path1=/data/FASTDFS/fastdfs_storage_data[group2]group_name=group2storage_server_port=23001store_path_count=2store_path0=/data/FASTDFS/fastdfs_storage_data1store_path1=/data/FASTDFS/fastdfs_storage_data1 2.3、安装Nginx Nginx 是基于 C 语言开发的，HTTP 模块使用了 pcre 来解析正则表达式，且可以使用 zlib 对 HTTP 包的内容进行 gzip 压缩，Nginx 不仅支持 HTTP 协议，还支持 HTTPS，HTTPS 需要 openssl 提供支持，所以安装 Nginx 之前必须先安装它所依赖的环境。</description>
+    </item>
+    
+    <item>
+      <title>FastDFS介绍及集群环境搭建</title>
+      <link>https://garnettboy.gitee.io/p/fastdfs%E4%BB%8B%E7%BB%8D%E5%8F%8A%E9%9B%86%E7%BE%A4%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/</link>
+      <pubDate>Fri, 09 Jun 2023 15:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/fastdfs%E4%BB%8B%E7%BB%8D%E5%8F%8A%E9%9B%86%E7%BE%A4%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/</guid>
+      <description>一、FastDFS介绍及原理 FastDFS 是一个开源的高性能分布式文件系统（DFS）。 它的主要功能包括：文件存储，文件同步和文件访问，以及高容量和负载平衡。主要解决了海量数据存储问题，适合以中小文件（4KB &amp;lt; file_size &amp;lt;500MB）存储。
+FastDFS 系统有三个角色：
+跟踪服务器(Tracker Server)：Tracker是FastDFS的协调者，负责管理所有的storage server和group，每个storage在启动后会连接Tracker，告知自己所属的group等信息，并保持周期性的心跳，tracker根据storage的心跳信息，建立group==&amp;gt;[storage server list]的映射表。 存储服务器(Storage Server)：Storage server以组（卷，group或volume）为单位，一个group内包含多台storage机器，数据互为备份。卷中的多台存储服务器起到了冗余备份和负载均衡的作用。存储空间以group内容量最小的storage为准，所以建议group内的多个storage尽量配置相同，以免造成存储空间的浪费。storage接受到写文件请求时，会根据配置好的规则，选择其中一个存储目录来存储文件。为了避免单个目录下的文件数太多，在storage第一次启动时，会在每个数据存储目录里创建2级子目录，每级256个，总共65536个文件目录，新写的文件会以hash的方式被路由到其中某个子目录下，然后将文件数据直接作为一个本地文件存储到该目录中。存储系统由一个或多个卷组成，卷与卷之间的文件是相互独立的，所有卷的文件容量累加就是整个存储系统中的文件容量。当存储空间不足时，可以动态添加group，只需要增加一台或多台服务器，并将它们配置为一个新的组，即可扩大存储系统的容量。当你的某个应用或者模块（对应的 group）的并发过高的时候，可以直接在 group 中增加若干个 Storage 来实现负载均衡。 和客户端(Client)：一般指我们的应用服务。 tracker 和 storage 其实都是 fastdfs，只不过启动时通过不同的配置文件启动，所扮演的角色不同而已。也就是说，安装 tracker 和 storage 就是在安装 fastdfs，然后通过每个角色具体的配置文件启动即可。
+结构图如下：
+image-20230612164440621 二、文件上传 当客户端发起一个文件上传请求时，FastDFS通过以下步骤来进行文件存储：
+image-20230609171638800 1、选择存储的group（tracker.conf）：当tracker接收到upload file的请求时，会为该文件分配一个可以存储该文件的group，group选择规则有以下几种：
+image-20230612172953736 （1）、Round robin：所有的group间轮询 （2）、Specified group：指定某一个确定的group （3）、Load balance：负载均衡，剩余存储空间多的group优先 2、选择Storage Server（tracker.conf）：当选定group后，tracker会在group内选择一个storage server给客户端，storage选择的规则：
+image-20230613094728663 （1）、Round robin:在group内的所有storage间轮询 （2）、First server ordered by ip:按ip排序 （3）、First server ordered by priority:按优先级排序（优先级在storage上配置） 3、选择storage path (storage.conf)：当分配好storage server后，客户端将向storage发送写文件请求，storage.conf将会为文件分配一个数据存储目录，目录选择的规则：
+image-20230612173103143 （1）、Round robin，多个存储目录间轮询 （2）、剩余存储空间最多的优先 4、生成Fileid**：当文件存储到某个子目录后，即认为该文件存储成功，接下来会为该文件生成一个文件名，文件名由group、存储目录、两级子目录、fileid、文件后缀名（由客户端指定，主要用于区分文件类型）拼接而成（示例：group4/M00/01/0D/CgEiFVpBpkKAdgd5AAr7iauffrw964.</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='linux（centos7）安装docker'><title>linux（centos7）安装docker</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/linuxcentos7%E5%AE%89%E8%A3%85docker/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='linux（centos7）安装docker'>
+<meta property='og:description' content='linux（centos7）安装docker'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/linuxcentos7%E5%AE%89%E8%A3%85docker/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Docker' /><meta property='article:published_time' content='2019-12-26T10:02:36&#43;00:00'/><meta property='article:modified_time' content='2019-12-26T10:02:36&#43;00:00'/>
+<meta name="twitter:title" content="linux（centos7）安装docker">
+<meta name="twitter:description" content="linux（centos7）安装docker">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/docker/" >
+                Docker
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/linuxcentos7%E5%AE%89%E8%A3%85docker/">linux（centos7）安装docker</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        linux（centos7）安装docker
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Dec 26, 2019</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 1 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <p>{% note info %} Docker 是一个开源的应用容器引擎，让开发者可以打包他们的应用以及依赖包到一个可移植的容器中,然后发布到任何流行的Linux机器或Windows 机器上,也可以实现虚拟化,容器是完全使用沙箱机制,相互之间不会有任何接口。{% endnote %}</p>
+<h2 id="检查内核版本">检查内核版本</h2>
+<blockquote>
+<p>centos7 必须是3.10及以上: uname ‐r</p>
+</blockquote>
+<p><figure 
+	>
+	<a href="/images/docker-01/%e7%89%88%e6%9c%ac%e6%a3%80%e6%9f%a5.png" >
+		<img src="/images/docker-01/%e7%89%88%e6%9c%ac%e6%a3%80%e6%9f%a5.png"
+			
+			
+			
+			loading="lazy"
+			alt="版本检查.png">
+	</a>
+	
+	<figcaption>版本检查.png</figcaption>
+	
+</figure></p>
+<h2 id="安装docker前的准备">安装docker前的准备</h2>
+<blockquote>
+<p>官网地址：https://docs.docker.com/install/linux/docker-ce/centos/</p>
+</blockquote>
+<h3 id="安装所需的软件包">安装所需的软件包</h3>
+<pre tabindex="0"><code>yum install -y yum-utils \
+&gt;   device-mapper-persistent-data \
+&gt;   lvm2
+</code></pre><p><figure 
+	>
+	<a href="/images/docker-01/%e5%ae%89%e8%a3%85%e6%89%80%e9%9c%80%e7%9a%84%e8%bd%af%e4%bb%b6%e5%8c%85.png" >
+		<img src="/images/docker-01/%e5%ae%89%e8%a3%85%e6%89%80%e9%9c%80%e7%9a%84%e8%bd%af%e4%bb%b6%e5%8c%85.png"
+			
+			
+			
+			loading="lazy"
+			alt="安装所需的软件包.png">
+	</a>
+	
+	<figcaption>安装所需的软件包.png</figcaption>
+	
+</figure></p>
+<h3 id="设置存储库">设置存储库</h3>
+<pre tabindex="0"><code>yum-config-manager \
+&gt;     --add-repo \
+&gt;     https://download.docker.com/linux/centos/docker-ce.repo
+</code></pre><p><figure 
+	>
+	<a href="/images/docker-01/%e8%ae%be%e7%bd%ae%e5%ad%98%e5%82%a8%e5%ba%93.png" >
+		<img src="/images/docker-01/%e8%ae%be%e7%bd%ae%e5%ad%98%e5%82%a8%e5%ba%93.png"
+			
+			
+			
+			loading="lazy"
+			alt="设置存储库.png">
+	</a>
+	
+	<figcaption>设置存储库.png</figcaption>
+	
+</figure></p>
+<h2 id="安装docker">安装docker</h2>
+<h3 id="安装最新版本docker">安装最新版本docker</h3>
+<pre tabindex="0"><code>yum install docker-ce
+</code></pre><p><figure 
+	>
+	<a href="/images/docker-01/%e5%ae%89%e8%a3%85docker.png" >
+		<img src="/images/docker-01/%e5%ae%89%e8%a3%85docker.png"
+			
+			
+			
+			loading="lazy"
+			alt="安装docker.png">
+	</a>
+	
+	<figcaption>安装docker.png</figcaption>
+	
+</figure></p>
+<h3 id="安装指定版本的docker">安装指定版本的docker</h3>
+<pre tabindex="0"><code> yum install docker-ce-&lt;VERSION_STRING&gt; docker-ce-cli-&lt;VERSION_STRING&gt; containerd.io
+</code></pre><p>其中&lt;VERSION_STRING&gt;可以通过以下命令查看</p>
+<pre tabindex="0"><code>yum list docker-ce --showduplicates | sort -r
+</code></pre><p><figure 
+	>
+	<a href="/images/docker-01/%e6%9f%a5%e8%af%a2docker%e7%89%88%e6%9c%ac.png" >
+		<img src="/images/docker-01/%e6%9f%a5%e8%af%a2docker%e7%89%88%e6%9c%ac.png"
+			
+			
+			
+			loading="lazy"
+			alt="查询docker版本.png">
+	</a>
+	
+	<figcaption>查询docker版本.png</figcaption>
+	
+</figure></p>
+<p>最终命令如下：</p>
+<blockquote>
+<p>我们以第一个截图第一个为例，以下命令未实践，根据官网说明自己写的，所以没有截图，仅供参考，本人安装的是最新docker</p>
+</blockquote>
+<pre tabindex="0"><code>yum install docker-ce-19.03.4.ce docker-ce-cli-19.03.4.ce containerd.io
+</code></pre><h3 id="安装成功确认">安装成功确认</h3>
+<pre tabindex="0"><code>docker version
+</code></pre><p><figure 
+	>
+	<a href="/images/docker-01/%e7%89%88%e6%9c%ac%e6%9f%a5%e8%af%a2.png" >
+		<img src="/images/docker-01/%e7%89%88%e6%9c%ac%e6%9f%a5%e8%af%a2.png"
+			
+			
+			
+			loading="lazy"
+			alt="版本查询.png">
+	</a>
+	
+	<figcaption>版本查询.png</figcaption>
+	
+</figure></p>
+<h3 id="docker启动关闭">docker启动、关闭</h3>
+<p>启动docker</p>
+<pre tabindex="0"><code>systemctl start docker
+</code></pre><p>设置开机启动</p>
+<pre tabindex="0"><code>systemctl enable docker
+</code></pre><p><figure 
+	>
+	<a href="/images/docker-01/docker%e5%bc%80%e6%9c%ba%e5%90%af%e5%8a%a8.png" >
+		<img src="/images/docker-01/docker%e5%bc%80%e6%9c%ba%e5%90%af%e5%8a%a8.png"
+			
+			
+			
+			loading="lazy"
+			alt="docker开机启动.png">
+	</a>
+	
+	<figcaption>docker开机启动.png</figcaption>
+	
+</figure></p>
+<p>关闭docker</p>
+<pre tabindex="0"><code>systemctl stop docker
+</code></pre><h2 id="卸载">卸载</h2>
+<h3 id="卸载旧版本docker">卸载旧版本docker</h3>
+<pre tabindex="0"><code>yum remove docker \
+                  docker-client \
+                  docker-client-latest \
+                  docker-common \
+                  docker-latest \
+                  docker-latest-logrotate \
+                  docker-logrotate \
+                  docker-engine
+</code></pre><h3 id="卸载新版本">卸载新版本</h3>
+<pre tabindex="0"><code>yum remove docker-ce
+</code></pre><p>删除所有图像，容器和卷</p>
+<pre tabindex="0"><code>rm -rf /var/lib/docker
+</code></pre><h2 id="docker-镜像查看地址httpshubdockercom">docker 镜像查看地址：https://hub.docker.com</h2>
+<p><figure 
+	>
+	<a href="/images/docker-01/%e9%95%9c%e5%83%8f%e6%9f%a5%e8%af%a2.png" >
+		<img src="/images/docker-01/%e9%95%9c%e5%83%8f%e6%9f%a5%e8%af%a2.png"
+			
+			
+			
+			loading="lazy"
+			alt="镜像查询.png">
+	</a>
+	
+	<figcaption>镜像查询.png</figcaption>
+	
+</figure></p>
+<h2 id="安装docker-compose">安装docker-compose</h2>
+<blockquote>
+<p>Docker Compose 是一个用来定义和运行复杂应用的 Docker 工具。
+使用 Docker Compose 不再需要使用 shell 脚本来启动容器。(通过 docker-compose.yml 配置)</p>
+</blockquote>
+<p>官网地址：https://docs.docker.com/compose/compose-file/</p>
+<h3 id="安装命令">安装命令</h3>
+<p>官网的安装命令太慢，有时无法连接，查阅其他人博客后发现如下安装方式：</p>
+<ol>
+<li>通过GitHub安装（可以通过修改 URL 中的版本，自定义需要的版本）</li>
+</ol>
+<pre tabindex="0"><code>sudo curl -L https://github.com/docker/compose/releases/download/1.22.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+</code></pre><ol start="2">
+<li>通过Daocloud镜像安装（可以通过修改 URL 中的版本，自定义需要的版本）</li>
+</ol>
+<pre tabindex="0"><code>curl -L https://get.daocloud.io/docker/compose/releases/download/1.22.0/docker-compose-`uname -s`-`uname -m` &gt; /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
+</code></pre><h3 id="卸载docker-compose">卸载docker-compose</h3>
+<pre tabindex="0"><code>sudo rm /usr/local/bin/docker-compose
+</code></pre><h3 id="docker-compose常用命令">docker-compose常用命令</h3>
+<pre tabindex="0"><code>docker-compose up -d
+</code></pre><p>后台启动 docker-compose 中的容器，如果没有容器会根据docker-compose内容创建容器，并启动。</p>
+<pre tabindex="0"><code>docker-compose stop
+</code></pre><p>停止 docker-compose 中的容器，但不会删除容器</p>
+<pre tabindex="0"><code>docker-compose down
+</code></pre><p>停止 docker-compose 中的容器并删除容器</p>
+<p>参考博客：https://www.cnblogs.com/morang/p/9501223.html</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/docker/">Docker</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/%E4%BD%BF%E7%94%A8docker%E5%88%9B%E5%BB%BAnginx%E5%B9%B6%E9%83%A8%E7%BD%B2vue%E9%A1%B9%E7%9B%AE%E5%90%8C%E6%97%B6%E5%AE%9E%E7%8E%B0nginx%E6%97%A5%E5%BF%97%E5%88%86%E5%89%B2/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">使用Docker创建Nginx，并部署Vue项目，同时实现Nginx日志分割</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BD%BF%E7%94%A8docker%E5%AE%89%E8%A3%85redis%E5%93%A8%E5%85%B5sentinel/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">使用docker安装redis哨兵(sentinel)</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BD%BF%E7%94%A8docker%E5%AE%89%E8%A3%85redis%E4%B8%BB%E4%BB%8E%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">使用docker安装redis主从模式</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BD%BF%E7%94%A8docker%E5%AE%89%E8%A3%85%E5%8D%95%E7%82%B9redis/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">使用docker安装单点redis</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/docker-%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%E7%AC%94%E8%AE%B0/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">docker 数据存储笔记</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#检查内核版本">检查内核版本</a></li>
+    <li><a href="#安装docker前的准备">安装docker前的准备</a>
+      <ol>
+        <li><a href="#安装所需的软件包">安装所需的软件包</a></li>
+        <li><a href="#设置存储库">设置存储库</a></li>
+      </ol>
+    </li>
+    <li><a href="#安装docker">安装docker</a>
+      <ol>
+        <li><a href="#安装最新版本docker">安装最新版本docker</a></li>
+        <li><a href="#安装指定版本的docker">安装指定版本的docker</a></li>
+        <li><a href="#安装成功确认">安装成功确认</a></li>
+        <li><a href="#docker启动关闭">docker启动、关闭</a></li>
+      </ol>
+    </li>
+    <li><a href="#卸载">卸载</a>
+      <ol>
+        <li><a href="#卸载旧版本docker">卸载旧版本docker</a></li>
+        <li><a href="#卸载新版本">卸载新版本</a></li>
+      </ol>
+    </li>
+    <li><a href="#docker-镜像查看地址httpshubdockercom">docker 镜像查看地址：https://hub.docker.com</a></li>
+    <li><a href="#安装docker-compose">安装docker-compose</a>
+      <ol>
+        <li><a href="#安装命令">安装命令</a></li>
+        <li><a href="#卸载docker-compose">卸载docker-compose</a></li>
+        <li><a href="#docker-compose常用命令">docker-compose常用命令</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

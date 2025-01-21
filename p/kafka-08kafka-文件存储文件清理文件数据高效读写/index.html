@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='（Kafka-08）Kafka 文件存储、文件清理、文件数据高效读写'><title>（Kafka-08）Kafka 文件存储、文件清理、文件数据高效读写</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/kafka-08kafka-%E6%96%87%E4%BB%B6%E5%AD%98%E5%82%A8%E6%96%87%E4%BB%B6%E6%B8%85%E7%90%86%E6%96%87%E4%BB%B6%E6%95%B0%E6%8D%AE%E9%AB%98%E6%95%88%E8%AF%BB%E5%86%99/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='（Kafka-08）Kafka 文件存储、文件清理、文件数据高效读写'>
+<meta property='og:description' content='（Kafka-08）Kafka 文件存储、文件清理、文件数据高效读写'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/kafka-08kafka-%E6%96%87%E4%BB%B6%E5%AD%98%E5%82%A8%E6%96%87%E4%BB%B6%E6%B8%85%E7%90%86%E6%96%87%E4%BB%B6%E6%95%B0%E6%8D%AE%E9%AB%98%E6%95%88%E8%AF%BB%E5%86%99/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Kafka' /><meta property='article:published_time' content='2023-12-01T13:36:40&#43;00:00'/><meta property='article:modified_time' content='2023-12-01T13:36:40&#43;00:00'/>
+<meta name="twitter:title" content="（Kafka-08）Kafka 文件存储、文件清理、文件数据高效读写">
+<meta name="twitter:description" content="（Kafka-08）Kafka 文件存储、文件清理、文件数据高效读写">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/kafka/" >
+                Kafka
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/kafka-08kafka-%E6%96%87%E4%BB%B6%E5%AD%98%E5%82%A8%E6%96%87%E4%BB%B6%E6%B8%85%E7%90%86%E6%96%87%E4%BB%B6%E6%95%B0%E6%8D%AE%E9%AB%98%E6%95%88%E8%AF%BB%E5%86%99/">（Kafka-08）Kafka 文件存储、文件清理、文件数据高效读写</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        （Kafka-08）Kafka 文件存储、文件清理、文件数据高效读写
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Dec 01, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 2 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <h2 id="一kafka-topic-数据存储机制">一、Kafka <strong>Topic</strong> 数据存储机制</h2>
+<p>​		<strong>Kafka  Topic是逻辑上的概念，而partition是物理上的概念</strong>，每个partition对应一个log文件，该log文件中存储的就是Producer生产的数据。Producer生产的数据会被不断<strong>追加</strong>到该log文件末端，为防止log文件过大导致数据定位效率低下，Kafka采取了<strong>分片</strong>和<strong>索引</strong>机制， 将每个partition分为多个segment。每个segment包括：“.index”文件、“.log”文件和.timeindex等文件。这些文件位于一个文件夹下，该文件夹的命名规则为：topic名称+分区序号，例如：first-0。</p>
+<h3 id="11-kafka日志存储规则">1.1 kafka日志存储规则</h3>
+<p>例如：first 主题</p>
+<p><figure 
+	>
+	<a href="/../../images/08-kafka-08/image-20231204142912082.png" >
+		<img src="/../../images/08-kafka-08/image-20231204142912082.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231204142912082">
+	</a>
+	
+	<figcaption>image-20231204142912082</figcaption>
+	
+</figure></p>
+<p>可以看到broker.id=1，即hadoop2节点应该有2个分区日志（0和1）（<code>/opt/module/kafka_2.12-3.0.2/datas</code>）：</p>
+<p><figure 
+	>
+	<a href="/../../images/08-kafka-08/image-20231204143141952.png" >
+		<img src="/../../images/08-kafka-08/image-20231204143141952.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231204143141952">
+	</a>
+	
+	<figcaption>image-20231204143141952</figcaption>
+	
+</figure></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop2 datas<span class="o">]</span>$ ll first-1
+</span></span><span class="line"><span class="cl">total <span class="m">1120</span>
+</span></span><span class="line"><span class="cl">-rw-rw-r--. <span class="m">1</span> admin admin <span class="m">10485760</span> Dec  <span class="m">4</span> 14:15 00000000000000000020.index
+</span></span><span class="line"><span class="cl">-rw-rw-r--. <span class="m">1</span> admin admin  <span class="m">1123060</span> Dec  <span class="m">4</span> 14:15 00000000000000000020.log
+</span></span><span class="line"><span class="cl">-rw-rw-r--. <span class="m">1</span> admin admin       <span class="m">10</span> Nov <span class="m">29</span> 17:28 00000000000000000020.snapshot
+</span></span><span class="line"><span class="cl">-rw-rw-r--. <span class="m">1</span> admin admin <span class="m">10485756</span> Dec  <span class="m">4</span> 14:15 00000000000000000020.timeindex
+</span></span><span class="line"><span class="cl">-rw-rw-r--. <span class="m">1</span> admin admin        <span class="m">9</span> Nov <span class="m">29</span> 17:28 leader-epoch-checkpoint
+</span></span><span class="line"><span class="cl">-rw-rw-r--. <span class="m">1</span> admin admin       <span class="m">43</span> Nov <span class="m">27</span> 15:45 partition.metadata
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/08-kafka-08/image-20231204135636821.png" >
+		<img src="/../../images/08-kafka-08/image-20231204135636821.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231204135636821">
+	</a>
+	
+	<figcaption>image-20231204135636821</figcaption>
+	
+</figure></p>
+<p>查看 index 和 log 信息（需要通过工具命令，否则会乱码）：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop2 first-1<span class="o">]</span>$ kafka-run-class.sh kafka.tools.DumpLogSegments --files ./00000000000000000020.index
+</span></span><span class="line"><span class="cl">Dumping ./00000000000000000020.index
+</span></span><span class="line"><span class="cl">offset: <span class="m">89</span> position: <span class="m">4131</span>
+</span></span><span class="line"><span class="cl">offset: <span class="m">159</span> position: <span class="m">8408</span>
+</span></span><span class="line"><span class="cl">offset: <span class="m">227</span> position: <span class="m">12619</span>
+</span></span><span class="line"><span class="cl">offset: <span class="m">282</span> position: <span class="m">16753</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop2 first-1<span class="o">]</span>$ kafka-run-class.sh kafka.tools.DumpLogSegments --files ./00000000000000000020.log
+</span></span><span class="line"><span class="cl">Dumping ./00000000000000000020.log
+</span></span><span class="line"><span class="cl">Starting offset: <span class="m">20</span>
+</span></span><span class="line"><span class="cl">baseOffset: <span class="m">20</span> lastOffset: <span class="m">23</span> count: <span class="m">4</span> baseSequence: -1 lastSequence: -1 producerId: -1 producerEpoch: -1 partitionLeaderEpoch: <span class="m">6</span> isTransactional: <span class="nb">false</span> isControl: <span class="nb">false</span> position: <span class="m">0</span> CreateTime: <span class="m">1701669625510</span> size: <span class="m">205</span> magic: <span class="m">2</span> compresscodec: none crc: <span class="m">1268369197</span> isvalid: <span class="nb">true</span>
+</span></span><span class="line"><span class="cl">baseOffset: <span class="m">24</span> lastOffset: <span class="m">24</span> count: <span class="m">1</span> baseSequence: -1 lastSequence: -1 producerId: -1 producerEpoch: -1 partitionLeaderEpoch: <span class="m">6</span> isTransactional: <span class="nb">false</span> isControl: <span class="nb">false</span> position: <span class="m">205</span> CreateTime: <span class="m">1701669625512</span> size: <span class="m">97</span> magic: <span class="m">2</span> compresscodec: none crc: <span class="m">3747956225</span> isvalid: <span class="nb">true</span>
+</span></span></code></pre></div><p>Log文件和Index文件详解：</p>
+<p><figure 
+	>
+	<a href="/../../images/08-kafka-08/image-20231204144417943.png" >
+		<img src="/../../images/08-kafka-08/image-20231204144417943.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231204144417943">
+	</a>
+	
+	<figcaption>image-20231204144417943</figcaption>
+	
+</figure></p>
+<p>说明：日志存储参数配置</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>log.segment.bytes</td>
+<td>Kafka 中 log 日志是分成一块块存储的，此配置是指 log 日志划分成块的大小，默认值 1G。</td>
+</tr>
+<tr>
+<td>log.index.interval.bytes</td>
+<td>默认 4kb，kafka 里面每当写入了 4kb 大小的日志（.log），然后就往 index 文件里面记录一个索引。 稀疏索引。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="12-日志保存删除规则">1.2 日志保存、删除规则</h3>
+<p>Kafka 中默认的日志保存时间为 7 天，可以通过调整如下参数修改保存时间。</p>
+<ul>
+<li>log.retention.hours，最低优先级小时，默认 7 天。</li>
+<li>log.retention.minutes，分钟。</li>
+<li>log.retention.ms，最高优先级毫秒。</li>
+<li>log.retention.check.interval.ms，负责设置检查周期，默认 5 分钟。</li>
+</ul>
+<p>那么日志一旦超过了设置的时间，怎么处理呢？Kafka 中提供的日志清理策略有 delete 和 compact 两种。</p>
+<h4 id="121-delete-日志删除">1.2.1 delete 日志删除</h4>
+<p>将过期数据删除。 log.cleanup.policy = delete 所有数据启用删除策略</p>
+<ul>
+<li>（1）基于时间：默认打开。以 segment 中所有记录中的最大时间戳作为该文件时间戳。</li>
+<li>（2）基于大小：默认关闭。超过设置的所有日志总大小，删除最早的 segment。log.retention.bytes，默认等于-1，表示无穷大。</li>
+</ul>
+<h4 id="122-compact-日志压缩">1.2.2 compact 日志压缩</h4>
+<p>compact日志压缩：对于相同key的不同value值，只保留最后一个版本。log.cleanup.policy = compact 所有数据启用压缩策略。</p>
+<p><figure 
+	>
+	<a href="/../../images/08-kafka-08/image-20231204153105827.png" >
+		<img src="/../../images/08-kafka-08/image-20231204153105827.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231204153105827">
+	</a>
+	
+	<figcaption>image-20231204153105827</figcaption>
+	
+</figure></p>
+<p>压缩后的offset可能是不连续的，比如上图中没有6，当从这些offset消费消息时，将会拿到比这个offset大 的offset对应的消息，实际上会拿到offset为7的消息，并从这个位置开始消费。</p>
+<p>这种策略只适合特殊场景，比如消息的key是用户ID，value是用户的资料，通过这种压缩策略，整个消息集里就保存了所有用户最新的资料。</p>
+<h3 id="13-kafka高效读写数据的机制">1.3 Kafka高效读写数据的机制</h3>
+<p>1）Kafka 本身是分布式集群，可以采用分区技术，并行度高。</p>
+<p>2）读数据采用稀疏索引，可以快速定位要消费的数据。</p>
+<p>3）顺序写磁盘：Kafka 的 producer 生产数据，要写入到 log 文件中，写的过程是一直追加到文件末端，为顺序写。同样的磁盘，顺序写能到 600M/s，而随机写只有 100K/s。这与磁盘的机械机构有关，顺序写之所以快，是因为其省去了大量磁头寻址的时间。</p>
+<p>4）页缓存 <strong>+</strong> 零拷贝技术</p>
+<ul>
+<li>**零拷贝：**Kafka的数据加工处理操作交由Kafka生产者和Kafka消费者处理。Kafka Broker应用层不关心存储的数据，所以就不用走应用层，传输效率高。</li>
+<li>**PageCache页缓存：**Kafka重度依赖底层操作系统提供的PageCache功 能。当上层有写操作时，操作系统只是将数据写入PageCache。当读操作发生时，先从PageCache中查找，如果找不到，再去磁盘中读取。实际上PageCache是把尽可能多的空闲内存都当做了磁盘缓存来使用。</li>
+</ul>
+<p><figure 
+	>
+	<a href="/../../images/08-kafka-08/image-20231204153449308.png" >
+		<img src="/../../images/08-kafka-08/image-20231204153449308.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231204153449308">
+	</a>
+	
+	<figcaption>image-20231204153449308</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/08-kafka-08/image-20231204153516350.png" >
+		<img src="/../../images/08-kafka-08/image-20231204153516350.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231204153516350">
+	</a>
+	
+	<figcaption>image-20231204153516350</figcaption>
+	
+</figure></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/kafka/">Kafka</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/kafka-13kafka-%E9%9B%86%E6%88%90springbootflume/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Kafka-13）Kafka 集成SpringBoot、Flume</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/kafka-12kafka-web%E7%9B%91%E6%8E%A7kafka-eagle/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Kafka-12）Kafka Web监控：Kafka-Eagle</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/kafka-11kafka-kraft-%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Kafka-11）Kafka-Kraft 模式</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/kafka-10kafka-offset-%E4%BD%8D%E7%A7%BB%E5%8F%8A%E4%BD%8D%E7%A7%BB%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Kafka-10）Kafka offset 位移及位移应用场景</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/kafka-09kafka-%E6%B6%88%E8%B4%B9%E8%80%85%E6%B6%88%E8%B4%B9%E8%80%85%E7%BB%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Kafka-09）Kafka 消费者、消费者组</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#一kafka-topic-数据存储机制">一、Kafka <strong>Topic</strong> 数据存储机制</a>
+      <ol>
+        <li><a href="#11-kafka日志存储规则">1.1 kafka日志存储规则</a></li>
+        <li><a href="#12-日志保存删除规则">1.2 日志保存、删除规则</a>
+          <ol>
+            <li><a href="#121-delete-日志删除">1.2.1 delete 日志删除</a></li>
+            <li><a href="#122-compact-日志压缩">1.2.2 compact 日志压缩</a></li>
+          </ol>
+        </li>
+        <li><a href="#13-kafka高效读写数据的机制">1.3 Kafka高效读写数据的机制</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Consul on 十一爸爸的博客</title>
+    <link>https://garnettboy.gitee.io/tags/consul/</link>
+    <description>Recent content in Consul on 十一爸爸的博客</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Wed, 25 Sep 2024 10:00:40 +0000</lastBuildDate><atom:link href="https://garnettboy.gitee.io/tags/consul/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Consul 服务注册与发现</title>
+      <link>https://garnettboy.gitee.io/p/consul-%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C%E4%B8%8E%E5%8F%91%E7%8E%B0/</link>
+      <pubDate>Wed, 25 Sep 2024 10:00:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/consul-%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C%E4%B8%8E%E5%8F%91%E7%8E%B0/</guid>
+      <description>在微服务开发的过程中，需要引入服务治理功能，实现微服务之间的动态注册与发现。我们本文介绍Consul。
+官网地址：
+https://developer.hashicorp.com/consul
+https://docs.spring.io/spring-cloud-consul/docs/current/reference/html/
+一、Consul 简介 Consul是由HashiCorp基于Go语言开发的支持多数据中心的分布式高可用服务发布和注册软件, 采用Raft算法保持服务的一致性, 且支持健康检查，Consul和Eureka的侵入式服务中心不同的是, Consul是以独立的软件形式运行, 对项目侵入性小, 更方便部署。Consul的特性如下：
+服务发现：解决在分布式环境中，如何找到可用的服务地址的问题，支持通过DNS和HTTP查询服务地址。 健康检查：定时监控服务是否正常，对于异常的服务会主动下线。 键值存储：配置中心解决方案，是一种key/value存储结构，区别就是key是以目录树结构形式组织的，可以用来存储系统配置信息。 多数据中心：支持多数据中心部署。 image-20241011111403657 1.1 Consul架构 官方架构图：
+image-20241008103947679 ​	从官方给出的架构图可以看出，Consul 是支持多数据中心的，图中有两个 DataCenter 通过 Internet 连接，并且只有 Server 可以跨数据中心通信，多数据中心的架构相对复杂一些，这里我们只讨论单数据中心。
+下图是单数据中心的部署架构：
+image-20241008090959979 ​	在单个数据中心中，Consul 分为 Client 和 Server 两种节点（所有的节点也被称为 Agent），Server 节点保存数据，Client 负责健康检查及转发数据请求到 Server，Client 可以选择和应用部署在同一个节点上；
+​	Server 节点有一个 Leader 和多个Follower，Leader 节点会将数据同步到 Follower，官方推荐 Server 的数量是 3 个或者 5 个，在 Leader 挂掉的时候会启动选举机制产生一个新的 Leader，以保证整个集群的正常运转。
+​	集群内数据的读写请求可以直接发到 Server（单节点就是这种情况），也可以通过 Client 使用 RPC 转发到 Server，请求最终会到达 Leader 节点，在允许数据轻微陈旧的情况下，读请求也可以在普通的 Server 节点完成，集群内数据的读写和复制都是通过 TCP 的 8300 端口完成。</description>
+    </item>
+    
+  </channel>
+</rss>

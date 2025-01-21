@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>logback on 十一爸爸的博客</title>
+    <link>https://garnettboy.gitee.io/categories/logback/</link>
+    <description>Recent content in logback on 十一爸爸的博客</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Mon, 08 Jun 2020 16:51:23 +0000</lastBuildDate><atom:link href="https://garnettboy.gitee.io/categories/logback/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Activiti（8） 动态表单实战、集成Swagger、Logback</title>
+      <link>https://garnettboy.gitee.io/p/activiti8-%E5%8A%A8%E6%80%81%E8%A1%A8%E5%8D%95%E5%AE%9E%E6%88%98%E9%9B%86%E6%88%90swaggerlogback/</link>
+      <pubDate>Mon, 08 Jun 2020 16:51:23 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti8-%E5%8A%A8%E6%80%81%E8%A1%A8%E5%8D%95%E5%AE%9E%E6%88%98%E9%9B%86%E6%88%90swaggerlogback/</guid>
+      <description>动态表单是直接将工作流节点处的表单嵌入流程定义文件BPMN中。系统利用JS或者模板引擎，根据流程定义中表单定义的各个子控件及其属性动态渲染出表单并加载出来。
+在正式开始介绍表单前，我们先完善一下系统。
+1、工程完善 1.1、集成Swagger 在开始实战前，我们先集成Swagger,这样有利于我们后期管理接口。
+在workflow-activiti-rest module的pom.xml文件中添加： &amp;lt;!-- swagger2--&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;io.springfox&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;springfox-swagger2&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;io.springfox&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;springfox-swagger-ui&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; 添加配置类 package com.sxdx.workflow.activiti.rest.config; import org.springframework.context.annotation.Bean; import org.springframework.context.annotation.Configuration; import springfox.documentation.builders.ApiInfoBuilder; import springfox.documentation.builders.PathSelectors; import springfox.documentation.builders.RequestHandlerSelectors; import springfox.documentation.service.ApiInfo; import springfox.documentation.service.Contact; import springfox.documentation.spi.DocumentationType; import springfox.documentation.spring.web.plugins.Docket; import springfox.documentation.swagger2.annotations.EnableSwagger2; @Configuration @EnableSwagger2 public class SwaggerConfig { /** * 通过 createRestApi函数来构建一个DocketBean * 函数名,可以随意命名,喜欢什么命名就什么命名 */ @Bean public Docket createRestApi() { return new Docket(DocumentationType.SWAGGER_2) .apiInfo(apiInfo())//调用apiInfo方法,创建一个ApiInfo实例,里面是展示在文档页面信息内容 .select() //控制暴露出去的路径下的实例 //如果某个接口不想暴露,可以使用以下注解 //@ApiIgnore 这样,该接口就不会暴露在 swagger2 的页面下 .</description>
+    </item>
+    
+  </channel>
+</rss>

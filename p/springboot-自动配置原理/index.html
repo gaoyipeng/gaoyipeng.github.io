@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='SpringBoot 自动配置原理'><title>SpringBoot 自动配置原理</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/springboot-%E8%87%AA%E5%8A%A8%E9%85%8D%E7%BD%AE%E5%8E%9F%E7%90%86/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='SpringBoot 自动配置原理'>
+<meta property='og:description' content='SpringBoot 自动配置原理'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/springboot-%E8%87%AA%E5%8A%A8%E9%85%8D%E7%BD%AE%E5%8E%9F%E7%90%86/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='SpringBoot' /><meta property='article:published_time' content='2023-06-26T10:00:40&#43;00:00'/><meta property='article:modified_time' content='2023-06-26T10:00:40&#43;00:00'/>
+<meta name="twitter:title" content="SpringBoot 自动配置原理">
+<meta name="twitter:description" content="SpringBoot 自动配置原理">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/springboot/" >
+                SpringBoot
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/springboot-%E8%87%AA%E5%8A%A8%E9%85%8D%E7%BD%AE%E5%8E%9F%E7%90%86/">SpringBoot 自动配置原理</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        SpringBoot 自动配置原理
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jun 26, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 3 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <h2 id="一springboot-自动配置原理">一、SpringBoot 自动配置原理</h2>
+<p>springboot用来简化Spring框架带来的大量XML配置以及复杂的依赖管理，往往可以通过引用对应的<code>xxx-Starter</code>包来实现某模块的自动化配置。让开发人员可以更加关注业务逻辑的开发。我们研究一下SpringBoot 自动配置的过程，并编写自定义的Spring Boot Starter。</p>
+<h3 id="11环境说明">1.1、环境说明</h3>
+<ul>
+<li>Idea 2022.2.3</li>
+<li>SpringBoot 2.7.12</li>
+</ul>
+<h3 id="12原理分析">1.2、原理分析</h3>
+<p>官方说明文档：https://docs.spring.io/spring-boot/docs/2.7.12/reference/html/features.html#features.developing-auto-configuration</p>
+<h4 id="121-springbootapplication">1.2.1 <code>@SpringBootApplication</code></h4>
+<ul>
+<li>该<strong>注解标注在 某个类上， 说明该类为 SpringBoot的主配置类</strong>，SpringBoot 就应该运行这个<strong>类的main()方法来启动SpringBoot的应用</strong>。点开它，我们能够发现，其实它是一个组合注解 。又着两个重要的注解 <strong>@SpringBootConfiguration</strong> 和 <strong>@EnableAutoConfiguration</strong></li>
+</ul>
+<p><figure 
+	>
+	<a href="/../../images/springboot-01/image-20230629173640308.png" >
+		<img src="/../../images/springboot-01/image-20230629173640308.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230629173640308">
+	</a>
+	
+	<figcaption>image-20230629173640308</figcaption>
+	
+</figure></p>
+<h4 id="122springbootconfiguration">1.2.2<code>@SpringBootConfiguration</code></h4>
+<p>该注解标注在 某个类上， 说明该类为 <code>SpringBoot</code>的 配置类。</p>
+<blockquote>
+<p>在该注解下注解为 <code>@Conguration</code> ，即为配置类。 因为<code>SpringBoot</code>中没有 像<code>Spring</code>那样的大量的配置文件，所以为了让SpringBoot 知道哪些是配置类，所以就需要有<code>@Configuration</code>。<code>@Configuration</code>是Spring下的配置类注解，<code>@SpringBootConfiguration</code>是<code>SpringBoot</code>下的配置类注解，是<code>@Configuration</code>的派生注解，二者的本质相同。</p>
+</blockquote>
+<p><figure 
+	>
+	<a href="/../../images/springboot-01/image-20230630091317308.png" >
+		<img src="/../../images/springboot-01/image-20230630091317308.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230630091317308">
+	</a>
+	
+	<figcaption>image-20230630091317308</figcaption>
+	
+</figure></p>
+<h4 id="123-enableautoconfiguration">1.2.3 <code>@EnableAutoConfiguration</code></h4>
+<p><strong>@EnableAutoConfiguration</strong> 就是 为SpringBoot实现自动配置的<strong>核心注解</strong>。它的意思就是开启自动配置功能。</p>
+<p><strong>@EnableAutoConfiguration</strong> 的内部又有两个非常重要的注解，分别为：</p>
+<ul>
+<li><strong>@AutoConfigurationPackage</strong></li>
+<li><strong>@Import(AutoConfigurationImportSelector.class)</strong></li>
+</ul>
+<p>下面我们分别介绍下这两部分的作用。</p>
+<p><figure 
+	>
+	<a href="/../../images/springboot-01/image-20230629174915395.png" >
+		<img src="/../../images/springboot-01/image-20230629174915395.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230629174915395">
+	</a>
+	
+	<figcaption>image-20230629174915395</figcaption>
+	
+</figure></p>
+<h5 id="1231-autoconfigurationpackage">1.2.3.1 <code>@AutoConfigurationPackage</code></h5>
+<p><strong>@AutoConfigurationPackag</strong> 的实际内容是由一个 <strong>@Import</strong>注解来完成的。</p>
+<p><figure 
+	>
+	<a href="/../../images/springboot-01/image-20230630094143485.png" >
+		<img src="/../../images/springboot-01/image-20230630094143485.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230630094143485">
+	</a>
+	
+	<figcaption>image-20230630094143485</figcaption>
+	
+</figure></p>
+<p><strong>@Import()</strong> 注解是Spring底层的一个注解，它的作用就是给容器中导入一个组件，也就是导入 <strong>AutoConfigurationPackages.Registrar.class</strong> 的组件 ，我们使用Debug模式启动，也进入 <strong>Registrar</strong> 类的内部，可以看到Registrar它导入一个 metadata（注解源信息）到PackageImport中， 然后获取这个包的包名 ，即SpringBoot主配置类所在的包的包名：<strong>com.example.fastdfsjava</strong>。</p>
+<p><figure 
+	>
+	<a href="/../../images/springboot-01/image-20230630095157601.png" >
+		<img src="/../../images/springboot-01/image-20230630095157601.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230630095157601">
+	</a>
+	
+	<figcaption>image-20230630095157601</figcaption>
+	
+</figure></p>
+<p>所以： <strong>@AutoConfigurationPackag</strong> 的作用就是将SpringBoot 主配置类所在的包 及其 下面的所有子包里面的所有组件 扫描到 Spring 容器中</p>
+<h5 id="1232-autoconfigurationimportselector类">1.2.3.2 AutoConfigurationImportSelector类</h5>
+<p><code>@Import(AutoConfigurationImportSelector.class)</code>是<strong>自动配置</strong>的主要实现方法。进入<strong>AutoConfigurationImportSelector</strong> 查看源码，</p>
+<p><figure 
+	>
+	<a href="/../../images/springboot-01/image-20230630100419696.png" >
+		<img src="/../../images/springboot-01/image-20230630100419696.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230630100419696">
+	</a>
+	
+	<figcaption>image-20230630100419696</figcaption>
+	
+</figure></p>
+<p>调用了getAutoConfigurationEntry()方法，该方法的作用就是告诉 Spring容器需要导入什么组件，有了这些自动配置类，我们就免去了手动配置注入功能组件的操作了。</p>
+<p><figure 
+	>
+	<a href="/../../images/springboot-01/image-20230630152327947.png" >
+		<img src="/../../images/springboot-01/image-20230630152327947.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230630152327947">
+	</a>
+	
+	<figcaption>image-20230630152327947</figcaption>
+	
+</figure></p>
+<p>可以看出 <strong>SpringBoot 已经帮我们自动导入了 145 个组件</strong>，从下图可以看出都是<strong>以全类名的形式返回</strong>。而且这些组件的名字都是以 <code>xxxAutoConfiguration</code> 的形式命名，也就是什么自动配置类，其中最后一个<code>com.sxdx.demo.autoconfig.demoAutoConfiguration</code>使我们自定义的自动配置类，后续章节会详细介绍。</p>
+<p>那为什么他能做到自动配置呢？ 我们进入getAutoConfigurationEntry方法</p>
+<p><figure 
+	>
+	<a href="/../../images/springboot-01/image-20230630103324911.png" >
+		<img src="/../../images/springboot-01/image-20230630103324911.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230630103324911">
+	</a>
+	
+	<figcaption>image-20230630103324911</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/springboot-01/image-20230630103343188.png" >
+		<img src="/../../images/springboot-01/image-20230630103343188.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230630103343188">
+	</a>
+	
+	<figcaption>image-20230630103343188</figcaption>
+	
+</figure></p>
+<p><code>getCandidateConfigurations</code>方法主要包含2部分</p>
+<blockquote>
+<p>第一部分</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">configurations</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">(</span><span class="n">SpringFactoriesLoader</span><span class="o">.</span><span class="na">loadFactoryNames</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">getSpringFactoriesLoaderFactoryClass</span><span class="o">(),</span> <span class="k">this</span><span class="o">.</span><span class="na">getBeanClassLoader</span><span class="o">()));</span>
+</span></span></code></pre></div><p>我们查看loadFactoryNames方法。</p>
+<p><figure 
+	>
+	<a href="/../../images/springboot-01/image-20230630141848078.png" >
+		<img src="/../../images/springboot-01/image-20230630141848078.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230630141848078">
+	</a>
+	
+	<figcaption>image-20230630141848078</figcaption>
+	
+</figure></p>
+<p>继续进入<code>loadSpringFactories</code>，可以看到代码从<code>META-INF/spring.factories</code>中读取了自动配置类（该文件是为了向下兼容，springboot2.7版本后，该文件中不再配置自动配置类，下面会有详细介绍）</p>
+<p><figure 
+	>
+	<a href="/../../images/springboot-01/image-20230630142042933.png" >
+		<img src="/../../images/springboot-01/image-20230630142042933.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230630142042933">
+	</a>
+	
+	<figcaption>image-20230630142042933</figcaption>
+	
+</figure></p>
+<blockquote>
+<p>第二部分</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">ImportCandidates</span><span class="o">.</span><span class="na">load</span><span class="o">(</span><span class="n">AutoConfiguration</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="k">this</span><span class="o">.</span><span class="na">getBeanClassLoader</span><span class="o">()).</span><span class="na">forEach</span><span class="o">(</span><span class="n">configurations</span><span class="o">::</span><span class="n">add</span><span class="o">);</span>
+</span></span></code></pre></div><p>查看load方法，可以看到Spring读取了<code>META-INF/spring/%s.imports</code>目录下的配置文件。这个配置文件中也记录了需要自动配置的类。并且将第一步的</p>
+<p><figure 
+	>
+	<a href="/../../images/springboot-01/image-20230630103415672.png" >
+		<img src="/../../images/springboot-01/image-20230630103415672.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230630103415672">
+	</a>
+	
+	<figcaption>image-20230630103415672</figcaption>
+	
+</figure></p>
+<h6 id="12321-imports配置文件">1.2.3.2.1 <code>.imports</code>配置文件</h6>
+<p>那么到底是不是这样呢，我们查看一下springboot自己的自动配置源码。我们查看一下spring-boot-autoconfigure包下的<code>org.springframework.Boot.autoconfig.AutoConfiguration.imports</code>，可以验证我们的理解是正确的：</p>
+<p><figure 
+	>
+	<a href="/../../images/springboot-01/image-20230630103824707.png" >
+		<img src="/../../images/springboot-01/image-20230630103824707.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230630103824707">
+	</a>
+	
+	<figcaption>image-20230630103824707</figcaption>
+	
+</figure></p>
+<h6 id="12322springfactories版本差异">1.2.3.2.2<code>spring.factories</code>版本差异</h6>
+<p>此处需要说明一下：我们上面截图可以看到一个<code>spring.factories</code>，我们可以看到这个文件中配置的不是<code>AutoConfiguration</code>类型的文件了。这个文件是<code>springboot2.7</code>之前的自动配置类。在2.7版本之后，改为使用<code>org.springframework.Boot.autoconfig.AutoConfiguration.imports</code>，而为了向下兼容，2.7版本中这2个文件同时存在。如果我们在<code>spring.factories</code>文件中添加自动配置类，也是可以被spring识别的。</p>
+<p>但是官方后续版本将会放弃<code>spring.factories</code>这种方式。建议大家用最新的配置，避免后期升级springboot时有兼容性问题。</p>
+<p><figure 
+	>
+	<a href="/../../images/springboot-01/image-20230630104047158.png" >
+		<img src="/../../images/springboot-01/image-20230630104047158.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230630104047158">
+	</a>
+	
+	<figcaption>image-20230630104047158</figcaption>
+	
+</figure></p>
+<h4 id="124-自动配置类示例">1.2.4 自动配置类示例</h4>
+<p>我们上面已经看到了自动配置类如何加载的，下面我们查看其中一个自动配置类：WebMvcAutoConfiguration</p>
+<p><figure 
+	>
+	<a href="/../../images/springboot-01/image-20230630105217339.png" >
+		<img src="/../../images/springboot-01/image-20230630105217339.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230630105217339">
+	</a>
+	
+	<figcaption>image-20230630105217339</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/springboot-01/image-20230630105247299.png" >
+		<img src="/../../images/springboot-01/image-20230630105247299.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230630105247299">
+	</a>
+	
+	<figcaption>image-20230630105247299</figcaption>
+	
+</figure></p>
+<p>我们可以看到，在类中，spring使用了<code>@AutoConfiguration</code>、<code>@Bean</code> 等注解，实例化了很多bean，这些<code>bean</code>都会在启动时被<code>spring</code>容器识别。这样就实现了springboot的自动配置功能。</p>
+<h2 id="二自定义springboot-starter">二、自定义springboot starter</h2>
+<p>下面 是实践环节，我们上面已经了解了自动配置的原理，我们下面自定义一个springboot starter。</p>
+<h3 id="21-创建一个springboot项目">2.1 创建一个springboot项目</h3>
+<h4 id="211-pom文件">2.1.1 pom文件</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="cp">&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;project</span> <span class="na">xmlns=</span><span class="s">&#34;http://maven.apache.org/POM/4.0.0&#34;</span> <span class="na">xmlns:xsi=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span>
+</span></span><span class="line"><span class="cl">         <span class="na">xsi:schemaLocation=</span><span class="s">&#34;http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;modelVersion&gt;</span>4.0.0<span class="nt">&lt;/modelVersion&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;parent&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;groupId&gt;</span>org.springframework.boot<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;artifactId&gt;</span>spring-boot-starter-parent<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;version&gt;</span>2.7.12<span class="nt">&lt;/version&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;relativePath/&gt;</span> <span class="c">&lt;!-- lookup parent from repository --&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/parent&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;groupId&gt;</span>com.sxdx<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;artifactId&gt;</span>demospring-boot-starer<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;version&gt;</span>0.0.1-SNAPSHOT<span class="nt">&lt;/version&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;name&gt;</span>demo<span class="nt">&lt;/name&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;description&gt;</span>demo<span class="nt">&lt;/description&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;properties&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;java.version&gt;</span>1.8<span class="nt">&lt;/java.version&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/properties&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;dependencies&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;groupId&gt;</span>org.springframework.boot<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;artifactId&gt;</span>spring-boot-starter-web<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;groupId&gt;</span>org.springframework.boot<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;artifactId&gt;</span>spring-boot-starter-test<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c">&lt;!--        &lt;dependency&gt;
+</span></span></span><span class="line"><span class="cl"><span class="c">            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+</span></span></span><span class="line"><span class="cl"><span class="c">            &lt;artifactId&gt;spring-boot-autoconfigure-processor&lt;/artifactId&gt;
+</span></span></span><span class="line"><span class="cl"><span class="c">            &lt;optional&gt;true&lt;/optional&gt;
+</span></span></span><span class="line"><span class="cl"><span class="c">        &lt;/dependency&gt;--&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="c">&lt;!-- 添加该注解，可以帮我我们再yaml文件中提供配置提醒--&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;groupId&gt;</span>org.springframework.boot<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;artifactId&gt;</span>spring-boot-configuration-processor<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;optional&gt;</span>true<span class="nt">&lt;/optional&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/dependencies&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;build&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;plugins&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;plugin&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;groupId&gt;</span>org.springframework.boot<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;artifactId&gt;</span>spring-boot-maven-plugin<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;configuration&gt;</span>
+</span></span><span class="line"><span class="cl">                    <span class="nt">&lt;classifier&gt;</span>
+</span></span><span class="line"><span class="cl">                        exec
+</span></span><span class="line"><span class="cl">                    <span class="nt">&lt;/classifier&gt;</span>
+</span></span><span class="line"><span class="cl">                    <span class="nt">&lt;excludes&gt;</span>
+</span></span><span class="line"><span class="cl">                        <span class="nt">&lt;exclude&gt;</span>
+</span></span><span class="line"><span class="cl">                            <span class="nt">&lt;groupId&gt;</span>org.springframework.boot<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">                            <span class="nt">&lt;artifactId&gt;</span>spring-boot-autoconfigure-processor<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">                        <span class="nt">&lt;/exclude&gt;</span>
+</span></span><span class="line"><span class="cl">                    <span class="nt">&lt;/excludes&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;/configuration&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;/plugin&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/plugins&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/build&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/project&gt;</span>
+</span></span></code></pre></div><p>注意：<code>spring-boot-maven-plugin</code>必须添加classifier,否则springboot功能中的类，不能被其他工程import。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;plugin&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;groupId&gt;</span>org.springframework.boot<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;artifactId&gt;</span>spring-boot-maven-plugin<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;configuration&gt;</span>
+</span></span><span class="line"><span class="cl">                    <span class="nt">&lt;classifier&gt;</span>
+</span></span><span class="line"><span class="cl">                        exec
+</span></span><span class="line"><span class="cl">                    <span class="nt">&lt;/classifier&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;/configuration&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;/plugin&gt;</span>
+</span></span></code></pre></div><h4 id="212-beanproperties">2.1.2 BeanProperties</h4>
+<p>创建一个类来获取配置文件中的属性定义并绑定到Java Bean或属性中。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.demo.bean</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.boot.context.properties.ConfigurationProperties</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.stereotype.Component</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nd">@Component</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@ConfigurationProperties</span><span class="o">(</span><span class="s">&#34;acme&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">BeanProperties</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * enable
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">Boolean</span> <span class="n">enable</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * name
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">Boolean</span> <span class="nf">getEnable</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">enable</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setEnable</span><span class="o">(</span><span class="n">Boolean</span> <span class="n">enable</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">enable</span> <span class="o">=</span> <span class="n">enable</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getName</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">name</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setName</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">String</span> <span class="nf">toString</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="s">&#34;BeanProperties{&#34;</span> <span class="o">+</span>
+</span></span><span class="line"><span class="cl">                <span class="s">&#34;enable=&#34;</span> <span class="o">+</span> <span class="n">enable</span> <span class="o">+</span>
+</span></span><span class="line"><span class="cl">                <span class="s">&#34;, name=&#39;&#34;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="sc">&#39;\&#39;&#39;</span> <span class="o">+</span>
+</span></span><span class="line"><span class="cl">                <span class="sc">&#39;}&#39;</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><h4 id="213-mybean">2.1.3 MyBean</h4>
+<p>一个普通的实体类</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.demo.bean</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyBean</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="nf">MyBean</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getName</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">name</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setName</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">String</span> <span class="nf">fun1</span><span class="o">(){</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="s">&#34;你好：&#34;</span> <span class="o">+</span> <span class="k">this</span><span class="o">.</span><span class="na">name</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><h4 id="214-配置yaml文件">2.1.4 配置yaml文件</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">acme</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">enable</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">我的第一个 Spring Boot Starter</span><span class="w">
+</span></span></span></code></pre></div><h3 id="22-自动配置类">2.2 自动配置类</h3>
+<p>最重要的自动配置类。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.demo.autoconfig</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">com.sxdx.demo.bean.BeanProperties</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">com.sxdx.demo.bean.MyBean</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.beans.factory.annotation.Autowired</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.boot.autoconfigure.AutoConfiguration</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.boot.autoconfigure.condition.ConditionalOnBean</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.boot.autoconfigure.condition.ConditionalOnClass</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.boot.autoconfigure.condition.ConditionalOnProperty</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.boot.context.properties.EnableConfigurationProperties</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.context.annotation.Bean</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.context.annotation.Configuration</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nd">@Configuration</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@EnableConfigurationProperties</span><span class="o">(</span><span class="n">BeanProperties</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@ConditionalOnClass</span><span class="o">(</span><span class="n">MyBean</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@ConditionalOnProperty</span><span class="o">(</span><span class="n">prefix</span> <span class="o">=</span> <span class="s">&#34;acme&#34;</span><span class="o">,</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#34;enable&#34;</span><span class="o">,</span><span class="n">matchIfMissing</span> <span class="o">=</span> <span class="kc">true</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">demoAutoConfiguration</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@Autowired</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">BeanProperties</span> <span class="n">beanProperties</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@Bean</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@ConditionalOnMissingBean</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">MyBean</span> <span class="nf">mybean</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;-------初始化操作----------&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="k">new</span> <span class="n">MyBean</span><span class="o">(</span><span class="n">beanProperties</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><ul>
+<li>
+<p>@Configuration :表示这个是一个配置类</p>
+</li>
+<li>
+<p>@EnableConfigurationProperties(BeanProperties.class) ：使 @ConfigurationProperties 注解的类生效，即我们的<code>BeanProperties</code>类</p>
+</li>
+<li>
+<p>@ConditionalOnClass(MyBean.class)：只有存在MyBean类时，才才生效。</p>
+</li>
+<li>
+<p>@ConditionalOnProperty(prefix = &ldquo;acme&rdquo;,name = &ldquo;enable&rdquo;,matchIfMissing = true)：只有配置文件中的属性定义<code>acme.enable = true</code>时才生效。</p>
+</li>
+</ul>
+<p>demoAutoConfiguration类中实例化了一个bean：mybean，如果自动配置成功，那么这个实例将会自动添加到Spring ioc容器中。</p>
+<h3 id="23-添加orgspringframeworkbootautoconfigureautoconfigurationimports">2.3 添加<code>org.springframework.boot.autoconfigure.AutoConfiguration.imports</code></h3>
+<pre tabindex="0"><code class="language-properties" data-lang="properties">com.sxdx.demo.autoconfig.demoAutoConfiguration
+</code></pre><p>我们在<code>\resources\META-INF\spring</code>下新建<code>org.springframework.boot.autoconfigure.AutoConfiguration.imports</code>文件，并配置自动配置类。</p>
+<p><figure 
+	>
+	<a href="/../../images/springboot-01/image-20230630163132566.png" >
+		<img src="/../../images/springboot-01/image-20230630163132566.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230630163132566">
+	</a>
+	
+	<figcaption>image-20230630163132566</figcaption>
+	
+</figure></p>
+<h3 id="24-打包安装到maven中">2.4 打包安装到maven中</h3>
+<p>执行mvn install</p>
+<p><figure 
+	>
+	<a href="/../../images/springboot-01/image-20230630113315635.png" >
+		<img src="/../../images/springboot-01/image-20230630113315635.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230630113315635">
+	</a>
+	
+	<figcaption>image-20230630113315635</figcaption>
+	
+</figure></p>
+<p>我们查看打包后jar包的结构。</p>
+<h2 id="三引用自定义starter">三、引用自定义starter</h2>
+<p>我们在其它springboot工程中引用我们自定义的starter</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl">        <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;groupId&gt;</span>com.sxdx<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;artifactId&gt;</span>demospring-boot-starer<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;version&gt;</span>0.0.1-SNAPSHOT<span class="nt">&lt;/version&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/dependency&gt;</span>
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/springboot-01/image-20230630163637110.png" >
+		<img src="/../../images/springboot-01/image-20230630163637110.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230630163637110">
+	</a>
+	
+	<figcaption>image-20230630163637110</figcaption>
+	
+</figure></p>
+<p>在<code>application.yaml</code>文件中配置</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yml" data-lang="yml"><span class="line"><span class="cl"><span class="nt">acme</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">enable</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">我的第一个 Spring Boot Starter</span><span class="w">
+</span></span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/springboot-01/image-20230630113611667.png" >
+		<img src="/../../images/springboot-01/image-20230630113611667.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230630113611667">
+	</a>
+	
+	<figcaption>image-20230630113611667</figcaption>
+	
+</figure></p>
+<p>新建测试类</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@Component</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@RestController</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@RequestMapping</span><span class="o">(</span><span class="s">&#34;/test&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Test</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Autowired</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">MyBean</span> <span class="n">myBean</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@RequestMapping</span><span class="o">(</span><span class="s">&#34;/demo&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">demo</span><span class="o">(){</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">myBean</span><span class="o">.</span><span class="na">fun1</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>访问接口，查看日志：http://localhost:8080/test/demo，可以看到，我们自定义的bean，已经加入到IOC容器中，可以直接使用。</p>
+<p><figure 
+	>
+	<a href="/../../images/springboot-01/image-20230630164530994.png" >
+		<img src="/../../images/springboot-01/image-20230630164530994.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230630164530994">
+	</a>
+	
+	<figcaption>image-20230630164530994</figcaption>
+	
+</figure></p>
+<h2 id="四关于springfactories兼容性的验证">四、关于<code>spring.factories</code>兼容性的验证</h2>
+<p>在上面的自定义starter中，我们是创建了<code>org.springframework.boot.autoconfigure.AutoConfiguration.imports</code>来实现自动配置的，我们这次试一下<code>spring.factories</code>方式。</p>
+<p>首先，我们删掉在<code>\resources\META-INF\spring</code>下新建<code>org.springframework.boot.autoconfigure.AutoConfiguration.imports</code>文件。在<code>\resources\META-INF下新建</code>spring.factories`文件。</p>
+<p><figure 
+	>
+	<a href="/../../images/springboot-01/image-20230630171150211.png" >
+		<img src="/../../images/springboot-01/image-20230630171150211.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230630171150211">
+	</a>
+	
+	<figcaption>image-20230630171150211</figcaption>
+	
+</figure></p>
+<p>执行mvn install，然后查看一下引入的包</p>
+<p><figure 
+	>
+	<a href="/../../images/springboot-01/image-20230630171645644.png" >
+		<img src="/../../images/springboot-01/image-20230630171645644.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230630171645644">
+	</a>
+	
+	<figcaption>image-20230630171645644</figcaption>
+	
+</figure></p>
+<p>可以看到，生成的包中，自动帮我们生成了<code>org.springframework.boot.autoconfigure.AutoConfiguration.imports</code>文件。我们启动服务做一下测试：</p>
+<p><figure 
+	>
+	<a href="/../../images/springboot-01/image-20230630172919155.png" >
+		<img src="/../../images/springboot-01/image-20230630172919155.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230630172919155">
+	</a>
+	
+	<figcaption>image-20230630172919155</figcaption>
+	
+</figure></p>
+<p>也是OK的，完工。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/springboot/">SpringBoot</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/springboot-%E5%B8%B8%E7%94%A8%E4%BB%A3%E7%A0%81%E6%97%B6%E9%97%B4%E6%A0%BC%E5%BC%8F%E8%BF%94%E5%9B%9E%E5%80%BC%E6%9E%9A%E4%B8%BE%E7%B1%BB%E8%BF%94%E5%9B%9E%E5%AF%B9%E8%B1%A1%E7%B1%BB%E5%85%A8%E5%B1%80%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">SpringBoot 常用代码（时间格式、返回值枚举类、返回对象类、全局异常处理）</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/springboot-%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E4%BA%8B%E4%BB%B6%E5%92%8C%E7%9B%91%E5%90%AC%E5%99%A8/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">SpringBoot 生命周期事件和监听器</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/springboot-%E8%87%AA%E5%8A%A8%E5%8C%96%E9%85%8D%E7%BD%AE%E7%9A%84%E6%B3%A8%E8%A7%A3%E5%BC%80%E5%85%B3enable%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">SpringBoot 自动化配置的注解开关(Enable模式)</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/spring-boot%E6%95%B4%E5%90%88webservice/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Spring Boot整合WebService</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#一springboot-自动配置原理">一、SpringBoot 自动配置原理</a>
+      <ol>
+        <li><a href="#11环境说明">1.1、环境说明</a></li>
+        <li><a href="#12原理分析">1.2、原理分析</a>
+          <ol>
+            <li><a href="#121-springbootapplication">1.2.1 <code>@SpringBootApplication</code></a></li>
+            <li><a href="#122springbootconfiguration">1.2.2<code>@SpringBootConfiguration</code></a></li>
+            <li><a href="#123-enableautoconfiguration">1.2.3 <code>@EnableAutoConfiguration</code></a></li>
+            <li><a href="#124-自动配置类示例">1.2.4 自动配置类示例</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+    <li><a href="#二自定义springboot-starter">二、自定义springboot starter</a>
+      <ol>
+        <li><a href="#21-创建一个springboot项目">2.1 创建一个springboot项目</a>
+          <ol>
+            <li><a href="#211-pom文件">2.1.1 pom文件</a></li>
+            <li><a href="#212-beanproperties">2.1.2 BeanProperties</a></li>
+            <li><a href="#213-mybean">2.1.3 MyBean</a></li>
+            <li><a href="#214-配置yaml文件">2.1.4 配置yaml文件</a></li>
+          </ol>
+        </li>
+        <li><a href="#22-自动配置类">2.2 自动配置类</a></li>
+        <li><a href="#23-添加orgspringframeworkbootautoconfigureautoconfigurationimports">2.3 添加<code>org.springframework.boot.autoconfigure.AutoConfiguration.imports</code></a></li>
+        <li><a href="#24-打包安装到maven中">2.4 打包安装到maven中</a></li>
+      </ol>
+    </li>
+    <li><a href="#三引用自定义starter">三、引用自定义starter</a></li>
+    <li><a href="#四关于springfactories兼容性的验证">四、关于<code>spring.factories</code>兼容性的验证</a></li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

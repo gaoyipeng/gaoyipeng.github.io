@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>MapReduce on 十一爸爸的博客</title>
+    <link>https://garnettboy.gitee.io/tags/mapreduce/</link>
+    <description>Recent content in MapReduce on 十一爸爸的博客</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Wed, 06 Sep 2023 10:36:40 +0000</lastBuildDate><atom:link href="https://garnettboy.gitee.io/tags/mapreduce/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>（Hadoop22）Hadoop MapReduce 参数调优</title>
+      <link>https://garnettboy.gitee.io/p/hadoop22hadoop-mapreduce-%E5%8F%82%E6%95%B0%E8%B0%83%E4%BC%98/</link>
+      <pubDate>Wed, 06 Sep 2023 10:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/hadoop22hadoop-mapreduce-%E5%8F%82%E6%95%B0%E8%B0%83%E4%BC%98/</guid>
+      <description>一、MapReduce参数调优 1.1 map、suffle阶段优化 image-20230906170954212 1）自定义分区，减少数据倾斜：
+​	定义类，继承Partitioner接口，重写getPartition方法
+2）减少溢写的次数
+mapreduce.task.io.sort.mbShuffle的环形缓冲区大小，默认100m，可以提高到200mmapreduce.map.sort.spill.percent环形缓冲区溢出的阈值，默认80% ，可以提高的90% 3）增加每次Merge合并次数
+mapreduce.task.io.sort.factor默认10，可以提高到20 4）在不影响业务结果的前提条件下可以提前采用Combiner
+job.setCombinerClass(xxxReducer.class); 5）为了减少磁盘IO，可以采用Snappy或者LZO压缩
+conf.setBoolean(&amp;#34;mapreduce.map.output.compress&amp;#34;, true);conf.setClass(&amp;#34;mapreduce.map.output.compress.codec&amp;#34;, SnappyCodec.class,CompressionCodec.class); 6）mapreduce.map.memory.mb 默认MapTask内存上限1024MB。
+可以根据128m数据对应1G内存原则提高该内存。 7）mapreduce.map.java.opts：控制MapTask堆内存大小。（和mapreduce.map.memory.mb保持一致即可，如果内存不够，报：java.lang.OutOfMemoryError）
+8）mapreduce.map.cpu.vcores 默认MapTask的CPU核数1。计算密集型任务可以增加CPU核数
+9）异常重试：mapreduce.map.maxattempts每个Map Task最大重试次数，一旦重试次数超过该值，则认为Map Task运行失败，默认值：4。根据机器性能适当提高。
+1.2 reduce阶段优化 image-20230906171330346 1）`mapreduce.reduce.shuffle.parallelcopies` 每个Reduce去Map中拉取数据的并行数，默认值是5。可以提高到10。 2）`mapreduce.reduce.shuffle.input.buffer.percent `Buffer大小占Reduce可用内存的比例，默认值0.7。可以提高到0.8 3）`mapreduce.reduce.shuffle.merge.percent `Buffer中的数据达到多少比例开始写入磁盘，默认值0.66。可以提高到0.75 4）`mapreduce.reduce.memory.mb` 默认ReduceTask内存上限1024MB，根据128m数据对应1G内存原则，适当提高内存到4-6G 5）`mapreduce.reduce.java.opts`：控制ReduceTask堆内存大小。（如果内存不够，报：java.lang.OutOfMemoryError） 6）`mapreduce.reduce.cpu.vcores`默认ReduceTask的CPU核数1个。可以提高到2-4个 7）`mapreduce.reduce.maxattempts`每个Reduce Task最大重试次数，一旦重试次数超过该值，则认为Map Task运行失败，默认值：4。 8）`mapreduce.job.reduce.slowstart.completedmaps` 当MapTask完成的比例达到该值后才会为ReduceTask申请资源。默认是0.05。 9）`mapreduce.task.timeout`如果一个Task在一定时间内没有任何进入，即不会读取新的数据，也没有输出数据，则认为该Task处于Block状态，可能是卡住了，也许永远会卡住，为了防止因为用户程序永远Block住不退出，则强制设置了一个该超时时间（单位毫秒），默认是600000（10分钟）。如果你的程序对每条输入数据的处理时间过长，建议将该参数调大。 10）如果可以不用Reduce，尽可能不用。 示例：
+【mapred-site.xml】 &amp;lt;!-- 环形缓冲区大小，默认 100m --&amp;gt; &amp;lt;property&amp;gt; &amp;lt;name&amp;gt;mapreduce.task.io.sort.mb&amp;lt;/name&amp;gt; &amp;lt;value&amp;gt;100&amp;lt;/value&amp;gt; &amp;lt;/property&amp;gt; &amp;lt;!-- 环形缓冲区溢写阈值，默认 0.8 --&amp;gt; &amp;lt;property&amp;gt; &amp;lt;name&amp;gt;mapreduce.map.sort.spill.percent&amp;lt;/name&amp;gt; &amp;lt;value&amp;gt;0.80&amp;lt;/value&amp;gt; &amp;lt;/property&amp;gt; &amp;lt;!-- merge 合并次数，默认 10 个 --&amp;gt; &amp;lt;property&amp;gt; &amp;lt;name&amp;gt;mapreduce.</description>
+    </item>
+    
+    <item>
+      <title>（Hadoop11）Hadoop-MapReduce压缩</title>
+      <link>https://garnettboy.gitee.io/p/hadoop11hadoop-mapreduce%E5%8E%8B%E7%BC%A9/</link>
+      <pubDate>Mon, 21 Aug 2023 11:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/hadoop11hadoop-mapreduce%E5%8E%8B%E7%BC%A9/</guid>
+      <description>一、MapReduce压缩 image-20230822141414966 如上图所示 MapReduce 压缩分为以下3个位置：
+Map输入压缩 Map输出压缩、 Reducer输出压缩。 1.1 压缩的好处和坏处 压缩的优点：以减少磁盘 IO、减少磁盘存储空间 压缩的缺点：增加 CPU 开销 1.2 压缩原则 运算密集型的 Job，少用压缩 IO 密集型的 Job，多用压缩 二、MapReduce支持的压缩方式 压缩格式 是否Hadoop 自带 文件扩展名 是否支持切片 换成压缩格式后，原来的程序是否需要修改 备注 DEFLATE 是，直接使用 .deflate 否 和文本处理一样，不需要修改 Gzip 是，直接使用 .gz 否 和文本处理一样，不需要修改 bzip 是，直接使用 .bz2 是 和文本处理一样，不需要修改 LZO 否，需要安装 .lzo 是 需要建索引，还需要指定输入格式 Snappy 是，直接使用 .snappy 否 和文本处理一样，不需要修改 需要linux 6.5+、hadoop3 压缩性能的比较:
+image-20230822150520585 三、压缩参数配置 3.1、压缩编码器 为了支持多种压缩/解压缩算法，Hadoop 引入了编码/解码器
+压缩格式 对应的编码/解码器 DEFLATE org.apache.hadoop.io.compress.DefaultCodec gzip org.apache.hadoop.io.compress.GzipCodec bzip org.</description>
+    </item>
+    
+    <item>
+      <title>（Hadoop10）Hadoop-MapReduce（MapJoin和ReduceJoin ）</title>
+      <link>https://garnettboy.gitee.io/p/hadoop10hadoop-mapreducemapjoin%E5%92%8Creducejoin/</link>
+      <pubDate>Mon, 21 Aug 2023 10:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/hadoop10hadoop-mapreducemapjoin%E5%92%8Creducejoin/</guid>
+      <description>我们前面的示例代码都是基于一个文件进行处理，如果我们需要同时处理多个相互关联的文件，并且通过关联信息进行计算输出怎么处理呢？2种方式：MapJoin和ReduceJoin 。我们下面分别用这2中方法实现这个需求。
+一、需求 以下2个文件：
+1、order.txt（订单文件）
+id pid amount1001	01	11002	02	21003	03	31004	01	41005	02	51006	03	6 2、pd.txt(产品文件)
+pid pname01	小米02	华为03	格力 将商品信息表中数据根据商品 pid 合并到订单数据表中。
+image-20230821162922672 一、Reduce Join Reduce 端的主要工作是：在 Reduce 端以连接字段（pid）作为 key 的分组已经完成，我们只需要在每一个分组当中将那些来源于不同文件的记录分开，最后获取对应的字段进行合并。
+1.1 创建序列化Bean package com.sxdx.hdfs.mapreduce.reducejoin; import org.apache.hadoop.io.Writable; import java.io.DataInput; import java.io.DataOutput; import java.io.IOException; public class TableBean implements Writable { private String id; //订单 id private String pid; //产品 id private int amount; //产品数量 private String pname; //产品名称 private String flag; //判断是 order 表还是 pd 表的标志字段 @Override public void write(DataOutput dataOutput) throws IOException { dataOutput.</description>
+    </item>
+    
+    <item>
+      <title>（Hadoop9）Hadoop-MapReduce（ReduceTask过程分析）</title>
+      <link>https://garnettboy.gitee.io/p/hadoop9hadoop-mapreducereducetask%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/</link>
+      <pubDate>Fri, 18 Aug 2023 10:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/hadoop9hadoop-mapreducereducetask%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/</guid>
+      <description>一、MapReduce工作流程 image-20230811083233707 ReduceTask：负责 Reduce 阶段的整个数据处理流程。
+二 ReduceTask过程分析 image-20230821092500669 （1）Copy 阶段：ReduceTask 从各个 MapTask 上远程拷贝一片数据，并针对某一片数据，如果其大小超过一定阈值，则写到磁盘上，否则直接放到内存中。 （2）Sort 阶段：在远程拷贝数据的同时，ReduceTask 启动了两个后台线程对内存和磁盘上的文件进行合并，以防止内存使用过多或磁盘上文件过多。按照 MapReduce 语义，用户编写 reduce()函数输入数据是按 key 进行聚集的一组数据。为了将 key 相同的数据聚在一起，Hadoop 采用了基于排序的策略。由于各个 MapTask 已经实现对自己的处理结果进行了局部排序，因此，ReduceTask 只需对所有数据进行一次归并排序即可。 （3）Reduce 阶段：reduce()函数将计算结果写到 HDFS 上。 2.1 OutputFormat 数据输出 OutputFormat是MapReduce输出的基类，所有实现MapReduce输出都实现了 OutputFormat接口。
+image-20230818160217535 默认输出格式为TextOutputFormat：按行输出到文件中。
+2.2 自定义OutputFormat方法 步骤一：编写 自定义RecordWriter 类
+package com.sxdx.hdfs.mapreduce.output; import org.apache.hadoop.fs.FSDataOutputStream; import org.apache.hadoop.fs.FileSystem; import org.apache.hadoop.fs.Path; import org.apache.hadoop.io.IOUtils; import org.apache.hadoop.io.Text; import org.apache.hadoop.mapreduce.RecordWriter; import org.apache.hadoop.mapreduce.TaskAttemptContext; import java.io.IOException; public class PhoneRecordWriter extends RecordWriter&amp;lt;Text, FlowBean&amp;gt; { @Override public void write(Text key, FlowBean value) throws IOException, InterruptedException { } @Override public void close(TaskAttemptContext context) throws IOException, InterruptedException { } } 步骤二：自定义 OutputFormat 类，直接继承FileOutputFormat类</description>
+    </item>
+    
+    <item>
+      <title>（Hadoop8）Hadoop-MapReduce（Shuffle过程分析）</title>
+      <link>https://garnettboy.gitee.io/p/hadoop8hadoop-mapreduceshuffle%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/</link>
+      <pubDate>Mon, 14 Aug 2023 10:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/hadoop8hadoop-mapreduceshuffle%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/</guid>
+      <description>一、Shuffle工作流程 Map 方法之后，Reduce 方法之前的数据处理过程称之为 Shuffle。
+image-20230811083233707 Shuffle的处理流程示意图：
+image-20230815155957034 （1）MapTask 收集我们的 map()方法输出的 kv 对，放到内存缓冲区中 （2）从内存缓冲区不断溢出本地磁盘文件，可能会溢出多个文件 （3）多个溢出文件会被合并成大的溢出文件 （4）在溢出过程及合并的过程中，都要调用 Partitioner 进行分区和针对 key 进行排序 （5）ReduceTask 根据自己的分区号，去各个 MapTask 机器上取相应的结果分区数据 （6）ReduceTask 会抓取到同一个分区的来自不同 MapTask 的结果文件，ReduceTask 会将这些文件再进行合并（归并排序） （7）合并成大文件后，Shuffle 的过程也就结束了，后面进入 ReduceTask 的逻辑运算过程（从文件中取出一个一个的键值对 Group，调用用户自定义的 reduce()方法） 注意：
+（1）Shuffle 中的缓冲区大小会影响到 MapReduce 程序的执行效率，原则上说，缓冲区越大，磁盘 io 的次数越少，执行速度就越快。 （2）缓冲区的大小可以通过参数调整，参数：mapreduce.task.io.sort.mb 默认 100M。 二、Partition分区 image-20230817100945739 2.1 分区的概念及默认分区 是在Map环节，将Map计算结果从内存输出到磁盘分区文件的过程。比如：
+image-20230816153524867 然后ReduceTask 根据自己的分区号，去各个 MapTask 机器上取相应的结果分区数据。那么分区文件只能有一个吗？不是的，分区文件默认是一个，但是可以动态设置。
+我们来分析一下默认的分区是怎么生成的。
+如果我们设置了
+job.setNumReduceTasks(2); 则会使用默认分区处理方法：
+public class HashPartitioner&amp;lt;K, V&amp;gt; extends Partitioner&amp;lt;K, V&amp;gt; { public int getPartition(K key, V value, int numReduceTasks) { return (key.</description>
+    </item>
+    
+    <item>
+      <title>（Hadoop7）Hadoop-MapReduce（MapTask过程分析）</title>
+      <link>https://garnettboy.gitee.io/p/hadoop7hadoop-mapreducemaptask%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/</link>
+      <pubDate>Mon, 07 Aug 2023 11:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/hadoop7hadoop-mapreducemaptask%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/</guid>
+      <description>一、MapReduce工作流程 image-20230811083233707 前面我们已经介绍过，一个完整的 MapReduce 程序在分布式运行时有三类实例进程：
+（1）MrAppMaster：负责整个程序的过程调度及状态协调。 （2）MapTask：负责 Map 阶段的整个数据处理流程。 （3）ReduceTask：负责 Reduce 阶段的整个数据处理流程。 我们开研究一下MapTask、ReduceTask、Shuffle阶段，Hadoop做了什么工作。
+二、MapTask过程分析 image-20230821091740637 （1）Read 阶段：MapTask 通过 InputFormat 获得的 RecordReader，从输入 InputSplit 中解析出一个个 key/value。
+（2）Map 阶段：该节点主要是将解析出的 key/value 交给用户编写 map()函数处理，并产生一系列新的 key/value。
+（3）Collect 收集阶段：在用户编写 map()函数中，当数据处理完成后，一般会调用OutputCollector.collect()输出结果。在该函数内部，它会将生成的 key/value 分区（调用Partitioner），并写入一个环形内存缓冲区中。
+（4）Spill 阶段：即“溢写”，当环形缓冲区满后，MapReduce 会将数据写到本地磁盘上，生成一个临时文件。需要注意的是，将数据写入本地磁盘之前，先要对数据进行一次本地排序，并在必要时对数据进行合并、压缩等操作。
+（5）Merge 阶段：当所有数据处理完成后，MapTask 对所有临时文件进行一次合并，以确保最终只会生成一个数据文件。
+2.1 数据块和数据切片的区别 **数据块：**Block 是 HDFS 物理层面上把数据分成一块一块。数据块是 HDFS 存储数据单位，是物理层的分块。我们在学习HDFS是就知道Block 默认大小是128M。
+image-20230727094304459 **数据切片：**数据切片只是在逻辑层面上对输入进行分片，并不会在磁盘上将其切分成片进行存储。数据切片是 MapReduce 程序计算输入数据的单位，一个切片会对应启动一个 MapTask。
+比如：一个文件200M，那么数据快会分为2分：数据块1（128M）、数据块2（72M）。但是数据切片却可以理解为把第一个数据块128M分为切片1（64M）、切片2(64M)、切片3（72M），但是实际上，切片1和切片2都属于数据块1。
+MapTask 的并行度决定 Map 阶段的任务处理并发度，进而影响到整个 Job 的处理速度。
+那么思考一个问题：1G 的数据，启动 8 个 MapTask，可以提高集群的并发处理能力。那么 1K 的数据，也启动 8 个 MapTask，会提高集群性能吗？MapTask 并行任务是否越多越好呢？当然不是。</description>
+    </item>
+    
+    <item>
+      <title>（Hadoop6）Hadoop-MapReduce介绍及使用示例</title>
+      <link>https://garnettboy.gitee.io/p/hadoop6hadoop-mapreduce%E4%BB%8B%E7%BB%8D%E5%8F%8A%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/</link>
+      <pubDate>Mon, 07 Aug 2023 10:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/hadoop6hadoop-mapreduce%E4%BB%8B%E7%BB%8D%E5%8F%8A%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/</guid>
+      <description>一、MapReduce概念 MapReduce 是一个分布式运算程序的编程框架，核心功能是将用户编写的业务逻辑代码和自带默认组件整合成一个完整的分布式运算程序，并运行在一个 Hadoop 集群上。它简单的实现一些接口，就可以完成一个分布式程序，这个分布式程序可以分布到大量廉价的 PC 机器上运行。
+二、MapReduce工作流程和编程规范 2.1 MapReduce 工作流程 一个完整的 MapReduce 程序在分布式运行时有三类实例进程：
+（1）MrAppMaster：负责整个程序的过程调度及状态协调。 （2）MapTask：负责 Map 阶段的整个数据处理流程。 （3）ReduceTask：负责 Reduce 阶段的整个数据处理流程。 2.2 MapReduce 编程规范 用户编写的程序分成三个部分：Mapper、Reducer 和 Driver。
+1．Mapper阶段
+（1）用户自定义的Mapper要继承自己的父类 （2）Mapper的输入数据是KV对的形式（KV的类型可自定义） （3）Mapper中的业务逻辑写在map()方法中 （4）Mapper的输出数据是KV对的形式（KV的类型可自定义） （5）map()方法（MapTask进程）对每一个&amp;lt;K,V&amp;gt;调用一次 2．Reducer阶段
+（1）用户自定义的Reducer要继承自己的父类 （2）Reducer的输入数据类型对应Mapper的输出数据类型，也是KV （3）Reducer的业务逻辑写在reduce()方法中 （4）ReduceTask进程对每一组相同k的&amp;lt;k,v&amp;gt;组调用一次reduce()方法 3．Driver阶段
+相当于YARN集群的客户端，用于提交我们整个程序到YARN集群，提交的是封装了MapReduce程序相关运行参数的job对象。
+三、Hadoop 序列化及序列化数据类型 3.1 Hadoop 序列化数据类型 image-20230809105725981 3.2 Hadoop 序列化 Hadoop 为什么要序列化？学习过java序列化就可以明白，由于Hadoop 在计算过程中涉及集群间数据的传输（内存对象&amp;ndash;&amp;gt;磁盘&amp;ndash;&amp;gt;内存对象），如果不是在同一个服务上，那么转化会失败。
+为什么不用 Java 的序列化？Java 的序列化是一个重量级序列化框架（Serializable），一个对象被序列化后，会附带很多额外的信息（各种校验信息，Header，继承体系等），不便于在网络中高效传输。所以，Hadoop 自己开发了一套序列化机制（Writable接口）。
+package org.apache.hadoop.io; import java.io.DataInput; import java.io.DataOutput; import java.io.IOException; import org.apache.hadoop.classification.InterfaceAudience.Public; import org.apache.hadoop.classification.InterfaceStability.Stable; @Public @Stable public interface Writable { void write(DataOutput var1) throws IOException; void readFields(DataInput var1) throws IOException; } Hadoop 中 bean 对象实现序列化接口需要以下7个步骤：</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,1608 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Python 基础1'><title>Python 基础1</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/python-%E5%9F%BA%E7%A1%801/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Python 基础1'>
+<meta property='og:description' content='Python 基础1'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/python-%E5%9F%BA%E7%A1%801/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Python' /><meta property='article:published_time' content='2023-05-30T10:02:36&#43;00:00'/><meta property='article:modified_time' content='2023-05-30T10:02:36&#43;00:00'/>
+<meta name="twitter:title" content="Python 基础1">
+<meta name="twitter:description" content="Python 基础1">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/python/" >
+                Python
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/python-%E5%9F%BA%E7%A1%801/">Python 基础1</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        Python 基础1
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">May 30, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 7 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <h2 id="一python-入门">一、Python 入门</h2>
+<h3 id="11-常用数据类型">1.1 常用数据类型</h3>
+<p><figure 
+	>
+	<a href="/../../images/python-01/image-20230530164137403.png" >
+		<img src="/../../images/python-01/image-20230530164137403.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230530164137403">
+	</a>
+	
+	<figcaption>image-20230530164137403</figcaption>
+	
+</figure></p>
+<h3 id="12运算符">1.2运算符</h3>
+<h4 id="121-算数运算符">1.2.1 算数运算符</h4>
+<p><figure 
+	>
+	<a href="/../../images/python-01/image-20230530172722292.png" >
+		<img src="/../../images/python-01/image-20230530172722292.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230530172722292">
+	</a>
+	
+	<figcaption>image-20230530172722292</figcaption>
+	
+</figure></p>
+<h4 id="121-赋值运算符">1.2.1 赋值运算符</h4>
+<p><figure 
+	>
+	<a href="/../../images/python-01/image-20230530173141232.png" >
+		<img src="/../../images/python-01/image-20230530173141232.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230530173141232">
+	</a>
+	
+	<figcaption>image-20230530173141232</figcaption>
+	
+</figure></p>
+<h4 id="121-复合赋值运算符">1.2.1 复合赋值运算符</h4>
+<p><figure 
+	>
+	<a href="/../../images/python-01/image-20230530173236973.png" >
+		<img src="/../../images/python-01/image-20230530173236973.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230530173236973">
+	</a>
+	
+	<figcaption>image-20230530173236973</figcaption>
+	
+</figure></p>
+<h3 id="13格式化">1.3格式化</h3>
+<h4 id="131--占位符">1.3.1  占位符</h4>
+<p><figure 
+	>
+	<a href="/../../images/python-01/image-20230531091947106.png" >
+		<img src="/../../images/python-01/image-20230531091947106.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230531091947106">
+	</a>
+	
+	<figcaption>image-20230531091947106</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/python-01/image-20230531101427396.png" >
+		<img src="/../../images/python-01/image-20230531101427396.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230531101427396">
+	</a>
+	
+	<figcaption>image-20230531101427396</figcaption>
+	
+</figure></p>
+<p>示例：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">name</span> <span class="o">=</span> <span class="s2">&#34;测试&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="n">name2</span> <span class="o">=</span> <span class="mf">1111.11</span>
+</span></span><span class="line"><span class="cl"><span class="n">name3</span> <span class="o">=</span> <span class="mf">1111.22</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="s2">&#34; </span><span class="si">%s</span><span class="s2"> || </span><span class="si">%d</span><span class="s2"> || </span><span class="si">%f</span><span class="s2">&#34;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="n">name2</span><span class="p">,</span><span class="n">name3</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">输出结果</span><span class="err">：</span><span class="n">测试</span> <span class="o">||</span> <span class="mi">1111</span> <span class="o">||</span> <span class="mf">1111.220000</span>
+</span></span><span class="line"><span class="cl"><span class="o">-----------------------------------------</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">name</span> <span class="o">=</span> <span class="s2">&#34;测试&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="n">name2</span> <span class="o">=</span> <span class="mf">1111.11</span>
+</span></span><span class="line"><span class="cl"><span class="n">name3</span> <span class="o">=</span> <span class="mf">1111.22</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="s2">&#34; </span><span class="si">%s</span><span class="s2"> || </span><span class="si">%10d</span><span class="s2"> || </span><span class="si">%10.1f</span><span class="s2">&#34;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="n">name2</span><span class="p">,</span><span class="n">name3</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">输出结果</span><span class="err">：</span> <span class="n">测试</span> <span class="o">||</span>       <span class="mi">1111</span> <span class="o">||</span>     <span class="mf">1111.2</span>
+</span></span></code></pre></div><h4 id="132-字符串格式化-快速写法">1.3.2 字符串格式化-快速写法</h4>
+<blockquote>
+<p>语法：f&quot;内容{变量}&quot;，该类型不限制类型，不做精度控制</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">name</span> <span class="o">=</span> <span class="s2">&#34;测试&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="n">name2</span> <span class="o">=</span> <span class="mf">1111.11</span>
+</span></span><span class="line"><span class="cl"><span class="n">name3</span> <span class="o">=</span> <span class="mf">1111.22</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;name:</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">,name2:</span><span class="si">{</span><span class="n">name2</span><span class="si">}</span><span class="s2">,name3:</span><span class="si">{</span><span class="n">name3</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">输出结果</span><span class="err">：</span><span class="n">name</span><span class="p">:</span><span class="n">测试</span><span class="p">,</span><span class="n">name2</span><span class="p">:</span><span class="mf">1111.11</span><span class="p">,</span><span class="n">name3</span><span class="p">:</span><span class="mf">1111.22</span>
+</span></span></code></pre></div><h3 id="14数据输入">1.4数据输入</h3>
+<blockquote>
+<p>input(param)，控制台输入</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">name</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&#34;Who Are you?&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Ok,you are </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">输出结果</span><span class="err">：</span><span class="n">Who</span> <span class="n">Are</span> <span class="n">you</span><span class="err">?</span><span class="n">tom</span>
+</span></span><span class="line"><span class="cl"><span class="n">Ok</span><span class="p">,</span><span class="n">you</span> <span class="n">are</span> <span class="n">tom</span>
+</span></span></code></pre></div><h3 id="15-布尔类型和比较运算">1.5 布尔类型和比较运算</h3>
+<p><figure 
+	>
+	<a href="/../../images/python-01/image-20230531104221283.png" >
+		<img src="/../../images/python-01/image-20230531104221283.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230531104221283">
+	</a>
+	
+	<figcaption>image-20230531104221283</figcaption>
+	
+</figure></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">bool3</span><span class="o">=</span> <span class="kc">True</span>
+</span></span><span class="line"><span class="cl"><span class="n">bool4</span><span class="o">=</span> <span class="kc">False</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;bool3:</span><span class="si">{</span><span class="n">bool3</span><span class="si">}</span><span class="s2">,类型为：</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">bool3</span><span class="p">)</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;bool4:</span><span class="si">{</span><span class="n">bool4</span><span class="si">}</span><span class="s2">,类型为：</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">bool4</span><span class="p">)</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">-----------</span><span class="n">输出结果</span><span class="err">：</span><span class="o">-----------</span>
+</span></span><span class="line"><span class="cl"><span class="n">bool3</span><span class="p">:</span><span class="kc">True</span><span class="p">,</span><span class="n">类型为</span><span class="err">：</span><span class="o">&lt;</span><span class="k">class</span> <span class="err">&#39;</span><span class="nc">bool</span><span class="s1">&#39;&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="n">bool4</span><span class="p">:</span><span class="kc">False</span><span class="p">,</span><span class="n">类型为</span><span class="err">：</span><span class="o">&lt;</span><span class="k">class</span> <span class="err">&#39;</span><span class="nc">bool</span><span class="s1">&#39;&gt;</span>
+</span></span></code></pre></div><h3 id="16-判断语句">1.6 判断语句</h3>
+<h4 id="161-ifif-else-if-elif-else">1.6.1 if、if else、 if elif else</h4>
+<p><figure 
+	>
+	<a href="/../../images/python-01/image-20230531105414975.png" >
+		<img src="/../../images/python-01/image-20230531105414975.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230531105414975">
+	</a>
+	
+	<figcaption>image-20230531105414975</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/python-01/image-20230531105606491.png" >
+		<img src="/../../images/python-01/image-20230531105606491.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230531105606491">
+	</a>
+	
+	<figcaption>image-20230531105606491</figcaption>
+	
+</figure></p>
+<blockquote>
+<p>注意：注意条件成立是前面4个空格。</p>
+</blockquote>
+<h3 id="17-逻辑运算">1.7 逻辑运算</h3>
+<p><figure 
+	>
+	<a href="/../../images/python-01/image-20230531111124416.png" >
+		<img src="/../../images/python-01/image-20230531111124416.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230531111124416">
+	</a>
+	
+	<figcaption>image-20230531111124416</figcaption>
+	
+</figure></p>
+<h3 id="18-循环">1.8 循环</h3>
+<h4 id="181while">1.8.1while</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">i</span><span class="o">=</span><span class="mi">0</span>
+</span></span><span class="line"><span class="cl"><span class="k">while</span> <span class="n">i</span><span class="o">&lt;</span><span class="mi">10</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;i值：</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">i</span><span class="o">+=</span><span class="mi">1</span>
+</span></span></code></pre></div><p>实例：99乘法表</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">i</span><span class="o">=</span><span class="mi">1</span>
+</span></span><span class="line"><span class="cl"><span class="k">while</span> <span class="n">i</span><span class="o">&lt;=</span><span class="mi">9</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">j</span><span class="o">=</span><span class="mi">1</span>
+</span></span><span class="line"><span class="cl">    <span class="k">while</span> <span class="n">j</span><span class="o">&lt;=</span><span class="n">i</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;</span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s2"> * </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span> <span class="n">j</span> <span class="o">*</span> <span class="n">i</span><span class="si">}</span><span class="se">\t</span><span class="s2">&#34;</span><span class="p">,</span><span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="c1">#\t是制表符对齐,end表示不换行</span>
+</span></span><span class="line"><span class="cl">        <span class="n">j</span><span class="o">+=</span><span class="mi">1</span>
+</span></span><span class="line"><span class="cl">    <span class="n">i</span><span class="o">+=</span><span class="mi">1</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">()</span> <span class="c1">#输空格，换行</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl"><span class="o">-----------------------------------</span>
+</span></span><span class="line"><span class="cl"><span class="mi">1</span> <span class="o">*</span> <span class="mi">1</span> <span class="o">=</span> <span class="mi">1</span>	
+</span></span><span class="line"><span class="cl"><span class="mi">1</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">=</span> <span class="mi">2</span>	<span class="mi">2</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">=</span> <span class="mi">4</span>	
+</span></span><span class="line"><span class="cl"><span class="mi">1</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">=</span> <span class="mi">3</span>	<span class="mi">2</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">=</span> <span class="mi">6</span>	<span class="mi">3</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">=</span> <span class="mi">9</span>	
+</span></span><span class="line"><span class="cl"><span class="mi">1</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">=</span> <span class="mi">4</span>	<span class="mi">2</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">=</span> <span class="mi">8</span>	<span class="mi">3</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">=</span> <span class="mi">12</span>	<span class="mi">4</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">=</span> <span class="mi">16</span>	
+</span></span><span class="line"><span class="cl"><span class="mi">1</span> <span class="o">*</span> <span class="mi">5</span> <span class="o">=</span> <span class="mi">5</span>	<span class="mi">2</span> <span class="o">*</span> <span class="mi">5</span> <span class="o">=</span> <span class="mi">10</span>	<span class="mi">3</span> <span class="o">*</span> <span class="mi">5</span> <span class="o">=</span> <span class="mi">15</span>	<span class="mi">4</span> <span class="o">*</span> <span class="mi">5</span> <span class="o">=</span> <span class="mi">20</span>	<span class="mi">5</span> <span class="o">*</span> <span class="mi">5</span> <span class="o">=</span> <span class="mi">25</span>	
+</span></span><span class="line"><span class="cl"><span class="mi">1</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">=</span> <span class="mi">6</span>	<span class="mi">2</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">=</span> <span class="mi">12</span>	<span class="mi">3</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">=</span> <span class="mi">18</span>	<span class="mi">4</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">=</span> <span class="mi">24</span>	<span class="mi">5</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">=</span> <span class="mi">30</span>	<span class="mi">6</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">=</span> <span class="mi">36</span>	
+</span></span><span class="line"><span class="cl"><span class="mi">1</span> <span class="o">*</span> <span class="mi">7</span> <span class="o">=</span> <span class="mi">7</span>	<span class="mi">2</span> <span class="o">*</span> <span class="mi">7</span> <span class="o">=</span> <span class="mi">14</span>	<span class="mi">3</span> <span class="o">*</span> <span class="mi">7</span> <span class="o">=</span> <span class="mi">21</span>	<span class="mi">4</span> <span class="o">*</span> <span class="mi">7</span> <span class="o">=</span> <span class="mi">28</span>	<span class="mi">5</span> <span class="o">*</span> <span class="mi">7</span> <span class="o">=</span> <span class="mi">35</span>	<span class="mi">6</span> <span class="o">*</span> <span class="mi">7</span> <span class="o">=</span> <span class="mi">42</span>	<span class="mi">7</span> <span class="o">*</span> <span class="mi">7</span> <span class="o">=</span> <span class="mi">49</span>	
+</span></span><span class="line"><span class="cl"><span class="mi">1</span> <span class="o">*</span> <span class="mi">8</span> <span class="o">=</span> <span class="mi">8</span>	<span class="mi">2</span> <span class="o">*</span> <span class="mi">8</span> <span class="o">=</span> <span class="mi">16</span>	<span class="mi">3</span> <span class="o">*</span> <span class="mi">8</span> <span class="o">=</span> <span class="mi">24</span>	<span class="mi">4</span> <span class="o">*</span> <span class="mi">8</span> <span class="o">=</span> <span class="mi">32</span>	<span class="mi">5</span> <span class="o">*</span> <span class="mi">8</span> <span class="o">=</span> <span class="mi">40</span>	<span class="mi">6</span> <span class="o">*</span> <span class="mi">8</span> <span class="o">=</span> <span class="mi">48</span>	<span class="mi">7</span> <span class="o">*</span> <span class="mi">8</span> <span class="o">=</span> <span class="mi">56</span>	<span class="mi">8</span> <span class="o">*</span> <span class="mi">8</span> <span class="o">=</span> <span class="mi">64</span>	
+</span></span><span class="line"><span class="cl"><span class="mi">1</span> <span class="o">*</span> <span class="mi">9</span> <span class="o">=</span> <span class="mi">9</span>	<span class="mi">2</span> <span class="o">*</span> <span class="mi">9</span> <span class="o">=</span> <span class="mi">18</span>	<span class="mi">3</span> <span class="o">*</span> <span class="mi">9</span> <span class="o">=</span> <span class="mi">27</span>	<span class="mi">4</span> <span class="o">*</span> <span class="mi">9</span> <span class="o">=</span> <span class="mi">36</span>	<span class="mi">5</span> <span class="o">*</span> <span class="mi">9</span> <span class="o">=</span> <span class="mi">45</span>	<span class="mi">6</span> <span class="o">*</span> <span class="mi">9</span> <span class="o">=</span> <span class="mi">54</span>	<span class="mi">7</span> <span class="o">*</span> <span class="mi">9</span> <span class="o">=</span> <span class="mi">63</span>	<span class="mi">8</span> <span class="o">*</span> <span class="mi">9</span> <span class="o">=</span> <span class="mi">72</span>	<span class="mi">9</span> <span class="o">*</span> <span class="mi">9</span> <span class="o">=</span> <span class="mi">81</span>	
+</span></span></code></pre></div><h4 id="182-for">1.8.2 for</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1">#字符串循环</span>
+</span></span><span class="line"><span class="cl"><span class="n">name</span> <span class="o">=</span> <span class="s2">&#34;abc&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">name</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">-------------------------</span>
+</span></span><span class="line"><span class="cl"><span class="n">a</span>
+</span></span><span class="line"><span class="cl"><span class="n">b</span>
+</span></span><span class="line"><span class="cl"><span class="n">c</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#range 语句 range（x,y,z）:获取x开始到y,间隔的数字序列</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="err">（</span><span class="mi">5</span><span class="err">）</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">---------------------------</span>
+</span></span><span class="line"><span class="cl"><span class="mi">0</span>
+</span></span><span class="line"><span class="cl"><span class="mi">1</span>
+</span></span><span class="line"><span class="cl"><span class="mi">2</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">5</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"> <span class="o">---------------------------</span>
+</span></span><span class="line"><span class="cl"><span class="mi">3</span>
+</span></span><span class="line"><span class="cl"><span class="mi">4</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">2</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"> <span class="o">---------------------------</span>
+</span></span><span class="line"><span class="cl"><span class="mi">5</span>
+</span></span><span class="line"><span class="cl"><span class="mi">7</span>
+</span></span><span class="line"><span class="cl"><span class="mi">9</span>
+</span></span></code></pre></div><p>实例：99乘法表</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">10</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;</span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s2"> * </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">j</span> <span class="o">*</span> <span class="n">i</span><span class="si">}</span><span class="se">\t</span><span class="s2">&#34;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>  <span class="c1"># \t是制表符对齐,end表示不换行</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">-----------------------------------</span>
+</span></span><span class="line"><span class="cl"><span class="mi">1</span> <span class="o">*</span> <span class="mi">1</span> <span class="o">=</span> <span class="mi">1</span>	
+</span></span><span class="line"><span class="cl"><span class="mi">1</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">=</span> <span class="mi">2</span>	<span class="mi">2</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">=</span> <span class="mi">4</span>	
+</span></span><span class="line"><span class="cl"><span class="mi">1</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">=</span> <span class="mi">3</span>	<span class="mi">2</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">=</span> <span class="mi">6</span>	<span class="mi">3</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">=</span> <span class="mi">9</span>	
+</span></span><span class="line"><span class="cl"><span class="mi">1</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">=</span> <span class="mi">4</span>	<span class="mi">2</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">=</span> <span class="mi">8</span>	<span class="mi">3</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">=</span> <span class="mi">12</span>	<span class="mi">4</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">=</span> <span class="mi">16</span>	
+</span></span><span class="line"><span class="cl"><span class="mi">1</span> <span class="o">*</span> <span class="mi">5</span> <span class="o">=</span> <span class="mi">5</span>	<span class="mi">2</span> <span class="o">*</span> <span class="mi">5</span> <span class="o">=</span> <span class="mi">10</span>	<span class="mi">3</span> <span class="o">*</span> <span class="mi">5</span> <span class="o">=</span> <span class="mi">15</span>	<span class="mi">4</span> <span class="o">*</span> <span class="mi">5</span> <span class="o">=</span> <span class="mi">20</span>	<span class="mi">5</span> <span class="o">*</span> <span class="mi">5</span> <span class="o">=</span> <span class="mi">25</span>	
+</span></span><span class="line"><span class="cl"><span class="mi">1</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">=</span> <span class="mi">6</span>	<span class="mi">2</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">=</span> <span class="mi">12</span>	<span class="mi">3</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">=</span> <span class="mi">18</span>	<span class="mi">4</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">=</span> <span class="mi">24</span>	<span class="mi">5</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">=</span> <span class="mi">30</span>	<span class="mi">6</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">=</span> <span class="mi">36</span>	
+</span></span><span class="line"><span class="cl"><span class="mi">1</span> <span class="o">*</span> <span class="mi">7</span> <span class="o">=</span> <span class="mi">7</span>	<span class="mi">2</span> <span class="o">*</span> <span class="mi">7</span> <span class="o">=</span> <span class="mi">14</span>	<span class="mi">3</span> <span class="o">*</span> <span class="mi">7</span> <span class="o">=</span> <span class="mi">21</span>	<span class="mi">4</span> <span class="o">*</span> <span class="mi">7</span> <span class="o">=</span> <span class="mi">28</span>	<span class="mi">5</span> <span class="o">*</span> <span class="mi">7</span> <span class="o">=</span> <span class="mi">35</span>	<span class="mi">6</span> <span class="o">*</span> <span class="mi">7</span> <span class="o">=</span> <span class="mi">42</span>	<span class="mi">7</span> <span class="o">*</span> <span class="mi">7</span> <span class="o">=</span> <span class="mi">49</span>	
+</span></span><span class="line"><span class="cl"><span class="mi">1</span> <span class="o">*</span> <span class="mi">8</span> <span class="o">=</span> <span class="mi">8</span>	<span class="mi">2</span> <span class="o">*</span> <span class="mi">8</span> <span class="o">=</span> <span class="mi">16</span>	<span class="mi">3</span> <span class="o">*</span> <span class="mi">8</span> <span class="o">=</span> <span class="mi">24</span>	<span class="mi">4</span> <span class="o">*</span> <span class="mi">8</span> <span class="o">=</span> <span class="mi">32</span>	<span class="mi">5</span> <span class="o">*</span> <span class="mi">8</span> <span class="o">=</span> <span class="mi">40</span>	<span class="mi">6</span> <span class="o">*</span> <span class="mi">8</span> <span class="o">=</span> <span class="mi">48</span>	<span class="mi">7</span> <span class="o">*</span> <span class="mi">8</span> <span class="o">=</span> <span class="mi">56</span>	<span class="mi">8</span> <span class="o">*</span> <span class="mi">8</span> <span class="o">=</span> <span class="mi">64</span>	
+</span></span><span class="line"><span class="cl"><span class="mi">1</span> <span class="o">*</span> <span class="mi">9</span> <span class="o">=</span> <span class="mi">9</span>	<span class="mi">2</span> <span class="o">*</span> <span class="mi">9</span> <span class="o">=</span> <span class="mi">18</span>	<span class="mi">3</span> <span class="o">*</span> <span class="mi">9</span> <span class="o">=</span> <span class="mi">27</span>	<span class="mi">4</span> <span class="o">*</span> <span class="mi">9</span> <span class="o">=</span> <span class="mi">36</span>	<span class="mi">5</span> <span class="o">*</span> <span class="mi">9</span> <span class="o">=</span> <span class="mi">45</span>	<span class="mi">6</span> <span class="o">*</span> <span class="mi">9</span> <span class="o">=</span> <span class="mi">54</span>	<span class="mi">7</span> <span class="o">*</span> <span class="mi">9</span> <span class="o">=</span> <span class="mi">63</span>	<span class="mi">8</span> <span class="o">*</span> <span class="mi">9</span> <span class="o">=</span> <span class="mi">72</span>	<span class="mi">9</span> <span class="o">*</span> <span class="mi">9</span> <span class="o">=</span> <span class="mi">81</span>	
+</span></span></code></pre></div><h4 id="183-breake">1.8.3 breake</h4>
+<p>结束循环</p>
+<h4 id="184-continue">1.8.4 continue</h4>
+<p>中断本次循环进行下次循环</p>
+<h2 id="二数据容器">二、数据容器</h2>
+<p><figure 
+	>
+	<a href="/../../images/python-01/image-20230601091556646.png" >
+		<img src="/../../images/python-01/image-20230601091556646.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230601091556646">
+	</a>
+	
+	<figcaption>image-20230601091556646</figcaption>
+	
+</figure></p>
+<h3 id="21-list-列表">2.1 list 列表</h3>
+<p>有序、数据类型无限制、可修改、允许重复</p>
+<p><figure 
+	>
+	<a href="/../../images/python-01/image-20230531150544297.png" >
+		<img src="/../../images/python-01/image-20230531150544297.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230531150544297">
+	</a>
+	
+	<figcaption>image-20230531150544297</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/python-01/image-20230531145959527.png" >
+		<img src="/../../images/python-01/image-20230531145959527.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230531145959527">
+	</a>
+	
+	<figcaption>image-20230531145959527</figcaption>
+	
+</figure></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1">#示例1</span>
+</span></span><span class="line"><span class="cl"><span class="n">list1</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span><span class="kc">True</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">list2</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;cccc&#39;</span><span class="p">,</span> <span class="n">list1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">list2</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">------------------------------</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s1">&#39;cccc&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">]]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#示例2</span>
+</span></span><span class="line"><span class="cl"><span class="n">list1</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span><span class="kc">True</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">list2</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;cccc&#39;</span><span class="p">,</span> <span class="n">list1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">list2</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="o">------------------------------</span>
+</span></span><span class="line"><span class="cl"><span class="n">a</span>
+</span></span></code></pre></div><h3 id="22-tuple-元组">2.2 tuple 元组</h3>
+<p>有序、数据类型无限制、<strong>不可修改</strong>、允许重复</p>
+<p><figure 
+	>
+	<a href="/../../images/python-01/image-20230531150447413.png" >
+		<img src="/../../images/python-01/image-20230531150447413.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230531150447413">
+	</a>
+	
+	<figcaption>image-20230531150447413</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/python-01/image-20230531150822479.png" >
+		<img src="/../../images/python-01/image-20230531150822479.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230531150822479">
+	</a>
+	
+	<figcaption>image-20230531150822479</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/python-01/image-20230531150846288.png" >
+		<img src="/../../images/python-01/image-20230531150846288.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230531150846288">
+	</a>
+	
+	<figcaption>image-20230531150846288</figcaption>
+	
+</figure></p>
+<h3 id="23-str字符串">2.3 str字符串</h3>
+<p><figure 
+	>
+	<a href="/../../images/python-01/image-20230531151913799.png" >
+		<img src="/../../images/python-01/image-20230531151913799.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230531151913799">
+	</a>
+	
+	<figcaption>image-20230531151913799</figcaption>
+	
+</figure></p>
+<h3 id="24-set-集合">2.4 set 集合</h3>
+<p>无序、不允许重复、数据类型无限制</p>
+<p><figure 
+	>
+	<a href="/../../images/python-01/image-20230531155217005.png" >
+		<img src="/../../images/python-01/image-20230531155217005.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230531155217005">
+	</a>
+	
+	<figcaption>image-20230531155217005</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/python-01/image-20230531155417875.png" >
+		<img src="/../../images/python-01/image-20230531155417875.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230531155417875">
+	</a>
+	
+	<figcaption>image-20230531155417875</figcaption>
+	
+</figure></p>
+<h3 id="25-distinction字典">2.5 distinction字典</h3>
+<p>无序、不允许Key值重复、可修改、不支持while循环</p>
+<p><figure 
+	>
+	<a href="/../../images/python-01/image-20230531155609378.png" >
+		<img src="/../../images/python-01/image-20230531155609378.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230531155609378">
+	</a>
+	
+	<figcaption>image-20230531155609378</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/python-01/image-20230531160749674.png" >
+		<img src="/../../images/python-01/image-20230531160749674.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230531160749674">
+	</a>
+	
+	<figcaption>image-20230531160749674</figcaption>
+	
+</figure></p>
+<h3 id="26-列表元组字符串切片">2.6 列表、元组、字符串切片</h3>
+<p>序列类型：列表、元组、字符串</p>
+<p>切片方法：</p>
+<p><figure 
+	>
+	<a href="/../../images/python-01/image-20230531153326129.png" >
+		<img src="/../../images/python-01/image-20230531153326129.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230531153326129">
+	</a>
+	
+	<figcaption>image-20230531153326129</figcaption>
+	
+</figure></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">tuple1</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">tuple1</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">5</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">tuple1</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">5</span><span class="p">:</span><span class="mi">2</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">tuple1</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">tuple1</span><span class="p">[::</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="o">------------------------------</span>
+</span></span><span class="line"><span class="cl"><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span></span></code></pre></div><h3 id="27-通用函数">2.7 通用函数</h3>
+<p><figure 
+	>
+	<a href="/../../images/python-01/image-20230601093323112.png" >
+		<img src="/../../images/python-01/image-20230601093323112.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230601093323112">
+	</a>
+	
+	<figcaption>image-20230601093323112</figcaption>
+	
+</figure></p>
+<h2 id="三函数">三、函数</h2>
+<h3 id="31-定义函数">3.1 定义函数</h3>
+<p><figure 
+	>
+	<a href="/../../images/python-01/image-20230531140618075.png" >
+		<img src="/../../images/python-01/image-20230531140618075.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230531140618075">
+	</a>
+	
+	<figcaption>image-20230531140618075</figcaption>
+	
+</figure></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1">#示例1</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">fun1</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">a</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">a</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">fun1</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="o">-----------------------------------</span>
+</span></span><span class="line"><span class="cl"><span class="mi">5</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#示例2：返回None</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">fun1</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;---fun1----&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">fun2</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;---fun2----&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">fun1</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)))</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">fun2</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)))</span>
+</span></span><span class="line"><span class="cl"><span class="o">-----------------------------------</span>
+</span></span><span class="line"><span class="cl"><span class="o">---</span><span class="n">fun1</span><span class="o">----</span>
+</span></span><span class="line"><span class="cl"><span class="o">&lt;</span><span class="k">class</span> <span class="err">&#39;</span><span class="nc">NoneType</span><span class="s1">&#39;&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="o">---</span><span class="n">fun2</span><span class="o">----</span>
+</span></span><span class="line"><span class="cl"><span class="o">&lt;</span><span class="k">class</span> <span class="err">&#39;</span><span class="nc">NoneType</span><span class="s1">&#39;&gt;</span>
+</span></span></code></pre></div><p>添加函数说明</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">fun2</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;&#34;&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s2">    :param x:参数1
+</span></span></span><span class="line"><span class="cl"><span class="s2">    :param y:参数2
+</span></span></span><span class="line"><span class="cl"><span class="s2">    :return: 返回值
+</span></span></span><span class="line"><span class="cl"><span class="s2">    &#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;---fun2----&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">fun2</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)))</span>
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/python-01/image-20230531141940430.png" >
+		<img src="/../../images/python-01/image-20230531141940430.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230531141940430">
+	</a>
+	
+	<figcaption>image-20230531141940430</figcaption>
+	
+</figure></p>
+<h3 id="32-函数传参及多返回值">3.2 函数传参及多返回值</h3>
+<blockquote>
+<p>传参可以指定key，也可以不指定，如果参数未指定key,则传参是必须放在最前面，指定key传参时无顺序要求</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">fun2</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">a</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+</span></span><span class="line"><span class="cl">    <span class="n">b</span> <span class="o">=</span> <span class="n">x</span> <span class="o">*</span> <span class="n">y</span>
+</span></span><span class="line"><span class="cl">    <span class="n">c</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">a1</span><span class="p">,</span> <span class="n">b1</span><span class="p">,</span> <span class="n">c1</span> <span class="o">=</span> <span class="n">fun2</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">a1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">b1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">c1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">a2</span><span class="p">,</span> <span class="n">b2</span><span class="p">,</span> <span class="n">c2</span> <span class="o">=</span> <span class="n">fun2</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">a2</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">b2</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">c2</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">--------------------------</span>
+</span></span><span class="line"><span class="cl"><span class="mi">5</span>
+</span></span><span class="line"><span class="cl"><span class="mi">6</span>
+</span></span><span class="line"><span class="cl"><span class="mi">23</span>
+</span></span><span class="line"><span class="cl"><span class="mi">5</span>
+</span></span><span class="line"><span class="cl"><span class="mi">6</span>
+</span></span><span class="line"><span class="cl"><span class="mi">32</span>
+</span></span></code></pre></div><blockquote>
+<p>参数默认值用法(<strong>默认参数必须写在最后面</strong>)</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">fun2</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">5</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">a</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+</span></span><span class="line"><span class="cl">    <span class="n">b</span> <span class="o">=</span> <span class="n">x</span> <span class="o">*</span> <span class="n">y</span>
+</span></span><span class="line"><span class="cl">    <span class="n">c</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">a1</span><span class="p">,</span> <span class="n">b1</span><span class="p">,</span> <span class="n">c1</span> <span class="o">=</span> <span class="n">fun2</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">a1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">b1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">c1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">------------------------------</span>
+</span></span><span class="line"><span class="cl"><span class="mi">7</span>
+</span></span><span class="line"><span class="cl"><span class="mi">10</span>
+</span></span><span class="line"><span class="cl"><span class="mi">25</span>
+</span></span></code></pre></div><blockquote>
+<p>可变参数（不定长参数）：不确定函数参数个数</p>
+<p>1、位置传递：使用 *args接收参数，传入的参数会被args变量收集并合并为一个元组，</p>
+<p>2、关键字传递：使用 **kwargs接收参数,参数需要是键值对，会被kwargs并合并为一个字典类型</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">tuplefun</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">args</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">dictfun</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">kwargs</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">a1</span><span class="o">=</span> <span class="n">tuplefun</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">a1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">a1</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">a2</span> <span class="o">=</span> <span class="n">dictfun</span><span class="p">(</span><span class="n">k1</span><span class="o">=</span><span class="s2">&#34;k1&#34;</span><span class="p">,</span><span class="n">k2</span><span class="o">=</span><span class="s2">&#34;k2&#34;</span><span class="p">,</span><span class="n">k3</span><span class="o">=</span><span class="s2">&#34;k3&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">a2</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">a2</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="o">------------------------------</span>
+</span></span><span class="line"><span class="cl"><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">&lt;</span><span class="k">class</span> <span class="err">&#39;</span><span class="nc">tuple</span><span class="s1">&#39;&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s1">&#39;k1&#39;</span><span class="p">:</span> <span class="s1">&#39;k1&#39;</span><span class="p">,</span> <span class="s1">&#39;k2&#39;</span><span class="p">:</span> <span class="s1">&#39;k2&#39;</span><span class="p">,</span> <span class="s1">&#39;k3&#39;</span><span class="p">:</span> <span class="s1">&#39;k3&#39;</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">&lt;</span><span class="k">class</span> <span class="err">&#39;</span><span class="nc">dict</span><span class="s1">&#39;&gt;</span>
+</span></span></code></pre></div><h3 id="33-匿名函数">3.3 匿名函数</h3>
+<blockquote>
+<p>函数作为参数</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">fun1</span><span class="p">(</span><span class="n">funarm</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">result</span> <span class="o">=</span> <span class="n">funarm</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">result</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">fun2</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">x</span> <span class="o">*</span> <span class="n">y</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">fun1</span><span class="p">(</span><span class="n">fun2</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="o">--------------------------------</span>
+</span></span><span class="line"><span class="cl"><span class="mi">6</span>
+</span></span></code></pre></div><blockquote>
+<p>lambda匿名函数</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">fun1</span><span class="p">(</span><span class="n">funarm</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">result</span> <span class="o">=</span> <span class="n">funarm</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">result</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">fun1</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">*</span> <span class="n">y</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="o">------------------------------------</span>
+</span></span><span class="line"><span class="cl"><span class="mi">6</span>
+</span></span></code></pre></div><h2 id="四json格式转换">四、Json格式转换</h2>
+<h3 id="41--dumps-python类型转json格式">4.1  (dumps) Python类型转Json格式</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">json</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">dict1</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&#34;name&#34;</span><span class="p">:</span><span class="s2">&#34;xiaoming&#34;</span><span class="p">,</span><span class="s2">&#34;gender&#34;</span><span class="p">:</span><span class="s2">&#34;男&#34;</span><span class="p">,</span><span class="s2">&#34;age&#34;</span><span class="p">:</span><span class="mi">30</span><span class="p">,</span><span class="mi">1</span><span class="p">:</span><span class="mi">1</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="n">list1</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&#34;name&#34;</span><span class="p">:</span><span class="s2">&#34;xiaoming&#34;</span><span class="p">,</span><span class="s2">&#34;gender&#34;</span><span class="p">:</span><span class="s2">&#34;男&#34;</span><span class="p">,</span><span class="s2">&#34;age&#34;</span><span class="p">:</span><span class="mi">30</span><span class="p">},{</span><span class="s2">&#34;name&#34;</span><span class="p">:</span><span class="s2">&#34;阿狸&#34;</span><span class="p">,</span><span class="s2">&#34;gender&#34;</span><span class="p">:</span><span class="s2">&#34;女&#34;</span><span class="p">,</span><span class="s2">&#34;age&#34;</span><span class="p">:</span><span class="mi">22</span><span class="p">}]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#Python类型转json格式,ensure_ascii是为了输出汉字，否则会输出ascii码</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">dict1</span><span class="p">,</span><span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">list1</span><span class="p">,</span><span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">list1</span><span class="p">,</span><span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">---------------------------------------------------</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;xiaoming&#34;</span><span class="p">,</span> <span class="s2">&#34;gender&#34;</span><span class="p">:</span> <span class="s2">&#34;男&#34;</span><span class="p">,</span> <span class="s2">&#34;age&#34;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span> <span class="s2">&#34;1&#34;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">[{</span><span class="s2">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;xiaoming&#34;</span><span class="p">,</span> <span class="s2">&#34;gender&#34;</span><span class="p">:</span> <span class="s2">&#34;男&#34;</span><span class="p">,</span> <span class="s2">&#34;age&#34;</span><span class="p">:</span> <span class="mi">30</span><span class="p">},</span> <span class="p">{</span><span class="s2">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;阿狸&#34;</span><span class="p">,</span> <span class="s2">&#34;gender&#34;</span><span class="p">:</span> <span class="s2">&#34;女&#34;</span><span class="p">,</span> <span class="s2">&#34;age&#34;</span><span class="p">:</span> <span class="mi">22</span><span class="p">}]</span>
+</span></span><span class="line"><span class="cl"><span class="o">&lt;</span><span class="k">class</span> <span class="err">&#39;</span><span class="nc">str</span><span class="s1">&#39;&gt;</span>
+</span></span></code></pre></div><h3 id="42-loads-json格式转python类型">4.2 (loads) Json格式转Python类型</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">json</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#json格式转Python类型</span>
+</span></span><span class="line"><span class="cl"><span class="n">json1</span> <span class="o">=</span> <span class="s1">&#39;{&#34;name&#34;:&#34;xiaoming&#34;,&#34;gender&#34;:&#34;男&#34;,&#34;age&#34;:30}&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="n">json2</span> <span class="o">=</span> <span class="s1">&#39;[{&#34;name&#34;:&#34;xiaoming&#34;,&#34;gender&#34;:&#34;男&#34;,&#34;age&#34;:30},{&#34;name&#34;:&#34;阿狸&#34;,&#34;gender&#34;:&#34;女&#34;,&#34;age&#34;:22}]&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json1</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json1</span><span class="p">)))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json2</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json2</span><span class="p">)))</span>
+</span></span><span class="line"><span class="cl"><span class="o">------------------------------------------------------------</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;xiaoming&#39;</span><span class="p">,</span> <span class="s1">&#39;gender&#39;</span><span class="p">:</span> <span class="s1">&#39;男&#39;</span><span class="p">,</span> <span class="s1">&#39;age&#39;</span><span class="p">:</span> <span class="mi">30</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">&lt;</span><span class="k">class</span> <span class="err">&#39;</span><span class="nc">dict</span><span class="s1">&#39;&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">[{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;xiaoming&#39;</span><span class="p">,</span> <span class="s1">&#39;gender&#39;</span><span class="p">:</span> <span class="s1">&#39;男&#39;</span><span class="p">,</span> <span class="s1">&#39;age&#39;</span><span class="p">:</span> <span class="mi">30</span><span class="p">},</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;阿狸&#39;</span><span class="p">,</span> <span class="s1">&#39;gender&#39;</span><span class="p">:</span> <span class="s1">&#39;女&#39;</span><span class="p">,</span> <span class="s1">&#39;age&#39;</span><span class="p">:</span> <span class="mi">22</span><span class="p">}]</span>
+</span></span><span class="line"><span class="cl"><span class="o">&lt;</span><span class="k">class</span> <span class="err">&#39;</span><span class="nc">list</span><span class="s1">&#39;&gt;</span>
+</span></span></code></pre></div><h3 id="43---dump-转为json字符串并写入文件中">4.3   (dump) 转为Json字符串并写入文件中</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">json</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">dict1</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&#34;name&#34;</span><span class="p">:</span><span class="s2">&#34;xiaoming&#34;</span><span class="p">,</span><span class="s2">&#34;gender&#34;</span><span class="p">:</span><span class="s2">&#34;男&#34;</span><span class="p">,</span><span class="s2">&#34;age&#34;</span><span class="p">:</span><span class="mi">30</span><span class="p">,</span><span class="mi">1</span><span class="p">:</span><span class="mi">1</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="n">list1</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&#34;name&#34;</span><span class="p">:</span><span class="s2">&#34;xiaoming&#34;</span><span class="p">,</span><span class="s2">&#34;gender&#34;</span><span class="p">:</span><span class="s2">&#34;男&#34;</span><span class="p">,</span><span class="s2">&#34;age&#34;</span><span class="p">:</span><span class="mi">30</span><span class="p">},{</span><span class="s2">&#34;name&#34;</span><span class="p">:</span><span class="s2">&#34;阿狸&#34;</span><span class="p">,</span><span class="s2">&#34;gender&#34;</span><span class="p">:</span><span class="s2">&#34;女&#34;</span><span class="p">,</span><span class="s2">&#34;age&#34;</span><span class="p">:</span><span class="mi">22</span><span class="p">}]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">filename</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;D:/name.json&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#Python类型转json格式,并写入文件中</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">dict1</span><span class="p">,</span><span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="s1">&#39;w&#39;</span><span class="p">),</span><span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">list1</span><span class="p">,</span><span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="s1">&#39;a&#39;</span><span class="p">),</span><span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/python-01/image-20230605154352780.png" >
+		<img src="/../../images/python-01/image-20230605154352780.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230605154352780">
+	</a>
+	
+	<figcaption>image-20230605154352780</figcaption>
+	
+</figure></p>
+<h3 id="44-load--从json文件中读取数据">4.4 (load)  从json文件中读取数据</h3>
+<p><figure 
+	>
+	<a href="/../../images/python-01/image-20230605155046314.png" >
+		<img src="/../../images/python-01/image-20230605155046314.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230605155046314">
+	</a>
+	
+	<figcaption>image-20230605155046314</figcaption>
+	
+</figure></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">json</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">filename</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;D:/name.json&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#Python类型转json格式,并写入文件中</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">jsonObj</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="s1">&#39;r&#39;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">jsonObj</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">jsonObj</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">---------------------------------------------</span>
+</span></span><span class="line"><span class="cl"><span class="o">&lt;</span><span class="k">class</span> <span class="err">&#39;</span><span class="nc">list</span><span class="s1">&#39;&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">[{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;xiaoming&#39;</span><span class="p">,</span> <span class="s1">&#39;gender&#39;</span><span class="p">:</span> <span class="s1">&#39;男&#39;</span><span class="p">,</span> <span class="s1">&#39;age&#39;</span><span class="p">:</span> <span class="mi">30</span><span class="p">},</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;阿狸&#39;</span><span class="p">,</span> <span class="s1">&#39;gender&#39;</span><span class="p">:</span> <span class="s1">&#39;女&#39;</span><span class="p">,</span> <span class="s1">&#39;age&#39;</span><span class="p">:</span> <span class="mi">22</span><span class="p">}]</span>
+</span></span></code></pre></div><h3 id="45-jsonencoder-python类型转json类型">4.5 (JSONEncoder) Python类型转JSON类型</h3>
+<p>JSONEncoder类由<code>JSONEncoder()</code>构造函数实例化。在编码器类中定义了以下重要方法</p>
+<ul>
+<li><strong>encode()</strong> -将Python对象序列化为JSON格式</li>
+<li><strong>iterencode()</strong> -对对象进行编码，并返回一个迭代器，生成对象中每个项目的编码形式。</li>
+<li>**indent-**确定编码字符串的缩进级别</li>
+<li>**sort_keys-**为true或false可以使键以排序顺序显示或不显示。</li>
+<li>**Check_circular-**如果为True，则检查容器类型对象中的循环引用</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">json</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">dict1</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&#34;name&#34;</span><span class="p">:</span><span class="s2">&#34;xiaoming&#34;</span><span class="p">,</span><span class="s2">&#34;gender&#34;</span><span class="p">:</span><span class="s2">&#34;男&#34;</span><span class="p">,</span><span class="s2">&#34;age&#34;</span><span class="p">:</span><span class="mi">30</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#Python类型转json格式,ensure_ascii是为了输出汉字，否则会输出ascii码</span>
+</span></span><span class="line"><span class="cl"><span class="n">js</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONEncoder</span><span class="p">(</span><span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">dict1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">js</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">js</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">----------------------------------</span>
+</span></span><span class="line"><span class="cl"><span class="o">&lt;</span><span class="k">class</span> <span class="err">&#39;</span><span class="nc">str</span><span class="s1">&#39;&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;xiaoming&#34;</span><span class="p">,</span> <span class="s2">&#34;gender&#34;</span><span class="p">:</span> <span class="s2">&#34;男&#34;</span><span class="p">,</span> <span class="s2">&#34;age&#34;</span><span class="p">:</span> <span class="mi">30</span><span class="p">}</span>
+</span></span></code></pre></div><h3 id="46-jsondecoder-待补充">4.6 (JSONDecoder )待补充</h3>
+<h2 id="五-类和对象">五 类和对象</h2>
+<p><figure 
+	>
+	<a href="/../../images/python-01/image-20230606091155235.png" >
+		<img src="/../../images/python-01/image-20230606091155235.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230606091155235">
+	</a>
+	
+	<figcaption>image-20230606091155235</figcaption>
+	
+</figure></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">Student</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl">    <span class="n">age</span> <span class="o">=</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl">    <span class="n">sex</span> <span class="o">=</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">whoAre</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">msg</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;我的名字是：</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">，我今年</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">age</span><span class="si">}</span><span class="s2">,性别：</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sex</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">stu</span> <span class="o">=</span> <span class="n">Student</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">stu</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&#34;小明&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="n">stu</span><span class="o">.</span><span class="n">age</span> <span class="o">=</span> <span class="mi">22</span>
+</span></span><span class="line"><span class="cl"><span class="n">stu</span><span class="o">.</span><span class="n">sex</span> <span class="o">=</span> <span class="s1">&#39;男&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="n">stu</span><span class="o">.</span><span class="n">whoAre</span><span class="p">(</span><span class="s2">&#34;很高兴认识你&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">-----------------------------------------------------</span>
+</span></span><span class="line"><span class="cl"><span class="n">我的名字是</span><span class="err">：</span><span class="n">小明</span><span class="err">，</span><span class="n">我今年22</span><span class="p">,</span><span class="n">性别</span><span class="err">：</span><span class="n">男</span><span class="p">,</span><span class="n">很高兴认识你</span>
+</span></span></code></pre></div><blockquote>
+<p>self表示类本身，需要使用self才能访问类属性，传参时无需考虑self</p>
+</blockquote>
+<h3 id="51-构造方法__init__">5.1 构造方法（<code>__init__</code>）</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">Student</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl">    <span class="n">age</span> <span class="o">=</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl">    <span class="n">sex</span> <span class="o">=</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># 构造方法</span>
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">age</span><span class="p">,</span> <span class="n">sex</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">age</span> <span class="o">=</span> <span class="n">age</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">sex</span> <span class="o">=</span> <span class="n">sex</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;构造方法执行&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">whoAre</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;我的名字是：</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">，我今年</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">age</span><span class="si">}</span><span class="s2">,性别：</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sex</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">stu</span> <span class="o">=</span> <span class="n">Student</span><span class="p">(</span><span class="s2">&#34;小明&#34;</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="s2">&#34;男&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">stu</span><span class="o">.</span><span class="n">whoAre</span><span class="p">(</span><span class="s2">&#34;很高兴认识你&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">----------------------------------------</span>
+</span></span><span class="line"><span class="cl"><span class="n">构造方法执行</span>
+</span></span><span class="line"><span class="cl"><span class="n">我的名字是</span><span class="err">：</span><span class="n">小明</span><span class="err">，</span><span class="n">我今年22</span><span class="p">,</span><span class="n">性别</span><span class="err">：</span><span class="n">男</span><span class="p">,</span><span class="n">很高兴认识你</span>
+</span></span></code></pre></div><h3 id="52-常见魔术方法">5.2 常见魔术方法</h3>
+<p><figure 
+	>
+	<a href="/../../images/python-01/image-20230606104309491.png" >
+		<img src="/../../images/python-01/image-20230606104309491.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230606104309491">
+	</a>
+	
+	<figcaption>image-20230606104309491</figcaption>
+	
+</figure></p>
+<ul>
+<li>
+<p><code>__str__</code>：类似Java的ToString方法，如果不定义，输出对象是对象的内容信息。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">Student</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl">    <span class="n">age</span> <span class="o">=</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl">    <span class="n">sex</span> <span class="o">=</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># 构造方法</span>
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">age</span><span class="p">,</span> <span class="n">sex</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">age</span> <span class="o">=</span> <span class="n">age</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">sex</span> <span class="o">=</span> <span class="n">sex</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">#print(&#34;构造方法执行&#34;)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="sa">f</span><span class="s2">&#34;name:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">,age:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">age</span><span class="si">}</span><span class="s2">,sex:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sex</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">stu</span> <span class="o">=</span> <span class="n">Student</span><span class="p">(</span><span class="s2">&#34;小明&#34;</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="s2">&#34;男&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">stu</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">---------------------------------</span>
+</span></span><span class="line"><span class="cl"><span class="n">name</span><span class="p">:</span><span class="n">小明</span><span class="p">,</span><span class="n">age</span><span class="p">:</span><span class="mi">22</span><span class="p">,</span><span class="n">sex</span><span class="p">:</span><span class="n">男</span>
+</span></span></code></pre></div></li>
+<li>
+<p><code>__lt__</code>:设置对象大小比较规则</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">Student</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl">    <span class="n">age</span> <span class="o">=</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl">    <span class="n">sex</span> <span class="o">=</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># 构造方法</span>
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">age</span><span class="p">,</span> <span class="n">sex</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">age</span> <span class="o">=</span> <span class="n">age</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">sex</span> <span class="o">=</span> <span class="n">sex</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">#print(&#34;构造方法执行&#34;)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">age</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">age</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">stu</span> <span class="o">=</span> <span class="n">Student</span><span class="p">(</span><span class="s2">&#34;小明&#34;</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="s2">&#34;男&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">stu1</span> <span class="o">=</span> <span class="n">Student</span><span class="p">(</span><span class="s2">&#34;小明1&#34;</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="s2">&#34;男&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">stu</span> <span class="o">&lt;</span> <span class="n">stu1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">------------------------------</span>
+</span></span><span class="line"><span class="cl"><span class="kc">True</span>
+</span></span></code></pre></div></li>
+</ul>
+<h3 id="53-私有成员变量和方法">5.3 私有成员变量和方法</h3>
+<p><figure 
+	>
+	<a href="/../../images/python-01/image-20230606135141625.png" >
+		<img src="/../../images/python-01/image-20230606135141625.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230606135141625">
+	</a>
+	
+	<figcaption>image-20230606135141625</figcaption>
+	
+</figure></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">Student</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl">    <span class="n">age</span> <span class="o">=</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl">    <span class="n">sex</span> <span class="o">=</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl">    <span class="n">__money</span> <span class="o">=</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># 构造方法</span>
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">age</span><span class="p">,</span> <span class="n">sex</span><span class="p">,</span><span class="n">__money</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">age</span> <span class="o">=</span> <span class="n">age</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">sex</span> <span class="o">=</span> <span class="n">sex</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">__money</span> <span class="o">=</span> <span class="n">__money</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">#print(&#34;构造方法执行&#34;)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">__whoAre</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;我的名字是：</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">，我今年</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">age</span><span class="si">}</span><span class="s2">,性别：</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sex</span><span class="si">}</span><span class="s2">,工资：</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">__money</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">publicFun</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">__whoAre</span><span class="p">(</span><span class="s2">&#34;很高兴认识你&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">stu</span> <span class="o">=</span> <span class="n">Student</span><span class="p">(</span><span class="s2">&#34;小明&#34;</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="s2">&#34;男&#34;</span><span class="p">,</span><span class="mi">2000</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">stu</span><span class="o">.</span><span class="n">publicFun</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#stu.__whoAre(&#34;很高兴认识你&#34;)  无法直接通过对象访问私有方法，会报错</span>
+</span></span><span class="line"><span class="cl"><span class="o">-------------------------------------------</span>
+</span></span><span class="line"><span class="cl"><span class="n">我的名字是</span><span class="err">：</span><span class="n">小明</span><span class="err">，</span><span class="n">我今年22</span><span class="p">,</span><span class="n">性别</span><span class="err">：</span><span class="n">男</span><span class="p">,</span><span class="n">工资</span><span class="err">：</span><span class="mi">2000</span><span class="p">,</span><span class="n">很高兴认识你</span>
+</span></span></code></pre></div><h3 id="54-继承">5.4 继承</h3>
+<p><figure 
+	>
+	<a href="/../../images/python-01/image-20230606141400898.png" >
+		<img src="/../../images/python-01/image-20230606141400898.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230606141400898">
+	</a>
+	
+	<figcaption>image-20230606141400898</figcaption>
+	
+</figure></p>
+<blockquote>
+<p>多继承语法如下：如果多个父类有同名属性或方法，则遵循左边优先原则</p>
+</blockquote>
+<p><figure 
+	>
+	<a href="/../../images/python-01/image-20230606160129955.png" >
+		<img src="/../../images/python-01/image-20230606160129955.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230606160129955">
+	</a>
+	
+	<figcaption>image-20230606160129955</figcaption>
+	
+</figure></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">Animal</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">getName</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;小黄是</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">Animal</span> <span class="kn">import</span> <span class="n">Animal</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#单继承示例</span>
+</span></span><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">Dog</span><span class="p">(</span><span class="n">Animal</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">eat</span> <span class="o">=</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">getEat</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;喜欢吃</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">eat</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">dog</span> <span class="o">=</span> <span class="n">Dog</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">dog</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&#34;一条狗&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="n">dog</span><span class="o">.</span><span class="n">eat</span> <span class="o">=</span> <span class="s1">&#39;骨头&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="n">dog</span><span class="o">.</span><span class="n">getName</span><span class="p">()</span><span class="c1">#父类的方法</span>
+</span></span><span class="line"><span class="cl"><span class="n">dog</span><span class="o">.</span><span class="n">getEat</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="o">-------------------------------</span>
+</span></span><span class="line"><span class="cl"><span class="n">小黄是一条狗</span>
+</span></span><span class="line"><span class="cl"><span class="n">喜欢吃骨头</span>
+</span></span></code></pre></div><blockquote>
+<p>pass：补全语法，如果子类继承了多个父类，子类无需添加方法、属性。为了满足语法，需要加pass</p>
+</blockquote>
+<p><figure 
+	>
+	<a href="/../../images/python-01/image-20230606161248774.png" >
+		<img src="/../../images/python-01/image-20230606161248774.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230606161248774">
+	</a>
+	
+	<figcaption>image-20230606161248774</figcaption>
+	
+</figure></p>
+<blockquote>
+<p>子类复写父类属性和方法</p>
+</blockquote>
+<p><figure 
+	>
+	<a href="/../../images/python-01/image-20230606162404244.png" >
+		<img src="/../../images/python-01/image-20230606162404244.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230606162404244">
+	</a>
+	
+	<figcaption>image-20230606162404244</figcaption>
+	
+</figure></p>
+<h3 id="55--多态">5.5  多态</h3>
+<p>抽象类（接口）的实现</p>
+<p><figure 
+	>
+	<a href="/../../images/python-01/image-20230606172239363.png" >
+		<img src="/../../images/python-01/image-20230606172239363.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230606172239363">
+	</a>
+	
+	<figcaption>image-20230606172239363</figcaption>
+	
+</figure></p>
+<h2 id="六类型注解">六、类型注解</h2>
+<p><figure 
+	>
+	<a href="/../../images/python-01/image-20230606164351210.png" >
+		<img src="/../../images/python-01/image-20230606164351210.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230606164351210">
+	</a>
+	
+	<figcaption>image-20230606164351210</figcaption>
+	
+</figure></p>
+<blockquote>
+<p>快捷键 ：Ctrl + P</p>
+</blockquote>
+<h3 id="61-变量类型注解">6.1 变量类型注解</h3>
+<p><figure 
+	>
+	<a href="/../../images/python-01/image-20230606164502284.png" >
+		<img src="/../../images/python-01/image-20230606164502284.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230606164502284">
+	</a>
+	
+	<figcaption>image-20230606164502284</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/python-01/image-20230606164614411.png" >
+		<img src="/../../images/python-01/image-20230606164614411.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230606164614411">
+	</a>
+	
+	<figcaption>image-20230606164614411</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/python-01/image-20230606165255475.png" >
+		<img src="/../../images/python-01/image-20230606165255475.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230606165255475">
+	</a>
+	
+	<figcaption>image-20230606165255475</figcaption>
+	
+</figure></p>
+<h3 id="62-形参返回值-类型注解">6.2 形参、返回值 类型注解</h3>
+<p><figure 
+	>
+	<a href="/../../images/python-01/image-20230606170337022.png" >
+		<img src="/../../images/python-01/image-20230606170337022.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230606170337022">
+	</a>
+	
+	<figcaption>image-20230606170337022</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/python-01/image-20230606170818808.png" >
+		<img src="/../../images/python-01/image-20230606170818808.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230606170818808">
+	</a>
+	
+	<figcaption>image-20230606170818808</figcaption>
+	
+</figure></p>
+<h3 id="63-union联合类型注解">6.3 union联合类型注解</h3>
+<p><figure 
+	>
+	<a href="/../../images/python-01/image-20230606171526851.png" >
+		<img src="/../../images/python-01/image-20230606171526851.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230606171526851">
+	</a>
+	
+	<figcaption>image-20230606171526851</figcaption>
+	
+</figure></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/python/">Python</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/python-%E5%9F%BA%E7%A1%804/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Python 基础4</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/python-%E5%9F%BA%E7%A1%803/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Python 基础3</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/python-%E5%9F%BA%E7%A1%802/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Python 基础2</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#一python-入门">一、Python 入门</a>
+      <ol>
+        <li><a href="#11-常用数据类型">1.1 常用数据类型</a></li>
+        <li><a href="#12运算符">1.2运算符</a>
+          <ol>
+            <li><a href="#121-算数运算符">1.2.1 算数运算符</a></li>
+            <li><a href="#121-赋值运算符">1.2.1 赋值运算符</a></li>
+            <li><a href="#121-复合赋值运算符">1.2.1 复合赋值运算符</a></li>
+          </ol>
+        </li>
+        <li><a href="#13格式化">1.3格式化</a>
+          <ol>
+            <li><a href="#131--占位符">1.3.1  占位符</a></li>
+            <li><a href="#132-字符串格式化-快速写法">1.3.2 字符串格式化-快速写法</a></li>
+          </ol>
+        </li>
+        <li><a href="#14数据输入">1.4数据输入</a></li>
+        <li><a href="#15-布尔类型和比较运算">1.5 布尔类型和比较运算</a></li>
+        <li><a href="#16-判断语句">1.6 判断语句</a>
+          <ol>
+            <li><a href="#161-ifif-else-if-elif-else">1.6.1 if、if else、 if elif else</a></li>
+          </ol>
+        </li>
+        <li><a href="#17-逻辑运算">1.7 逻辑运算</a></li>
+        <li><a href="#18-循环">1.8 循环</a>
+          <ol>
+            <li><a href="#181while">1.8.1while</a></li>
+            <li><a href="#182-for">1.8.2 for</a></li>
+            <li><a href="#183-breake">1.8.3 breake</a></li>
+            <li><a href="#184-continue">1.8.4 continue</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+    <li><a href="#二数据容器">二、数据容器</a>
+      <ol>
+        <li><a href="#21-list-列表">2.1 list 列表</a></li>
+        <li><a href="#22-tuple-元组">2.2 tuple 元组</a></li>
+        <li><a href="#23-str字符串">2.3 str字符串</a></li>
+        <li><a href="#24-set-集合">2.4 set 集合</a></li>
+        <li><a href="#25-distinction字典">2.5 distinction字典</a></li>
+        <li><a href="#26-列表元组字符串切片">2.6 列表、元组、字符串切片</a></li>
+        <li><a href="#27-通用函数">2.7 通用函数</a></li>
+      </ol>
+    </li>
+    <li><a href="#三函数">三、函数</a>
+      <ol>
+        <li><a href="#31-定义函数">3.1 定义函数</a></li>
+        <li><a href="#32-函数传参及多返回值">3.2 函数传参及多返回值</a></li>
+        <li><a href="#33-匿名函数">3.3 匿名函数</a></li>
+      </ol>
+    </li>
+    <li><a href="#四json格式转换">四、Json格式转换</a>
+      <ol>
+        <li><a href="#41--dumps-python类型转json格式">4.1  (dumps) Python类型转Json格式</a></li>
+        <li><a href="#42-loads-json格式转python类型">4.2 (loads) Json格式转Python类型</a></li>
+        <li><a href="#43---dump-转为json字符串并写入文件中">4.3   (dump) 转为Json字符串并写入文件中</a></li>
+        <li><a href="#44-load--从json文件中读取数据">4.4 (load)  从json文件中读取数据</a></li>
+        <li><a href="#45-jsonencoder-python类型转json类型">4.5 (JSONEncoder) Python类型转JSON类型</a></li>
+        <li><a href="#46-jsondecoder-待补充">4.6 (JSONDecoder )待补充</a></li>
+      </ol>
+    </li>
+    <li><a href="#五-类和对象">五 类和对象</a>
+      <ol>
+        <li><a href="#51-构造方法__init__">5.1 构造方法（<code>__init__</code>）</a></li>
+        <li><a href="#52-常见魔术方法">5.2 常见魔术方法</a></li>
+        <li><a href="#53-私有成员变量和方法">5.3 私有成员变量和方法</a></li>
+        <li><a href="#54-继承">5.4 继承</a></li>
+        <li><a href="#55--多态">5.5  多态</a></li>
+      </ol>
+    </li>
+    <li><a href="#六类型注解">六、类型注解</a>
+      <ol>
+        <li><a href="#61-变量类型注解">6.1 变量类型注解</a></li>
+        <li><a href="#62-形参返回值-类型注解">6.2 形参、返回值 类型注解</a></li>
+        <li><a href="#63-union联合类型注解">6.3 union联合类型注解</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

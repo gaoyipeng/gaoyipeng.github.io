@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Activiti（20） 中间事件'><title>Activiti（20） 中间事件</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/activiti20-%E4%B8%AD%E9%97%B4%E4%BA%8B%E4%BB%B6/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Activiti（20） 中间事件'>
+<meta property='og:description' content='Activiti（20） 中间事件'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/activiti20-%E4%B8%AD%E9%97%B4%E4%BA%8B%E4%BB%B6/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Activiti' /><meta property='article:published_time' content='2020-09-07T09:50:03&#43;00:00'/><meta property='article:modified_time' content='2020-09-07T09:50:03&#43;00:00'/>
+<meta name="twitter:title" content="Activiti（20） 中间事件">
+<meta name="twitter:description" content="Activiti（20） 中间事件">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/activiti/" >
+                Activiti
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/activiti20-%E4%B8%AD%E9%97%B4%E4%BA%8B%E4%BB%B6/">Activiti（20） 中间事件</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        Activiti（20） 中间事件
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Sep 07, 2020</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 2 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <p>中间事件是指可以单独作为流程元素的事件，BPMN2.0规范中所指的中间事件也包括边界事件。</p>
+<p>中间事件按照其特性可以分为两类：中间Catching(捕获)事件和中间Throwing(抛出)事件，当流程到达中间Catching事件时，它会一直在等待被触发，直接接收到的信息，才会被触发，而当流程到达中间Throwing事件时，该事件会自动被触发并抛出相应的结果或者信息。</p>
+<h2 id="1定时器捕获中间事件">1、定时器捕获中间事件</h2>
+<p>定时器中间事件是一个Catching事件，当执行到达捕获事件节点， 就会启动一个定时器。 当定时器触发（一段时间之后），流程就会沿着定时中间事件的外出节点继续执行。</p>
+<p>此处我们设计一个简单流程来验证：</p>
+<p>发起流程后到达定时器中间捕获事件，设置5分钟后流程继续执行。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-20/image-20200907113112480.png" >
+		<img src="/images/activiti6-20/image-20200907113112480.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200907113112480">
+	</a>
+	
+	<figcaption>image-20200907113112480</figcaption>
+	
+</figure></p>
+<p>bpmn流程定义：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="cp">&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;definitions</span> <span class="na">xmlns=</span><span class="s">&#34;http://www.omg.org/spec/BPMN/20100524/MODEL&#34;</span> <span class="na">xmlns:xsi=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span> <span class="na">xmlns:xsd=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema&#34;</span> <span class="na">xmlns:activiti=</span><span class="s">&#34;http://activiti.org/bpmn&#34;</span> <span class="na">xmlns:bpmndi=</span><span class="s">&#34;http://www.omg.org/spec/BPMN/20100524/DI&#34;</span> <span class="na">xmlns:omgdc=</span><span class="s">&#34;http://www.omg.org/spec/DD/20100524/DC&#34;</span> <span class="na">xmlns:omgdi=</span><span class="s">&#34;http://www.omg.org/spec/DD/20100524/DI&#34;</span> <span class="na">typeLanguage=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema&#34;</span> <span class="na">expressionLanguage=</span><span class="s">&#34;http://www.w3.org/1999/XPath&#34;</span> <span class="na">targetNamespace=</span><span class="s">&#34;http://www.activiti.org/processdef&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;process</span> <span class="na">id=</span><span class="s">&#34;timerCapturesIntermediateEvents&#34;</span> <span class="na">name=</span><span class="s">&#34;定时器捕获中间事件&#34;</span> <span class="na">isExecutable=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;startEvent</span> <span class="na">id=</span><span class="s">&#34;start&#34;</span><span class="nt">&gt;&lt;/startEvent&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;intermediateCatchEvent</span> <span class="na">id=</span><span class="s">&#34;sid-DBB0D1AA-199B-49BE-8FEC-9C032EDEF40C&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;timerEventDefinition&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;timeDuration&gt;</span>PT5M<span class="nt">&lt;/timeDuration&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/timerEventDefinition&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/intermediateCatchEvent&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;userTask</span> <span class="na">id=</span><span class="s">&#34;sid-D04C33DE-965D-4A0B-948D-FABE89724AC0&#34;</span> <span class="na">name=</span><span class="s">&#34;部门经理审批&#34;</span> <span class="na">activiti:candidateGroups=</span><span class="s">&#34;deptLeader&#34;</span><span class="nt">&gt;&lt;/userTask&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;sid-FF8DB79B-EE0D-4E84-8D9E-9B31A7D23FA2&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;sid-DBB0D1AA-199B-49BE-8FEC-9C032EDEF40C&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;sid-D04C33DE-965D-4A0B-948D-FABE89724AC0&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;endEvent</span> <span class="na">id=</span><span class="s">&#34;sid-D9EEEB07-659D-4B9C-AE7A-E461497B9EEE&#34;</span><span class="nt">&gt;&lt;/endEvent&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;sid-A86BAC22-8FBC-4DB0-901B-241D77BCF0DB&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;sid-D04C33DE-965D-4A0B-948D-FABE89724AC0&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;sid-D9EEEB07-659D-4B9C-AE7A-E461497B9EEE&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;sid-85DAA48B-046E-4884-8C5F-8FC39FE6C515&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;start&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;sid-DBB0D1AA-199B-49BE-8FEC-9C032EDEF40C&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;/process&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;bpmndi:BPMNDiagram</span> <span class="na">id=</span><span class="s">&#34;BPMNDiagram_timerCapturesIntermediateEvents&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;bpmndi:BPMNPlane</span> <span class="na">bpmnElement=</span><span class="s">&#34;timerCapturesIntermediateEvents&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNPlane_timerCapturesIntermediateEvents&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;start&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_start&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;30.0&#34;</span> <span class="na">width=</span><span class="s">&#34;30.0&#34;</span> <span class="na">x=</span><span class="s">&#34;210.0&#34;</span> <span class="na">y=</span><span class="s">&#34;127.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-DBB0D1AA-199B-49BE-8FEC-9C032EDEF40C&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_sid-DBB0D1AA-199B-49BE-8FEC-9C032EDEF40C&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;31.0&#34;</span> <span class="na">width=</span><span class="s">&#34;31.0&#34;</span> <span class="na">x=</span><span class="s">&#34;315.0&#34;</span> <span class="na">y=</span><span class="s">&#34;126.5&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-D04C33DE-965D-4A0B-948D-FABE89724AC0&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_sid-D04C33DE-965D-4A0B-948D-FABE89724AC0&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;80.0&#34;</span> <span class="na">width=</span><span class="s">&#34;100.0&#34;</span> <span class="na">x=</span><span class="s">&#34;421.0&#34;</span> <span class="na">y=</span><span class="s">&#34;102.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-D9EEEB07-659D-4B9C-AE7A-E461497B9EEE&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_sid-D9EEEB07-659D-4B9C-AE7A-E461497B9EEE&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;28.0&#34;</span> <span class="na">width=</span><span class="s">&#34;28.0&#34;</span> <span class="na">x=</span><span class="s">&#34;566.0&#34;</span> <span class="na">y=</span><span class="s">&#34;128.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-FF8DB79B-EE0D-4E84-8D9E-9B31A7D23FA2&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_sid-FF8DB79B-EE0D-4E84-8D9E-9B31A7D23FA2&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;346.99989796015984&#34;</span> <span class="na">y=</span><span class="s">&#34;142.44285750728514&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;421.0&#34;</span> <span class="na">y=</span><span class="s">&#34;142.17857142857144&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-A86BAC22-8FBC-4DB0-901B-241D77BCF0DB&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_sid-A86BAC22-8FBC-4DB0-901B-241D77BCF0DB&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;521.0&#34;</span> <span class="na">y=</span><span class="s">&#34;142.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;566.0&#34;</span> <span class="na">y=</span><span class="s">&#34;142.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-85DAA48B-046E-4884-8C5F-8FC39FE6C515&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_sid-85DAA48B-046E-4884-8C5F-8FC39FE6C515&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;240.0&#34;</span> <span class="na">y=</span><span class="s">&#34;142.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;315.0&#34;</span> <span class="na">y=</span><span class="s">&#34;142.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/bpmndi:BPMNPlane&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;/bpmndi:BPMNDiagram&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/definitions&gt;</span>
+</span></span></code></pre></div><p>发起流程：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-20/image-20200907113213428.png" >
+		<img src="/images/activiti6-20/image-20200907113213428.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200907113213428">
+	</a>
+	
+	<figcaption>image-20200907113213428</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-20/image-20200907113351688.png" >
+		<img src="/images/activiti6-20/image-20200907113351688.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200907113351688">
+	</a>
+	
+	<figcaption>image-20200907113351688</figcaption>
+	
+</figure></p>
+<p>部门经理获取待办：发现没有任何待办，我们等5分钟后再次获取待办</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-20/image-20200907113059113.png" >
+		<img src="/images/activiti6-20/image-20200907113059113.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200907113059113">
+	</a>
+	
+	<figcaption>image-20200907113059113</figcaption>
+	
+</figure></p>
+<p>等待5分钟，再次查看可以看到已经产生了一条待办</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-20/image-20200907113726343.png" >
+		<img src="/images/activiti6-20/image-20200907113726343.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200907113726343">
+	</a>
+	
+	<figcaption>image-20200907113726343</figcaption>
+	
+</figure></p>
+<h2 id="2信号中间事件">2、信号中间事件</h2>
+<p>信号中间事件分为2种：<strong>中间信号捕获事件</strong>、<strong>中间信号抛出事件</strong></p>
+<h3 id="21-中间事件抛出事件">2.1 中间事件抛出事件</h3>
+<p>这个我们在介绍信号边界事件时已经介绍过了，这里不再赘述。</p>
+<h3 id="22-中间信号捕获事件">2.2 中间信号捕获事件</h3>
+<p>此处我们画一个简单的流程图：流程发起后，到达信号捕获中间事件，等待被触发。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-20/image-20200907143051031.png" >
+		<img src="/images/activiti6-20/image-20200907143051031.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200907143051031">
+	</a>
+	
+	<figcaption>image-20200907143051031</figcaption>
+	
+</figure></p>
+<p>bpmn流程定义：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="cp">&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;definitions</span> <span class="na">xmlns=</span><span class="s">&#34;http://www.omg.org/spec/BPMN/20100524/MODEL&#34;</span> <span class="na">xmlns:xsi=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span> <span class="na">xmlns:xsd=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema&#34;</span> <span class="na">xmlns:activiti=</span><span class="s">&#34;http://activiti.org/bpmn&#34;</span> <span class="na">xmlns:bpmndi=</span><span class="s">&#34;http://www.omg.org/spec/BPMN/20100524/DI&#34;</span> <span class="na">xmlns:omgdc=</span><span class="s">&#34;http://www.omg.org/spec/DD/20100524/DC&#34;</span> <span class="na">xmlns:omgdi=</span><span class="s">&#34;http://www.omg.org/spec/DD/20100524/DI&#34;</span> <span class="na">typeLanguage=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema&#34;</span> <span class="na">expressionLanguage=</span><span class="s">&#34;http://www.w3.org/1999/XPath&#34;</span> <span class="na">targetNamespace=</span><span class="s">&#34;http://www.activiti.org/processdef&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;signal</span> <span class="na">id=</span><span class="s">&#34;signal002&#34;</span> <span class="na">name=</span><span class="s">&#34;signal002&#34;</span> <span class="na">activiti:scope=</span><span class="s">&#34;global&#34;</span><span class="nt">&gt;&lt;/signal&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;process</span> <span class="na">id=</span><span class="s">&#34;intermediateSignalCaptureEvent&#34;</span> <span class="na">name=</span><span class="s">&#34;中间信号捕获事件&#34;</span> <span class="na">isExecutable=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;startEvent</span> <span class="na">id=</span><span class="s">&#34;sid-F3F76546-2B7A-4A2B-8F75-3D3C5A953FF0&#34;</span><span class="nt">&gt;&lt;/startEvent&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;intermediateCatchEvent</span> <span class="na">id=</span><span class="s">&#34;sid-8EF1CE6D-9F8C-4245-ABC5-CBEFA76A61CD&#34;</span> <span class="na">name=</span><span class="s">&#34;信号捕获&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;signalEventDefinition</span> <span class="na">signalRef=</span><span class="s">&#34;signal002&#34;</span><span class="nt">&gt;&lt;/signalEventDefinition&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/intermediateCatchEvent&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;sid-E9DE460A-F4B3-47D7-9E55-80BB74C94175&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;sid-F3F76546-2B7A-4A2B-8F75-3D3C5A953FF0&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;sid-8EF1CE6D-9F8C-4245-ABC5-CBEFA76A61CD&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;userTask</span> <span class="na">id=</span><span class="s">&#34;sid-7F4109CB-1E68-48AC-93B4-CE4413CCAD31&#34;</span> <span class="na">name=</span><span class="s">&#34;部门经理审批&#34;</span> <span class="na">activiti:candidateGroups=</span><span class="s">&#34;deptLeader&#34;</span><span class="nt">&gt;&lt;/userTask&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;sid-016CB55A-B8AA-4CB8-B21C-31AD7C8391C0&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;sid-8EF1CE6D-9F8C-4245-ABC5-CBEFA76A61CD&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;sid-7F4109CB-1E68-48AC-93B4-CE4413CCAD31&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;endEvent</span> <span class="na">id=</span><span class="s">&#34;sid-4C1CE785-A3B5-4E5F-9347-6426E6FAE1A5&#34;</span><span class="nt">&gt;&lt;/endEvent&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;sid-FFDF46BF-B4BA-43DF-9DFE-E3AE6307B205&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;sid-7F4109CB-1E68-48AC-93B4-CE4413CCAD31&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;sid-4C1CE785-A3B5-4E5F-9347-6426E6FAE1A5&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;/process&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;bpmndi:BPMNDiagram</span> <span class="na">id=</span><span class="s">&#34;BPMNDiagram_intermediateSignalCaptureEvent&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;bpmndi:BPMNPlane</span> <span class="na">bpmnElement=</span><span class="s">&#34;intermediateSignalCaptureEvent&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNPlane_intermediateSignalCaptureEvent&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-F3F76546-2B7A-4A2B-8F75-3D3C5A953FF0&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_sid-F3F76546-2B7A-4A2B-8F75-3D3C5A953FF0&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;30.0&#34;</span> <span class="na">width=</span><span class="s">&#34;30.0&#34;</span> <span class="na">x=</span><span class="s">&#34;165.0&#34;</span> <span class="na">y=</span><span class="s">&#34;90.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-8EF1CE6D-9F8C-4245-ABC5-CBEFA76A61CD&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_sid-8EF1CE6D-9F8C-4245-ABC5-CBEFA76A61CD&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;30.0&#34;</span> <span class="na">width=</span><span class="s">&#34;30.0&#34;</span> <span class="na">x=</span><span class="s">&#34;270.0&#34;</span> <span class="na">y=</span><span class="s">&#34;90.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-7F4109CB-1E68-48AC-93B4-CE4413CCAD31&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_sid-7F4109CB-1E68-48AC-93B4-CE4413CCAD31&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;80.0&#34;</span> <span class="na">width=</span><span class="s">&#34;100.0&#34;</span> <span class="na">x=</span><span class="s">&#34;375.0&#34;</span> <span class="na">y=</span><span class="s">&#34;65.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-4C1CE785-A3B5-4E5F-9347-6426E6FAE1A5&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_sid-4C1CE785-A3B5-4E5F-9347-6426E6FAE1A5&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;28.0&#34;</span> <span class="na">width=</span><span class="s">&#34;28.0&#34;</span> <span class="na">x=</span><span class="s">&#34;520.0&#34;</span> <span class="na">y=</span><span class="s">&#34;91.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-016CB55A-B8AA-4CB8-B21C-31AD7C8391C0&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_sid-016CB55A-B8AA-4CB8-B21C-31AD7C8391C0&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;300.0&#34;</span> <span class="na">y=</span><span class="s">&#34;105.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;375.0&#34;</span> <span class="na">y=</span><span class="s">&#34;105.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-E9DE460A-F4B3-47D7-9E55-80BB74C94175&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_sid-E9DE460A-F4B3-47D7-9E55-80BB74C94175&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;195.0&#34;</span> <span class="na">y=</span><span class="s">&#34;105.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;270.0&#34;</span> <span class="na">y=</span><span class="s">&#34;105.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-FFDF46BF-B4BA-43DF-9DFE-E3AE6307B205&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_sid-FFDF46BF-B4BA-43DF-9DFE-E3AE6307B205&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;475.0&#34;</span> <span class="na">y=</span><span class="s">&#34;105.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;520.0&#34;</span> <span class="na">y=</span><span class="s">&#34;105.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/bpmndi:BPMNPlane&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;/bpmndi:BPMNDiagram&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/definitions&gt;</span>
+</span></span></code></pre></div><p>流程启动：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-20/image-20200907143627448.png" >
+		<img src="/images/activiti6-20/image-20200907143627448.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200907143627448">
+	</a>
+	
+	<figcaption>image-20200907143627448</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-20/image-20200907143713526.png" >
+		<img src="/images/activiti6-20/image-20200907143713526.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200907143713526">
+	</a>
+	
+	<figcaption>image-20200907143713526</figcaption>
+	
+</figure></p>
+<p>触发信号：之前我们已经有了信号触发接口：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-20/image-20200907144820388.png" >
+		<img src="/images/activiti6-20/image-20200907144820388.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200907144820388">
+	</a>
+	
+	<figcaption>image-20200907144820388</figcaption>
+	
+</figure></p>
+<p>不过此处需要<strong>executionId</strong>和<strong>signalName</strong> 参数，其中signalName在流程定义中可以看到：signal002。我們先获取<strong>executionId</strong>：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-20/image-20200907145036252.png" >
+		<img src="/images/activiti6-20/image-20200907145036252.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200907145036252">
+	</a>
+	
+	<figcaption>image-20200907145036252</figcaption>
+	
+</figure></p>
+<p>我们已经获取到了executionId为177510。接下来触发信号：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-20/image-20200907145210065.png" >
+		<img src="/images/activiti6-20/image-20200907145210065.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200907145210065">
+	</a>
+	
+	<figcaption>image-20200907145210065</figcaption>
+	
+</figure></p>
+<p>此时查看流程图如下：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-20/image-20200907145239710.png" >
+		<img src="/images/activiti6-20/image-20200907145239710.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200907145239710">
+	</a>
+	
+	<figcaption>image-20200907145239710</figcaption>
+	
+</figure></p>
+<p>而且，部门经理的待办也产生了，符合我们的预期：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-20/image-20200907145405803.png" >
+		<img src="/images/activiti6-20/image-20200907145405803.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200907145405803">
+	</a>
+	
+	<figcaption>image-20200907145405803</figcaption>
+	
+</figure></p>
+<h2 id="3中间消息捕获事件">3、中间消息捕获事件</h2>
+<p>中间消息捕获事件和中间信号捕获事件类似，我们也画一个简单流程图：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-20/image-20200907150948350.png" >
+		<img src="/images/activiti6-20/image-20200907150948350.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200907150948350">
+	</a>
+	
+	<figcaption>image-20200907150948350</figcaption>
+	
+</figure></p>
+<p>bpmn流程定义：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="cp">&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;definitions</span> <span class="na">xmlns=</span><span class="s">&#34;http://www.omg.org/spec/BPMN/20100524/MODEL&#34;</span> <span class="na">xmlns:xsi=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span> <span class="na">xmlns:xsd=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema&#34;</span> <span class="na">xmlns:activiti=</span><span class="s">&#34;http://activiti.org/bpmn&#34;</span> <span class="na">xmlns:bpmndi=</span><span class="s">&#34;http://www.omg.org/spec/BPMN/20100524/DI&#34;</span> <span class="na">xmlns:omgdc=</span><span class="s">&#34;http://www.omg.org/spec/DD/20100524/DC&#34;</span> <span class="na">xmlns:omgdi=</span><span class="s">&#34;http://www.omg.org/spec/DD/20100524/DI&#34;</span> <span class="na">typeLanguage=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema&#34;</span> <span class="na">expressionLanguage=</span><span class="s">&#34;http://www.w3.org/1999/XPath&#34;</span> <span class="na">targetNamespace=</span><span class="s">&#34;http://www.activiti.org/processdef&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;message</span> <span class="na">id=</span><span class="s">&#34;message002&#34;</span> <span class="na">name=</span><span class="s">&#34;message002&#34;</span><span class="nt">&gt;&lt;/message&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;process</span> <span class="na">id=</span><span class="s">&#34;intermediateMessageCaptureEvent&#34;</span> <span class="na">name=</span><span class="s">&#34;中间消息捕获事件&#34;</span> <span class="na">isExecutable=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;startEvent</span> <span class="na">id=</span><span class="s">&#34;sid-FBD3D904-2229-4A2B-8A54-0E95702C3BC5&#34;</span><span class="nt">&gt;&lt;/startEvent&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;intermediateCatchEvent</span> <span class="na">id=</span><span class="s">&#34;sid-0820F309-666F-470A-9728-6F52F8B983AF&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;messageEventDefinition</span> <span class="na">messageRef=</span><span class="s">&#34;message002&#34;</span><span class="nt">&gt;&lt;/messageEventDefinition&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/intermediateCatchEvent&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;userTask</span> <span class="na">id=</span><span class="s">&#34;sid-B9B71A31-9EAA-4EAB-843A-AF152AA6B632&#34;</span> <span class="na">name=</span><span class="s">&#34;部门经理&#34;</span> <span class="na">activiti:candidateGroups=</span><span class="s">&#34;deptLeader&#34;</span><span class="nt">&gt;&lt;/userTask&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;sid-AF8D16CD-965A-4E7A-879D-F4FF6D4B1821&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;sid-0820F309-666F-470A-9728-6F52F8B983AF&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;sid-B9B71A31-9EAA-4EAB-843A-AF152AA6B632&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;endEvent</span> <span class="na">id=</span><span class="s">&#34;sid-E8A017FC-35CE-4BFB-A7D5-6F6A6866D849&#34;</span><span class="nt">&gt;&lt;/endEvent&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;sid-8308727F-04A4-43CE-8E4C-D0EDC84ACA5B&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;sid-B9B71A31-9EAA-4EAB-843A-AF152AA6B632&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;sid-E8A017FC-35CE-4BFB-A7D5-6F6A6866D849&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;sid-125B2FFF-2CA2-4837-8149-751E38FE0A12&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;sid-FBD3D904-2229-4A2B-8A54-0E95702C3BC5&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;sid-0820F309-666F-470A-9728-6F52F8B983AF&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;/process&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;bpmndi:BPMNDiagram</span> <span class="na">id=</span><span class="s">&#34;BPMNDiagram_intermediateMessageCaptureEvent&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;bpmndi:BPMNPlane</span> <span class="na">bpmnElement=</span><span class="s">&#34;intermediateMessageCaptureEvent&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNPlane_intermediateMessageCaptureEvent&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-FBD3D904-2229-4A2B-8A54-0E95702C3BC5&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_sid-FBD3D904-2229-4A2B-8A54-0E95702C3BC5&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;30.0&#34;</span> <span class="na">width=</span><span class="s">&#34;30.0&#34;</span> <span class="na">x=</span><span class="s">&#34;165.0&#34;</span> <span class="na">y=</span><span class="s">&#34;209.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-0820F309-666F-470A-9728-6F52F8B983AF&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_sid-0820F309-666F-470A-9728-6F52F8B983AF&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;30.0&#34;</span> <span class="na">width=</span><span class="s">&#34;30.0&#34;</span> <span class="na">x=</span><span class="s">&#34;285.0&#34;</span> <span class="na">y=</span><span class="s">&#34;209.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-B9B71A31-9EAA-4EAB-843A-AF152AA6B632&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_sid-B9B71A31-9EAA-4EAB-843A-AF152AA6B632&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;80.0&#34;</span> <span class="na">width=</span><span class="s">&#34;100.0&#34;</span> <span class="na">x=</span><span class="s">&#34;375.0&#34;</span> <span class="na">y=</span><span class="s">&#34;184.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-E8A017FC-35CE-4BFB-A7D5-6F6A6866D849&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_sid-E8A017FC-35CE-4BFB-A7D5-6F6A6866D849&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;28.0&#34;</span> <span class="na">width=</span><span class="s">&#34;28.0&#34;</span> <span class="na">x=</span><span class="s">&#34;540.0&#34;</span> <span class="na">y=</span><span class="s">&#34;210.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-8308727F-04A4-43CE-8E4C-D0EDC84ACA5B&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_sid-8308727F-04A4-43CE-8E4C-D0EDC84ACA5B&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;475.0&#34;</span> <span class="na">y=</span><span class="s">&#34;224.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;540.0&#34;</span> <span class="na">y=</span><span class="s">&#34;224.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-AF8D16CD-965A-4E7A-879D-F4FF6D4B1821&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_sid-AF8D16CD-965A-4E7A-879D-F4FF6D4B1821&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;315.0&#34;</span> <span class="na">y=</span><span class="s">&#34;224.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;375.0&#34;</span> <span class="na">y=</span><span class="s">&#34;224.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-125B2FFF-2CA2-4837-8149-751E38FE0A12&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_sid-125B2FFF-2CA2-4837-8149-751E38FE0A12&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;195.0&#34;</span> <span class="na">y=</span><span class="s">&#34;224.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;285.0&#34;</span> <span class="na">y=</span><span class="s">&#34;224.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/bpmndi:BPMNPlane&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;/bpmndi:BPMNDiagram&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/definitions&gt;</span>
+</span></span></code></pre></div><p>发起流程：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-20/image-20200907150938887.png" >
+		<img src="/images/activiti6-20/image-20200907150938887.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200907150938887">
+	</a>
+	
+	<figcaption>image-20200907150938887</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-20/image-20200907151056206.png" >
+		<img src="/images/activiti6-20/image-20200907151056206.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200907151056206">
+	</a>
+	
+	<figcaption>image-20200907151056206</figcaption>
+	
+</figure></p>
+<p>此处和信号中间事件一样，也需要获取executionId（180013），messageName流程定义中已经说明：message002</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-20/image-20200907151232970.png" >
+		<img src="/images/activiti6-20/image-20200907151232970.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200907151232970">
+	</a>
+	
+	<figcaption>image-20200907151232970</figcaption>
+	
+</figure></p>
+<p>触发消息：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-20/image-20200907151404216.png" >
+		<img src="/images/activiti6-20/image-20200907151404216.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200907151404216">
+	</a>
+	
+	<figcaption>image-20200907151404216</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-20/image-20200907151532678.png" >
+		<img src="/images/activiti6-20/image-20200907151532678.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200907151532678">
+	</a>
+	
+	<figcaption>image-20200907151532678</figcaption>
+	
+</figure></p>
+<p>可以看到消息已经被触发。符合预期。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/activiti/">Activiti</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/activiti6%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%B3%BB%E7%BB%9F%E6%90%AD%E5%BB%BA%E6%95%99%E7%A8%8B/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti6工作流系统搭建教程</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti33-spring-security%E8%8E%B7%E5%8F%96%E5%BD%93%E5%89%8D%E6%93%8D%E4%BD%9C%E4%BA%BA%E4%BF%A1%E6%81%AF/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（33） Spring-Security获取当前操作人信息</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti34-%E4%BD%BF%E7%94%A8swagger%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（34） 使用Swagger生成静态接口文档</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti35-%E4%BD%BF%E7%94%A8swagger%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（35） 使用Swagger生成静态接口文档</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti32-%E6%9B%BF%E6%8D%A2activiti%E7%94%A8%E6%88%B7%E5%92%8C%E7%94%A8%E6%88%B7%E7%BB%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（32） 替换Activiti用户和用户组</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#1定时器捕获中间事件">1、定时器捕获中间事件</a></li>
+    <li><a href="#2信号中间事件">2、信号中间事件</a>
+      <ol>
+        <li><a href="#21-中间事件抛出事件">2.1 中间事件抛出事件</a></li>
+        <li><a href="#22-中间信号捕获事件">2.2 中间信号捕获事件</a></li>
+      </ol>
+    </li>
+    <li><a href="#3中间消息捕获事件">3、中间消息捕获事件</a></li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

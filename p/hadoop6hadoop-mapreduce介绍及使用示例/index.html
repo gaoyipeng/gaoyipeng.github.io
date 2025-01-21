@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Hadoop-MapReduce介绍及使用示例、Hadoop 序列化及序列化数据类型'><title>（Hadoop6）Hadoop-MapReduce介绍及使用示例</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/hadoop6hadoop-mapreduce%E4%BB%8B%E7%BB%8D%E5%8F%8A%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='（Hadoop6）Hadoop-MapReduce介绍及使用示例'>
+<meta property='og:description' content='Hadoop-MapReduce介绍及使用示例、Hadoop 序列化及序列化数据类型'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/hadoop6hadoop-mapreduce%E4%BB%8B%E7%BB%8D%E5%8F%8A%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Hadoop' /><meta property='article:tag' content='MapReduce' /><meta property='article:published_time' content='2023-08-07T10:36:40&#43;00:00'/><meta property='article:modified_time' content='2023-08-07T10:36:40&#43;00:00'/>
+<meta name="twitter:title" content="（Hadoop6）Hadoop-MapReduce介绍及使用示例">
+<meta name="twitter:description" content="Hadoop-MapReduce介绍及使用示例、Hadoop 序列化及序列化数据类型">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/hadoop/" >
+                Hadoop
+            </a>
+        
+            <a href="/categories/mapreduce/" >
+                MapReduce
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/hadoop6hadoop-mapreduce%E4%BB%8B%E7%BB%8D%E5%8F%8A%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/">（Hadoop6）Hadoop-MapReduce介绍及使用示例</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        Hadoop-MapReduce介绍及使用示例、Hadoop 序列化及序列化数据类型
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Aug 07, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 4 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <h2 id="一mapreduce概念">一、MapReduce概念</h2>
+<p>MapReduce 是一个分布式运算程序的编程框架，核心功能是将用户编写的业务逻辑代码和自带默认组件整合成一个完整的分布式运算程序，并运行在一个 Hadoop 集群上。它简单的实现一些接口，就可以完成一个分布式程序，这个分布式程序可以分布到大量廉价的 PC 机器上运行。</p>
+<h2 id="二mapreduce工作流程和编程规范">二、MapReduce工作流程和编程规范</h2>
+<h3 id="21-mapreduce-工作流程">2.1 MapReduce 工作流程</h3>
+<p>一个完整的 MapReduce 程序在分布式运行时有三类实例进程：</p>
+<ul>
+<li>（1）<strong>MrAppMaster</strong>：负责整个程序的过程调度及状态协调。</li>
+<li>（2）<strong>MapTask</strong>：负责 Map 阶段的整个数据处理流程。</li>
+<li>（3）<strong>ReduceTask</strong>：负责 Reduce 阶段的整个数据处理流程。</li>
+</ul>
+<h3 id="22-mapreduce-编程规范">2.2 MapReduce 编程规范</h3>
+<p>用户编写的程序分成三个部分：Mapper、Reducer 和 Driver。</p>
+<p>1．Mapper阶段</p>
+<ul>
+<li>（1）用户自定义的Mapper要继承自己的父类</li>
+<li>（2）Mapper的输入数据是KV对的形式（KV的类型可自定义）</li>
+<li>（3）Mapper中的业务逻辑写在map()方法中</li>
+<li>（4）Mapper的输出数据是KV对的形式（KV的类型可自定义）</li>
+<li>（5）map()方法（MapTask进程）对每一个&lt;K,V&gt;调用一次</li>
+</ul>
+<p>2．Reducer阶段</p>
+<ul>
+<li>（1）用户自定义的Reducer要继承自己的父类</li>
+<li>（2）Reducer的输入数据类型对应Mapper的输出数据类型，也是KV</li>
+<li>（3）Reducer的业务逻辑写在reduce()方法中</li>
+<li>（4）ReduceTask进程对每一组相同k的&lt;k,v&gt;组调用一次reduce()方法</li>
+</ul>
+<p>3．Driver阶段</p>
+<p>相当于YARN集群的客户端，用于提交我们整个程序到YARN集群，提交的是封装了MapReduce程序相关运行参数的job对象。</p>
+<h2 id="三hadoop-序列化及序列化数据类型">三、Hadoop 序列化及序列化数据类型</h2>
+<h3 id="31-hadoop-序列化数据类型">3.1 Hadoop 序列化数据类型</h3>
+<p><figure 
+	>
+	<a href="/../../images/mapreduce-01/image-20230809105725981.png" >
+		<img src="/../../images/mapreduce-01/image-20230809105725981.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230809105725981">
+	</a>
+	
+	<figcaption>image-20230809105725981</figcaption>
+	
+</figure></p>
+<h3 id="32-hadoop-序列化">3.2 Hadoop 序列化</h3>
+<p>Hadoop 为什么要序列化？学习过java序列化就可以明白，由于Hadoop 在计算过程中涉及集群间数据的传输（内存对象&ndash;&gt;磁盘&ndash;&gt;内存对象），如果不是在同一个服务上，那么转化会失败。</p>
+<p>为什么不用 Java 的序列化？Java 的序列化是一个重量级序列化框架（Serializable），一个对象被序列化后，会附带很多额外的信息（各种校验信息，Header，继承体系等），不便于在网络中高效传输。所以，Hadoop 自己开发了一套序列化机制（Writable接口）。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">org.apache.hadoop.io</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.io.DataInput</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.io.DataOutput</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.io.IOException</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.classification.InterfaceAudience.Public</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.classification.InterfaceStability.Stable</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nd">@Public</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@Stable</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">Writable</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">void</span> <span class="nf">write</span><span class="o">(</span><span class="n">DataOutput</span> <span class="n">var1</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kt">void</span> <span class="nf">readFields</span><span class="o">(</span><span class="n">DataInput</span> <span class="n">var1</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>Hadoop 中 bean 对象实现序列化接口需要以下7个步骤：</p>
+<ul>
+<li>（1）必须实现 Writable 接口。</li>
+<li>（2）反序列化时，需要反射调用空参构造函数，所以必须有空参构造。</li>
+<li>（3）重写序列化方法（write）</li>
+<li>（4）重写反序列化方法（readFields）</li>
+<li>（5）<strong>注意反序列化的字段顺序和序列化的字段顺序完全一致</strong></li>
+<li>（6）要想把结果显示在文件中，需要重写 toString()。</li>
+<li>（7）如果需要将自定义的 bean 放在 key 中传输，则还需要实现 Comparable 接口，因为MapReduce 框中的 Shuffle 过程要求对 key 必须能排序。</li>
+</ul>
+<h2 id="四mapreduce-编程及序列化实例">四、MapReduce 编程及序列化实例</h2>
+<p>需求：统计每一个手机号耗费的总上行流量、总下行流量、总流量</p>
+<p>输入数据格式：</p>
+<pre tabindex="0"><code>id   手机号码     网络 ip          上行流量 下行流量 网络状态码
+7    13560436666 120.196.100.99   1116     954     200
+</code></pre><p><figure 
+	>
+	<a href="/../../images/mapreduce-01/image-20230809111401129.png" >
+		<img src="/../../images/mapreduce-01/image-20230809111401129.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230809111401129">
+	</a>
+	
+	<figcaption>image-20230809111401129</figcaption>
+	
+</figure></p>
+<pre tabindex="0"><code>1	13736230513	192.196.100.1	www.atguigu.com	2481	24681	200
+2	13846544121	192.196.100.2			264	0	200
+3 	13956435636	192.196.100.3			132	1512	200
+4 	13966251146	192.168.100.1			240	0	404
+5 	18271575951	192.168.100.2	www.atguigu.com	1527	2106	200
+6 	84188413	192.168.100.3	www.atguigu.com	4116	1432	200
+7 	13590439668	192.168.100.4			1116	954	200
+8 	15910133277	192.168.100.5	www.hao123.com	3156	2936	200
+9 	13729199489	192.168.100.6			240	0	200
+10 	13630577991	192.168.100.7	www.shouhu.com	6960	690	200
+11 	15043685818	192.168.100.8	www.baidu.com	3659	3538	200
+12 	15959002129	192.168.100.9	www.atguigu.com	1938	180	500
+13 	13560439638	192.168.100.10			918	4938	200
+14 	13470253144	192.168.100.11			180	180	200
+15 	13682846555	192.168.100.12	www.qq.com	1938	2910	200
+16 	13992314666	192.168.100.13	www.gaga.com	3008	3720	200
+17 	13509468723	192.168.100.14	www.qinghua.com	7335	110349	404
+18 	18390173782	192.168.100.15	www.sogou.com	9531	2412	200
+19 	13975057813	192.168.100.16	www.baidu.com	11058	48243	200
+20 	13768778790	192.168.100.17			120	120	200
+21 	13568436656	192.168.100.18	www.alibaba.com	2481	24681	200
+22 	13568436656	192.168.100.19			1116	954	200
+</code></pre><p>期望输出数据格式</p>
+<pre tabindex="0"><code>手机号码     上行流量 下行流量 总流量
+13560436666  1116     954     2070
+</code></pre><p>接下来我们进入代码部分，我们直接在上一篇博客【 Hadoop-Window环境配置】搭建好的工程下进行编码。</p>
+<h3 id="41-编写的序列化-bean-对象">4.1 编写的序列化 Bean 对象</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.hdfs.mapreduce.flow</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.io.Writable</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.io.DataInput</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.io.DataOutput</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.io.IOException</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">//1 继承 Writable 接口
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">FlowBean</span> <span class="kd">implements</span> <span class="n">Writable</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kt">long</span> <span class="n">upFlow</span><span class="o">;</span> <span class="c1">//上行流量
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kd">private</span> <span class="kt">long</span> <span class="n">downFlow</span><span class="o">;</span> <span class="c1">//下行流量
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kd">private</span> <span class="kt">long</span> <span class="n">sumFlow</span><span class="o">;</span> <span class="c1">//总流量
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//2 提供无参构造
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kd">public</span> <span class="nf">FlowBean</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">//3 重写序列化方法（write）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">write</span><span class="o">(</span><span class="n">DataOutput</span> <span class="n">dataOutput</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">dataOutput</span><span class="o">.</span><span class="na">writeLong</span><span class="o">(</span><span class="n">upFlow</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">dataOutput</span><span class="o">.</span><span class="na">writeLong</span><span class="o">(</span><span class="n">downFlow</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">dataOutput</span><span class="o">.</span><span class="na">writeLong</span><span class="o">(</span><span class="n">sumFlow</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//4 重写反序列化方法（readFields）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">readFields</span><span class="o">(</span><span class="n">DataInput</span> <span class="n">dataInput</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//注意反序列化的字段顺序和序列化的字段顺序完全一致
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">this</span><span class="o">.</span><span class="na">upFlow</span> <span class="o">=</span> <span class="n">dataInput</span><span class="o">.</span><span class="na">readLong</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">downFlow</span> <span class="o">=</span> <span class="n">dataInput</span><span class="o">.</span><span class="na">readLong</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">sumFlow</span> <span class="o">=</span> <span class="n">dataInput</span><span class="o">.</span><span class="na">readLong</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">//5 重写 ToString
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">String</span> <span class="nf">toString</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">upFlow</span> <span class="o">+</span> <span class="s">&#34;\t&#34;</span> <span class="o">+</span> <span class="n">downFlow</span> <span class="o">+</span> <span class="s">&#34;\t&#34;</span> <span class="o">+</span> <span class="n">sumFlow</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">long</span> <span class="nf">getUpFlow</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">upFlow</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setUpFlow</span><span class="o">(</span><span class="kt">long</span> <span class="n">upFlow</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">upFlow</span> <span class="o">=</span> <span class="n">upFlow</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">long</span> <span class="nf">getDownFlow</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">downFlow</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setDownFlow</span><span class="o">(</span><span class="kt">long</span> <span class="n">downFlow</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">downFlow</span> <span class="o">=</span> <span class="n">downFlow</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">long</span> <span class="nf">getSumFlow</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">sumFlow</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setSumFlow</span><span class="o">(</span><span class="kt">long</span> <span class="n">sumFlow</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">sumFlow</span> <span class="o">=</span> <span class="n">sumFlow</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setSumFlow</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">sumFlow</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">upFlow</span> <span class="o">+</span> <span class="k">this</span><span class="o">.</span><span class="na">downFlow</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><h3 id="42-编写-mapper-类">4.2 编写 Mapper 类</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.hdfs.mapreduce.flow</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.io.LongWritable</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.io.Text</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.mapreduce.Mapper</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.io.IOException</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">FlowMapper</span> <span class="kd">extends</span> <span class="n">Mapper</span><span class="o">&lt;</span><span class="n">LongWritable</span><span class="o">,</span> <span class="n">Text</span><span class="o">,</span> <span class="n">Text</span><span class="o">,</span> <span class="n">FlowBean</span><span class="o">&gt;</span>  <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">Text</span> <span class="n">outK</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Text</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">FlowBean</span> <span class="n">outV</span> <span class="o">=</span> <span class="k">new</span> <span class="n">FlowBean</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">map</span><span class="o">(</span><span class="n">LongWritable</span> <span class="n">key</span><span class="o">,</span> <span class="n">Text</span> <span class="n">value</span><span class="o">,</span> <span class="n">Context</span> <span class="n">context</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">            <span class="kd">throws</span> <span class="n">IOException</span><span class="o">,</span> <span class="n">InterruptedException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//1 获取一行数据,转成字符串
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">String</span> <span class="n">line</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="na">toString</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//2 切割数据
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">String</span><span class="o">[]</span> <span class="n">split</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="na">split</span><span class="o">(</span><span class="s">&#34;\t&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//3 抓取我们需要的数据:手机号,上行流量,下行流量
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">String</span> <span class="n">phone</span> <span class="o">=</span> <span class="n">split</span><span class="o">[</span><span class="n">1</span><span class="o">];</span>
+</span></span><span class="line"><span class="cl">        <span class="n">String</span> <span class="n">up</span> <span class="o">=</span> <span class="n">split</span><span class="o">[</span><span class="n">split</span><span class="o">.</span><span class="na">length</span> <span class="o">-</span> <span class="n">3</span><span class="o">];</span>
+</span></span><span class="line"><span class="cl">        <span class="n">String</span> <span class="n">down</span> <span class="o">=</span> <span class="n">split</span><span class="o">[</span><span class="n">split</span><span class="o">.</span><span class="na">length</span> <span class="o">-</span> <span class="n">2</span><span class="o">];</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//4 封装 outK outV
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">outK</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="n">phone</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">outV</span><span class="o">.</span><span class="na">setUpFlow</span><span class="o">(</span><span class="n">Long</span><span class="o">.</span><span class="na">parseLong</span><span class="o">(</span><span class="n">up</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">        <span class="n">outV</span><span class="o">.</span><span class="na">setDownFlow</span><span class="o">(</span><span class="n">Long</span><span class="o">.</span><span class="na">parseLong</span><span class="o">(</span><span class="n">down</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">        <span class="n">outV</span><span class="o">.</span><span class="na">setSumFlow</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//5 写出 outK outV
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">context</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">outK</span><span class="o">,</span> <span class="n">outV</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><h3 id="43--编写-reducer-类">4.3  编写 Reducer 类</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.hdfs.mapreduce.flow</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.io.Text</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.mapreduce.Reducer</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.io.IOException</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">FlowReducer</span> <span class="kd">extends</span> <span class="n">Reducer</span><span class="o">&lt;</span><span class="n">Text</span><span class="o">,</span> <span class="n">FlowBean</span><span class="o">,</span> <span class="n">Text</span><span class="o">,</span> <span class="n">FlowBean</span><span class="o">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">FlowBean</span> <span class="n">outV</span> <span class="o">=</span> <span class="k">new</span> <span class="n">FlowBean</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">reduce</span><span class="o">(</span><span class="n">Text</span> <span class="n">key</span><span class="o">,</span> <span class="n">Iterable</span><span class="o">&lt;</span><span class="n">FlowBean</span><span class="o">&gt;</span> <span class="n">values</span><span class="o">,</span> <span class="n">Context</span> <span class="n">context</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span><span class="o">,</span> <span class="n">InterruptedException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kt">long</span> <span class="n">totalUp</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="kt">long</span> <span class="n">totalDown</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//1 遍历 values,将其中的上行流量,下行流量分别累加
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">for</span> <span class="o">(</span><span class="n">FlowBean</span> <span class="n">flowBean</span> <span class="o">:</span> <span class="n">values</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">totalUp</span> <span class="o">+=</span> <span class="n">flowBean</span><span class="o">.</span><span class="na">getUpFlow</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">            <span class="n">totalDown</span> <span class="o">+=</span> <span class="n">flowBean</span><span class="o">.</span><span class="na">getDownFlow</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//2 封装 outKV
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">outV</span><span class="o">.</span><span class="na">setUpFlow</span><span class="o">(</span><span class="n">totalUp</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">outV</span><span class="o">.</span><span class="na">setDownFlow</span><span class="o">(</span><span class="n">totalDown</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">outV</span><span class="o">.</span><span class="na">setSumFlow</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//3 写出 outK outV
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">context</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">key</span><span class="o">,</span><span class="n">outV</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><h3 id="44-编写-driver-驱动类">4.4 编写 Driver 驱动类</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.hdfs.mapreduce.flow</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.conf.Configuration</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.fs.Path</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.io.Text</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.mapreduce.Job</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.mapreduce.lib.input.FileInputFormat</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.mapreduce.lib.output.FileOutputFormat</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.io.IOException</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">FlowDriver</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span><span class="o">,</span> <span class="n">ClassNotFoundException</span><span class="o">,</span> <span class="n">InterruptedException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//1 获取 job 对象
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">Configuration</span> <span class="n">conf</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Configuration</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">Job</span> <span class="n">job</span> <span class="o">=</span> <span class="n">Job</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="n">conf</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//2 关联本 Driver 类
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">job</span><span class="o">.</span><span class="na">setJarByClass</span><span class="o">(</span><span class="n">FlowDriver</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//3 关联 Mapper 和 Reducer
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">job</span><span class="o">.</span><span class="na">setMapperClass</span><span class="o">(</span><span class="n">FlowMapper</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">job</span><span class="o">.</span><span class="na">setReducerClass</span><span class="o">(</span><span class="n">FlowReducer</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">//4 设置 Map 端输出 KV 类型
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">job</span><span class="o">.</span><span class="na">setMapOutputKeyClass</span><span class="o">(</span><span class="n">Text</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">job</span><span class="o">.</span><span class="na">setMapOutputValueClass</span><span class="o">(</span><span class="n">FlowBean</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">//5 设置程序最终输出的 KV 类型
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">job</span><span class="o">.</span><span class="na">setOutputKeyClass</span><span class="o">(</span><span class="n">Text</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">job</span><span class="o">.</span><span class="na">setOutputValueClass</span><span class="o">(</span><span class="n">FlowBean</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">//6 设置程序的输入输出路径 new Path(args[0]) new Path(args[1]) 用于接收命令参数
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">FileInputFormat</span><span class="o">.</span><span class="na">setInputPaths</span><span class="o">(</span><span class="n">job</span><span class="o">,</span> <span class="k">new</span> <span class="n">Path</span><span class="o">(</span><span class="n">args</span><span class="o">[</span><span class="n">0</span><span class="o">]));</span>
+</span></span><span class="line"><span class="cl">        <span class="n">FileOutputFormat</span><span class="o">.</span><span class="na">setOutputPath</span><span class="o">(</span><span class="n">job</span><span class="o">,</span> <span class="k">new</span> <span class="n">Path</span><span class="o">(</span><span class="n">args</span><span class="o">[</span><span class="n">1</span><span class="o">]));</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">//7 提交 Job
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="kt">boolean</span> <span class="n">b</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="na">waitForCompletion</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">exit</span><span class="o">(</span><span class="n">b</span> <span class="o">?</span> <span class="n">0</span> <span class="o">:</span> <span class="n">1</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><h3 id="45-测试">4.5 测试</h3>
+<h4 id="451-maven打包">4.5.1 maven打包</h4>
+<p>记着勾选这个小闪电跳过test校验，我们上节的代码在test模块下，打包会校验</p>
+<p><figure 
+	>
+	<a href="/../../images/mapreduce-01/image-20230809142330385.png" >
+		<img src="/../../images/mapreduce-01/image-20230809142330385.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230809142330385">
+	</a>
+	
+	<figcaption>image-20230809142330385</figcaption>
+	
+</figure></p>
+<p>将其中不带依赖包的jar包改名(名字随意，这里只是为了后面好记忆)，并上传到hadoop1上：</p>
+<p><figure 
+	>
+	<a href="/../../images/mapreduce-01/image-20230809150730891.png" >
+		<img src="/../../images/mapreduce-01/image-20230809150730891.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230809150730891">
+	</a>
+	
+	<figcaption>image-20230809150730891</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/mapreduce-01/image-20230809150808314.png" >
+		<img src="/../../images/mapreduce-01/image-20230809150808314.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230809150808314">
+	</a>
+	
+	<figcaption>image-20230809150808314</figcaption>
+	
+</figure></p>
+<p>将源文件提前上传到HDFS的 <code>/input</code> 目录下：</p>
+<p><figure 
+	>
+	<a href="/../../images/mapreduce-01/image-20230809150943801.png" >
+		<img src="/../../images/mapreduce-01/image-20230809150943801.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230809150943801">
+	</a>
+	
+	<figcaption>image-20230809150943801</figcaption>
+	
+</figure></p>
+<p>然后执行计算命令</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 software<span class="o">]</span>$ hadoop jar mapreduce-flow.jar  com.sxdx.hdfs.mapreduce.flow.FlowDriver /input/phone_data.txt  /output
+</span></span></code></pre></div><p>查看计算记录，（前面2次虚拟机由于内存不够，均失败，添加内存后成功）<figure 
+	>
+	<a href="/../../images/mapreduce-01/image-20230809151246489.png" >
+		<img src="/../../images/mapreduce-01/image-20230809151246489.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230809151246489">
+	</a>
+	
+	<figcaption>image-20230809151246489</figcaption>
+	
+</figure></p>
+<p>查看计算结果：</p>
+<p><figure 
+	>
+	<a href="/../../images/mapreduce-01/image-20230809151449971.png" >
+		<img src="/../../images/mapreduce-01/image-20230809151449971.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230809151449971">
+	</a>
+	
+	<figcaption>image-20230809151449971</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/mapreduce-01/image-20230809151510348.png" >
+		<img src="/../../images/mapreduce-01/image-20230809151510348.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230809151510348">
+	</a>
+	
+	<figcaption>image-20230809151510348</figcaption>
+	
+</figure></p>
+<p>可以看到计算结果。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/hadoop/">Hadoop</a>
+        
+            <a href="/tags/mapreduce/">MapReduce</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/hadoop22hadoop-mapreduce-%E5%8F%82%E6%95%B0%E8%B0%83%E4%BC%98/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hadoop22）Hadoop MapReduce 参数调优</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hadoop11hadoop-mapreduce%E5%8E%8B%E7%BC%A9/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hadoop11）Hadoop-MapReduce压缩</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hadoop10hadoop-mapreducemapjoin%E5%92%8Creducejoin/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hadoop10）Hadoop-MapReduce（MapJoin和ReduceJoin ）</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hadoop9hadoop-mapreducereducetask%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hadoop9）Hadoop-MapReduce（ReduceTask过程分析）</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hadoop8hadoop-mapreduceshuffle%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hadoop8）Hadoop-MapReduce（Shuffle过程分析）</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#一mapreduce概念">一、MapReduce概念</a></li>
+    <li><a href="#二mapreduce工作流程和编程规范">二、MapReduce工作流程和编程规范</a>
+      <ol>
+        <li><a href="#21-mapreduce-工作流程">2.1 MapReduce 工作流程</a></li>
+        <li><a href="#22-mapreduce-编程规范">2.2 MapReduce 编程规范</a></li>
+      </ol>
+    </li>
+    <li><a href="#三hadoop-序列化及序列化数据类型">三、Hadoop 序列化及序列化数据类型</a>
+      <ol>
+        <li><a href="#31-hadoop-序列化数据类型">3.1 Hadoop 序列化数据类型</a></li>
+        <li><a href="#32-hadoop-序列化">3.2 Hadoop 序列化</a></li>
+      </ol>
+    </li>
+    <li><a href="#四mapreduce-编程及序列化实例">四、MapReduce 编程及序列化实例</a>
+      <ol>
+        <li><a href="#41-编写的序列化-bean-对象">4.1 编写的序列化 Bean 对象</a></li>
+        <li><a href="#42-编写-mapper-类">4.2 编写 Mapper 类</a></li>
+        <li><a href="#43--编写-reducer-类">4.3  编写 Reducer 类</a></li>
+        <li><a href="#44-编写-driver-驱动类">4.4 编写 Driver 驱动类</a></li>
+        <li><a href="#45-测试">4.5 测试</a>
+          <ol>
+            <li><a href="#451-maven打包">4.5.1 maven打包</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

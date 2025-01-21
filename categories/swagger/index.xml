@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Swagger on 十一爸爸的博客</title>
+    <link>https://garnettboy.gitee.io/categories/swagger/</link>
+    <description>Recent content in Swagger on 十一爸爸的博客</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Fri, 23 Oct 2020 09:19:39 +0000</lastBuildDate><atom:link href="https://garnettboy.gitee.io/categories/swagger/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Activiti（34） 使用Swagger生成静态接口文档</title>
+      <link>https://garnettboy.gitee.io/p/activiti34-%E4%BD%BF%E7%94%A8swagger%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3/</link>
+      <pubDate>Fri, 23 Oct 2020 09:19:39 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti34-%E4%BD%BF%E7%94%A8swagger%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3/</guid>
+      <description>实际工作中往往需要我们提供接口文档，但是有的用户并不能直接访问Swagger-UI 来获取接口，所以本节我们介绍一下如何使用Swagger生成静态接口文档。
+我们以workflow-activit-rest工程为例。本节我们演示生成HTML、MarkDown、PDF格式的静态接口文档。
+1、添加依赖 &amp;lt;!--swagger静态化输出依赖--&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;io.github.swagger2markup&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;swagger2markup&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.3.3&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; 另外还需要在POM文件中添加如下内容：
+&amp;lt;repositories&amp;gt; &amp;lt;repository&amp;gt; &amp;lt;id&amp;gt;spring-libs-milestone&amp;lt;/id&amp;gt; &amp;lt;url&amp;gt;https://repo.spring.io/libs-milestone&amp;lt;/url&amp;gt; &amp;lt;snapshots&amp;gt; &amp;lt;enabled&amp;gt;false&amp;lt;/enabled&amp;gt; &amp;lt;/snapshots&amp;gt; &amp;lt;/repository&amp;gt; &amp;lt;!-- jhipster-needle-maven-repository --&amp;gt; &amp;lt;/repositories&amp;gt; &amp;lt;pluginRepositories&amp;gt; &amp;lt;pluginRepository&amp;gt; &amp;lt;id&amp;gt;spring-plugins-release&amp;lt;/id&amp;gt; &amp;lt;url&amp;gt;https://repo.spring.io/plugins-release&amp;lt;/url&amp;gt; &amp;lt;snapshots&amp;gt; &amp;lt;enabled&amp;gt;false&amp;lt;/enabled&amp;gt; &amp;lt;/snapshots&amp;gt; &amp;lt;/pluginRepository&amp;gt; &amp;lt;/pluginRepositories&amp;gt; &amp;lt;!--swagger静态化插件 先执行测试类生成.adoc文件再运行maven命令 asciidoctor:process-asciidoc生成html--&amp;gt; &amp;lt;plugin&amp;gt; &amp;lt;groupId&amp;gt;org.asciidoctor&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;asciidoctor-maven-plugin&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.5.6&amp;lt;/version&amp;gt; &amp;lt;configuration&amp;gt; &amp;lt;sourceDirectory&amp;gt;./docs/asciidoc/generated&amp;lt;/sourceDirectory&amp;gt; &amp;lt;outputDirectory&amp;gt;./docs/asciidoc/html&amp;lt;/outputDirectory&amp;gt; &amp;lt;headerFooter&amp;gt;true&amp;lt;/headerFooter&amp;gt; &amp;lt;doctype&amp;gt;book&amp;lt;/doctype&amp;gt; &amp;lt;backend&amp;gt;html&amp;lt;/backend&amp;gt; &amp;lt;sourceHighlighter&amp;gt;coderay&amp;lt;/sourceHighlighter&amp;gt; &amp;lt;attributes&amp;gt; &amp;lt;!--菜单栏在左边--&amp;gt; &amp;lt;toc&amp;gt;left&amp;lt;/toc&amp;gt; &amp;lt;!--多标题排列--&amp;gt; &amp;lt;toclevels&amp;gt;3&amp;lt;/toclevels&amp;gt; &amp;lt;!--自动打数字序号--&amp;gt; &amp;lt;sectnums&amp;gt;true&amp;lt;/sectnums&amp;gt; &amp;lt;/attributes&amp;gt; &amp;lt;/configuration&amp;gt; &amp;lt;/plugin&amp;gt; 2、生成接口 此处我们写一个单元测试类来存放生成接口：
+package com.sxdx.workflow.activiti.rest; import io.github.swagger2markup.GroupBy; import io.github.swagger2markup.Language; import io.github.swagger2markup.Swagger2MarkupConfig; import io.github.swagger2markup.Swagger2MarkupConverter; import io.github.swagger2markup.builder.Swagger2MarkupConfigBuilder; import io.</description>
+    </item>
+    
+    <item>
+      <title>Activiti（35） 使用Swagger生成静态接口文档</title>
+      <link>https://garnettboy.gitee.io/p/activiti35-%E4%BD%BF%E7%94%A8swagger%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3/</link>
+      <pubDate>Fri, 23 Oct 2020 09:19:39 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti35-%E4%BD%BF%E7%94%A8swagger%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3/</guid>
+      <description>实际工作中往往需要我们提供接口文档，但是有的用户并不能直接访问Swagger-UI 来获取接口，所以本节我们介绍一下如何使用Swagger生成静态接口文档。
+我们以workflow-activit-rest工程为例。本节我们演示生成HTML、MarkDown、PDF格式的静态接口文档。
+1、添加依赖 &amp;lt;!--swagger静态化输出依赖--&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;io.github.swagger2markup&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;swagger2markup&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.3.3&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; 另外还需要在POM文件中添加如下内容：
+&amp;lt;repositories&amp;gt; &amp;lt;repository&amp;gt; &amp;lt;id&amp;gt;spring-libs-milestone&amp;lt;/id&amp;gt; &amp;lt;url&amp;gt;https://repo.spring.io/libs-milestone&amp;lt;/url&amp;gt; &amp;lt;snapshots&amp;gt; &amp;lt;enabled&amp;gt;false&amp;lt;/enabled&amp;gt; &amp;lt;/snapshots&amp;gt; &amp;lt;/repository&amp;gt; &amp;lt;!-- jhipster-needle-maven-repository --&amp;gt; &amp;lt;/repositories&amp;gt; &amp;lt;pluginRepositories&amp;gt; &amp;lt;pluginRepository&amp;gt; &amp;lt;id&amp;gt;spring-plugins-release&amp;lt;/id&amp;gt; &amp;lt;url&amp;gt;https://repo.spring.io/plugins-release&amp;lt;/url&amp;gt; &amp;lt;snapshots&amp;gt; &amp;lt;enabled&amp;gt;false&amp;lt;/enabled&amp;gt; &amp;lt;/snapshots&amp;gt; &amp;lt;/pluginRepository&amp;gt; &amp;lt;/pluginRepositories&amp;gt; &amp;lt;!--swagger静态化插件 先执行测试类生成.adoc文件再运行maven命令 asciidoctor:process-asciidoc生成html--&amp;gt; &amp;lt;plugin&amp;gt; &amp;lt;groupId&amp;gt;org.asciidoctor&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;asciidoctor-maven-plugin&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.5.6&amp;lt;/version&amp;gt; &amp;lt;configuration&amp;gt; &amp;lt;sourceDirectory&amp;gt;./docs/asciidoc/generated&amp;lt;/sourceDirectory&amp;gt; &amp;lt;outputDirectory&amp;gt;./docs/asciidoc/html&amp;lt;/outputDirectory&amp;gt; &amp;lt;headerFooter&amp;gt;true&amp;lt;/headerFooter&amp;gt; &amp;lt;doctype&amp;gt;book&amp;lt;/doctype&amp;gt; &amp;lt;backend&amp;gt;html&amp;lt;/backend&amp;gt; &amp;lt;sourceHighlighter&amp;gt;coderay&amp;lt;/sourceHighlighter&amp;gt; &amp;lt;attributes&amp;gt; &amp;lt;!--菜单栏在左边--&amp;gt; &amp;lt;toc&amp;gt;left&amp;lt;/toc&amp;gt; &amp;lt;!--多标题排列--&amp;gt; &amp;lt;toclevels&amp;gt;3&amp;lt;/toclevels&amp;gt; &amp;lt;!--自动打数字序号--&amp;gt; &amp;lt;sectnums&amp;gt;true&amp;lt;/sectnums&amp;gt; &amp;lt;/attributes&amp;gt; &amp;lt;/configuration&amp;gt; &amp;lt;/plugin&amp;gt; 2、生成接口 此处我们写一个单元测试类来存放生成接口：
+package com.sxdx.workflow.activiti.rest; import io.github.swagger2markup.GroupBy; import io.github.swagger2markup.Language; import io.github.swagger2markup.Swagger2MarkupConfig; import io.github.swagger2markup.Swagger2MarkupConverter; import io.github.swagger2markup.builder.Swagger2MarkupConfigBuilder; import io.</description>
+    </item>
+    
+    <item>
+      <title>Activiti（8） 动态表单实战、集成Swagger、Logback</title>
+      <link>https://garnettboy.gitee.io/p/activiti8-%E5%8A%A8%E6%80%81%E8%A1%A8%E5%8D%95%E5%AE%9E%E6%88%98%E9%9B%86%E6%88%90swaggerlogback/</link>
+      <pubDate>Mon, 08 Jun 2020 16:51:23 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti8-%E5%8A%A8%E6%80%81%E8%A1%A8%E5%8D%95%E5%AE%9E%E6%88%98%E9%9B%86%E6%88%90swaggerlogback/</guid>
+      <description>动态表单是直接将工作流节点处的表单嵌入流程定义文件BPMN中。系统利用JS或者模板引擎，根据流程定义中表单定义的各个子控件及其属性动态渲染出表单并加载出来。
+在正式开始介绍表单前，我们先完善一下系统。
+1、工程完善 1.1、集成Swagger 在开始实战前，我们先集成Swagger,这样有利于我们后期管理接口。
+在workflow-activiti-rest module的pom.xml文件中添加： &amp;lt;!-- swagger2--&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;io.springfox&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;springfox-swagger2&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;io.springfox&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;springfox-swagger-ui&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; 添加配置类 package com.sxdx.workflow.activiti.rest.config; import org.springframework.context.annotation.Bean; import org.springframework.context.annotation.Configuration; import springfox.documentation.builders.ApiInfoBuilder; import springfox.documentation.builders.PathSelectors; import springfox.documentation.builders.RequestHandlerSelectors; import springfox.documentation.service.ApiInfo; import springfox.documentation.service.Contact; import springfox.documentation.spi.DocumentationType; import springfox.documentation.spring.web.plugins.Docket; import springfox.documentation.swagger2.annotations.EnableSwagger2; @Configuration @EnableSwagger2 public class SwaggerConfig { /** * 通过 createRestApi函数来构建一个DocketBean * 函数名,可以随意命名,喜欢什么命名就什么命名 */ @Bean public Docket createRestApi() { return new Docket(DocumentationType.SWAGGER_2) .apiInfo(apiInfo())//调用apiInfo方法,创建一个ApiInfo实例,里面是展示在文档页面信息内容 .select() //控制暴露出去的路径下的实例 //如果某个接口不想暴露,可以使用以下注解 //@ApiIgnore 这样,该接口就不会暴露在 swagger2 的页面下 .</description>
+    </item>
+    
+  </channel>
+</rss>

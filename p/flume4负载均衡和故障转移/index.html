@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Flume 负载均衡和故障转移'><title>（Flume4）负载均衡和故障转移</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/flume4%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E5%92%8C%E6%95%85%E9%9A%9C%E8%BD%AC%E7%A7%BB/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='（Flume4）负载均衡和故障转移'>
+<meta property='og:description' content='Flume 负载均衡和故障转移'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/flume4%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E5%92%8C%E6%95%85%E9%9A%9C%E8%BD%AC%E7%A7%BB/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Flume' /><meta property='article:published_time' content='2023-11-03T15:36:40&#43;00:00'/><meta property='article:modified_time' content='2023-11-03T15:36:40&#43;00:00'/>
+<meta name="twitter:title" content="（Flume4）负载均衡和故障转移">
+<meta name="twitter:description" content="Flume 负载均衡和故障转移">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/flume/" >
+                Flume
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/flume4%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E5%92%8C%E6%95%85%E9%9A%9C%E8%BD%AC%E7%A7%BB/">（Flume4）负载均衡和故障转移</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        Flume 负载均衡和故障转移
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Nov 03, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 3 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <h2 id="一负载均衡和故障转移">一、负载均衡和故障转移</h2>
+<ul>
+<li>
+<p>Sink Processor 共有三种类型，分别是<strong>Default SinkProcessor 、LoadBalancing SinkProcessor 和 Failover SinkProcessor</strong>。</p>
+<ul>
+<li>Default SinkProcessor 对应的是单个的 Sink</li>
+<li>LoadBalancing SinkProcessor 和Failover SinkProcessor 对应的是 Sink Group</li>
+<li>LoadBalancing SinkProcessor 可以实现<strong>负载均衡</strong>的功能，Failover SinkProcessor 可以实现<strong>故障转移</strong>的功能。</li>
+</ul>
+<p>（补充）：<strong>sink group</strong> 定义：</p>
+</li>
+</ul>
+<p><figure 
+	>
+	<a href="/../../images/04-flume-04/image-20231106100318517.png" >
+		<img src="/../../images/04-flume-04/image-20231106100318517.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231106100318517">
+	</a>
+	
+	<figcaption>image-20231106100318517</figcaption>
+	
+</figure></p>
+<h3 id="11-flume-故障转移failover-">1.1 Flume 故障转移(failover )</h3>
+<p><figure 
+	>
+	<a href="/../../images/04-flume-04/image-20231106173449302.png" >
+		<img src="/../../images/04-flume-04/image-20231106173449302.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231106105443748">
+	</a>
+	
+	<figcaption>image-20231106105443748</figcaption>
+	
+</figure></p>
+<p>需求规划：</p>
+<ul>
+<li>Flume-1 监控hadoop1节点的 hive日志</li>
+<li>Flume-1 将变动内容传递给 Flume-2 （hadoop2节点）或者 Flume-3（hadoop3节点），Flume-2，Flume-3负责打印内容到控制台.</li>
+<li>Flume-2权重高、Flume-3权重低，默认Flume-2工作，如果Flume-2异常，则Flume-3继续工作。</li>
+</ul>
+<p><figure 
+	>
+	<a href="/../../images/04-flume-04/image-20231106105443748.png" >
+		<img src="/../../images/04-flume-04/image-20231106105443748.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231106105443748">
+	</a>
+	
+	<figcaption>image-20231106105443748</figcaption>
+	
+</figure></p>
+<p>（1）提前准备目录</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="c1">## 用于存放配置文件 /opt/module/apache-flume-1.9.0-bin/job/group2_failover</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 job<span class="o">]</span>$ mkdir group2_failover
+</span></span></code></pre></div><p>（2）在group2_failover目录下创建3个Agent进程配置文件。</p>
+<ul>
+<li>​	Flume-1对应<strong>Hadoop1</strong>的【 flume-exec-flume.conf】：配置 1 个 exec source 和 1 个 channel、1 个 <strong>sink group</strong>（2 个 sink），分别输送给flume-flume-console1 和 flume-flume-console2。</li>
+<li>​    Flume-2对应<strong>Hadoop2</strong>的【flume-flume-console1.conf】：配置上级 Flume 输出的 Source，输出是到本地控制台。</li>
+<li>​    Flume-3对应<strong>Hadoop3</strong>的【flume-flume-console2.conf】：配置上级 Flume 输出的 Source，输出是到本地控制台。</li>
+</ul>
+<p>3个配置文件如下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">【 flume-exec-flume.conf】
+</span></span><span class="line"><span class="cl"><span class="c1"># Name the components on this agent</span>
+</span></span><span class="line"><span class="cl">a1.sources <span class="o">=</span> r1
+</span></span><span class="line"><span class="cl">a1.channels <span class="o">=</span> c1
+</span></span><span class="line"><span class="cl">a1.sinkgroups <span class="o">=</span> g1
+</span></span><span class="line"><span class="cl">a1.sinks <span class="o">=</span> k1 k2
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Describe/configure the source</span>
+</span></span><span class="line"><span class="cl">a1.sources.r1.type <span class="o">=</span> <span class="nb">exec</span>
+</span></span><span class="line"><span class="cl">a1.sources.r1.command <span class="o">=</span> tail -F /opt/module/apache-hive-3.1.3-bin/logs/hive.log
+</span></span><span class="line"><span class="cl">a1.sources.r1.shell <span class="o">=</span> /bin/bash -c
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">##sinkgroups规则配置：Failover，并配置k1,k2权重</span>
+</span></span><span class="line"><span class="cl">a1.sinkgroups.g1.processor.type <span class="o">=</span> failover
+</span></span><span class="line"><span class="cl">a1.sinkgroups.g1.processor.priority.k1 <span class="o">=</span> <span class="m">10</span>
+</span></span><span class="line"><span class="cl">a1.sinkgroups.g1.processor.priority.k2 <span class="o">=</span> <span class="m">5</span>
+</span></span><span class="line"><span class="cl">a1.sinkgroups.g1.processor.maxpenalty <span class="o">=</span> <span class="m">10000</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Describe the sink</span>
+</span></span><span class="line"><span class="cl">a1.sinks.k1.type <span class="o">=</span> avro
+</span></span><span class="line"><span class="cl">a1.sinks.k1.hostname <span class="o">=</span> hadoop2
+</span></span><span class="line"><span class="cl">a1.sinks.k1.port <span class="o">=</span> <span class="m">4141</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">a1.sinks.k2.type <span class="o">=</span> avro
+</span></span><span class="line"><span class="cl">a1.sinks.k2.hostname <span class="o">=</span> hadoop3
+</span></span><span class="line"><span class="cl">a1.sinks.k2.port <span class="o">=</span> <span class="m">4142</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Describe the channel</span>
+</span></span><span class="line"><span class="cl">a1.channels.c1.type <span class="o">=</span> memory
+</span></span><span class="line"><span class="cl">a1.channels.c1.capacity <span class="o">=</span> <span class="m">1000</span>
+</span></span><span class="line"><span class="cl">a1.channels.c1.transactionCapacity <span class="o">=</span> <span class="m">100</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Bind the source and sink to the channel </span>
+</span></span><span class="line"><span class="cl">a1.sources.r1.channels <span class="o">=</span> c1
+</span></span><span class="line"><span class="cl"><span class="c1">##注意此处需要sinkgroups绑定了2个sink</span>
+</span></span><span class="line"><span class="cl">a1.sinkgroups.g1.sinks <span class="o">=</span> k1 k2
+</span></span><span class="line"><span class="cl">a1.sinks.k1.channel <span class="o">=</span> c1
+</span></span><span class="line"><span class="cl">a1.sinks.k2.channel <span class="o">=</span> c1
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">【flume-flume-console1.conf】
+</span></span><span class="line"><span class="cl"><span class="c1"># Name the components on this agent</span>
+</span></span><span class="line"><span class="cl">a2.sources <span class="o">=</span> r1
+</span></span><span class="line"><span class="cl">a2.sinks <span class="o">=</span> k1
+</span></span><span class="line"><span class="cl">a2.channels <span class="o">=</span> c1
+</span></span><span class="line"><span class="cl"><span class="c1"># Describe/configure the source</span>
+</span></span><span class="line"><span class="cl">a2.sources.r1.type <span class="o">=</span> avro
+</span></span><span class="line"><span class="cl">a2.sources.r1.bind <span class="o">=</span> hadoop2
+</span></span><span class="line"><span class="cl">a2.sources.r1.port <span class="o">=</span> <span class="m">4141</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Describe the sink</span>
+</span></span><span class="line"><span class="cl">a2.sinks.k1.type <span class="o">=</span> logger
+</span></span><span class="line"><span class="cl"><span class="c1"># Describe the channel</span>
+</span></span><span class="line"><span class="cl">a2.channels.c1.type <span class="o">=</span> memory
+</span></span><span class="line"><span class="cl">a2.channels.c1.capacity <span class="o">=</span> <span class="m">1000</span>
+</span></span><span class="line"><span class="cl">a2.channels.c1.transactionCapacity <span class="o">=</span> <span class="m">100</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Bind the source and sink to the channel</span>
+</span></span><span class="line"><span class="cl">a2.sources.r1.channels <span class="o">=</span> c1
+</span></span><span class="line"><span class="cl">a2.sinks.k1.channel <span class="o">=</span> c1
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">【flume-flume-console2.conf】
+</span></span><span class="line"><span class="cl"><span class="c1"># Name the components on this agent</span>
+</span></span><span class="line"><span class="cl">a3.sources <span class="o">=</span> r1
+</span></span><span class="line"><span class="cl">a3.sinks <span class="o">=</span> k1
+</span></span><span class="line"><span class="cl">a3.channels <span class="o">=</span> c2
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Describe/configure the source</span>
+</span></span><span class="line"><span class="cl">a3.sources.r1.type <span class="o">=</span> avro
+</span></span><span class="line"><span class="cl">a3.sources.r1.bind <span class="o">=</span> hadoop3
+</span></span><span class="line"><span class="cl">a3.sources.r1.port <span class="o">=</span> <span class="m">4142</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Describe the sink</span>
+</span></span><span class="line"><span class="cl">a3.sinks.k1.type <span class="o">=</span> logger
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Describe the channel</span>
+</span></span><span class="line"><span class="cl">a3.channels.c2.type <span class="o">=</span> memory
+</span></span><span class="line"><span class="cl">a3.channels.c2.capacity <span class="o">=</span> <span class="m">1000</span>
+</span></span><span class="line"><span class="cl">a3.channels.c2.transactionCapacity <span class="o">=</span> <span class="m">100</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Bind the source and sink to the channel</span>
+</span></span><span class="line"><span class="cl">a3.sources.r1.channels <span class="o">=</span> c2
+</span></span><span class="line"><span class="cl">a3.sinks.k1.channel <span class="o">=</span> c2
+</span></span></code></pre></div><p>（3）分别用启动对应的 flume Agent进程：flume-exec-flume，flume-flume-console1，flume-flume-console2。</p>
+<p>注意先后顺序，flume-exec-flume要最后启动，它依赖后2个进程。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="c1">##hadoop2</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 apache-flume-1.9.0-bin<span class="o">]</span>$ bin/flume-ng agent --conf conf/ --name a2 --conf-file job/group2_failover/flume-flume-console1.conf -Dflume.root.logger<span class="o">=</span>INFO,console
+</span></span><span class="line"><span class="cl"><span class="c1">##hadoop3</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 apache-flume-1.9.0-bin<span class="o">]</span>$ bin/flume-ng agent --conf conf/ --name a3 --conf-file job/group2_failover/flume-flume-console2.conf -Dflume.root.logger<span class="o">=</span>INFO,console
+</span></span><span class="line"><span class="cl"><span class="c1">##hadoop1</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 apache-flume-1.9.0-bin<span class="o">]</span>$ bin/flume-ng agent --conf conf/ --name a1 --conf-file job/group2_failover/flume-exec-flume.conf <span class="p">&amp;</span>
+</span></span></code></pre></div><p>经过测试发现，只有hadoop2这台机器有日志打印。</p>
+<p><figure 
+	>
+	<a href="/../../images/04-flume-04/image-20231106170226396.png" >
+		<img src="/../../images/04-flume-04/image-20231106170226396.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231106170226396">
+	</a>
+	
+	<figcaption>image-20231106170226396</figcaption>
+	
+</figure></p>
+<p>如果kill 掉hadoop2的进程（只需在hadoop2上Ctrl+C即可退出），就可以看到hadoop3这台机器有日志打印了。</p>
+<p><figure 
+	>
+	<a href="/../../images/04-flume-04/image-20231106170511346.png" >
+		<img src="/../../images/04-flume-04/image-20231106170511346.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231106170511346">
+	</a>
+	
+	<figcaption>image-20231106170511346</figcaption>
+	
+</figure></p>
+<p>这样就实现了故障转移。</p>
+<h3 id="12-flume-负载均衡load_balance">1.2 Flume 负载均衡(load_balance)</h3>
+<p><strong>注意：由于channels到sink的数据流工作原理是，sink主动到channels拉取数据，这里说的负载均衡指的是sink的负载，多个sink轮流去拉取，所以实际工作中并不是sink轮流输出，而是要看在sink负载工作时，channels是否正好有数据。</strong></p>
+<p><figure 
+	>
+	<a href="/../../images/04-flume-04/image-20231106173405605.png" >
+		<img src="/../../images/04-flume-04/image-20231106173405605.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231106173405605">
+	</a>
+	
+	<figcaption>image-20231106173405605</figcaption>
+	
+</figure></p>
+<p>我们在故障转移的示例基础上进行负载均衡的演示。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 job<span class="o">]</span>$ mkdir group2_load_balance
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 job<span class="o">]</span>$ cp group2_failover/flume-exec-flume.conf group2_load_balance/flume-exec-flume2.conf
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 job<span class="o">]</span>$ vim group2_load_balance/flume-exec-flume2.conf
+</span></span></code></pre></div><p>只需修改【 flume-exec-flume2.conf】文件的以下部分：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="c1">##sinkgroups规则配置：Failover，并配置k1,k2权重</span>
+</span></span><span class="line"><span class="cl">a1.sinkgroups.g1.processor.type <span class="o">=</span> failover
+</span></span><span class="line"><span class="cl">a1.sinkgroups.g1.processor.priority.k1 <span class="o">=</span> <span class="m">10</span>
+</span></span><span class="line"><span class="cl">a1.sinkgroups.g1.processor.priority.k2 <span class="o">=</span> <span class="m">5</span>
+</span></span><span class="line"><span class="cl">a1.sinkgroups.g1.processor.maxpenalty <span class="o">=</span> <span class="m">10000</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">修改为：
+</span></span><span class="line"><span class="cl">a1.sinkgroups.g1.processor.type <span class="o">=</span> load_balance
+</span></span><span class="line"><span class="cl"><span class="c1">##退避属性：如果当前sink如果未拉到数据，则未来一段时间该sink不工作，可选。</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#a1.sinkgroups.g1.processor.backoff = true</span>
+</span></span><span class="line"><span class="cl"><span class="c1">##最大退避时间，避免节点由于退避时间太长导致接节点不可用</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#a1.sinkgroups.g1.processor.selector.maxTimeOut = 30000</span>
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/04-flume-04/image-20231107104826775.png" >
+		<img src="/../../images/04-flume-04/image-20231107104826775.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231107104826775">
+	</a>
+	
+	<figcaption>image-20231107104826775</figcaption>
+	
+</figure></p>
+<p>然后启动flume</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="c1">##hadoop2</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 apache-flume-1.9.0-bin<span class="o">]</span>$ bin/flume-ng agent --conf conf/ --name a2 --conf-file job/group2_failover/flume-flume-console1.conf -Dflume.root.logger<span class="o">=</span>INFO,console
+</span></span><span class="line"><span class="cl"><span class="c1">##hadoop3</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 apache-flume-1.9.0-bin<span class="o">]</span>$ bin/flume-ng agent --conf conf/ --name a3 --conf-file job/group2_failover/flume-flume-console2.conf -Dflume.root.logger<span class="o">=</span>INFO,console
+</span></span><span class="line"><span class="cl"><span class="c1">##hadoop1</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 apache-flume-1.9.0-bin<span class="o">]</span>$ bin/flume-ng agent --conf conf/ --name a1 --conf-file job/group2_load_balance/flume-exec-flume2.conf <span class="p">&amp;</span>
+</span></span></code></pre></div><p>此时hadoop2、hadoop3均可以看到日志打印了。</p>
+<p><figure 
+	>
+	<a href="/../../images/04-flume-04/image-20231107105323915.png" >
+		<img src="/../../images/04-flume-04/image-20231107105323915.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231107105323915">
+	</a>
+	
+	<figcaption>image-20231107105323915</figcaption>
+	
+</figure></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/flume/">Flume</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/flume7%E5%AE%89%E8%A3%85ganglia%E7%9B%91%E6%8E%A7flume/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Flume7）安装Ganglia监控Flume</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/flume6%E8%87%AA%E5%AE%9A%E4%B9%89source%E8%87%AA%E5%AE%9A%E4%B9%89sink/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Flume6）自定义Source、自定义sink</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/flume5flume-%E8%81%9A%E5%90%88/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Flume5）Flume 聚合</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/flume3flume%E5%A4%8D%E5%88%B6%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89%E6%8B%A6%E6%88%AA%E5%99%A8interceptor/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Flume3）Flume复制、多路复用、自定义拦截器Interceptor</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/flume2flume%E4%BA%8B%E5%8A%A1%E5%86%85%E9%83%A8%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B%E5%B8%B8%E8%A7%81%E6%8B%93%E6%89%91%E7%BB%93%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Flume2）Flume事务、内部处理流程、常见拓扑结构</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#一负载均衡和故障转移">一、负载均衡和故障转移</a>
+      <ol>
+        <li><a href="#11-flume-故障转移failover-">1.1 Flume 故障转移(failover )</a></li>
+        <li><a href="#12-flume-负载均衡load_balance">1.2 Flume 负载均衡(load_balance)</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

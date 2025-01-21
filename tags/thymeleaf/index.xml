@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Thymeleaf on 十一爸爸的博客</title>
+    <link>https://garnettboy.gitee.io/tags/thymeleaf/</link>
+    <description>Recent content in Thymeleaf on 十一爸爸的博客</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Mon, 22 Jun 2020 15:55:02 +0000</lastBuildDate><atom:link href="https://garnettboy.gitee.io/tags/thymeleaf/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Activiti（10） 普通表单实战,集成Thymeleaf,Mybatis-Plus</title>
+      <link>https://garnettboy.gitee.io/p/activiti10-%E6%99%AE%E9%80%9A%E8%A1%A8%E5%8D%95%E5%AE%9E%E6%88%98%E9%9B%86%E6%88%90thymeleafmybatis-plus/</link>
+      <pubDate>Mon, 22 Jun 2020 15:55:02 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti10-%E6%99%AE%E9%80%9A%E8%A1%A8%E5%8D%95%E5%AE%9E%E6%88%98%E9%9B%86%E6%88%90thymeleafmybatis-plus/</guid>
+      <description>前面我们介绍了动态表单和外置表单。还有一种称为普通表单。
+普通表单的特点是把表单的内容存放在一个页面（jsp、jsf、html等）文件中。表单提供流程所需的各种字段，提交到后台后，流程引擎利用这些字段推动流程。
+外置表单解决了动态表单需要代码生成页面的弊端。但是表单业务字段依然保存在Activiti 的act_hi_detail表中。无法做到业务数据和流程数据的分离。而普通表单可以解决这个问题。
+1、Springboot集成 Thymeleaf 因为普通表单会用到页面，所以先来集成Thymeleaf（此处我们使用springboot推荐的Thymeleaf）。
+1.1 引入jar包 &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.boot&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-boot-starter-thymeleaf&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; 1.2 yaml中添加下添加 spring: thymeleaf: cache: false 1.3 新建templates目录 在resources目录下建templates目录。Thymeleaf会默认到此目录下寻找html文件。
+这里贴出一些Thymeleaf默认配置
+#开启模板缓存（默认值：true）spring.thymeleaf.cache=true #Check that the template exists before rendering it.spring.thymeleaf.check-template=true #检查模板位置是否正确（默认值:true）spring.thymeleaf.check-template-location=true#Content-Type的值（默认值：text/html）spring.thymeleaf.content-type=text/html#开启MVC Thymeleaf视图解析（默认值：true）spring.thymeleaf.enabled=true#模板编码spring.thymeleaf.encoding=UTF-8#要被排除在解析之外的视图名称列表，用逗号分隔spring.thymeleaf.excluded-view-names=#要运用于模板之上的模板模式。另见StandardTemplate-ModeHandlers(默认值：HTML5)spring.thymeleaf.mode=HTML5#在构建URL时添加到视图名称前的前缀（默认值：classpath:/templates/）spring.thymeleaf.prefix=classpath:/templates/#在构建URL时添加到视图名称后的后缀（默认值：.html）spring.thymeleaf.suffix=.html#Thymeleaf模板解析器在解析器链中的顺序。默认情况下，它排第一位。顺序从1开始，只有在定义了额外的TemplateResolver Bean时才需要设置这个属性。spring.thymeleaf.template-resolver-order=#可解析的视图名称列表，用逗号分隔spring.thymeleaf.view-names= 一般开发中将spring.thymeleaf.cache设置为false，其他保持默认值即可。
+1.4 测试 controller： package com.sxdx.workflow.activiti.rest.controller; import io.swagger.annotations.Api; import lombok.extern.slf4j.Slf4j; import org.springframework.stereotype.Controller; import org.</description>
+    </item>
+    
+  </channel>
+</rss>

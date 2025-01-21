@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='（Flume7）安装Ganglia监控Flume'><title>（Flume7）安装Ganglia监控Flume</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/flume7%E5%AE%89%E8%A3%85ganglia%E7%9B%91%E6%8E%A7flume/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='（Flume7）安装Ganglia监控Flume'>
+<meta property='og:description' content='（Flume7）安装Ganglia监控Flume'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/flume7%E5%AE%89%E8%A3%85ganglia%E7%9B%91%E6%8E%A7flume/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Flume' /><meta property='article:tag' content='ganglia监控' /><meta property='article:published_time' content='2023-11-13T15:36:40&#43;00:00'/><meta property='article:modified_time' content='2023-11-13T15:36:40&#43;00:00'/>
+<meta name="twitter:title" content="（Flume7）安装Ganglia监控Flume">
+<meta name="twitter:description" content="（Flume7）安装Ganglia监控Flume">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/flume/" >
+                Flume
+            </a>
+        
+            <a href="/categories/ganglia%E7%9B%91%E6%8E%A7/" >
+                ganglia监控
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/flume7%E5%AE%89%E8%A3%85ganglia%E7%9B%91%E6%8E%A7flume/">（Flume7）安装Ganglia监控Flume</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        （Flume7）安装Ganglia监控Flume
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Nov 13, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 2 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <h2 id="一ganglia监控">一、Ganglia监控</h2>
+<p>参考：https://blog.csdn.net/zhangyingchengqi/article/details/125555849</p>
+<p><a class="link" href="http://www.51niux.com/?id=83"  target="_blank" rel="noopener"
+    >http://www.51niux.com/?id=83</a></p>
+<h3 id="11-ganglia介绍">1.1 Ganglia介绍</h3>
+<p>ganglia是一款为HPC(高性能计算) 集群设计的可扩展性 的分布式监控系统，它可以监视和显示集群中节点的各种状态信息，他由运行在各个节点上的gmond守护进程来采集 CPU、内存、磁盘利用率、I/O负载、网络流量情况等方面的数据。然后汇总到gmetad守护进程下，使用rrdtool存储数据，然后将历史数据以曲线方式通过PHP页面呈现。它由UC Berkeley创建并开源。Ganglia的中文意思是神经中枢，现在支持多部分操作系统（包括linux、unix、windows），可支持2000个节点的网络监控</p>
+<p>ganglia的官网：http://ganglia.info  下载链接：http://ganglia.info/?page_id=66</p>
+<p><figure 
+	>
+	<a href="/../../images/07-flume-07/image-20231114105644266.png" >
+		<img src="/../../images/07-flume-07/image-20231114105644266.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231114105644266">
+	</a>
+	
+	<figcaption>image-20231114105644266</figcaption>
+	
+</figure></p>
+<p>Ganglia 由 以下几部分组成：</p>
+<ul>
+<li>gmond（Ganglia Monitoring Daemon）是一种轻量级服务，安装在每台需要收集指标数据的节点主机上。使用 gmond，你可以很容易收集很多系统指标数据，如 CPU、内存、磁盘、网络和活跃进程的数据等。</li>
+<li>gmetad（Ganglia Meta Daemon）整合gmond节点存储的信息，并将其以 RRD 格式存储至磁盘的服务。</li>
+<li>gweb（Ganglia Web）Ganglia 可视化工具，gweb 是一种利用浏览器显示 gmetad 所存储数据的 PHP 前端。在 Web 界面中以图表方式展现集群的运行状态下收集的多种不同指标数据。</li>
+<li>rrdtool: 一个数据存储模块，用于存储数据和画图。</li>
+<li>Apache+php: 一个Web服务器,作为gweb的运行环境。</li>
+</ul>
+<h3 id="12-ganglia管理节点的层次化结构">1.2 Ganglia管理节点的层次化结构</h3>
+<p><figure 
+	>
+	<a href="/../../images/07-flume-07/image-20231114110533279.png" >
+		<img src="/../../images/07-flume-07/image-20231114110533279.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231114110533279">
+	</a>
+	
+	<figcaption>image-20231114110533279</figcaption>
+	
+</figure></p>
+<p><strong>Ganglia的层次化结构由小到大可以分为node -&gt; cluster -&gt; grid，这三个层次。</strong></p>
+<ul>
+<li>一个node就是一个需要监控的节点，一般是个主机，用IP表示。每个node上运行一个gmond进程用来采集数据，并提交给gmetad。</li>
+<li>一个cluster由多个node组成，就是一个集群，我们可以给集群定义名字。一个集群可以选一个node运行gmetad进程，汇总/拉取gmond提交的数据，并部署web front，将gmetad采集的数据用图表展示出来。</li>
+<li>一个grid由多个cluster组成，是一个更高层面的概念，我们可以给grid定义名字。grid中可以定义一个顶级的gmetad进程，汇总/拉取多个gmond、子gmetad提交的数据，部署web front，将顶级gmetad采集的数据用图表展示出来。</li>
+</ul>
+<h3 id="13-ganglia工作模式">1.3 Ganglia工作模式</h3>
+<ul>
+<li>单播/unicast：发送自己收集到的监控数据到特定的一台或几台机器上，可以跨网段。</li>
+<li>多播/multicast：发送自己收集到的监控数据到同一网段内所有的机器上，同时收集同一网段内的所有机器发送过来的监控数据。因为是以广播包的形式发送，因此需要同一网段内。但同一网段内，又可以定义不同的发送通道。</li>
+</ul>
+<h2 id="二-ganglia离线安装">二、 Ganglia离线安装</h2>
+<p>安装规划如下：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>hadoop1</th>
+<th>hadoop2</th>
+<th>hadoop3</th>
+<th>hadoop4</th>
+<th>hadoop5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HDFS</td>
+<td>NameNode</td>
+<td>NameNode</td>
+<td>NameNode</td>
+<td>DataNode</td>
+<td>DataNode</td>
+</tr>
+<tr>
+<td></td>
+<td>DataNode</td>
+<td>DataNode</td>
+<td>DataNode</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>journalnode</td>
+<td>journalnode</td>
+<td>journalnode</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>YARN</td>
+<td>ResourceManager</td>
+<td>ResourceManager</td>
+<td>ResourceManager</td>
+<td>NodeManager</td>
+<td>NodeManager</td>
+</tr>
+<tr>
+<td></td>
+<td>NodeManager</td>
+<td>NodeManager</td>
+<td>NodeManager</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Zookeeper</td>
+<td>Zookeeper</td>
+<td>Zookeeper</td>
+<td>Zookeeper</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>ZKFC</td>
+<td>ZKFC</td>
+<td>ZKFC</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Mysql</td>
+<td>Mysql5.7</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Hive</td>
+<td>HiveServer2</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>Metastore</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>hive-query-plan-viz</td>
+<td>hive-query-plan-viz:执行计划图形化解析器</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>flume</td>
+<td>flume</td>
+<td>flume</td>
+<td>flume</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Ganglia</td>
+<td>gweb</td>
+<td>gmod</td>
+<td>gmod</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>gmetad</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>gmod</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="21-rpm-依赖包准备">2.1 rpm 依赖包准备</h3>
+<p>参考：https://blog.csdn.net/carefree2005/article/details/112317491</p>
+<p>由于hadoop1、hadoop2、hadoop3属于内网机，无法直接使用yum方式安装ganglia。我先使用可以连接外网的机器下载对应的安装包：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">yum install --downloadonly --downloaddir<span class="o">=</span>/opt/ganglia/gmond/ ganglia-gmond
+</span></span><span class="line"><span class="cl">yum install --downloadonly --downloaddir<span class="o">=</span>/opt/ganglia/gweb/ ganglia-web
+</span></span><span class="line"><span class="cl">yum install --downloadonly --downloaddir<span class="o">=</span>/opt/ganglia/gmetad/ ganglia-gmetad
+</span></span></code></pre></div><p>并将对于的文件上传到hadoop1、hadoop2、hadoop3上。</p>
+<p><figure 
+	>
+	<a href="/../../images/07-flume-07/image-20231114151435424.png" >
+		<img src="/../../images/07-flume-07/image-20231114151435424.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231114151435424">
+	</a>
+	
+	<figcaption>image-20231114151435424</figcaption>
+	
+</figure></p>
+<h3 id="22-制作和配置yum源">2.2 制作和配置YUM源</h3>
+<p>我们将下载好的ganglia包制作成yum源，这样就可以由yum管理依赖关系了。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 ganglia<span class="o">]</span><span class="c1"># mkdir 111111111</span>
+</span></span><span class="line"><span class="cl"><span class="c1">##将所有依赖包统一放到一个目录下</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 ganglia<span class="o">]</span><span class="c1"># cp gmetad/* 111111111/</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 ganglia<span class="o">]</span><span class="c1"># cp gmond/* 111111111/</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 ganglia<span class="o">]</span><span class="c1"># cp gweb/* 111111111/</span>
+</span></span><span class="line"><span class="cl"><span class="c1">##创建YUM源</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 111111111<span class="o">]</span><span class="c1"># yum install createrepo -y</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 111111111<span class="o">]</span><span class="c1"># createrepo .</span>
+</span></span><span class="line"><span class="cl"><span class="c1">##配置YUM源</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 111111111<span class="o">]</span><span class="c1"># cd /etc/yum.repos.d/</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 yum.repos.d<span class="o">]</span><span class="c1"># vim 2.repo</span>
+</span></span></code></pre></div><p>vim 2.repo内容如下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>base<span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="nv">name</span><span class="o">=</span>CentOS-Base
+</span></span><span class="line"><span class="cl"><span class="nv">baseurl</span><span class="o">=</span>file:///opt/ganglia/111111111
+</span></span><span class="line"><span class="cl"><span class="nv">gpgcheck</span><span class="o">=</span><span class="m">0</span>
+</span></span></code></pre></div><p>然后刷新yum,安装ganglia即可</p>
+<pre tabindex="0"><code>[root@hadoop1 yum.repos.d]# yum clean all
+[root@hadoop1 yum.repos.d]# yum makecache
+</code></pre><h3 id="23-离线安装-gwebgmetadgmodroot用户">2.3 离线安装 gweb、gmetad、gmod（root用户）</h3>
+<p>（1）在hadoop1上安装 gmod、gmetad、gweb，分别执行以下命令：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 ~<span class="o">]</span><span class="c1"># yum -y install ganglia-gmetad</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 ~<span class="o">]</span><span class="c1"># yum -y install ganglia-web</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 ~<span class="o">]</span><span class="c1"># yum -y install ganglia-gmond</span>
+</span></span></code></pre></div><p>（3）在hadoop2、hadoop3安装gmod</p>
+<pre tabindex="0"><code>[root@hadoop2 ~]# yum -y install ganglia-gmond
+[root@hadoop3 ~]# yum -y install ganglia-gmond
+</code></pre><p>安装过程中如果发现确实包，可以自行下载对于的rpm，网站地址：http://rpmfind.net/linux/RPM/index.html</p>
+<p><figure 
+	>
+	<a href="/../../images/07-flume-07/image-20231114171519051.png" >
+		<img src="/../../images/07-flume-07/image-20231114171519051.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231114171519051">
+	</a>
+	
+	<figcaption>image-20231114171519051</figcaption>
+	
+</figure></p>
+<p>按照提示下载后，安装即可：</p>
+<p><figure 
+	>
+	<a href="/../../images/07-flume-07/image-20231114171552828.png" >
+		<img src="/../../images/07-flume-07/image-20231114171552828.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231114171552828">
+	</a>
+	
+	<figcaption>image-20231114171552828</figcaption>
+	
+</figure></p>
+<h3 id="24-修改配置">2.4 修改配置</h3>
+<p>Ganglia的相关配置文件：</p>
+<ul>
+<li>Ganglia配置文件目录：/etc/ganglia</li>
+<li>rrd数据库存放目录：/var/lib/ganglia/rrds</li>
+<li>httpd主站点目录：/var/www/html</li>
+<li>ganglia-web安装目录：/usr/share/ganglia</li>
+<li>ganglia-web配置目录：/etc/httpd/conf.d/ganglia.conf</li>
+</ul>
+<p>(1) 修改hadoop1 节点配置文件/etc/httpd/conf.d/ganglia.conf</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">vim /etc/httpd/conf.d/ganglia.conf
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">&lt;Location /ganglia&gt;
+</span></span><span class="line"><span class="cl">  Require all granted
+</span></span><span class="line"><span class="cl">  Allow from all
+</span></span><span class="line"><span class="cl"><span class="c1">#  Require local</span>
+</span></span><span class="line"><span class="cl"> <span class="c1"># Require ip 10.1.2.3</span>
+</span></span><span class="line"><span class="cl">  <span class="c1"># Require host example.org</span>
+</span></span><span class="line"><span class="cl">&lt;/Location&gt;
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/07-flume-07/image-20231115113301490.png" >
+		<img src="/../../images/07-flume-07/image-20231115113301490.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231115113301490">
+	</a>
+	
+	<figcaption>image-20231115113301490</figcaption>
+	
+</figure></p>
+<p>（2）修改hadoop1 节点配置文件 /etc/ganglia/gmetad.conf</p>
+<p><figure 
+	>
+	<a href="/../../images/07-flume-07/image-20231115103826192.png" >
+		<img src="/../../images/07-flume-07/image-20231115103826192.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231115103826192">
+	</a>
+	
+	<figcaption>image-20231115103826192</figcaption>
+	
+</figure></p>
+<p>（3）修改 hadoop1 hadoop2 hadoop3 节点配置文件/etc/ganglia/gmond.conf</p>
+<p><figure 
+	>
+	<a href="/../../images/07-flume-07/image-20231115105300641.png" >
+		<img src="/../../images/07-flume-07/image-20231115105300641.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231115105300641">
+	</a>
+	
+	<figcaption>image-20231115105300641</figcaption>
+	
+</figure></p>
+<p>（4）修改hadoop1 节点配置文件/etc/selinux/config</p>
+<p><figure 
+	>
+	<a href="/../../images/07-flume-07/image-20231115105837879.png" >
+		<img src="/../../images/07-flume-07/image-20231115105837879.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231115105837879">
+	</a>
+	
+	<figcaption>image-20231115105837879</figcaption>
+	
+</figure></p>
+<p>selinux 生效需要重启，如果此时不想重启，可以临时生效之：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 ganglia<span class="o">]</span><span class="c1">#  setenforce 0</span>
+</span></span></code></pre></div><h3 id="25-启动ganglia">2.5 启动ganglia</h3>
+<p>启动ganglia对应的服务：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">【启动】其中gmond需要3个节点均启动
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 ~<span class="o">]</span>$ sudo systemctl start gmond
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 ~<span class="o">]</span>$ sudo systemctl start httpd
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 ~<span class="o">]</span>$  sudo systemctl start gmetad
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">【关闭】
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 ~<span class="o">]</span>$ sudo systemctl stop gmond
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 ~<span class="o">]</span>$ sudo systemctl stop httpd
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 ~<span class="o">]</span>$ sudo systemctl stop gmetad
+</span></span></code></pre></div><p>访问：http://hadoop1/ganglia</p>
+<p><figure 
+	>
+	<a href="/../../images/07-flume-07/image-20231115113425121.png" >
+		<img src="/../../images/07-flume-07/image-20231115113425121.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231115113425121">
+	</a>
+	
+	<figcaption>image-20231115113425121</figcaption>
+	
+</figure></p>
+<h3 id="26-ganglia监控flume">2.6 ganglia监控flume</h3>
+<p>在启动flume时，需要添加对应参加，使ganglia可以监控到flume,例如：</p>
+<pre tabindex="0"><code> bin/flume-ng agent -c conf/ -f job/mysink.conf -n a1 -Dflume.root.logger=INFO,console -Dflume.monitoring.type=ganglia -Dflume.monitoring.hosts=hadoop1:8649
+</code></pre><p><figure 
+	>
+	<a href="/../../images/07-flume-07/image-20231115135225709.png" >
+		<img src="/../../images/07-flume-07/image-20231115135225709.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231115135225709">
+	</a>
+	
+	<figcaption>image-20231115135225709</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/07-flume-07/image-20231115135345455.png" >
+		<img src="/../../images/07-flume-07/image-20231115135345455.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231115135345455">
+	</a>
+	
+	<figcaption>image-20231115135345455</figcaption>
+	
+</figure></p>
+<p>各图标含义如下：</p>
+<table>
+<thead>
+<tr>
+<th>字段（图表名称）</th>
+<th>字段含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>EventPutAttemptCount</td>
+<td>source 尝试写入 channel 的事件总数量</td>
+</tr>
+<tr>
+<td>EventPutSuccessCount</td>
+<td>成功写入 channel 且提交的事件总数量</td>
+</tr>
+<tr>
+<td>EventTakeAttemptCount</td>
+<td>sink 尝试从 channel 拉取事件的总数量。</td>
+</tr>
+<tr>
+<td>EventTakeSuccessCount</td>
+<td>sink 成功读取的事件的总数量</td>
+</tr>
+<tr>
+<td>StartTime</td>
+<td>channel 启动的时间（毫秒）</td>
+</tr>
+<tr>
+<td>StopTime</td>
+<td>channel 停止的时间（毫秒）</td>
+</tr>
+<tr>
+<td>ChannelSize</td>
+<td>目前 channel 中事件的总数量</td>
+</tr>
+<tr>
+<td>ChannelFillPercentage</td>
+<td>channel 占用百分比</td>
+</tr>
+<tr>
+<td>ChannelCapacity</td>
+<td>channel 的容量</td>
+</tr>
+</tbody>
+</table>
+<h2 id="三ganglia-web界面介绍">三、ganglia web界面介绍</h2>
+<p>参考：http://www.51niux.com/?id=84</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/flume/">Flume</a>
+        
+            <a href="/tags/ganglia%E7%9B%91%E6%8E%A7/">ganglia监控</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/flume6%E8%87%AA%E5%AE%9A%E4%B9%89source%E8%87%AA%E5%AE%9A%E4%B9%89sink/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Flume6）自定义Source、自定义sink</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/flume5flume-%E8%81%9A%E5%90%88/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Flume5）Flume 聚合</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/flume4%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E5%92%8C%E6%95%85%E9%9A%9C%E8%BD%AC%E7%A7%BB/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Flume4）负载均衡和故障转移</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/flume3flume%E5%A4%8D%E5%88%B6%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89%E6%8B%A6%E6%88%AA%E5%99%A8interceptor/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Flume3）Flume复制、多路复用、自定义拦截器Interceptor</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/flume2flume%E4%BA%8B%E5%8A%A1%E5%86%85%E9%83%A8%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B%E5%B8%B8%E8%A7%81%E6%8B%93%E6%89%91%E7%BB%93%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Flume2）Flume事务、内部处理流程、常见拓扑结构</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#一ganglia监控">一、Ganglia监控</a>
+      <ol>
+        <li><a href="#11-ganglia介绍">1.1 Ganglia介绍</a></li>
+        <li><a href="#12-ganglia管理节点的层次化结构">1.2 Ganglia管理节点的层次化结构</a></li>
+        <li><a href="#13-ganglia工作模式">1.3 Ganglia工作模式</a></li>
+      </ol>
+    </li>
+    <li><a href="#二-ganglia离线安装">二、 Ganglia离线安装</a>
+      <ol>
+        <li><a href="#21-rpm-依赖包准备">2.1 rpm 依赖包准备</a></li>
+        <li><a href="#22-制作和配置yum源">2.2 制作和配置YUM源</a></li>
+        <li><a href="#23-离线安装-gwebgmetadgmodroot用户">2.3 离线安装 gweb、gmetad、gmod（root用户）</a></li>
+        <li><a href="#24-修改配置">2.4 修改配置</a></li>
+        <li><a href="#25-启动ganglia">2.5 启动ganglia</a></li>
+        <li><a href="#26-ganglia监控flume">2.6 ganglia监控flume</a></li>
+      </ol>
+    </li>
+    <li><a href="#三ganglia-web界面介绍">三、ganglia web界面介绍</a></li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

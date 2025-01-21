@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>ELK on 十一爸爸的博客</title>
+    <link>https://garnettboy.gitee.io/tags/elk/</link>
+    <description>Recent content in ELK on 十一爸爸的博客</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Sun, 26 Jan 2020 22:12:54 +0000</lastBuildDate><atom:link href="https://garnettboy.gitee.io/tags/elk/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Docker Compose笔记</title>
+      <link>https://garnettboy.gitee.io/p/docker-compose%E7%AC%94%E8%AE%B0/</link>
+      <pubDate>Sun, 26 Jan 2020 22:12:54 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/docker-compose%E7%AC%94%E8%AE%B0/</guid>
+      <description>Docker Compose 是用于定义和运行多容器 Docker 应用程序的工具。微服务架构的应用系统一般包含若干个微服务，每个微服务可能会部署可能需要用到多个Docker容器，比如MySQL，Redis，Nginx等，单独的去管理每个容器可能会比较麻烦。
+Docker Compose 可以通过一个yml文件来统一管理这些容器，可以极大简化我们的应用部署过程。
+安装Docker Compose 可以参考我的博客：linux（centos7）安装docker
+Docker Compose 配置指令 我们先来看一个docker-compose.yml文件，这个是直接抄鸟哥的，感谢鸟哥。鸟哥博客：https://mrbird.cc/
+version: &amp;#39;3&amp;#39;services:elasticsearch:image: elasticsearch:6.4.1container_name: elasticsearchenvironment:- &amp;#34;cluster.name=elasticsearch&amp;#34; #集群名称为elasticsearch- &amp;#34;discovery.type=single-node&amp;#34; #单节点启动- &amp;#34;ES_JAVA_OPTS=-Xms512m -Xmx512m&amp;#34; #jvm内存分配为512MBvolumes:- /kiki/elasticsearch/plugins:/usr/share/elasticsearch/plugins- /kiki/elasticsearch/data:/usr/share/elasticsearch/dataports:- 9200:9200networks:- my-bridge kibana:image: kibana:6.4.1container_name: kibanalinks:- elasticsearch:es #配置elasticsearch域名为esdepends_on:- elasticsearchenvironment:- &amp;#34;elasticsearch.hosts=http://es:9200&amp;#34; #因为上面配置了域名，所以这里可以简写为http://es:9200ports:- 5601:5601networks:- my-bridgelogstash:image: logstash:6.4.1container_name: logstashvolumes:- /kiki/logstash/logstash-febs.</description>
+    </item>
+    
+  </channel>
+</rss>

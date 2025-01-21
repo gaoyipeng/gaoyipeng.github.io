@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Activiti（27） 搭建认证服务器'><title>Activiti（27） 搭建认证服务器</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/activiti27-%E6%90%AD%E5%BB%BA%E8%AE%A4%E8%AF%81%E6%9C%8D%E5%8A%A1%E5%99%A8/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Activiti（27） 搭建认证服务器'>
+<meta property='og:description' content='Activiti（27） 搭建认证服务器'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/activiti27-%E6%90%AD%E5%BB%BA%E8%AE%A4%E8%AF%81%E6%9C%8D%E5%8A%A1%E5%99%A8/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Activiti' /><meta property='article:tag' content='Spring-Security-OAuth2' /><meta property='article:published_time' content='2020-09-28T16:59:32&#43;00:00'/><meta property='article:modified_time' content='2020-09-28T16:59:32&#43;00:00'/>
+<meta name="twitter:title" content="Activiti（27） 搭建认证服务器">
+<meta name="twitter:description" content="Activiti（27） 搭建认证服务器">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/activiti/" >
+                Activiti
+            </a>
+        
+            <a href="/categories/spring-security-oauth2/" >
+                Spring-Security-OAuth2
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/activiti27-%E6%90%AD%E5%BB%BA%E8%AE%A4%E8%AF%81%E6%9C%8D%E5%8A%A1%E5%99%A8/">Activiti（27） 搭建认证服务器</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        Activiti（27） 搭建认证服务器
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Sep 28, 2020</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 6 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <h2 id="1搭建认证服务器">1、搭建认证服务器</h2>
+<p>我们希望搭建的各个微服务系统是受保护的，只有通过合法的认证信息才能访问相关资源。我们搭建一个统一给微服务发放访问令牌的认证服务器：<strong>workflow-auth</strong>。</p>
+<p>我们新建一个module:</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-27/image-20200928145259651.png" >
+		<img src="/images/activiti6-27/image-20200928145259651.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200928145259651">
+	</a>
+	
+	<figcaption>image-20200928145259651</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-27/image-20200928145359591.png" >
+		<img src="/images/activiti6-27/image-20200928145359591.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200928145359591">
+	</a>
+	
+	<figcaption>image-20200928145359591</figcaption>
+	
+</figure></p>
+<p>修改<code>workflow-auth</code>的<code>pom</code>，内容如下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="cp">&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;project</span> <span class="na">xmlns=</span><span class="s">&#34;http://maven.apache.org/POM/4.0.0&#34;</span>
+</span></span><span class="line"><span class="cl">         <span class="na">xmlns:xsi=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span>
+</span></span><span class="line"><span class="cl">         <span class="na">xsi:schemaLocation=</span><span class="s">&#34;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;parent&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;artifactId&gt;</span>workflow-activiti<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;groupId&gt;</span>com.sxdx<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;version&gt;</span>1.0-SNAPSHOT<span class="nt">&lt;/version&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/parent&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;modelVersion&gt;</span>4.0.0<span class="nt">&lt;/modelVersion&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;artifactId&gt;</span>workflow-auth<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;properties&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;java.version&gt;</span>1.8<span class="nt">&lt;/java.version&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/properties&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;dependencies&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;groupId&gt;</span>org.projectlombok<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;artifactId&gt;</span>lombok<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;groupId&gt;</span>org.springframework.boot<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;artifactId&gt;</span>spring-boot-starter-web<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;groupId&gt;</span>org.springframework.cloud<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;artifactId&gt;</span>spring-cloud-starter<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;groupId&gt;</span>org.springframework.cloud<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;artifactId&gt;</span>spring-cloud-starter-oauth2<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;groupId&gt;</span>org.springframework.cloud<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;artifactId&gt;</span>spring-cloud-starter-security<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;groupId&gt;</span>org.springframework.boot<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;artifactId&gt;</span>spring-boot-starter-test<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;artifactId&gt;</span>workflow-common<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;groupId&gt;</span>com.sxdx<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;version&gt;</span>1.0-SNAPSHOT<span class="nt">&lt;/version&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/dependencies&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;build&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;plugins&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;plugin&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;groupId&gt;</span>org.springframework.boot<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;artifactId&gt;</span>spring-boot-maven-plugin<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;/plugin&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/plugins&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/build&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/project&gt;</span>
+</span></span></code></pre></div><p>这里有一点说明，我们此处引入了<code>workflow-common</code>依赖，因为<code>workflow-common</code>中包含pagehelper依赖，会要求有数据源，这里我们先把pagehelper的依赖，放入<code>workflow-activiti-rest</code>的<code>pom</code> 文件中。并在<code>workflow-common</code>中添加<code>spring-boot-starter</code></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="c">&lt;!--把workflow-common的pagehelper删除，添加到workflow-activiti-rest中--&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;groupId&gt;</span>com.github.pagehelper<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;artifactId&gt;</span>pagehelper-spring-boot-starter<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="c">&lt;!--workflow-common添加这个--&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;groupId&gt;</span>org.springframework.boot<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;artifactId&gt;</span>spring-boot-starter<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/dependency&gt;</span>
+</span></span></code></pre></div><p>在<code>main/java</code>目录下补全<code>SpringBoot</code>启动文件：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.workflow.auth</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.boot.SpringApplication</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.boot.autoconfigure.SpringBootApplication</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nd">@SpringBootApplication</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">WorkFlowAuthApplication</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">SpringApplication</span><span class="o">.</span><span class="na">run</span><span class="o">(</span><span class="n">WorkFlowAuthApplication</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">args</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>编写配置文件<code>application.yml</code>，内容如下所示：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl">spring:
+</span></span><span class="line"><span class="cl">  application:
+</span></span><span class="line"><span class="cl">    name: workflow-auth
+</span></span><span class="line"><span class="cl">  thymeleaf:
+</span></span><span class="line"><span class="cl">    cache: false
+</span></span><span class="line"><span class="cl">    prefix: classpath:/templates/
+</span></span><span class="line"><span class="cl">    suffix: .html
+</span></span><span class="line"><span class="cl">    mode: HTML5
+</span></span><span class="line"><span class="cl">    encoding: UTF-8
+</span></span><span class="line"><span class="cl">  jackson:
+</span></span><span class="line"><span class="cl">    date-format: yyyy-MM-dd HH:mm:ss
+</span></span><span class="line"><span class="cl">    time-zone: GMT+8
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">server:
+</span></span><span class="line"><span class="cl">  port: 8101
+</span></span><span class="line"><span class="cl">  servlet:
+</span></span><span class="line"><span class="cl">    # 应用的访问路径
+</span></span><span class="line"><span class="cl">    context-path: /
+</span></span><span class="line"><span class="cl">  tomcat:
+</span></span><span class="line"><span class="cl">    # tomcat的URI编码
+</span></span><span class="line"><span class="cl">    uri-encoding: UTF-8
+</span></span><span class="line"><span class="cl">    # tomcat最大线程数，默认为200
+</span></span><span class="line"><span class="cl">    max-threads: 800
+</span></span><span class="line"><span class="cl">    # Tomcat启动初始化的线程数，默认值25
+</span></span><span class="line"><span class="cl">    min-spare-threads: 30
+</span></span></code></pre></div><p>另外需要集成<code>logBack</code>日志框架（前面章节已经介绍过了，不再赘述），在resources下新建<code>logback-spring.xml</code>，内容如下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="cp">&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;configuration</span> <span class="na">scan=</span><span class="s">&#34;true&#34;</span> <span class="na">scanPeriod=</span><span class="s">&#34;60 seconds&#34;</span> <span class="na">debug=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;springProperty</span> <span class="na">scope=</span><span class="s">&#34;context&#34;</span> <span class="na">name=</span><span class="s">&#34;springAppName&#34;</span> <span class="na">source=</span><span class="s">&#34;spring.application.name&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&#34;log.path&#34;</span> <span class="na">value=</span><span class="s">&#34;logs/workflow-auth&#34;</span> <span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&#34;log.maxHistory&#34;</span> <span class="na">value=</span><span class="s">&#34;15&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&#34;log.colorPattern&#34;</span> <span class="na">value=</span><span class="s">&#34;%magenta(%d{yyyy-MM-dd HH:mm:ss}) %highlight(%-5level) %boldCyan(${springAppName:-}) %yellow(%thread) %green(%logger) %msg%n&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&#34;log.pattern&#34;</span> <span class="na">value=</span><span class="s">&#34;%d{yyyy-MM-dd HH:mm:ss} %-5level ${springAppName:-} %thread %logger %msg%n&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c">&lt;!--输出到控制台--&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;appender</span> <span class="na">name=</span><span class="s">&#34;console&#34;</span> <span class="na">class=</span><span class="s">&#34;ch.qos.logback.core.ConsoleAppender&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;encoder&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;pattern&gt;</span>${log.colorPattern}<span class="nt">&lt;/pattern&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;charset&gt;</span>utf-8<span class="nt">&lt;/charset&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/encoder&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;filter</span> <span class="na">class=</span><span class="s">&#34;ch.qos.logback.classic.filter.ThresholdFilter&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;level&gt;</span>info<span class="nt">&lt;/level&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/filter&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/appender&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c">&lt;!--输出到debug--&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;appender</span> <span class="na">name=</span><span class="s">&#34;debug&#34;</span> <span class="na">class=</span><span class="s">&#34;ch.qos.logback.core.rolling.RollingFileAppender&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="c">&lt;!-- 日志记录器的滚动策略，按日期，按大小记录 --&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;rollingPolicy</span> <span class="na">class=</span><span class="s">&#34;ch.qos.logback.core.rolling.TimeBasedRollingPolicy&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;fileNamePattern&gt;</span>${log.path}/debug/logback-debug-%d{yyyy-MM-dd}_%i.log<span class="nt">&lt;/fileNamePattern&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;timeBasedFileNamingAndTriggeringPolicy</span> <span class="na">class=</span><span class="s">&#34;ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;maxFileSize&gt;</span>100MB<span class="nt">&lt;/maxFileSize&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;/timeBasedFileNamingAndTriggeringPolicy&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="c">&lt;!--日志文件保留天数--&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;maxHistory&gt;</span>${log.maxHistory}<span class="nt">&lt;/maxHistory&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/rollingPolicy&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;append&gt;</span>true<span class="nt">&lt;/append&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;encoder&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;pattern&gt;</span>${log.pattern}<span class="nt">&lt;/pattern&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="c">&lt;!--编码--&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;charset&gt;</span>utf-8<span class="nt">&lt;/charset&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/encoder&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;filter</span> <span class="na">class=</span><span class="s">&#34;ch.qos.logback.classic.filter.LevelFilter&#34;</span><span class="nt">&gt;</span><span class="c">&lt;!-- 只打印DEBUG日志 --&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;level&gt;</span>DEBUG<span class="nt">&lt;/level&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;onMatch&gt;</span>ACCEPT<span class="nt">&lt;/onMatch&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;onMismatch&gt;</span>DENY<span class="nt">&lt;/onMismatch&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/filter&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/appender&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c">&lt;!--输出到info--&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;appender</span> <span class="na">name=</span><span class="s">&#34;info&#34;</span> <span class="na">class=</span><span class="s">&#34;ch.qos.logback.core.rolling.RollingFileAppender&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="c">&lt;!-- 日志记录器的滚动策略，按日期，按大小记录 --&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;rollingPolicy</span> <span class="na">class=</span><span class="s">&#34;ch.qos.logback.core.rolling.TimeBasedRollingPolicy&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;fileNamePattern&gt;</span>${log.path}/info/logback-info-%d{yyyy-MM-dd}_%i.log<span class="nt">&lt;/fileNamePattern&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;timeBasedFileNamingAndTriggeringPolicy</span> <span class="na">class=</span><span class="s">&#34;ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;maxFileSize&gt;</span>100MB<span class="nt">&lt;/maxFileSize&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;/timeBasedFileNamingAndTriggeringPolicy&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="c">&lt;!--日志文件保留天数--&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;maxHistory&gt;</span>${log.maxHistory}<span class="nt">&lt;/maxHistory&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/rollingPolicy&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;append&gt;</span>true<span class="nt">&lt;/append&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;encoder&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;pattern&gt;</span>${log.pattern}<span class="nt">&lt;/pattern&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;charset&gt;</span>utf-8<span class="nt">&lt;/charset&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/encoder&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;filter</span> <span class="na">class=</span><span class="s">&#34;ch.qos.logback.classic.filter.LevelFilter&#34;</span><span class="nt">&gt;</span><span class="c">&lt;!-- 只打印INFO日志 --&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;level&gt;</span>INFO<span class="nt">&lt;/level&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;onMatch&gt;</span>ACCEPT<span class="nt">&lt;/onMatch&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;onMismatch&gt;</span>DENY<span class="nt">&lt;/onMismatch&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/filter&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/appender&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c">&lt;!--输出到warn--&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;appender</span> <span class="na">name=</span><span class="s">&#34;warn&#34;</span> <span class="na">class=</span><span class="s">&#34;ch.qos.logback.core.rolling.RollingFileAppender&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="c">&lt;!-- 日志记录器的滚动策略，按日期，按大小记录 --&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;rollingPolicy</span> <span class="na">class=</span><span class="s">&#34;ch.qos.logback.core.rolling.TimeBasedRollingPolicy&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;fileNamePattern&gt;</span>${log.path}/warn/logback-warn-%d{yyyy-MM-dd}_%i.log<span class="nt">&lt;/fileNamePattern&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;timeBasedFileNamingAndTriggeringPolicy</span> <span class="na">class=</span><span class="s">&#34;ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;maxFileSize&gt;</span>100MB<span class="nt">&lt;/maxFileSize&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;/timeBasedFileNamingAndTriggeringPolicy&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="c">&lt;!--日志文件保留天数--&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;maxHistory&gt;</span>${log.maxHistory}<span class="nt">&lt;/maxHistory&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/rollingPolicy&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;append&gt;</span>true<span class="nt">&lt;/append&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;encoder&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;pattern&gt;</span>${log.pattern}<span class="nt">&lt;/pattern&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;charset&gt;</span>utf-8<span class="nt">&lt;/charset&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/encoder&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;filter</span> <span class="na">class=</span><span class="s">&#34;ch.qos.logback.classic.filter.LevelFilter&#34;</span><span class="nt">&gt;</span><span class="c">&lt;!-- 只打印WARN日志 --&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;level&gt;</span>WARN<span class="nt">&lt;/level&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;onMatch&gt;</span>ACCEPT<span class="nt">&lt;/onMatch&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;onMismatch&gt;</span>DENY<span class="nt">&lt;/onMismatch&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/filter&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/appender&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c">&lt;!--输出到error--&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;appender</span> <span class="na">name=</span><span class="s">&#34;error&#34;</span> <span class="na">class=</span><span class="s">&#34;ch.qos.logback.core.rolling.RollingFileAppender&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="c">&lt;!-- 日志记录器的滚动策略，按日期，按大小记录 --&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;rollingPolicy</span> <span class="na">class=</span><span class="s">&#34;ch.qos.logback.core.rolling.TimeBasedRollingPolicy&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;fileNamePattern&gt;</span>${log.path}/error/logback-error-%d{yyyy-MM-dd}_%i.log<span class="nt">&lt;/fileNamePattern&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;timeBasedFileNamingAndTriggeringPolicy</span> <span class="na">class=</span><span class="s">&#34;ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;maxFileSize&gt;</span>100MB<span class="nt">&lt;/maxFileSize&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;/timeBasedFileNamingAndTriggeringPolicy&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="c">&lt;!--日志文件保留天数--&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;maxHistory&gt;</span>${log.maxHistory}<span class="nt">&lt;/maxHistory&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/rollingPolicy&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;append&gt;</span>true<span class="nt">&lt;/append&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;encoder&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;pattern&gt;</span>${log.pattern}<span class="nt">&lt;/pattern&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;charset&gt;</span>utf-8<span class="nt">&lt;/charset&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/encoder&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;filter</span> <span class="na">class=</span><span class="s">&#34;ch.qos.logback.classic.filter.LevelFilter&#34;</span><span class="nt">&gt;</span><span class="c">&lt;!-- 只打印ERROR日志 --&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;level&gt;</span>ERROR<span class="nt">&lt;/level&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;onMatch&gt;</span>ACCEPT<span class="nt">&lt;/onMatch&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;onMismatch&gt;</span>DENY<span class="nt">&lt;/onMismatch&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/filter&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/appender&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c">&lt;!--不同环境分别设置对应的日志输出节点 --&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="c">&lt;!--开发--&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;springProfile</span> <span class="na">name=</span><span class="s">&#34;dev&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;root</span> <span class="na">level=</span><span class="s">&#34;debug&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;appender-ref</span> <span class="na">ref=</span><span class="s">&#34;console&#34;</span> <span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;appender-ref</span> <span class="na">ref=</span><span class="s">&#34;debug&#34;</span> <span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;appender-ref</span> <span class="na">ref=</span><span class="s">&#34;info&#34;</span> <span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;appender-ref</span> <span class="na">ref=</span><span class="s">&#34;warn&#34;</span> <span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;appender-ref</span> <span class="na">ref=</span><span class="s">&#34;error&#34;</span> <span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/root&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/springProfile&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c">&lt;!--生产环境--&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;springProfile</span> <span class="na">name=</span><span class="s">&#34;release&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;root</span> <span class="na">level=</span><span class="s">&#34;info&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;appender-ref</span> <span class="na">ref=</span><span class="s">&#34;console&#34;</span> <span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;appender-ref</span> <span class="na">ref=</span><span class="s">&#34;debug&#34;</span> <span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;appender-ref</span> <span class="na">ref=</span><span class="s">&#34;info&#34;</span> <span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;appender-ref</span> <span class="na">ref=</span><span class="s">&#34;warn&#34;</span> <span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;appender-ref</span> <span class="na">ref=</span><span class="s">&#34;error&#34;</span> <span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/root&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/springProfile&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/configuration&gt;</span>
+</span></span></code></pre></div><h3 id="11--创建认证服务类">1.1  创建认证服务类</h3>
+<p>认证服务器需要创建<strong>三大配置</strong>：</p>
+<ul>
+<li>认证服务配置：负责发放、校验令牌是否正确</li>
+<li>资源服务配置：这一项是可选的，因为认证服务器同样也可以是一个资源服务器。</li>
+<li>WebSecurity配置：Security配置，主要处理除资源服务外的其他服务请求以及<strong>验证token的授权信息</strong>。</li>
+</ul>
+<p>我们先创建认证服务类 <code>AuthorizationServerConfig</code>：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.workflow.auth.config</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">com.sxdx.workflow.auth.service.OauthUserDetailService</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.beans.factory.annotation.Autowired</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.context.annotation.Bean</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.context.annotation.Configuration</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.context.annotation.Primary</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.http.HttpMethod</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.security.authentication.AuthenticationManager</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.security.crypto.password.PasswordEncoder</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.security.oauth2.provider.ClientDetailsService</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.security.oauth2.provider.code.AuthorizationCodeServices</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.security.oauth2.provider.code.InMemoryAuthorizationCodeServices</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.security.oauth2.provider.token.DefaultTokenServices</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.security.oauth2.provider.token.TokenStore</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * 认证服务器配置
+</span></span></span><span class="line"><span class="cl"><span class="cm"> */</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@Configuration</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@EnableAuthorizationServer</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">AuthorizationServerConfig</span> <span class="kd">extends</span> <span class="n">AuthorizationServerConfigurerAdapter</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@Autowired</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">PasswordEncoder</span> <span class="n">passwordEncoder</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Autowired</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">TokenStore</span> <span class="n">tokenStore</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Autowired</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">ClientDetailsService</span> <span class="n">clientDetailsService</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Autowired</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">AuthorizationCodeServices</span> <span class="n">authorizationCodeServices</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Autowired</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">AuthenticationManager</span> <span class="n">authenticationManager</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Autowired</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">OauthUserDetailService</span> <span class="n">userDetailService</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 配置客户端详情信息
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param clients
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @throws Exception
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">configure</span><span class="o">(</span><span class="n">ClientDetailsServiceConfigurer</span> <span class="n">clients</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">clients</span><span class="o">.</span><span class="na">inMemory</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">withClient</span><span class="o">(</span><span class="s">&#34;kiki&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">secret</span><span class="o">(</span><span class="n">passwordEncoder</span><span class="o">.</span><span class="na">encode</span><span class="o">(</span><span class="s">&#34;123456&#34;</span><span class="o">))</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">authorizedGrantTypes</span><span class="o">(</span><span class="s">&#34;password&#34;</span><span class="o">,</span><span class="s">&#34;authorization_code&#34;</span><span class="o">,</span><span class="s">&#34;client_credentials&#34;</span> <span class="o">,</span><span class="s">&#34;implicit&#34;</span><span class="o">,</span><span class="s">&#34;refresh_token&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">autoApprove</span><span class="o">(</span><span class="kc">true</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">scopes</span><span class="o">(</span><span class="s">&#34;all&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">redirectUris</span><span class="o">(</span><span class="s">&#34;https://www.baidu.com&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">resourceIds</span><span class="o">(</span><span class="s">&#34;activiti-rest&#34;</span><span class="o">,</span><span class="s">&#34;activiti-web&#34;</span><span class="o">,</span><span class="s">&#34;activiti-auth&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 配置令牌端点的安全约束
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param security
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @throws Exception
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">configure</span><span class="o">(</span><span class="n">AuthorizationServerSecurityConfigurer</span> <span class="n">security</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">security</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">tokenKeyAccess</span><span class="o">(</span><span class="s">&#34;permitAll()&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">checkTokenAccess</span><span class="o">(</span><span class="s">&#34;permitAll()&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">allowFormAuthenticationForClients</span><span class="o">();</span><span class="c1">//允许表单认证
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/**ClientCredentialsTokenEndpointFilter
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 配置令牌（token）的访问端点和令牌服务（token service）
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param endpoints
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @throws Exception
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">configure</span><span class="o">(</span><span class="n">AuthorizationServerEndpointsConfigurer</span> <span class="n">endpoints</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">endpoints</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">authenticationManager</span><span class="o">(</span><span class="n">authenticationManager</span><span class="o">)</span><span class="c1">//认证管理器
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="o">.</span><span class="na">authorizationCodeServices</span><span class="o">(</span><span class="n">authorizationCodeServices</span><span class="o">)</span><span class="c1">//授权码服务
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="o">.</span><span class="na">tokenServices</span><span class="o">(</span><span class="n">tokenServices</span><span class="o">())</span><span class="c1">//令牌管理服务
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="o">.</span><span class="na">userDetailsService</span><span class="o">(</span><span class="n">userDetailService</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">allowedTokenEndpointRequestMethods</span><span class="o">(</span><span class="n">HttpMethod</span><span class="o">.</span><span class="na">POST</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 令牌管理服务
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @return
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Primary</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Bean</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">DefaultTokenServices</span> <span class="nf">tokenServices</span><span class="o">(){</span>
+</span></span><span class="line"><span class="cl">        <span class="n">DefaultTokenServices</span> <span class="n">tokenServices</span> <span class="o">=</span> <span class="k">new</span> <span class="n">DefaultTokenServices</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">tokenServices</span><span class="o">.</span><span class="na">setClientDetailsService</span><span class="o">(</span><span class="n">clientDetailsService</span><span class="o">);</span><span class="c1">//客户端详情服务
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">tokenServices</span><span class="o">.</span><span class="na">setTokenStore</span><span class="o">(</span><span class="n">tokenStore</span><span class="o">);</span><span class="c1">//token存储策略
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">tokenServices</span><span class="o">.</span><span class="na">setSupportRefreshToken</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span><span class="c1">//支持token刷新
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">tokenServices</span><span class="o">.</span><span class="na">setAccessTokenValiditySeconds</span><span class="o">(</span><span class="n">60</span> <span class="o">*</span> <span class="n">60</span> <span class="o">*</span> <span class="n">24</span><span class="o">);</span><span class="c1">//令牌默认有效期
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">tokenServices</span><span class="o">.</span><span class="na">setRefreshTokenValiditySeconds</span><span class="o">(</span><span class="n">60</span> <span class="o">*</span> <span class="n">60</span> <span class="o">*</span> <span class="n">24</span> <span class="o">*</span> <span class="n">7</span><span class="o">);</span><span class="c1">//刷新令牌默认有效期
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">return</span> <span class="n">tokenServices</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 授权码服务：配置授权码模式下授权码存储方式
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @return
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Bean</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">AuthorizationCodeServices</span> <span class="nf">authorizationCodeServices</span><span class="o">(){</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="k">new</span> <span class="n">InMemoryAuthorizationCodeServices</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>我们来介绍下认证服务类，首先<code>@EnableAuthorizationServer</code>表示开始认证服务。而且继承了<code>AuthorizationServerConfigurerAdapter</code>适配器，<code>AuthorizationServerConfigurerAdapter</code>包含了3个方法：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">AuthorizationServerConfigurerAdapter</span> <span class="kd">implements</span> <span class="n">AuthorizationServerConfigurer</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="nf">AuthorizationServerConfigurerAdapter</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">configure</span><span class="o">(</span><span class="n">AuthorizationServerSecurityConfigurer</span> <span class="n">security</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">configure</span><span class="o">(</span><span class="n">ClientDetailsServiceConfigurer</span> <span class="n">clients</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">configure</span><span class="o">(</span><span class="n">AuthorizationServerEndpointsConfigurer</span> <span class="n">endpoints</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>分别用于配置 <strong>令牌端点的安全约束、客户端信息、配置令牌端点的安全约束</strong></p>
+<p>这也是我们<code>AuthorizationServerConfig</code>类的骨架，其他代码都是围绕这3个方法产生的，都有注解说明。</p>
+<p>接下来我们分别介绍下以下几个Bean：</p>
+<ul>
+<li>passwordEncoder：定义加密算法</li>
+<li>tokenStore：定义token存储方式</li>
+<li>clientDetailsService：定义客户端client信息</li>
+<li>authorizationCodeServices：<code>oauth2</code>授权码模式需要的服务，此处定义授权码模式code保存在内存中。</li>
+<li>authenticationManager：<code>oauth2</code>密码模式需要的服务，这个我们在下面的<code>WebSecurity</code>配置中添加。</li>
+<li>userDetailService：校验用户名密码的类（从数据库或内存中校验用户信息）</li>
+</ul>
+<h3 id="12-创建资源服务配置类">1.2 创建资源服务配置类</h3>
+<p>虽然我们现在正在搭建的<code>workflow-auth</code>是一个认证服务器，但是认证服务器本身也可以对外提供REST服务，比如通过Token获取当前登录用户信息，注销当前Token等，所以它也是一台资源服务器。于是我们需要定义一个资源服务器的配置类</p>
+<p>我们创建资源服务 <code>ResourceServerConfig</code>：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.workflow.auth.config</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.context.annotation.Configuration</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.security.config.annotation.web.builders.HttpSecurity</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @program: workflow-auth
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @description: 资源服务配置
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @author: garnett
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @create: 2020-09-26 17:05
+</span></span></span><span class="line"><span class="cl"><span class="cm"> **/</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@Configuration</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@EnableResourceServer</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">ResourceServerConfig</span> <span class="kd">extends</span> <span class="n">ResourceServerConfigurerAdapter</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">RESOURCE_ID</span> <span class="o">=</span> <span class="s">&#34;activiti-auth&#34;</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">configure</span><span class="o">(</span><span class="n">ResourceServerSecurityConfigurer</span> <span class="n">resources</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">resources</span><span class="o">.</span><span class="na">resourceId</span><span class="o">(</span><span class="n">RESOURCE_ID</span><span class="o">)</span><span class="c1">//重点，设置资源id
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="o">.</span><span class="na">stateless</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">configure</span><span class="o">(</span><span class="n">HttpSecurity</span> <span class="n">http</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">http</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">csrf</span><span class="o">().</span><span class="na">disable</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">requestMatchers</span><span class="o">().</span><span class="na">antMatchers</span><span class="o">(</span><span class="s">&#34;/**&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">and</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">authorizeRequests</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">antMatchers</span><span class="o">(</span><span class="s">&#34;/**&#34;</span><span class="o">).</span><span class="na">authenticated</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p><code>ResourceServerConfig</code>继承了<code>ResourceServerConfigurerAdapter</code>，并重写了<code>configure(HttpSecurity http)</code>方法和<code>configure(ResourceServerSecurityConfigurer resources)</code>方法，通过<code>requestMatchers().antMatchers(&quot;/**&quot;)</code>的配置表明该安全配置对所有请求都生效。</p>
+<p>类上的<code>@EnableResourceServer</code>用于开启资源服务器相关配置。而<code>ResourceServerSecurityConfigurer</code>则定义了本服务的<code>resourceId</code>。</p>
+<h3 id="13-创建websecurity配置类">1.3 创建WebSecurity配置类</h3>
+<p>主要处理除资源服务外的其他其他服务请求。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.workflow.auth.config</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.context.annotation.Bean</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.context.annotation.Configuration</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.core.annotation.Order</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.security.authentication.AuthenticationManager</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.security.config.annotation.web.builders.HttpSecurity</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.security.config.annotation.web.configuration.EnableWebSecurity</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.security.crypto.password.PasswordEncoder</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nd">@Order</span><span class="o">(</span><span class="n">2</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@EnableWebSecurity</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@EnableGlobalMethodSecurity</span><span class="o">(</span><span class="n">prePostEnabled</span> <span class="o">=</span> <span class="kc">true</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">SecurityConfigure</span> <span class="kd">extends</span> <span class="n">WebSecurityConfigurerAdapter</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * Spring Security内部实现好的 BCryptPasswordEncoder。
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * BCryptPasswordEncoder的特点就是，对于一个相同的密码，每次加密出来的加密串都不同
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Bean</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">PasswordEncoder</span> <span class="nf">passwordEncoder</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="k">new</span> <span class="n">BCryptPasswordEncoder</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 认证管理器（密码模式需要用到）
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @return
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @throws Exception
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Bean</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">AuthenticationManager</span> <span class="nf">authenticationManagerBean</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="kd">super</span><span class="o">.</span><span class="na">authenticationManagerBean</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">configure</span><span class="o">(</span><span class="n">HttpSecurity</span> <span class="n">http</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">http</span><span class="o">.</span><span class="na">csrf</span><span class="o">().</span><span class="na">disable</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">requestMatchers</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">antMatchers</span><span class="o">(</span><span class="s">&#34;/oauth/**&#34;</span><span class="o">,</span><span class="s">&#34;/login/**&#34;</span><span class="o">,</span><span class="s">&#34;/logout/**&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">and</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">authorizeRequests</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">antMatchers</span><span class="o">(</span><span class="s">&#34;/oauth/**&#34;</span><span class="o">).</span><span class="na">authenticated</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">and</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">formLogin</span><span class="o">().</span><span class="na">permitAll</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>该类继承了<code>WebSecurityConfigurerAdapter</code>适配器，重写了几个方法，并且使用<code>@EnableWebSecurity</code>注解标注，开启了和Web相关的安全配置。<code>@EnableGlobalMethodSecurity(prePostEnabled = true)</code>表示开启了security权限注解。</p>
+<p>我们定义了一个<code>PasswordEncoder</code>类型的Bean，该类是一个接口，定义了几个和密码加密校验相关的方法，这里我们使用的是Spring Security内部实现好的<code>BCryptPasswordEncoder</code>。<code>BCryptPasswordEncoder</code>的特点就是，对于一个相同的密码，每次加密出来的加密串都不同：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">String</span> <span class="n">password</span> <span class="o">=</span> <span class="s">&#34;123456&#34;</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="k">new</span> <span class="n">BCryptPasswordEncoder</span><span class="o">().</span><span class="na">encode</span><span class="o">(</span><span class="n">password</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="k">new</span> <span class="n">BCryptPasswordEncoder</span><span class="o">().</span><span class="na">encode</span><span class="o">(</span><span class="n">password</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>输出结果：</p>
+<pre tabindex="0"><code>$2a$10$TgKIGaJrL8LBFT8bEj8gH.3ctyo1PpSTw4fs4o6RuMOE4R665HdpS
+$2a$10$ZEcCOMVVIV5SfoXPXih92uGJfVeaugMr/PydhYnLvsCroS9xWjOIq
+</code></pre><p>然后我们定义了一个<code>AuthenticationManager</code>类型的Bean，这就是我们在认证服务配置类中注入的<code>authenticationManager</code></p>
+<p>最后还重写了<code>WebSecurityConfigurerAdapter</code>类的<code>configure(HttpSecurity http)</code>方法，其中<code>requestMatchers().antMatchers(&quot;/oauth/**&quot;,&quot;/login/**&quot;,&quot;/logout/**&quot;)</code>的含义是：<code>SecurityConfig</code>安全配置类只对<code>/oauth/``/login/``/logout/</code>开头的请求有效。</p>
+<p>这里重点说明下这个<code>@Order(2)</code>的原理：</p>
+<p>代码写到这里可以发现在<code>ResourceServerConfig</code>、<code>SecurityConfig</code>配置类中都定义了HttpSecurity规则。<code>SecurityConfig</code>对<code>/oauth/``/login/``/logout/</code>开头的请求有效，<code>ResourceServerConfig</code>这对所有请求有效。那么当一个请求进来时，到底哪个安全配置先生效呢？其实<code>Spring Security</code>是基于过滤器链来工作的，哪个优先级高，就先执行哪个。</p>
+<p>那么<code>SecurityConfig</code>和<code>ResourceServerConfig</code>的优先级是多少？首先我们查看<code>SecurityConfig</code>继承的类<code>WebSecurityConfigurerAdapter</code>的源码：</p>
+<pre tabindex="0"><code>@Order(100)
+public abstract class WebSecurityConfigurerAdapter implements WebSecurityConfigurer&lt;WebSecurity&gt; {
+   ......
+}
+</code></pre><p>可以看到类上使用了<code>@Order(100)</code>标注，说明其顺序是100。</p>
+<p>再来看看<code>ResourceServerConfig</code>类上<code>@EnableResourceServer</code>注解源码：</p>
+<pre tabindex="0"><code>@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Import({ResourceServerConfiguration.class})
+public @interface EnableResourceServer {
+}
+</code></pre><p>该注解引入了<code>ResourceServerConfiguration</code>配置类，查看<code>ResourceServerConfiguration</code>源码：</p>
+<pre tabindex="0"><code>@Configuration
+public class ResourceServerConfiguration extends WebSecurityConfigurerAdapter implements Ordered {
+    private int order = 3;
+    ......
+}
+</code></pre><p>所以<code>ResourceServerConfig</code>的顺序是3。在Spring中，数字越小，优先级越高，也就是说<code>ResourceServerConfig</code>的优先级要高于<code>SecurityConfig</code>，这也就意味着所有请求都会被<code>ResourceServerConfig</code>过滤器链处理，包括<code>/oauth/</code>开头的请求。这显然不是我们要的效果，我们原本是希望以<code>/oauth/``/login/``/logout/</code>开头的请求由<code>SecurityConfigure</code>过滤器链处理，剩下的其他请求由<code>ResourceServerConfig</code>过滤器链处理。</p>
+<p>为了解决上面的问题，我们可以手动指定这两个类的优先级，让<code>SecurityConfigure</code>的优先级高于<code>ResourceServerConfig</code>。在<code>SecurityConfig</code>类上使用<code>Order(2)</code>注解标注即可。</p>
+<p>总结下<code>SecurityConfig</code>和<code>ResourceServerConfig</code>的区别吧：</p>
+<ol>
+<li><code>SecurityConfig</code>用于处理<code>/oauth/``/login/``/logout/</code>开头的请求，OAuth2内部定义的获取令牌，刷新令牌的请求地址都是以<code>/oauth/``/login/``/logout/</code>开头的，也就是说<code>SecurityConfig</code>用于处理和令牌相关的请求；</li>
+<li><code>ResourceServerConfig</code>用于处理非<code>/oauth/``/login/``/logout/</code>开头的请求，其主要用于资源的保护，客户端只能通过OAuth2协议发放的令牌来从资源服务器中获取受保护的资源。</li>
+</ol>
+<h3 id="14-创建-tokenstore">1.4 创建 tokenStore</h3>
+<p>在认证服务类中，注入过一个TokenStore类型的Bean。我们专门新建一个类TokenConfig来配置token相关的信息，其中&rsquo;&lsquo;InMemoryTokenStore&rsquo;&lsquo;表示生成的token存储在内存中。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.workflow.auth.config</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.context.annotation.Bean</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.context.annotation.Configuration</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.security.oauth2.provider.token.TokenStore</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nd">@Configuration</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">TokenConfig</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Bean</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">TokenStore</span> <span class="nf">tokenStore</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="k">new</span> <span class="n">InMemoryTokenStore</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><h3 id="15--创建-userdetailservice">1.5  创建 userDetailService</h3>
+<p>还需要定义一个用于校验用户名密码的类，也就是上面认证服务类中提到的<code>userDetailService</code>。代码如下所示：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.workflow.auth.service</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">com.sxdx.workflow.auth.entity.SecurityUser</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.beans.factory.annotation.Autowired</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.security.core.authority.AuthorityUtils</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.security.core.userdetails.User</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.security.core.userdetails.UserDetails</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.security.core.userdetails.UserDetailsService</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.security.core.userdetails.UsernameNotFoundException</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.security.crypto.password.PasswordEncoder</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.stereotype.Service</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nd">@Service</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">OauthUserDetailService</span> <span class="kd">implements</span> <span class="n">UserDetailsService</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Autowired</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">PasswordEncoder</span> <span class="n">passwordEncoder</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">UserDetails</span> <span class="nf">loadUserByUsername</span><span class="o">(</span><span class="n">String</span> <span class="n">username</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">UsernameNotFoundException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">SecurityUser</span> <span class="n">user</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SecurityUser</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">user</span><span class="o">.</span><span class="na">setUsername</span><span class="o">(</span><span class="n">username</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">user</span><span class="o">.</span><span class="na">setPassword</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">passwordEncoder</span><span class="o">.</span><span class="na">encode</span><span class="o">(</span><span class="s">&#34;123456&#34;</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="k">new</span> <span class="n">User</span><span class="o">(</span><span class="n">username</span><span class="o">,</span> <span class="n">user</span><span class="o">.</span><span class="na">getPassword</span><span class="o">(),</span> <span class="n">user</span><span class="o">.</span><span class="na">isEnabled</span><span class="o">(),</span>
+</span></span><span class="line"><span class="cl">                <span class="n">user</span><span class="o">.</span><span class="na">isAccountNonExpired</span><span class="o">(),</span> <span class="n">user</span><span class="o">.</span><span class="na">isCredentialsNonExpired</span><span class="o">(),</span>
+</span></span><span class="line"><span class="cl">                <span class="n">user</span><span class="o">.</span><span class="na">isAccountNonLocked</span><span class="o">(),</span> <span class="n">AuthorityUtils</span><span class="o">.</span><span class="na">commaSeparatedStringToAuthorityList</span><span class="o">(</span><span class="s">&#34;user:add&#34;</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p><code>OauthUserDetailService</code>实现了<code>UserDetailsService</code>接口的<code>loadUserByUsername</code>方法。定义登录逻辑：用户名任意，密码为123456 即可通过<code>spring-security</code>登录。<code>loadUserByUsername</code>方法返回一个<code>UserDetails</code>对象，该对象也是一个接口，包含一些用于描述用户信息的方法，源码如下：</p>
+<pre tabindex="0"><code class="language-$xslt" data-lang="$xslt">public interface UserDetails extends Serializable {
+    Collection&lt;? extends GrantedAuthority&gt; getAuthorities();
+    String getPassword();
+    String getUsername();
+    boolean isAccountNonExpired();
+    boolean isAccountNonLocked();
+    boolean isCredentialsNonExpired();
+    boolean isEnabled();
+}
+</code></pre><p>这些字段的含义如下：</p>
+<ul>
+<li><code>getAuthorities</code>获取用户包含的权限，返回权限集合，权限是一个继承了<code>GrantedAuthority</code>的对象；</li>
+<li><code>getPassword</code>和<code>getUsername</code>用于获取密码和用户名；</li>
+<li><code>isAccountNonExpired</code>方法返回boolean类型，用于判断账户是否未过期，未过期返回true反之返回false；</li>
+<li><code>isAccountNonLocked</code>方法用于判断账户是否未锁定；</li>
+<li><code>isCredentialsNonExpired</code>用于判断用户凭证是否没过期，即密码是否未过期；</li>
+<li><code>isEnabled</code>方法用于判断用户是否可用。</li>
+</ul>
+<p>实际中我们可以自定义<code>UserDetails</code>接口的实现类，也可以直接使用Spring Security提供的<code>UserDetails</code>接口实现类<code>org.springframework.security.core.userdetails.User</code>。</p>
+<p><code>OauthUserDetailService</code>中<code>SecurityUser</code>为我们自定义的用户实体类，代表我们从数据库中查询出来的用户。代码如下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.workflow.auth.entity</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">lombok.Data</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.security.core.GrantedAuthority</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.io.Serializable</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.util.Set</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nd">@Data</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">SecurityUser</span> <span class="kd">implements</span> <span class="n">Serializable</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">long</span> <span class="n">serialVersionUID</span> <span class="o">=</span> <span class="n">3191927289420949930L</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">String</span> <span class="n">password</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">String</span> <span class="n">username</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">Set</span><span class="o">&lt;</span><span class="n">GrantedAuthority</span><span class="o">&gt;</span> <span class="n">authorities</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kt">boolean</span> <span class="n">accountNonExpired</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kt">boolean</span> <span class="n">accountNonLocked</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kt">boolean</span> <span class="n">credentialsNonExpired</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kt">boolean</span> <span class="n">enabled</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><h3 id="16-测试接口">1.6 测试接口</h3>
+<p>此处我们写2个接口，用于后面的测试。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.workflow.auth.controller</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">com.sxdx.common.exception.base.CommonException</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">com.sxdx.common.util.CommonResponse</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.beans.factory.annotation.Autowired</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.security.core.Authentication</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.security.oauth2.provider.token.ConsumerTokenServices</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.util.StringUtils</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.web.bind.annotation.DeleteMapping</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.web.bind.annotation.GetMapping</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.web.bind.annotation.RestController</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">javax.servlet.http.HttpServletRequest</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nd">@RestController</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">AuthorizationController</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@Autowired</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">ConsumerTokenServices</span> <span class="n">consumerTokenServices</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 获取当前用户信息
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param authentication
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @return
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@GetMapping</span><span class="o">(</span><span class="s">&#34;/authentication&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">Object</span> <span class="nf">authentication</span><span class="o">(</span><span class="n">Authentication</span> <span class="n">authentication</span><span class="o">){</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">authentication</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 退出登录
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param request
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @return
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @throws CommonException
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@DeleteMapping</span><span class="o">(</span><span class="s">&#34;signout&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">CommonResponse</span> <span class="nf">signout</span><span class="o">(</span><span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">CommonException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">String</span> <span class="n">authorization</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="na">getHeader</span><span class="o">(</span><span class="s">&#34;Authorization&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">String</span> <span class="n">token</span> <span class="o">=</span> <span class="n">StringUtils</span><span class="o">.</span><span class="na">replace</span><span class="o">(</span><span class="n">authorization</span><span class="o">,</span> <span class="s">&#34;Bearer &#34;</span><span class="o">,</span> <span class="s">&#34;&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="o">(!</span><span class="n">consumerTokenServices</span><span class="o">.</span><span class="na">revokeToken</span><span class="o">(</span><span class="n">token</span><span class="o">))</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">throw</span> <span class="k">new</span> <span class="n">CommonException</span><span class="o">(</span><span class="s">&#34;退出登录失败&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="k">new</span> <span class="n">CommonResponse</span><span class="o">().</span><span class="na">message</span><span class="o">(</span><span class="s">&#34;退出登录成功&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><h2 id="2验证四种授权模式">2、验证四种授权模式</h2>
+<p>我么前面已经搭建好了认证服务器，并且集成了<code>Oauth2</code>。我们来验证一下：</p>
+<h3 id="21-授权码模式">2.1 授权码模式</h3>
+<p>第一步获取code：</p>
+<p>浏览器访问：<code>http://localhost:8101/oauth/authorize?response_type=code&amp;client_id=kiki&amp;redirect_uri=https://www.baidu.com&amp;state=state</code></p>
+<p>这个请求会被<code>SecurityConfigure</code>类拦截，并重定向到 登录页，要求用户登录：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-27/image-20200930210943340.png" >
+		<img src="/images/activiti6-27/image-20200930210943340.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200930210943340">
+	</a>
+	
+	<figcaption>image-20200930210943340</figcaption>
+	
+</figure></p>
+<p>输入任意用户名、密码为123456，登录后系统会携带<code>code</code>跳转到我们一开始定义好的redirectUris地址上</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-27/image-20201001085721083.png" >
+		<img src="/images/activiti6-27/image-20201001085721083.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201001085721083">
+	</a>
+	
+	<figcaption>image-20201001085721083</figcaption>
+	
+</figure></p>
+<p>通过code向认证服务器申请token:</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-27/image-20201001085808205.png" >
+		<img src="/images/activiti6-27/image-20201001085808205.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201001085808205">
+	</a>
+	
+	<figcaption>image-20201001085808205</figcaption>
+	
+</figure></p>
+<p>除此之外还需要设置请求头：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-27/image-20201005200803722.png" >
+		<img src="/images/activiti6-27/image-20201005200803722.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201005200803722">
+	</a>
+	
+	<figcaption>image-20201005200803722</figcaption>
+	
+</figure></p>
+<p>key为Authorization，value为Basic加上client_id:client_secret经过base64加密后的值（可以使用http://tool.chinaz.com/Tools/Base64.aspx）</p>
+<p>然后调用接口，可以看到我们成功的获取到了token。我们试着通过token获取当前用户信息：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-27/image-20201001085950332.png" >
+		<img src="/images/activiti6-27/image-20201001085950332.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201001085950332">
+	</a>
+	
+	<figcaption>image-20201001085950332</figcaption>
+	
+</figure></p>
+<p>如果我们此处不使用token,则会提示错误信息：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-27/image-20201001090045731.png" >
+		<img src="/images/activiti6-27/image-20201001090045731.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201001090045731">
+	</a>
+	
+	<figcaption>image-20201001090045731</figcaption>
+	
+</figure></p>
+<p>可以看到提示我们需要授权才可以访问资源。</p>
+<p>我们这里验证一下 退出登录。</p>
+<p>我们先调用退出登录接口，然后再次获取资源信息：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-27/image-20201001091128400.png" >
+		<img src="/images/activiti6-27/image-20201001091128400.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201001091128400">
+	</a>
+	
+	<figcaption>image-20201001091128400</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-27/image-20201001091210217.png" >
+		<img src="/images/activiti6-27/image-20201001091210217.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201001091210217">
+	</a>
+	
+	<figcaption>image-20201001091210217</figcaption>
+	
+</figure></p>
+<p>可以看到，注销后再次获取资源信息，会提示token无效。</p>
+<h3 id="22-密码模式">2.2 密码模式</h3>
+<p>密码模式比起授权码模式来说要简单一些。省略了获取 code的环节，提供用户名密码即可。</p>
+<p><figure 
+	>
+	<a href="/../../../../../workspace/blog/gaoyipeng.github.io/source/images/activiti6-27/image-20201001091618001.png" >
+		<img src="/../../../../../workspace/blog/gaoyipeng.github.io/source/images/activiti6-27/image-20201001091618001.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201001091618001">
+	</a>
+	
+	<figcaption>image-20201001091618001</figcaption>
+	
+</figure></p>
+<p>我们使用token获取一下资源：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-27/image-20201001091732658.png" >
+		<img src="/images/activiti6-27/image-20201001091732658.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201001091732658">
+	</a>
+	
+	<figcaption>image-20201001091732658</figcaption>
+	
+</figure></p>
+<p>可以看到是没有问题的，这里需要注意的一点就是，实际产生环节中，密码模式下获取token的操作往往是由资源客户端来完成的，这样一来，资源客户端就会获取到你在认证服务器上注册用户的密码。所以密码模式适用于资源客户端可信的应用。</p>
+<h3 id="23-客户端模式">2.3 客户端模式</h3>
+<p>客户端模式（client_credentials）直接根据client的id和密钥即可获取token，无需用户参与。这种模式比较合适消费api的后端服务，此模式不支持refresh token。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-27/image-20201001092223108.png" >
+		<img src="/images/activiti6-27/image-20201001092223108.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201001092223108">
+	</a>
+	
+	<figcaption>image-20201001092223108</figcaption>
+	
+</figure></p>
+<p>可以看到返回值中不包含<code>refresh_token</code></p>
+<h3 id="24-简化模式">2.4 简化模式</h3>
+<p>以上的3种模式都是需要后端协助的。如果有一个应用，是个纯前端应用，那么如果获取token呢？这就用到了简化模式。</p>
+<p>简化模式模式（implicit）比授权码模式少了code环节，回调url直接携带token，这种模式基于安全性考虑，建议把token时效设置短一些，不支持refresh token</p>
+<p>直接浏览器输入<code>http://localhost:8101/oauth/authorize?response_type=token&amp;client_id=kiki&amp;redirect_uri=https://www.baidu.com&amp;state=state</code></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-27/image-20201001092702211.png" >
+		<img src="/images/activiti6-27/image-20201001092702211.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201001092702211">
+	</a>
+	
+	<figcaption>image-20201001092702211</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../../../../workspace/blog/gaoyipeng.github.io/source/images/activiti6-27/image-20201001092727344.png" >
+		<img src="/../../../../../workspace/blog/gaoyipeng.github.io/source/images/activiti6-27/image-20201001092727344.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201001092727344">
+	</a>
+	
+	<figcaption>image-20201001092727344</figcaption>
+	
+</figure></p>
+<p>可以看到，回调地址栏中携带了token 信息。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/activiti/">Activiti</a>
+        
+            <a href="/tags/spring-security-oauth2/">Spring-Security-OAuth2</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/activiti30-%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AD%98%E5%82%A8codeclient%E4%BF%A1%E6%81%AF/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（30） 数据库存储Code,Client信息</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti29-%E6%B7%BB%E5%8A%A0jwt%E6%94%AF%E6%8C%81/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（29） 添加JWT支持</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti28-%E6%90%AD%E5%BB%BA%E8%B5%84%E6%BA%90%E6%9C%8D%E5%8A%A1%E5%99%A8/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（28） 搭建资源服务器</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti26-spring-security-oauth2%E7%AE%80%E4%BB%8B/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（26） Spring-Security-OAuth2简介</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti6%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%B3%BB%E7%BB%9F%E6%90%AD%E5%BB%BA%E6%95%99%E7%A8%8B/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti6工作流系统搭建教程</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#1搭建认证服务器">1、搭建认证服务器</a>
+      <ol>
+        <li><a href="#11--创建认证服务类">1.1  创建认证服务类</a></li>
+        <li><a href="#12-创建资源服务配置类">1.2 创建资源服务配置类</a></li>
+        <li><a href="#13-创建websecurity配置类">1.3 创建WebSecurity配置类</a></li>
+        <li><a href="#14-创建-tokenstore">1.4 创建 tokenStore</a></li>
+        <li><a href="#15--创建-userdetailservice">1.5  创建 userDetailService</a></li>
+        <li><a href="#16-测试接口">1.6 测试接口</a></li>
+      </ol>
+    </li>
+    <li><a href="#2验证四种授权模式">2、验证四种授权模式</a>
+      <ol>
+        <li><a href="#21-授权码模式">2.1 授权码模式</a></li>
+        <li><a href="#22-密码模式">2.2 密码模式</a></li>
+        <li><a href="#23-客户端模式">2.3 客户端模式</a></li>
+        <li><a href="#24-简化模式">2.4 简化模式</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

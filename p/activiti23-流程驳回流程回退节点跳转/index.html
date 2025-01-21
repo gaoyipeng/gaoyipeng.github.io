@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Activiti（23） 流程驳回、流程回退（节点跳转）'><title>Activiti（23） 流程驳回、流程回退（节点跳转）</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/activiti23-%E6%B5%81%E7%A8%8B%E9%A9%B3%E5%9B%9E%E6%B5%81%E7%A8%8B%E5%9B%9E%E9%80%80%E8%8A%82%E7%82%B9%E8%B7%B3%E8%BD%AC/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Activiti（23） 流程驳回、流程回退（节点跳转）'>
+<meta property='og:description' content='Activiti（23） 流程驳回、流程回退（节点跳转）'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/activiti23-%E6%B5%81%E7%A8%8B%E9%A9%B3%E5%9B%9E%E6%B5%81%E7%A8%8B%E5%9B%9E%E9%80%80%E8%8A%82%E7%82%B9%E8%B7%B3%E8%BD%AC/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Activiti' /><meta property='article:published_time' content='2020-09-18T20:09:05&#43;00:00'/><meta property='article:modified_time' content='2020-09-18T20:09:05&#43;00:00'/>
+<meta name="twitter:title" content="Activiti（23） 流程驳回、流程回退（节点跳转）">
+<meta name="twitter:description" content="Activiti（23） 流程驳回、流程回退（节点跳转）">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/activiti/" >
+                Activiti
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/activiti23-%E6%B5%81%E7%A8%8B%E9%A9%B3%E5%9B%9E%E6%B5%81%E7%A8%8B%E5%9B%9E%E9%80%80%E8%8A%82%E7%82%B9%E8%B7%B3%E8%BD%AC/">Activiti（23） 流程驳回、流程回退（节点跳转）</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        Activiti（23） 流程驳回、流程回退（节点跳转）
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Sep 18, 2020</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 2 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <p>由于中国式流程的需要，我们添加一下流程驳回处理，流程驳回分为2种：驳回起点，驳回任意节点。</p>
+<h2 id="1activiti节点跳转的三种方式">1、Activiti节点跳转的三种方式</h2>
+<h3 id="11--流程图配置连线">1.1  流程图配置连线</h3>
+<p>这个是最简单的实现方式，我们设置好跳转的连线和跳转条件，在驳回时实现跳转是最安全可靠的，不过中国式流程的功能需求(驳回、回退等)，经常是要求在没有连线的情况下完成跳转。如果全部节点都配置驳回连线，那么流程图就会变成一张复杂的蜘蛛网，所以<strong>不采用这种方式</strong>。</p>
+<h3 id="12-动态修改连线">1.2 动态修改连线</h3>
+<p>动态修改流程定义环节的连线，然后执行跳转，完成后再恢复流程定义。</p>
+<p>这种方法可以实现动态跳转，不需要修改<code>Activiti</code>自身执行，但是会动态修改系统中的流程定义缓存对象。理论上这会出现一个多线程下，全局变量不安全的问题。单个<code>Activiti</code>流程引擎中，流程定义缓存对象是被所有线程共用的，当一个应用服务器同时收到同个流程定义下的两个不同流程实例、同个环节的任务提交的请求。A任务要求驳回，所以该线程动态修改了流程定义；与此同时，B 任务要求正常流转，但是执行过程中，依据的流程定义已被修改，可能导致B流程也走向了驳回，所以<strong>不采用这种方式</strong>。</p>
+<h3 id="13-修改执行计划">1.3 修改执行计划</h3>
+<p>修改当前执行计划，设置从连线流转到目标节点，实现跳转。这种方法即可以实现动态跳转，又没有动态修改流程定义带来的不安全问题。</p>
+<h2 id="2流程驳回">2、流程驳回</h2>
+<p>流程驳回分为2种：驳回起点，驳回任意节点。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@PostMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;/rejectAnyNode&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@ApiOperation</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;流程驳回&#34;</span><span class="o">,</span><span class="n">notes</span> <span class="o">=</span> <span class="s">&#34;流程驳回&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="n">CommonResponse</span> <span class="nf">rejectAnyNode</span><span class="o">(</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@RequestParam</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;taskId&#34;</span><span class="o">,</span> <span class="n">required</span> <span class="o">=</span> <span class="kc">true</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@ApiParam</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;当前任务ID&#34;</span> <span class="o">,</span><span class="n">required</span> <span class="o">=</span> <span class="kc">true</span><span class="o">)</span><span class="n">String</span> <span class="n">taskId</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@RequestParam</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;flowElementId&#34;</span><span class="o">,</span> <span class="n">required</span> <span class="o">=</span> <span class="kc">false</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@ApiParam</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;驳回指定节点ID(为空则返回流程起始节点)&#34;</span> <span class="o">,</span><span class="n">required</span> <span class="o">=</span> <span class="kc">false</span><span class="o">)</span><span class="n">String</span> <span class="n">flowElementId</span><span class="o">){</span>
+</span></span><span class="line"><span class="cl">    <span class="n">processService</span><span class="o">.</span><span class="na">rejectAnyNode</span><span class="o">(</span><span class="n">taskId</span><span class="o">,</span><span class="n">flowElementId</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="k">new</span> <span class="n">CommonResponse</span><span class="o">().</span><span class="na">code</span><span class="o">(</span><span class="n">CodeEnum</span><span class="o">.</span><span class="na">SUCCESS</span><span class="o">.</span><span class="na">getCode</span><span class="o">()).</span><span class="na">message</span><span class="o">(</span><span class="s">&#34;流程驳回成功&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * 驳回指定节点
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @param taskId
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @param flowElementId
+</span></span></span><span class="line"><span class="cl"><span class="cm">  */</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@Transactional</span><span class="o">(</span><span class="n">noRollbackFor</span> <span class="o">=</span> <span class="n">Exception</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kt">void</span> <span class="nf">rejectAnyNode</span><span class="o">(</span><span class="n">String</span> <span class="n">taskId</span><span class="o">,</span> <span class="n">String</span> <span class="n">flowElementId</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">FlowNode</span> <span class="n">targetNode</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">log</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">&#34;流程驳回开始&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//获取当前任务
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">Task</span> <span class="n">currentTask</span> <span class="o">=</span> <span class="n">taskService</span><span class="o">.</span><span class="na">createTaskQuery</span><span class="o">().</span><span class="na">taskId</span><span class="o">(</span><span class="n">taskId</span><span class="o">).</span><span class="na">singleResult</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">//获取当前操作人
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">UserQueryImpl</span> <span class="n">user</span> <span class="o">=</span> <span class="k">new</span> <span class="n">UserQueryImpl</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="n">user</span> <span class="o">=</span> <span class="o">(</span><span class="n">UserQueryImpl</span><span class="o">)</span><span class="n">identityService</span><span class="o">.</span><span class="na">createUserQuery</span><span class="o">().</span><span class="na">userId</span><span class="o">(</span><span class="n">GlobalConfig</span><span class="o">.</span><span class="na">getOperator</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"> 	<span class="c1">//判断当前用户是否为该节点处理人
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span><span class="o">(</span><span class="n">currentTask</span><span class="o">.</span><span class="na">getAssignee</span><span class="o">()</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="o">!</span><span class="n">currentTask</span><span class="o">.</span><span class="na">getAssignee</span><span class="o">().</span><span class="na">equals</span><span class="o">(</span><span class="n">user</span><span class="o">.</span><span class="na">getId</span><span class="o">())){</span>
+</span></span><span class="line"><span class="cl">        <span class="k">throw</span> <span class="k">new</span> <span class="n">ActivitiException</span><span class="o">(</span><span class="s">&#34;当前用户无法驳回,请先签收任务&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">//获取当前节点信息
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">String</span> <span class="n">currActivityId</span> <span class="o">=</span> <span class="n">currentTask</span><span class="o">.</span><span class="na">getTaskDefinitionKey</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="n">String</span> <span class="n">processDefinitionId</span> <span class="o">=</span> <span class="n">currentTask</span><span class="o">.</span><span class="na">getProcessDefinitionId</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="n">BpmnModel</span> <span class="n">bpmnModel</span> <span class="o">=</span> <span class="n">repositoryService</span><span class="o">.</span><span class="na">getBpmnModel</span><span class="o">(</span><span class="n">processDefinitionId</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">FlowNode</span> <span class="n">currFlow</span> <span class="o">=</span> <span class="o">(</span><span class="n">FlowNode</span><span class="o">)</span> <span class="n">bpmnModel</span><span class="o">.</span><span class="na">getMainProcess</span><span class="o">().</span><span class="na">getFlowElement</span><span class="o">(</span><span class="n">currActivityId</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="o">(</span><span class="kc">null</span> <span class="o">==</span> <span class="n">currFlow</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">List</span><span class="o">&lt;</span><span class="n">SubProcess</span><span class="o">&gt;</span> <span class="n">subProcessList</span> <span class="o">=</span> <span class="n">bpmnModel</span><span class="o">.</span><span class="na">getMainProcess</span><span class="o">().</span><span class="na">findFlowElementsOfType</span><span class="o">(</span><span class="n">SubProcess</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="kc">true</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="o">(</span><span class="n">SubProcess</span> <span class="n">subProcess</span> <span class="o">:</span> <span class="n">subProcessList</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">FlowElement</span> <span class="n">flowElement</span> <span class="o">=</span> <span class="n">subProcess</span><span class="o">.</span><span class="na">getFlowElement</span><span class="o">(</span><span class="n">currActivityId</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="o">(</span><span class="n">flowElement</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">currFlow</span> <span class="o">=</span> <span class="o">(</span><span class="n">FlowNode</span><span class="o">)</span> <span class="n">flowElement</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">                <span class="k">break</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">//获取流程定义
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">Process</span> <span class="n">process</span> <span class="o">=</span> <span class="n">repositoryService</span><span class="o">.</span><span class="na">getBpmnModel</span><span class="o">(</span><span class="n">currentTask</span><span class="o">.</span><span class="na">getProcessDefinitionId</span><span class="o">()).</span><span class="na">getMainProcess</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="n">log</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">&#34;流程驳回&gt;&gt;&gt;&gt;&gt;&gt;&gt;,流程名称:{}:{},当前任务:{}:{}&#34;</span><span class="o">,</span><span class="n">process</span><span class="o">.</span><span class="na">getName</span><span class="o">(),</span><span class="n">process</span><span class="o">.</span><span class="na">getId</span><span class="o">(),</span><span class="n">currentTask</span><span class="o">.</span><span class="na">getName</span><span class="o">(),</span><span class="n">currentTask</span><span class="o">.</span><span class="na">getId</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="o">(</span><span class="n">flowElementId</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="n">flowElementId</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">()){</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//获取流程定义第一个Node节点
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">targetNode</span> <span class="o">=</span> <span class="n">findFirstActivityNode</span><span class="o">(</span><span class="n">currentTask</span><span class="o">.</span><span class="na">getProcessDefinitionId</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span><span class="k">else</span><span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//获取目标节点定义
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">targetNode</span> <span class="o">=</span> <span class="o">(</span><span class="n">FlowNode</span><span class="o">)</span><span class="n">process</span><span class="o">.</span><span class="na">getFlowElement</span><span class="o">(</span><span class="n">flowElementId</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="o">(</span><span class="n">targetNode</span> <span class="o">==</span> <span class="kc">null</span><span class="o">){</span>
+</span></span><span class="line"><span class="cl">        <span class="k">throw</span> <span class="k">new</span> <span class="n">ActivitiException</span><span class="o">(</span><span class="s">&#34;目标节点为空&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//如果不是同一个流程(子流程)不能驳回
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span> <span class="o">(!(</span><span class="n">currFlow</span><span class="o">.</span><span class="na">getParentContainer</span><span class="o">().</span><span class="na">equals</span><span class="o">(</span><span class="n">targetNode</span><span class="o">.</span><span class="na">getParentContainer</span><span class="o">())))</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">throw</span> <span class="k">new</span> <span class="n">ActivitiException</span><span class="o">(</span><span class="s">&#34;不是同一个流程(子流程)不能驳回&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//删除当前运行任务
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">String</span> <span class="n">executionEntityId</span> <span class="o">=</span> <span class="n">managementService</span><span class="o">.</span><span class="na">executeCommand</span><span class="o">(</span><span class="k">new</span> <span class="n">DeleteTaskCmd</span><span class="o">(</span><span class="n">currentTask</span><span class="o">.</span><span class="na">getId</span><span class="o">()));</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//流程执行到来源节点
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">managementService</span><span class="o">.</span><span class="na">executeCommand</span><span class="o">(</span><span class="k">new</span> <span class="n">SetFLowNodeAndGoCmd</span><span class="o">(</span><span class="n">targetNode</span><span class="o">,</span> <span class="n">executionEntityId</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">    <span class="n">log</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">&#34;流程驳回成功&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"> <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">  * 获得流程定义第一个节点
+</span></span></span><span class="line"><span class="cl"><span class="cm">  */</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="n">FlowNode</span> <span class="nf">findFirstActivityNode</span><span class="o">(</span><span class="n">String</span> <span class="n">processDefinitionId</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">BpmnModel</span> <span class="n">model</span> <span class="o">=</span> <span class="n">repositoryService</span><span class="o">.</span><span class="na">getBpmnModel</span><span class="o">(</span><span class="n">processDefinitionId</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//Process process = ProcessDefinitionUtil.getProcess(processDefinitionId);
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">Process</span> <span class="n">process</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="na">getMainProcess</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="n">FlowElement</span> <span class="n">flowElement</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="na">getInitialFlowElement</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="n">FlowNode</span> <span class="n">startActivity</span> <span class="o">=</span> <span class="o">(</span><span class="n">FlowNode</span><span class="o">)</span> <span class="n">flowElement</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="o">(</span><span class="n">startActivity</span><span class="o">.</span><span class="na">getOutgoingFlows</span><span class="o">().</span><span class="na">size</span><span class="o">()</span> <span class="o">!=</span> <span class="n">1</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalStateException</span><span class="o">(</span>
+</span></span><span class="line"><span class="cl">            <span class="s">&#34;start activity outgoing transitions cannot more than 1, now is : &#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">+</span> <span class="n">startActivity</span><span class="o">.</span><span class="na">getOutgoingFlows</span><span class="o">().</span><span class="na">size</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">SequenceFlow</span> <span class="n">sequenceFlow</span> <span class="o">=</span> <span class="n">startActivity</span><span class="o">.</span><span class="na">getOutgoingFlows</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">        <span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">0</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">FlowNode</span> <span class="n">targetActivity</span> <span class="o">=</span> <span class="o">(</span><span class="n">FlowNode</span><span class="o">)</span> <span class="n">sequenceFlow</span><span class="o">.</span><span class="na">getTargetFlowElement</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="o">(!(</span><span class="n">targetActivity</span> <span class="k">instanceof</span> <span class="n">UserTask</span><span class="o">))</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">log</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">&#34;first activity is not userTask, just skip&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">targetActivity</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>上面的接口同时实现了驳回起点和驳回任意节点功能，当目标节点<strong>flowElementId</strong>为空时，直接驳回起点，否则驳回<strong>flowElementId</strong>对应的节点，那么<strong>flowElementId</strong>如何获取呢？</p>
+<p>我们之前在介绍流程历史管理时，提供了获取流程历史任务、活动的接口，接口返回的<strong>activityId</strong>和<strong>taskDefinitionKey</strong>字段就是所需的<strong>flowElementId</strong></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-23/image-20200919112133563.png" >
+		<img src="/images/activiti6-23/image-20200919112133563.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200919112133563">
+	</a>
+	
+	<figcaption>image-20200919112133563</figcaption>
+	
+</figure></p>
+<h3 id="21-回退任意节点">2.1 回退任意节点</h3>
+<p>我们使用请假流程来演示，目前流程处于<strong>销假</strong>节点。我们先演示流程回退到人事审批节点。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-23/image-20200919113129833.png" >
+		<img src="/images/activiti6-23/image-20200919113129833.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200919113129833">
+	</a>
+	
+	<figcaption>image-20200919113129833</figcaption>
+	
+</figure></p>
+<h4 id="211-获取当前操作人任务id">2.1.1 获取当前操作人任务ID</h4>
+<p><figure 
+	>
+	<a href="/images/activiti6-23/image-20200919113559436.png" >
+		<img src="/images/activiti6-23/image-20200919113559436.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200919113559436">
+	</a>
+	
+	<figcaption>image-20200919113559436</figcaption>
+	
+</figure></p>
+<p>返回：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;code&#34;</span><span class="p">:</span> <span class="s2">&#34;0000&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;data&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;pageNum&#34;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;pageSize&#34;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;total&#34;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;pages&#34;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;firstResult&#34;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;maxResults&#34;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;list&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">      <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;owner&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;originalAssignee&#34;</span><span class="p">:</span> <span class="s2">&#34;kafeitu&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;assignee&#34;</span><span class="p">:</span> <span class="s2">&#34;kafeitu&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;delegationState&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;parentTaskId&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;销假&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;localizedName&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;description&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;localizedDescription&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;priority&#34;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;createTime&#34;</span><span class="p">:</span> <span class="s2">&#34;2020-09-19 11:30:56&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;dueDate&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;suspensionState&#34;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;category&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;executionId&#34;</span><span class="p">:</span> <span class="s2">&#34;185014&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;processInstanceId&#34;</span><span class="p">:</span> <span class="s2">&#34;185011&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;processDefinitionId&#34;</span><span class="p">:</span> <span class="s2">&#34;leave-dynamic-from:1:182504&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;taskDefinitionKey&#34;</span><span class="p">:</span> <span class="s2">&#34;reportBack&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;formKey&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;isDeleted&#34;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;isCanceled&#34;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;eventName&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;currentActivitiListener&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;tenantId&#34;</span><span class="p">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;queryVariables&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;claimTime&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;usedVariablesCache&#34;</span><span class="p">:</span> <span class="p">{},</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;cachedElContext&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="s2">&#34;200007&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;revision&#34;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;isInserted&#34;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;isUpdated&#34;</span><span class="p">:</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;message&#34;</span><span class="p">:</span> <span class="s2">&#34;获取当前人员待办列表成功&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><h4 id="212-获取目标节点idflowelementid">2.1.2 获取目标节点ID（flowElementId）</h4>
+<p>flowElementId 为：hrAudit</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-23/image-20200919115037483.png" >
+		<img src="/images/activiti6-23/image-20200919115037483.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200919115037483">
+	</a>
+	
+	<figcaption>image-20200919115037483</figcaption>
+	
+</figure></p>
+<h4 id="213-回退">2.1.3 回退</h4>
+<p><figure 
+	>
+	<a href="/images/activiti6-23/image-20200919115314199.png" >
+		<img src="/images/activiti6-23/image-20200919115314199.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200919115314199">
+	</a>
+	
+	<figcaption>image-20200919115314199</figcaption>
+	
+</figure></p>
+<p>此时我们再次查看流程图：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-23/image-20200919115347424.png" >
+		<img src="/images/activiti6-23/image-20200919115347424.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200919115347424">
+	</a>
+	
+	<figcaption>image-20200919115347424</figcaption>
+	
+</figure></p>
+<p>可以看到流程已经回退到人事审批节点。</p>
+<h3 id="22-驳回到起点">2.2 驳回到起点</h3>
+<p>我们在上图的基础上，继续驳回流程到起点。</p>
+<p>说明：此处的所说的流程起点并不是开始节点，而是流程开始后的第一个用户任务，本例中为<code>部门领导审批节点</code>。</p>
+<p>获取当前操作人任务Id步骤和上面一样，不再演示了。taskId：202502。</p>
+<p>注意：驳回是需要先签收任务，否则会报：&ldquo;当前用户无法驳回,请先签收任务&rdquo;。</p>
+<h4 id="221-回退">2.2.1 回退</h4>
+<p><figure 
+	>
+	<a href="/images/activiti6-23/image-20200919120805852.png" >
+		<img src="/images/activiti6-23/image-20200919120805852.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200919120805852">
+	</a>
+	
+	<figcaption>image-20200919120805852</figcaption>
+	
+</figure></p>
+<p>此时我们再次查看流程图：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-23/image-20200919120915273.png" >
+		<img src="/images/activiti6-23/image-20200919120915273.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200919120915273">
+	</a>
+	
+	<figcaption>image-20200919120915273</figcaption>
+	
+</figure></p>
+<p>可以看到流程已经回退到起点了。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/activiti/">Activiti</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/activiti6%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%B3%BB%E7%BB%9F%E6%90%AD%E5%BB%BA%E6%95%99%E7%A8%8B/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti6工作流系统搭建教程</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti33-spring-security%E8%8E%B7%E5%8F%96%E5%BD%93%E5%89%8D%E6%93%8D%E4%BD%9C%E4%BA%BA%E4%BF%A1%E6%81%AF/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（33） Spring-Security获取当前操作人信息</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti34-%E4%BD%BF%E7%94%A8swagger%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（34） 使用Swagger生成静态接口文档</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti35-%E4%BD%BF%E7%94%A8swagger%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（35） 使用Swagger生成静态接口文档</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti32-%E6%9B%BF%E6%8D%A2activiti%E7%94%A8%E6%88%B7%E5%92%8C%E7%94%A8%E6%88%B7%E7%BB%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（32） 替换Activiti用户和用户组</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#1activiti节点跳转的三种方式">1、Activiti节点跳转的三种方式</a>
+      <ol>
+        <li><a href="#11--流程图配置连线">1.1  流程图配置连线</a></li>
+        <li><a href="#12-动态修改连线">1.2 动态修改连线</a></li>
+        <li><a href="#13-修改执行计划">1.3 修改执行计划</a></li>
+      </ol>
+    </li>
+    <li><a href="#2流程驳回">2、流程驳回</a>
+      <ol>
+        <li><a href="#21-回退任意节点">2.1 回退任意节点</a>
+          <ol>
+            <li><a href="#211-获取当前操作人任务id">2.1.1 获取当前操作人任务ID</a></li>
+            <li><a href="#212-获取目标节点idflowelementid">2.1.2 获取目标节点ID（flowElementId）</a></li>
+            <li><a href="#213-回退">2.1.3 回退</a></li>
+          </ol>
+        </li>
+        <li><a href="#22-驳回到起点">2.2 驳回到起点</a>
+          <ol>
+            <li><a href="#221-回退">2.2.1 回退</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

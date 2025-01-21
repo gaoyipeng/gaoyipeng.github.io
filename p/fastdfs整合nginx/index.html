@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='FastDFS整合Nginx'><title>FastDFS整合Nginx</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/fastdfs%E6%95%B4%E5%90%88nginx/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='FastDFS整合Nginx'>
+<meta property='og:description' content='FastDFS整合Nginx'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/fastdfs%E6%95%B4%E5%90%88nginx/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='FastDFS' /><meta property='article:published_time' content='2023-06-15T15:36:40&#43;00:00'/><meta property='article:modified_time' content='2023-06-15T15:36:40&#43;00:00'/>
+<meta name="twitter:title" content="FastDFS整合Nginx">
+<meta name="twitter:description" content="FastDFS整合Nginx">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/fastdfs/" >
+                FastDFS
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/fastdfs%E6%95%B4%E5%90%88nginx/">FastDFS整合Nginx</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        FastDFS整合Nginx
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jun 15, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 2 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <h2 id="一前言">一、前言</h2>
+<p>前面我们已经搭建好了Fastdfs集群。实现了文件的上传和下载测试，但是目前有2个问题：</p>
+<ul>
+<li>无法通过HTTP的方式直接下载文件。</li>
+<li>storage server写完文件后，会由后台线程将文件同步至同group内其他的storage server。但是同步有时间间隔。客户端下载时如果没有完成同步操作，就会出现文件无法访问的错误。</li>
+</ul>
+<p>为了解决以上2个问题，我们可以整合<code>Nginx+fastdfs-nginx-module模块</code>的方式来解决。</p>
+<ul>
+<li>fastdfs-nginx-module可以重定向文件连接到文件上传时的源服务器取文件,避免客户端由于复制延迟导致的文件无法访问错误 。</li>
+<li>Nginx可以实现通过http的方式访问已上传文件。</li>
+</ul>
+<h2 id="二fastdfs整合nginx">二、FastDFS整合Nginx</h2>
+<h3 id="21下载资源">2.1、下载资源</h3>
+<p>首先我们准备好 <code>fastdfs-nginx-module</code>和<code>nginx</code>安装包：</p>
+<p>Nginx下载地址：http://nginx.org/download/</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"> wget  http://nginx.org/download/nginx-1.18.0.tar.gz
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/fastdfs1/image-20230616105335072.png" >
+		<img src="/../../images/fastdfs1/image-20230616105335072.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230616105335072">
+	</a>
+	
+	<figcaption>image-20230616105335072</figcaption>
+	
+</figure></p>
+<h3 id="22修改mod_fastdfs配置">2.2、修改mod_fastdfs配置</h3>
+<p>我们本次只在<code>10.10.81.74</code>上部署Nginx，首先我们复制配置文件 <code>mod_fastdfs.conf</code> 到 <code>/etc/fdfs</code> 目录中</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">cp /usr/local/fastdfs/fastdfs-nginx-module-V1.20/src/mod_fastdfs.conf /etc/fdfs/
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/fastdfs1/image-20230616105639066.png" >
+		<img src="/../../images/fastdfs1/image-20230616105639066.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230616105639066">
+	</a>
+	
+	<figcaption>image-20230616105639066</figcaption>
+	
+</figure></p>
+<p>分别<code>vim /etc/fdfs/mod_fastdfs.conf</code> 编辑配置文件，主要关注以下部分：</p>
+<pre tabindex="0"><code>tracker_server=10.10.81.74:22122
+tracker_server=10.10.81.75:22122
+
+group_name=group1/group2
+
+url_have_group_name = true
+store_path_count=2
+
+store_path0=/data/FASTDFS/fastdfs_storage_data
+store_path1=/data/FASTDFS/fastdfs_storage_data1
+
+group_count = 2
+
+[group1]
+group_name=group1
+storage_server_port=23000
+store_path_count=2
+store_path0=/data/FASTDFS/fastdfs_storage_data
+store_path1=/data/FASTDFS/fastdfs_storage_data
+
+
+[group2]
+group_name=group2
+storage_server_port=23001
+store_path_count=2
+store_path0=/data/FASTDFS/fastdfs_storage_data1
+store_path1=/data/FASTDFS/fastdfs_storage_data1
+</code></pre><h3 id="23安装nginx">2.3、安装Nginx</h3>
+<p>Nginx 是基于 C 语言开发的，HTTP 模块使用了 pcre 来解析正则表达式，且可以使用 zlib 对 HTTP 包的内容进行 gzip 压缩，Nginx 不仅支持 HTTP 协议，还支持 HTTPS，HTTPS 需要 openssl 提供支持，所以安装 Nginx 之前必须先安装它所依赖的环境。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">yum install -y gcc gcc-c++ pcre pcre-devel zlib zlib-devel openssl-devel 
+</span></span></code></pre></div><p>我们执行以下命令</p>
+<pre tabindex="0"><code>##解压
+tar -zxvf nginx-1.18.0.tar.gz
+cd nginx-1.18.0
+
+##添加 fastdfs-nginx-module 模块，指定 nginx 的安装路径
+./configure --add-module=/usr/local/fastdfs/fastdfs-nginx-module-V1.20/src --prefix=/usr/local/nginx/
+# 编译并安装
+make &amp;&amp; make install
+</code></pre><p><figure 
+	>
+	<a href="/../../images/fastdfs1/image-20230616114334526.png" >
+		<img src="/../../images/fastdfs1/image-20230616114334526.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230616114334526">
+	</a>
+	
+	<figcaption>image-20230616114334526</figcaption>
+	
+</figure></p>
+<p>但是在编译的过程中报错了：<figure 
+	>
+	<a href="/../../images/fastdfs1/image-20230616143952708.png" >
+		<img src="/../../images/fastdfs1/image-20230616143952708.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230616143952708">
+	</a>
+	
+	<figcaption>image-20230616143952708</figcaption>
+	
+</figure></p>
+<p>网上解决方案是修改<code>/usr/local/fastdfs/fastdfs-nginx-module-V1.20/src/config</code>配置为如下内容。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="nv">ngx_addon_name</span><span class="o">=</span>ngx_http_fastdfs_module
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="nb">test</span> -n <span class="s2">&#34;</span><span class="si">${</span><span class="nv">ngx_module_link</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">ngx_module_type</span><span class="o">=</span>HTTP
+</span></span><span class="line"><span class="cl">    <span class="nv">ngx_module_name</span><span class="o">=</span><span class="nv">$ngx_addon_name</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">ngx_module_incs</span><span class="o">=</span><span class="s2">&#34;/usr/include /usr/include/fastcommon/&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">ngx_module_libs</span><span class="o">=</span><span class="s2">&#34;-lfastcommon -lfdfsclient&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">ngx_module_srcs</span><span class="o">=</span><span class="s2">&#34;</span><span class="nv">$ngx_addon_dir</span><span class="s2">/ngx_http_fastdfs_module.c&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">ngx_module_deps</span><span class="o">=</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">CFLAGS</span><span class="o">=</span><span class="s2">&#34;</span><span class="nv">$CFLAGS</span><span class="s2"> -D_FILE_OFFSET_BITS=64 -DFDFS_OUTPUT_CHUNK_SIZE=&#39;256*1024&#39; -DFDFS_MOD_CONF_FILENAME=&#39;\&#34;/etc/fdfs/mod_fastdfs.conf\&#34;&#39;&#34;</span>
+</span></span><span class="line"><span class="cl">    . auto/module
+</span></span><span class="line"><span class="cl"><span class="k">else</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">HTTP_MODULES</span><span class="o">=</span><span class="s2">&#34;</span><span class="nv">$HTTP_MODULES</span><span class="s2"> ngx_http_fastdfs_module&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">NGX_ADDON_SRCS</span><span class="o">=</span><span class="s2">&#34;</span><span class="nv">$NGX_ADDON_SRCS</span><span class="s2"> </span><span class="nv">$ngx_addon_dir</span><span class="s2">/ngx_http_fastdfs_module.c&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">CORE_INCS</span><span class="o">=</span><span class="s2">&#34;</span><span class="nv">$CORE_INCS</span><span class="s2"> /usr/include /usr/include/fastcommon/&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">CORE_LIBS</span><span class="o">=</span><span class="s2">&#34;</span><span class="nv">$CORE_LIBS</span><span class="s2"> -lfastcommon -lfdfsclient&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">CFLAGS</span><span class="o">=</span><span class="s2">&#34;</span><span class="nv">$CFLAGS</span><span class="s2"> -D_FILE_OFFSET_BITS=64 -DFDFS_OUTPUT_CHUNK_SIZE=&#39;256*1024&#39; -DFDFS_MOD_CONF_FILENAME=&#39;\&#34;/etc/fdfs/mod_fastdfs.conf\&#34;&#39;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="k">fi</span>
+</span></span></code></pre></div><p>重新编译安装：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">./configure --add-module<span class="o">=</span>/usr/local/fastdfs/fastdfs-nginx-module-V1.20/src --prefix<span class="o">=</span>/usr/local/nginx/
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">make <span class="o">&amp;&amp;</span> make install
+</span></span></code></pre></div><p>依然报错~~<figure 
+	>
+	<a href="/../../images/fastdfs1/image-20230616154041883.png" >
+		<img src="/../../images/fastdfs1/image-20230616154041883.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230616154041883">
+	</a>
+	
+	<figcaption>image-20230616154041883</figcaption>
+	
+</figure></p>
+<p>无奈之下继续尝试其他版本的 fastdfs-nginx-module，到作者的官网下载：</p>
+<p><figure 
+	>
+	<a href="/../../images/fastdfs1/image-20230616155843061.png" >
+		<img src="/../../images/fastdfs1/image-20230616155843061.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230616155843061">
+	</a>
+	
+	<figcaption>image-20230616155843061</figcaption>
+	
+</figure></p>
+<p>可以看到最老的版本是V1.2.0，点击<code>提交</code>，下载2017-04-04的v1.1.6版本</p>
+<p><figure 
+	>
+	<a href="/../../images/fastdfs1/image-20230616160005158.png" >
+		<img src="/../../images/fastdfs1/image-20230616160005158.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230616160005158">
+	</a>
+	
+	<figcaption>image-20230616160005158</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/fastdfs1/image-20230616160147827.png" >
+		<img src="/../../images/fastdfs1/image-20230616160147827.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230616160147827">
+	</a>
+	
+	<figcaption>image-20230616160147827</figcaption>
+	
+</figure></p>
+<p>下载后是<code>fastdfs-nginx-module-5e5f3566bbfa57418b5506aaefbe107a42c9fcb1.zip</code>，我们上传文件解压并改名为<code>fastdfs-nginx-module-V1.16</code>，重新编译安装：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">./configure --add-module<span class="o">=</span>/usr/local/fastdfs/fastdfs-nginx-module-V1.16/src --prefix<span class="o">=</span>/usr/local/nginx/
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">make <span class="o">&amp;&amp;</span> make install
+</span></span></code></pre></div><p>编译安装成功：</p>
+<p><figure 
+	>
+	<a href="/../../images/fastdfs1/image-20230616160813256.png" >
+		<img src="/../../images/fastdfs1/image-20230616160813256.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230616160813256">
+	</a>
+	
+	<figcaption>image-20230616160813256</figcaption>
+	
+</figure></p>
+<h3 id="24配置nginx">2.4、配置Nginx</h3>
+<p><figure 
+	>
+	<a href="/../../images/fastdfs1/image-20230616170816321.png" >
+		<img src="/../../images/fastdfs1/image-20230616170816321.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230616170816321">
+	</a>
+	
+	<figcaption>image-20230616170816321</figcaption>
+	
+</figure></p>
+<pre tabindex="0"><code> listen       80;
+        server_name  10.10.81.74;
+
+        location / {
+            root   html;
+            index  index.html index.htm;
+        }
+
+       location /group1/M00 {
+          root /data/FASTDFS/fastdfs_storage_data;
+          ngx_fastdfs_module;
+       }
+
+       location /group2/M00 {
+          root /data/FASTDFS/fastdfs_storage_data1;
+          ngx_fastdfs_module;
+       }
+</code></pre><p>启动nginx并验证:</p>
+<pre tabindex="0"><code>[root@host-192-168-3-97 logs]# /usr/local/nginx/sbin/nginx
+ngx_http_fastdfs_set pid=14698
+ngx_http_fastdfs_set pid=14698
+</code></pre><p><figure 
+	>
+	<a href="/../../images/fastdfs1/image-20230616171103302.png" >
+		<img src="/../../images/fastdfs1/image-20230616171103302.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230616171103302">
+	</a>
+	
+	<figcaption>image-20230616171103302</figcaption>
+	
+</figure></p>
+<h3 id="25验证">2.5、验证</h3>
+<p>我们一个图片上传2次，分别存储在group1和group2中：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>root@host-192-168-3-97 client<span class="o">]</span><span class="c1"># fdfs_upload_file /etc/fdfs/client.conf 风景.jpg</span>
+</span></span><span class="line"><span class="cl">group2/M00/00/00/wKgDYWSMKgyAFL3KAAS_k5Dify4447.jpg
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@host-192-168-3-97 client<span class="o">]</span><span class="c1"># fdfs_upload_file /etc/fdfs/client.conf 风景.jpg</span>
+</span></span><span class="line"><span class="cl">group1/M00/00/00/wKgDZGSMKg-ANkDxAAS_k5Dify4597.jpg
+</span></span></code></pre></div><p>访问：<code>http://10.10.81.74/group1/M00/00/00/wKgDZGSMKg-ANkDxAAS_k5Dify4597.jpg</code></p>
+<p><figure 
+	>
+	<a href="/../../images/fastdfs1/image-20230616171652218.png" >
+		<img src="/../../images/fastdfs1/image-20230616171652218.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230616171652218">
+	</a>
+	
+	<figcaption>image-20230616171652218</figcaption>
+	
+</figure></p>
+<p>访问：<code>http://10.10.81.74/group2/M00/00/00/wKgDYWSMKgyAFL3KAAS_k5Dify4447.jpg</code></p>
+<p><figure 
+	>
+	<a href="/../../images/fastdfs1/image-20230616171744187.png" >
+		<img src="/../../images/fastdfs1/image-20230616171744187.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230616171744187">
+	</a>
+	
+	<figcaption>image-20230616171744187</figcaption>
+	
+</figure></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/fastdfs/">FastDFS</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/java-%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%93%8D%E4%BD%9C-fastdfs/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Java 客户端操作 FastDFS</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/fastdfs%E4%BB%8B%E7%BB%8D%E5%8F%8A%E9%9B%86%E7%BE%A4%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">FastDFS介绍及集群环境搭建</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#一前言">一、前言</a></li>
+    <li><a href="#二fastdfs整合nginx">二、FastDFS整合Nginx</a>
+      <ol>
+        <li><a href="#21下载资源">2.1、下载资源</a></li>
+        <li><a href="#22修改mod_fastdfs配置">2.2、修改mod_fastdfs配置</a></li>
+        <li><a href="#23安装nginx">2.3、安装Nginx</a></li>
+        <li><a href="#24配置nginx">2.4、配置Nginx</a></li>
+        <li><a href="#25验证">2.5、验证</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

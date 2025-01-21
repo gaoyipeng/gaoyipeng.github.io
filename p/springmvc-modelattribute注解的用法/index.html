@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='SpringMVC ModelAttribute注解的用法'><title>SpringMVC @ModelAttribute注解的用法</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/springmvc-modelattribute%E6%B3%A8%E8%A7%A3%E7%9A%84%E7%94%A8%E6%B3%95/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='SpringMVC @ModelAttribute注解的用法'>
+<meta property='og:description' content='SpringMVC ModelAttribute注解的用法'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/springmvc-modelattribute%E6%B3%A8%E8%A7%A3%E7%9A%84%E7%94%A8%E6%B3%95/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Spring' /><meta property='article:published_time' content='2020-03-15T22:13:33&#43;00:00'/><meta property='article:modified_time' content='2020-03-15T22:13:33&#43;00:00'/>
+<meta name="twitter:title" content="SpringMVC @ModelAttribute注解的用法">
+<meta name="twitter:description" content="SpringMVC ModelAttribute注解的用法">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/springmvc/" >
+                SpringMVC
+            </a>
+        
+            <a href="/categories/java/" >
+                Java
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/springmvc-modelattribute%E6%B3%A8%E8%A7%A3%E7%9A%84%E7%94%A8%E6%B3%95/">SpringMVC @ModelAttribute注解的用法</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        SpringMVC ModelAttribute注解的用法
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Mar 15, 2020</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 2 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <p>@ModelAttribute主要的作用是将数据添加到对象模型中，在视图页面展示时使用。
+@ModelAttribute 等价于 model.addAttribute(&ldquo;abc&rdquo;, &ldquo;abc&rdquo;); 或 map.put(&ldquo;abc&rdquo;,&ldquo;abc&rdquo;)</p>
+<h2 id="小知识点">小知识点</h2>
+<p>首先我们需要知道，在SpringMVC中，以下3种写法效果相同。</p>
+<pre tabindex="0"><code>    @RequestMapping(value = &#34;/index1&#34;)
+    public String index(Dog dog) {
+        dog.setName(&#34;二哈1&#34;);
+        dog.setAge(1);
+        return &#34;index&#34;;
+    }
+
+    @RequestMapping(value = &#34;/index2&#34;)
+    public String index1( Model model) {
+        Dog dog = new Dog();
+        dog.setName(&#34;二哈2&#34;);
+        dog.setAge(2);
+        model.addAttribute(&#34;dog&#34;,dog);
+        return &#34;index&#34;;
+    }
+
+    @RequestMapping(value = &#34;/index3&#34;)
+    public String index2( Map map) {
+        Dog dog = new Dog();
+        dog.setName(&#34;二哈3&#34;);
+        dog.setAge(3);
+        map.put(&#34;dog&#34;,dog);
+        return &#34;index&#34;;
+    }
+</code></pre><p>index.jsp：</p>
+<pre tabindex="0"><code>&lt;%@ page contentType=&#34;text/html;charset=UTF-8&#34; language=&#34;java&#34; %&gt;
+&lt;%
+    String path = request.getContextPath();
+    String basePath = request.getScheme() + &#34;://&#34;
+            + request.getServerName() + &#34;:&#34; + request.getServerPort()
+            + path + &#34;/&#34;;
+%&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;Index&lt;/title&gt;
+    &lt;link rel=&#34;stylesheet&#34; type=&#34;text/css&#34; href=&#34;&lt;%=basePath%&gt;statics/css/index.css&#34;&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;h2&gt;Test success!&lt;/h2&gt;
+dog:${requestScope.dog}
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre><p>分别访问http://localhost:8080/springmvc/index1
+<figure 
+	>
+	<a href="/images/springmvc-01/dog1.png" >
+		<img src="/images/springmvc-01/dog1.png"
+			
+			
+			
+			loading="lazy"
+			alt="dog1">
+	</a>
+	
+	<figcaption>dog1</figcaption>
+	
+</figure>
+http://localhost:8080/springmvc/index2
+<figure 
+	>
+	<a href="/images/springmvc-01/dog2.png" >
+		<img src="/images/springmvc-01/dog2.png"
+			
+			
+			
+			loading="lazy"
+			alt="dog2">
+	</a>
+	
+	<figcaption>dog2</figcaption>
+	
+</figure>
+http://localhost:8080/springmvc/index3
+<figure 
+	>
+	<a href="/images/springmvc-01/dog3.png" >
+		<img src="/images/springmvc-01/dog3.png"
+			
+			
+			
+			loading="lazy"
+			alt="dog3">
+	</a>
+	
+	<figcaption>dog3</figcaption>
+	
+</figure></p>
+<h2 id="modelattribute修饰一个方法">@ModelAttribute修饰一个方法</h2>
+<p>先贴出一个实体类Dog:</p>
+<pre tabindex="0"><code>public class Dog {
+    private String name;
+    private Integer age;
+    public Dog() {
+    }
+    public Dog(String name, Integer age) {
+        this.name = name;
+        this.age = age;
+    }
+    @Override
+    public String toString() {
+        return &#34;Dog{&#34; +
+                &#34;name=&#39;&#34; + name + &#39;\&#39;&#39; +
+                &#34;, age=&#34; + age +
+                &#39;}&#39;;
+    }
+  ...getter,setter
+
+}
+</code></pre><p><!-- raw HTML omitted -->以下示例1，2，3类似，被@ModelAttribute注释的方法会在此controller每个方法执行前被执行，因此对于一个Controller映射有多个URL的用法来说，要谨慎使用。
+<!-- raw HTML omitted --></p>
+<h3 id="例1-modelattribute标注在-返回值为void的方法上">例1： @ModelAttribute标注在 返回值为void的方法上</h3>
+<pre tabindex="0"><code>@Controller
+public class DemoController {
+
+    @ModelAttribute
+    public void testModelAttribute(Model model){
+        model.addAttribute(&#34;attribute&#34;,&#34;attribute&#34;);
+    }
+
+    @RequestMapping(value = &#34;/index1&#34;)
+    public String index(Dog dog) {
+        dog.setName(&#34;二哈1&#34;);
+        dog.setAge(1);
+        return &#34;index&#34;;
+    }
+}
+</code></pre><p>index.jsp:</p>
+<pre tabindex="0"><code>&lt;body&gt;
+&lt;h2&gt;Test success!&lt;/h2&gt;
+
+dog:${requestScope.dog}
+
+&lt;br&gt;
+
+attribute:${requestScope.attribute}
+
+&lt;/body&gt;
+</code></pre><p><figure 
+	>
+	<a href="/images/springmvc-01/model1.png" >
+		<img src="/images/springmvc-01/model1.png"
+			
+			
+			
+			loading="lazy"
+			alt="model1">
+	</a>
+	
+	<figcaption>model1</figcaption>
+	
+</figure></p>
+<p>说明：testModelAttribute方法在 index 方法之前先被调用，它在model中添加了(&ldquo;attribute&rdquo;,&ldquo;attribute&rdquo;),在它执行后 index 被调用，返回视图index和model,此时的model中包含2个k-v键值对。</p>
+<p><!-- raw HTML omitted -->注意:<!-- raw HTML omitted -->如果我们修改testModelAttribute和index方法如下:</p>
+<pre tabindex="0"><code>@ModelAttribute
+    public void testModelAttribute(Model model){
+        Dog dog = new Dog(&#34;德牧&#34;,2);
+        model.addAttribute(&#34;dog&#34;,dog);
+        //model.addAttribute(&#34;attribute&#34;,&#34;attribute&#34;);
+    }
+
+@RequestMapping(value = &#34;/index1&#34;)
+public String index(Dog dog) {
+    dog.setAge(1);
+    return &#34;index&#34;;
+}
+</code></pre><p><figure 
+	>
+	<a href="/images/springmvc-01/model1-1.png" >
+		<img src="/images/springmvc-01/model1-1.png"
+			
+			
+			
+			loading="lazy"
+			alt="model1-1.png">
+	</a>
+	
+	<figcaption>model1-1.png</figcaption>
+	
+</figure></p>
+<p><!-- raw HTML omitted -->结论：方法返回的model值相同（inde方法model为形参Dog首字母小写），均为dog。那么。testModelAttribute方法产生的model中的dog中的属性值，会覆盖掉index方法产生的model中的dog中的为null的属性值。<!-- raw HTML omitted --></p>
+<h3 id="例2-modelattribute标注在-返回具体类的方法">例2： @ModelAttribute标注在 返回具体类的方法</h3>
+<pre tabindex="0"><code>    @ModelAttribute
+    public Dog testModelAttribute(){
+        Dog dog = new Dog(&#34;德牧&#34;,3);
+        return dog;
+    }
+
+    @RequestMapping(value = &#34;/index1&#34;)
+    public String index() {
+        return &#34;index&#34;;
+    }
+</code></pre><p><figure 
+	>
+	<a href="/images/springmvc-01/model2.png" >
+		<img src="/images/springmvc-01/model2.png"
+			
+			
+			
+			loading="lazy"
+			alt="model2.png">
+	</a>
+	
+	<figcaption>model2.png</figcaption>
+	
+</figure></p>
+<p>说明：这种情况，model属性的名称没有指定，它由返回类型隐含表示，如这个方法返回Dog类型，那么这个model属性的名称是dog(首字母小写)。</p>
+<h3 id="例3-modelattributevalue注释返回具体类的方法但是指明了value值">例3： @ModelAttribute(value=&quot;&quot;)注释返回具体类的方法，但是指明了value值</h3>
+<pre tabindex="0"><code>    @ModelAttribute(value = &#34;attribute&#34;)
+    public Dog testModelAttribute(){
+        Dog dog = new Dog(&#34;德牧&#34;,2);
+        return dog;
+    }
+
+    @RequestMapping(value = &#34;/index1&#34;)
+    public String index(Dog dog) {
+        dog.setName(&#34;二哈1&#34;);
+        dog.setAge(1);
+        return &#34;index&#34;;
+    }
+</code></pre><p><figure 
+	>
+	<a href="/images/springmvc-01/model3.png" >
+		<img src="/images/springmvc-01/model3.png"
+			
+			
+			
+			loading="lazy"
+			alt="model3.png">
+	</a>
+	
+	<figcaption>model3.png</figcaption>
+	
+</figure></p>
+<p>说明：这个例子中使用@ModelAttribute注释的value属性，来指定model属性的名称。model属性对象就是方法的返回值。</p>
+<h3 id="例4-modelattribute和requestmapping同时注释一个方法">例4： @ModelAttribute和@RequestMapping同时注释一个方法</h3>
+<pre tabindex="0"><code>    @ModelAttribute
+    public  Dog  testModelAttribute(){
+        Dog dog = new Dog(&#34;德牧&#34;,2);
+        return dog;
+    }
+
+    @RequestMapping(value = &#34;/index&#34;)
+    @ModelAttribute(value = &#34;attribute&#34;)
+    public String index() {
+        return &#34;attributeValue&#34;;
+    }
+</code></pre><p><figure 
+	>
+	<a href="/images/springmvc-01/model4.png" >
+		<img src="/images/springmvc-01/model4.png"
+			
+			
+			
+			loading="lazy"
+			alt="model4.png">
+	</a>
+	
+	<figcaption>model4.png</figcaption>
+	
+</figure></p>
+<p>说明：index()这个方法的返回值并不是表示一个视图名称，而是model属性的值，视图名称由RequestToViewNameTranslator根据请求&quot;/index&quot;转换为逻辑视图index。
+Model属性名称有@ModelAttribute(value=&quot;&quot;)指定，相当于在request中封装了key=&ldquo;attribute&rdquo;，value=&ldquo;attributeValue&rdquo;。</p>
+<h2 id="modelattribute注解修饰一个方法的参数">@ModelAttribute注解修饰一个方法的参数</h2>
+<pre tabindex="0"><code>  @ModelAttribute(value = &#34;dog&#34;)
+    public Dog testModelAttribute(){
+        Dog dog = new Dog(&#34;德牧&#34;,2);
+        return dog;
+    }
+
+    @RequestMapping(value = &#34;/index1&#34;)
+    public String index(@ModelAttribute(value = &#34;dog&#34;) Dog dog) {
+        dog.setName(&#34;二哈&#34;);
+        return &#34;index&#34;;
+    }
+</code></pre><p><figure 
+	>
+	<a href="/images/springmvc-01/param1.png" >
+		<img src="/images/springmvc-01/param1.png"
+			
+			
+			
+			loading="lazy"
+			alt="param1.png">
+	</a>
+	
+	<figcaption>param1.png</figcaption>
+	
+</figure></p>
+<p>说明：在这个例子里，@ModelAttribute(value = &ldquo;dog&rdquo;) Dog dog 注释方法参数，参数dog的值来源于testModelAttribute()方法中的model属性。
+　　此时如果方法体没有标注@SessionAttributes(&ldquo;dog&rdquo;)，那么scope为request，如果标注了，那么scope为session</p>
+<h2 id="modelattribute注解修饰一个方法的返回值">@ModelAttribute注解修饰一个方法的返回值</h2>
+<pre tabindex="0"><code>    @RequestMapping(value = &#34;/index&#34;)
+    public @ModelAttribute(value = &#34;dog2&#34;) Dog  testModelAttribute(){
+        Dog dog = new Dog(&#34;德牧&#34;,2);
+        return dog;
+    }
+</code></pre><p>index.jsp</p>
+<pre tabindex="0"><code>&lt;body&gt;
+&lt;h2&gt;Test success!&lt;/h2&gt;
+
+dog2:${requestScope.dog2}
+
+&lt;/body&gt;
+</code></pre><p><figure 
+	>
+	<a href="/images/springmvc-01/return1.png" >
+		<img src="/images/springmvc-01/return1.png"
+			
+			
+			
+			loading="lazy"
+			alt="return1.png">
+	</a>
+	
+	<figcaption>return1.png</figcaption>
+	
+</figure></p>
+<p>说明： @ModelAttribute(value = &ldquo;dog2&rdquo;)，会添加返回值到model（ 名字为user2 ） 中供视图展示使用。</p>
+<p>OK,都介绍完了，有点绕，多看几遍就好了。</p>
+<p>参考：https://blog.csdn.net/leo3070/article/details/81046383</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/spring/">Spring</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A011spring-%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Spring源码学习（11）：Spring 事务管理</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A010spring-aop/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Spring源码学习（10）：Spring AOP</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A09%E9%9D%A2%E5%90%91%E5%88%87%E9%9D%A2%E7%BC%96%E7%A8%8Baop%E6%A6%82%E5%BF%B5%E5%BC%95%E5%85%A5/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Spring源码学习（9）：面向切面编程（AOP）概念引入</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A08spring%E4%B8%AD%E7%9A%84%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Spring源码学习（8）：Spring中的代理模式</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A07bean%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Spring源码学习（7）：Bean的生命周期</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#小知识点">小知识点</a></li>
+    <li><a href="#modelattribute修饰一个方法">@ModelAttribute修饰一个方法</a>
+      <ol>
+        <li><a href="#例1-modelattribute标注在-返回值为void的方法上">例1： @ModelAttribute标注在 返回值为void的方法上</a></li>
+        <li><a href="#例2-modelattribute标注在-返回具体类的方法">例2： @ModelAttribute标注在 返回具体类的方法</a></li>
+        <li><a href="#例3-modelattributevalue注释返回具体类的方法但是指明了value值">例3： @ModelAttribute(value=&quot;&quot;)注释返回具体类的方法，但是指明了value值</a></li>
+        <li><a href="#例4-modelattribute和requestmapping同时注释一个方法">例4： @ModelAttribute和@RequestMapping同时注释一个方法</a></li>
+      </ol>
+    </li>
+    <li><a href="#modelattribute注解修饰一个方法的参数">@ModelAttribute注解修饰一个方法的参数</a></li>
+    <li><a href="#modelattribute注解修饰一个方法的返回值">@ModelAttribute注解修饰一个方法的返回值</a></li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

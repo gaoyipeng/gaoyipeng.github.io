@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Flume on 十一爸爸的博客</title>
+    <link>https://garnettboy.gitee.io/categories/flume/</link>
+    <description>Recent content in Flume on 十一爸爸的博客</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Mon, 13 Nov 2023 15:36:40 +0000</lastBuildDate><atom:link href="https://garnettboy.gitee.io/categories/flume/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>（Flume7）安装Ganglia监控Flume</title>
+      <link>https://garnettboy.gitee.io/p/flume7%E5%AE%89%E8%A3%85ganglia%E7%9B%91%E6%8E%A7flume/</link>
+      <pubDate>Mon, 13 Nov 2023 15:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/flume7%E5%AE%89%E8%A3%85ganglia%E7%9B%91%E6%8E%A7flume/</guid>
+      <description>一、Ganglia监控 参考：https://blog.csdn.net/zhangyingchengqi/article/details/125555849
+http://www.51niux.com/?id=83
+1.1 Ganglia介绍 ganglia是一款为HPC(高性能计算) 集群设计的可扩展性 的分布式监控系统，它可以监视和显示集群中节点的各种状态信息，他由运行在各个节点上的gmond守护进程来采集 CPU、内存、磁盘利用率、I/O负载、网络流量情况等方面的数据。然后汇总到gmetad守护进程下，使用rrdtool存储数据，然后将历史数据以曲线方式通过PHP页面呈现。它由UC Berkeley创建并开源。Ganglia的中文意思是神经中枢，现在支持多部分操作系统（包括linux、unix、windows），可支持2000个节点的网络监控
+ganglia的官网：http://ganglia.info 下载链接：http://ganglia.info/?page_id=66
+image-20231114105644266 Ganglia 由 以下几部分组成：
+gmond（Ganglia Monitoring Daemon）是一种轻量级服务，安装在每台需要收集指标数据的节点主机上。使用 gmond，你可以很容易收集很多系统指标数据，如 CPU、内存、磁盘、网络和活跃进程的数据等。 gmetad（Ganglia Meta Daemon）整合gmond节点存储的信息，并将其以 RRD 格式存储至磁盘的服务。 gweb（Ganglia Web）Ganglia 可视化工具，gweb 是一种利用浏览器显示 gmetad 所存储数据的 PHP 前端。在 Web 界面中以图表方式展现集群的运行状态下收集的多种不同指标数据。 rrdtool: 一个数据存储模块，用于存储数据和画图。 Apache+php: 一个Web服务器,作为gweb的运行环境。 1.2 Ganglia管理节点的层次化结构 image-20231114110533279 Ganglia的层次化结构由小到大可以分为node -&amp;gt; cluster -&amp;gt; grid，这三个层次。
+一个node就是一个需要监控的节点，一般是个主机，用IP表示。每个node上运行一个gmond进程用来采集数据，并提交给gmetad。 一个cluster由多个node组成，就是一个集群，我们可以给集群定义名字。一个集群可以选一个node运行gmetad进程，汇总/拉取gmond提交的数据，并部署web front，将gmetad采集的数据用图表展示出来。 一个grid由多个cluster组成，是一个更高层面的概念，我们可以给grid定义名字。grid中可以定义一个顶级的gmetad进程，汇总/拉取多个gmond、子gmetad提交的数据，部署web front，将顶级gmetad采集的数据用图表展示出来。 1.3 Ganglia工作模式 单播/unicast：发送自己收集到的监控数据到特定的一台或几台机器上，可以跨网段。 多播/multicast：发送自己收集到的监控数据到同一网段内所有的机器上，同时收集同一网段内的所有机器发送过来的监控数据。因为是以广播包的形式发送，因此需要同一网段内。但同一网段内，又可以定义不同的发送通道。 二、 Ganglia离线安装 安装规划如下：
+hadoop1 hadoop2 hadoop3 hadoop4 hadoop5 HDFS NameNode NameNode NameNode DataNode DataNode DataNode DataNode DataNode journalnode journalnode journalnode YARN ResourceManager ResourceManager ResourceManager NodeManager NodeManager NodeManager NodeManager NodeManager Zookeeper Zookeeper Zookeeper Zookeeper ZKFC ZKFC ZKFC Mysql Mysql5.</description>
+    </item>
+    
+    <item>
+      <title>（Flume6）自定义Source、自定义sink</title>
+      <link>https://garnettboy.gitee.io/p/flume6%E8%87%AA%E5%AE%9A%E4%B9%89source%E8%87%AA%E5%AE%9A%E4%B9%89sink/</link>
+      <pubDate>Sun, 12 Nov 2023 15:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/flume6%E8%87%AA%E5%AE%9A%E4%B9%89source%E8%87%AA%E5%AE%9A%E4%B9%89sink/</guid>
+      <description>一、自定义Source Source 是负责接收数据到 Flume Agent 的组件。Source 组件可以处理各种类型、各种格式的日志数据，包括 avro、thrift、exec、jms、spooling directory、netcat、sequence generator、syslog、http、legacy。官方提供的 source 类型已经很多，但是有时候并不能满足实际开发当中的需求，此时我们就需要根据实际需求自定义某些 source。
+官方也提供了自定义 source 的接口：https://flume.apache.org/FlumeDeveloperGuide.html#source
+根据官方说明自定义Source需要继承 AbstractSource 类并实现 Configurable 和 PollableSource 接口，实现相应方法：
+getBackOffSleepIncrement() //backoff 步长 getMaxBackOffSleepInterval()//backoff 最长时间 configure(Context context) //初始化 context（读取配置文件内容） process()	//获取数据封装成 event 并写入 channel，这个方法将被循环调用。 使用场景：读取 MySQL 数据或者其他文件系统,由于Flume 无对应的Source类型，就需要自己定义了。
+1.1 自定义Source实例 需求描述：使用 flume 接收数据，并给每条数据添加前缀，输出到控制台。前缀可从 flume 配置文件中配置。
+image-20231113142326854 （1）创建自定义Source
+&amp;lt;?xml version=&amp;#34;1.0&amp;#34; encoding=&amp;#34;UTF-8&amp;#34;?&amp;gt; &amp;lt;project xmlns=&amp;#34;http://maven.apache.org/POM/4.0.0&amp;#34; xmlns:xsi=&amp;#34;http://www.w3.org/2001/XMLSchema-instance&amp;#34; xsi:schemaLocation=&amp;#34;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&amp;#34;&amp;gt; &amp;lt;modelVersion&amp;gt;4.0.0&amp;lt;/modelVersion&amp;gt; &amp;lt;groupId&amp;gt;com.sxdx&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;flume-source&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.0-SNAPSHOT&amp;lt;/version&amp;gt; &amp;lt;dependencies&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.apache.flume&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;flume-ng-core&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.9.0&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;/dependencies&amp;gt; &amp;lt;properties&amp;gt; &amp;lt;project.</description>
+    </item>
+    
+    <item>
+      <title>（Flume5）Flume 聚合</title>
+      <link>https://garnettboy.gitee.io/p/flume5flume-%E8%81%9A%E5%90%88/</link>
+      <pubDate>Tue, 07 Nov 2023 15:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/flume5flume-%E8%81%9A%E5%90%88/</guid>
+      <description>一、Flume 聚合 image-20231109104028632 需求规划：
+Flume-1 监控hadoop1节点的 group.log Flume-2 监控hadoop2节点的 group1.log Flume-3 （hadoop3节点）接收Flume-1、Flume-1的日志并打印到控制台。 （1）提前准备目录并在hadoop1上创建group.log文件，hadoop2上创建group1.log文件。
+## 用于存放配置文件 /opt/module/apache-flume-1.9.0-bin/job/ [admin@hadoop1 job]$ mkdir group3 [admin@hadoop2 job]$ mkdir group3 [admin@hadoop3 job]$ mkdir group3 [admin@hadoop1 module]$ touch group.log [admin@hadoop2 module]$ touch group1.log （2）在3个节点的group3目录下创建Agent进程配置文件。
+Flume-1对应Hadoop1的【 flume-exec-flume1.conf】，配置 Source 用于监控 group.log 文件，配置 Sink 输出数据到下一级 Flume。 Flume-2对应Hadoop2的【 flume-exec-flume2.conf】，配置 Source 用于监控 group1.log 文件，配置 Sink 输出数据到下一级 Flume。 Flume-3对应Hadoop3的【flume-flume-console.conf】，配置 source 用于接收 flume-1 与 flume-2 发送过来的数据流，最终合并后 sink 到控制台。 3个配置文件如下：
+##【flume-exec-flume1.conf】 # Name the components on this agent a1.</description>
+    </item>
+    
+    <item>
+      <title>（Flume4）负载均衡和故障转移</title>
+      <link>https://garnettboy.gitee.io/p/flume4%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E5%92%8C%E6%95%85%E9%9A%9C%E8%BD%AC%E7%A7%BB/</link>
+      <pubDate>Fri, 03 Nov 2023 15:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/flume4%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E5%92%8C%E6%95%85%E9%9A%9C%E8%BD%AC%E7%A7%BB/</guid>
+      <description>一、负载均衡和故障转移 Sink Processor 共有三种类型，分别是Default SinkProcessor 、LoadBalancing SinkProcessor 和 Failover SinkProcessor。
+Default SinkProcessor 对应的是单个的 Sink LoadBalancing SinkProcessor 和Failover SinkProcessor 对应的是 Sink Group LoadBalancing SinkProcessor 可以实现负载均衡的功能，Failover SinkProcessor 可以实现故障转移的功能。 （补充）：sink group 定义：
+image-20231106100318517 1.1 Flume 故障转移(failover ) image-20231106105443748 需求规划：
+Flume-1 监控hadoop1节点的 hive日志 Flume-1 将变动内容传递给 Flume-2 （hadoop2节点）或者 Flume-3（hadoop3节点），Flume-2，Flume-3负责打印内容到控制台. Flume-2权重高、Flume-3权重低，默认Flume-2工作，如果Flume-2异常，则Flume-3继续工作。 image-20231106105443748 （1）提前准备目录
+## 用于存放配置文件 /opt/module/apache-flume-1.9.0-bin/job/group2_failover [admin@hadoop1 job]$ mkdir group2_failover （2）在group2_failover目录下创建3个Agent进程配置文件。
+​	Flume-1对应Hadoop1的【 flume-exec-flume.conf】：配置 1 个 exec source 和 1 个 channel、1 个 sink group（2 个 sink），分别输送给flume-flume-console1 和 flume-flume-console2。 ​ Flume-2对应Hadoop2的【flume-flume-console1.</description>
+    </item>
+    
+    <item>
+      <title>（Flume3）Flume复制、多路复用、自定义拦截器Interceptor</title>
+      <link>https://garnettboy.gitee.io/p/flume3flume%E5%A4%8D%E5%88%B6%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89%E6%8B%A6%E6%88%AA%E5%99%A8interceptor/</link>
+      <pubDate>Thu, 02 Nov 2023 15:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/flume3flume%E5%A4%8D%E5%88%B6%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89%E6%8B%A6%E6%88%AA%E5%99%A8interceptor/</guid>
+      <description>一、复制和多路复用 Flume 支持将事件流向一个或者多个目的地。这种模式可以将相同数据复制到多个channel 中，或者将不同数据分发到不同的 channel 中，sink 可以选择传送到不同的目的地。
+Replicating（复制）和 Multiplexing（多路复用）。
+Replicating Selector 会将同一个 Event 发往所有的 Channel。 Multiplexing 会根据相应的原则，将不同的 Event 发往不同的 Channel。 image-20231103102938559 需求规划如下：
+Flume-1 监控文件变动 Flume-1 将变动内容传递给 Flume-2，Flume-2 负责存储到 HDFS Flume-1 将变动内容传递给 Flume-3，Flume-3 负责输出到 Local FileSystem。 image-20231103150110959 （1）提前准备目录
+## 用于存放配置文件 /opt/module/apache-flume-1.9.0-bin/job/group1_Replicating [admin@hadoop1 job]$ mkdir group1_Replicating ## 用于存放配置文件 Flume-3输出的文件 /opt/module/apache-flume-1.9.0-bin/group1_datas [admin@hadoop1 apache-flume-1.9.0-bin]$ mkdir group1_datas （2）在group1_Replicating目录下创建3个Agent进程配置文件。
+​	Flume-1对应【flume-file-flume.conf】：配置 1 个接收日志文件的 source 和两个 channel、两个 sink，分别输送给 flume-flume-hdfs 和 flume-flume-dir。 ​ Flume-2对应【flume-flume-hdfs.conf】：配置上级 Flume 输出的 Source，输出到 HDFS 的 Sink。 ​ Flume-3对应【flume-flume-dir.</description>
+    </item>
+    
+    <item>
+      <title>（Flume2）Flume事务、内部处理流程、常见拓扑结构</title>
+      <link>https://garnettboy.gitee.io/p/flume2flume%E4%BA%8B%E5%8A%A1%E5%86%85%E9%83%A8%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B%E5%B8%B8%E8%A7%81%E6%8B%93%E6%89%91%E7%BB%93%E6%9E%84/</link>
+      <pubDate>Wed, 01 Nov 2023 15:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/flume2flume%E4%BA%8B%E5%8A%A1%E5%86%85%E9%83%A8%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B%E5%B8%B8%E8%A7%81%E6%8B%93%E6%89%91%E7%BB%93%E6%9E%84/</guid>
+      <description>一、Flume事务 Flume事务分为2部分：Put事务（Source 推送数据到Channel）、Take事务（Sink从Channel拉取数据）
+image-20231102084701759 二、Flume内部处理流程 image-20231102090406457 1）Channel Selector
+Channel Selector 的作用就是选出 Event 将要被发往哪个 Channel。其共有两种类型，分别是 Replicating（复制）和 Multiplexing（多路复用）。
+Replicating Selector 会将同一个 Event 发往所有的 Channel。 Multiplexing 会根据相应的原则，将不同的 Event 发往不同的 Channel。 2）Sink Processor
+Sink Processor 共有三种类型，分别是Default SinkProcessor 、LoadBalancing SinkProcessor 和 Failover SinkProcessor。
+Default SinkProcessor 对应的是单个的 Sink LoadBalancing SinkProcessor 和Failover SinkProcessor 对应的是 Sink Group LoadBalancing SinkProcessor 可以实现负载均衡的功能，Failover SinkProcessor 可以实现故障转移的功能。 三、Flume常见拓扑结构 3.1 简单串联 image-20231103102834406 将多个 flume 顺序连接起来了，从最初的 source 开始到最终 sink 传送的目的存储系统。此模式不建议桥接过多的 flume 数量， flume 数量过多不仅会影响传输速率，而且一旦传输过程中某个节点 flume 宕机，会影响整个传输系统。</description>
+    </item>
+    
+    <item>
+      <title>（Flume1）Flume简介及环境搭建</title>
+      <link>https://garnettboy.gitee.io/p/flume1flume%E7%AE%80%E4%BB%8B%E5%8F%8A%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/</link>
+      <pubDate>Mon, 30 Oct 2023 15:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/flume1flume%E7%AE%80%E4%BB%8B%E5%8F%8A%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/</guid>
+      <description>常用链接
+说明 端口 链接 NameNode HTTP 端口（集群） 9870 http://hadoop1:9870/ 9870 http://hadoop2:9870/ 9870 http://hadoop3:9870/ MapReduce 查看执行任务端口（集群） 8080 http://hadoop1:8088/ 8080 http://hadoop2:8088/ 8080 http://hadoop3:8088/ 历史服务器通信端口 19888 http://hadoop1:19888/jobhistory hive-query-plan-viz 8000 http://hadoop1:8000/ ganglia监控 80 http://hadoop1/ganglia 一、Flume简介 Flume 是 Cloudera 提供的一个高可用的，高可靠的，分布式的海量日志采集、聚合和传输的系统。Flume最主要的作用就是，实时读取服务器本地磁盘的数据，将数据写入到HDFS或者Hbase等组件中。
+资料地址：
+（1）Flume 官网地址：http://flume.apache.org/
+（2）文档查看地址：http://flume.apache.org/FlumeUserGuide.html
+（3）下载地址：http://archive.apache.org/dist/flume/
+二、Flume 基础架构 Flume 组成架构如下图所示
+image-20231031141250755 Agent
+​	Agent 是一个 JVM 进程，它以事件的形式将数据从源头送至目的。Agent 主要有 3 个部分组成，Source、Channel、Sink。
+Source
+​	Source 是负责接收数据到 Flume Agent 的组件。Source 组件可以处理各种类型、各种格式的日志数据，包括 avro、thrift、exec、jms、spooling directory、netcat、taildir、sequence generator、syslog、http、legacy。
+netcat source： 适用于监控端口数据
+Exec source： 适用于监控一个实时追加的文件，不能实现断点续传； Spooldir Source： 适合用于同步新文件，但不适合对实时追加日志的文件进行监听并同步；而且只能监控一个目录 Taildir Source： 适合用于监听多个实时追加的文件（文件无需在一个目录下），并且能够实现断点续传，但无法处理文件更名操作，会导致重复同步。</description>
+    </item>
+    
+  </channel>
+</rss>

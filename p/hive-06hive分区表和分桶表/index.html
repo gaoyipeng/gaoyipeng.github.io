@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Hive分区表和分桶表'><title>（Hive-06）Hive分区表和分桶表</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/hive-06hive%E5%88%86%E5%8C%BA%E8%A1%A8%E5%92%8C%E5%88%86%E6%A1%B6%E8%A1%A8/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='（Hive-06）Hive分区表和分桶表'>
+<meta property='og:description' content='Hive分区表和分桶表'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/hive-06hive%E5%88%86%E5%8C%BA%E8%A1%A8%E5%92%8C%E5%88%86%E6%A1%B6%E8%A1%A8/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Hive' /><meta property='article:published_time' content='2023-09-27T09:36:40&#43;00:00'/><meta property='article:modified_time' content='2023-09-27T09:36:40&#43;00:00'/>
+<meta name="twitter:title" content="（Hive-06）Hive分区表和分桶表">
+<meta name="twitter:description" content="Hive分区表和分桶表">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/hive/" >
+                Hive
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/hive-06hive%E5%88%86%E5%8C%BA%E8%A1%A8%E5%92%8C%E5%88%86%E6%A1%B6%E8%A1%A8/">（Hive-06）Hive分区表和分桶表</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        Hive分区表和分桶表
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Sep 27, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 2 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <h2 id="一-hive分区表partition"><strong>一</strong>、 Hive分区表（partition）</h2>
+<p>Hive中的分区就是把一张大表的数据按照业务需要分散的存储到多个目录，每个目录就称为该表的一个分区。在查询时通过where子句中的表达式选择查询所需要的分区，这样的查询效率会提高很多。</p>
+<h3 id="11-分区表创建删除修复">1.1 分区表创建、删除、修复</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">--示例
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">create</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">dept_partition</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">deptno</span><span class="w"> </span><span class="nb">int</span><span class="p">,</span><span class="w">    </span><span class="c1">--部门编号
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="n">dname</span><span class="w">  </span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="c1">--部门名称
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="n">loc</span><span class="w">    </span><span class="n">string</span><span class="w">  </span><span class="c1">--部门位置
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">partitioned</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="p">(</span><span class="k">day</span><span class="w"> </span><span class="n">string</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">row</span><span class="w"> </span><span class="n">format</span><span class="w"> </span><span class="n">delimited</span><span class="w"> </span><span class="n">fields</span><span class="w"> </span><span class="n">terminated</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="s1">&#39;\t&#39;</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p><strong>查看分区信息</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">show</span><span class="w"> </span><span class="n">partitions</span><span class="w"> </span><span class="n">dept_partition</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p><strong>创建、删除单个分区</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">alter</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">dept_partition</span><span class="w"> </span><span class="k">add</span><span class="w"> </span><span class="n">partition</span><span class="p">(</span><span class="k">day</span><span class="o">=</span><span class="s1">&#39;20220403&#39;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">alter</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">dept_partition</span><span class="w"> </span><span class="k">drop</span><span class="w"> </span><span class="n">partition</span><span class="w"> </span><span class="p">(</span><span class="k">day</span><span class="o">=</span><span class="s1">&#39;20220403&#39;</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></div><p><strong>同时创建、删除多个分区</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">alter</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">dept_partition</span><span class="w"> </span><span class="k">add</span><span class="w"> </span><span class="n">partition</span><span class="p">(</span><span class="k">day</span><span class="o">=</span><span class="s1">&#39;20220404&#39;</span><span class="p">)</span><span class="w"> </span><span class="n">partition</span><span class="p">(</span><span class="k">day</span><span class="o">=</span><span class="s1">&#39;20220405&#39;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">alter</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">dept_partition</span><span class="w"> </span><span class="k">drop</span><span class="w"> </span><span class="n">partition</span><span class="w"> </span><span class="p">(</span><span class="k">day</span><span class="o">=</span><span class="s1">&#39;20220404&#39;</span><span class="p">),</span><span class="w"> </span><span class="n">partition</span><span class="p">(</span><span class="k">day</span><span class="o">=</span><span class="s1">&#39;20220405&#39;</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></div><p><strong>分区修复</strong></p>
+<p>我们的分区信息和HDFS的对应关系保存在mysql元数据库中，若分区元数据和HDFS的分区路径不一致，还可使用msck命令进行修复，以下是该命令的用法说明。</p>
+<p>语法：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">msck</span><span class="w"> </span><span class="n">repair</span><span class="w"> </span><span class="k">table</span><span class="w">  </span><span class="k">table_name</span><span class="w"> </span><span class="p">[</span><span class="k">add</span><span class="w"> </span><span class="o">/</span><span class="k">drop</span><span class="o">/</span><span class="n">sync</span><span class="w"> </span><span class="n">partitions</span><span class="p">];</span><span class="w">
+</span></span></span></code></pre></div><p>说明：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">msck</span><span class="w"> </span><span class="n">repair</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="k">table_name</span><span class="w"> </span><span class="k">add</span><span class="w"> </span><span class="n">partitions</span><span class="err">：该命令会增加</span><span class="n">HDFS路径存在但元数据缺失的分区信息</span><span class="err">。</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">msck</span><span class="w"> </span><span class="n">repair</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="k">table_name</span><span class="w"> </span><span class="k">drop</span><span class="w"> </span><span class="n">partitions</span><span class="err">：该命令会删除</span><span class="n">HDFS路径已经删除但元数据仍然存在的分区信息</span><span class="err">。</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">msck</span><span class="w"> </span><span class="n">repair</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="k">table_name</span><span class="w"> </span><span class="n">sync</span><span class="w"> </span><span class="n">partitions</span><span class="err">：该命令会同步</span><span class="n">HDFS路径和元数据分区信息</span><span class="err">，相当于同时执行上述的两个命令。</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">msck</span><span class="w"> </span><span class="n">repair</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="k">table_name</span><span class="err">：等价于</span><span class="n">msck</span><span class="w"> </span><span class="n">repair</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="k">table_name</span><span class="w"> </span><span class="k">add</span><span class="w"> </span><span class="n">partitions命令</span><span class="err">。</span><span class="w">
+</span></span></span></code></pre></div><h3 id="12-分区表读写数据">1.2 分区表读写数据</h3>
+<h4 id="121-写数据">1.2.1 写数据</h4>
+<p>方式一：load方式</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">--示例  partition中需要指定分区名称
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">load</span><span class="w"> </span><span class="k">data</span><span class="w"> </span><span class="k">local</span><span class="w"> </span><span class="n">inpath</span><span class="w"> </span><span class="s1">&#39;/opt/module/hive/datas/dept_20220401.log&#39;</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">into</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">dept_partition</span><span class="w"> </span><span class="n">partition</span><span class="p">(</span><span class="k">day</span><span class="o">=</span><span class="s1">&#39;20220401&#39;</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></div><p>方式二：insert方式</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">insert</span><span class="w"> </span><span class="n">overwrite</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">dept_partition</span><span class="w"> </span><span class="n">partition</span><span class="w"> </span><span class="p">(</span><span class="k">day</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;20220402&#39;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">select</span><span class="w"> </span><span class="n">deptno</span><span class="p">,</span><span class="w"> </span><span class="n">dname</span><span class="p">,</span><span class="w"> </span><span class="n">loc</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">from</span><span class="w"> </span><span class="k">table_name</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">where</span><span class="w"> </span><span class="k">day</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;2020-04-01&#39;</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><h4 id="122-读数据">1.2.2 读数据</h4>
+<p>查询分区表数据时，可以将分区字段看作表的<strong>伪列</strong>，可像使用其他字段一样使用分区字段。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">select</span><span class="w"> </span><span class="n">deptno</span><span class="p">,</span><span class="w"> </span><span class="n">dname</span><span class="p">,</span><span class="w"> </span><span class="n">loc</span><span class="w"> </span><span class="p">,</span><span class="k">day</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">from</span><span class="w"> </span><span class="n">dept_partition</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">where</span><span class="w"> </span><span class="k">day</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;2020-04-01&#39;</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><h3 id="13-二级分区表">1.3 二级分区表</h3>
+<p>二级分区表以实现数据的再拆分。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">create</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">dept_partition2</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">deptno</span><span class="w"> </span><span class="nb">int</span><span class="p">,</span><span class="w">    </span><span class="c1">-- 部门编号
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="n">dname</span><span class="w"> </span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="c1">-- 部门名称
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="n">loc</span><span class="w"> </span><span class="n">string</span><span class="w">     </span><span class="c1">-- 部门位置
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">partitioned</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="p">(</span><span class="k">day</span><span class="w"> </span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="n">hour</span><span class="w"> </span><span class="n">string</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">row</span><span class="w"> </span><span class="n">format</span><span class="w"> </span><span class="n">delimited</span><span class="w"> </span><span class="n">fields</span><span class="w"> </span><span class="n">terminated</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="s1">&#39;\t&#39;</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>数据装载方式：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">load</span><span class="w"> </span><span class="k">data</span><span class="w"> </span><span class="k">local</span><span class="w"> </span><span class="n">inpath</span><span class="w"> </span><span class="s1">&#39;/opt/module/hive/datas/dept_20220401.log&#39;</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">dept_partition2</span><span class="w"> </span><span class="n">partition</span><span class="p">(</span><span class="k">day</span><span class="o">=</span><span class="s1">&#39;20220401&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">hour</span><span class="o">=</span><span class="s1">&#39;12&#39;</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></div><p>查询分区数据</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">dept_partition2</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="k">day</span><span class="o">=</span><span class="s1">&#39;20220401&#39;</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">hour</span><span class="o">=</span><span class="s1">&#39;12&#39;</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><h3 id="14-动态分区">1.4 动态分区</h3>
+<p>动态分区是指向分区表insert数据时，被写往的分区不由用户指定，而是由每行数据的最后一个字段的值来动态的决定。使用动态分区，可只用一个insert语句将数据写入多个分区。</p>
+<p>1）动态分区相关参数</p>
+<p>（1）动态分区功能总开关（<strong>默认true</strong>，开启）</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="k">exec</span><span class="p">.</span><span class="k">dynamic</span><span class="p">.</span><span class="n">partition</span><span class="o">=</span><span class="k">true</span><span class="w">
+</span></span></span></code></pre></div><p>（2）严格模式和非严格模式</p>
+<p>动态分区的模式，默认strict（严格模式），要求必须指定至少一个分区为静态分区，nonstrict（非严格模式）允许所有的分区字段都使用动态分区。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="k">exec</span><span class="p">.</span><span class="k">dynamic</span><span class="p">.</span><span class="n">partition</span><span class="p">.</span><span class="k">mode</span><span class="o">=</span><span class="n">nonstrict</span><span class="w">
+</span></span></span></code></pre></div><p>（3）一条insert语句可同时创建的最大的分区个数，<strong>默认为1000</strong>。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="k">exec</span><span class="p">.</span><span class="k">max</span><span class="p">.</span><span class="k">dynamic</span><span class="p">.</span><span class="n">partitions</span><span class="o">=</span><span class="mi">1000</span><span class="w">
+</span></span></span></code></pre></div><p>（4）单个Mapper或者Reducer可同时创建的最大的分区个数，默认为100。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="k">exec</span><span class="p">.</span><span class="k">max</span><span class="p">.</span><span class="k">dynamic</span><span class="p">.</span><span class="n">partitions</span><span class="p">.</span><span class="n">pernode</span><span class="o">=</span><span class="mi">100</span><span class="w">
+</span></span></span></code></pre></div><p>（5）一条insert语句可以创建的最大的文件个数，<strong>默认100000</strong>。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">hive</span><span class="p">.</span><span class="k">exec</span><span class="p">.</span><span class="k">max</span><span class="p">.</span><span class="n">created</span><span class="p">.</span><span class="n">files</span><span class="o">=</span><span class="mi">100000</span><span class="w">
+</span></span></span></code></pre></div><p>（6）当查询结果为空时且进行动态分区时，是否抛出异常，<strong>默认false</strong>。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">hive</span><span class="p">.</span><span class="n">error</span><span class="p">.</span><span class="k">on</span><span class="p">.</span><span class="n">empty</span><span class="p">.</span><span class="n">partition</span><span class="o">=</span><span class="k">false</span><span class="w">
+</span></span></span></code></pre></div><p><strong>需求</strong>：将dept表中的数据按照地区（loc字段），插入到目标表dept_partition_dynamic的相应分区中。</p>
+<p><figure 
+	>
+	<a href="/../../images/06-hive-06/image-20231008091548519.png" >
+		<img src="/../../images/06-hive-06/image-20231008091548519.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231008091548519">
+	</a>
+	
+	<figcaption>image-20231008091548519</figcaption>
+	
+</figure></p>
+<p>（1）创建目标分区表</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">create</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">dept_partition_dynamic</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">id</span><span class="w"> </span><span class="nb">int</span><span class="p">,</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">name</span><span class="w"> </span><span class="n">string</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">partitioned</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="p">(</span><span class="n">loc</span><span class="w"> </span><span class="nb">int</span><span class="p">)</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">row</span><span class="w"> </span><span class="n">format</span><span class="w"> </span><span class="n">delimited</span><span class="w"> </span><span class="n">fields</span><span class="w"> </span><span class="n">terminated</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="s1">&#39;\t&#39;</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>（2）设置动态分区</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="k">exec</span><span class="p">.</span><span class="k">dynamic</span><span class="p">.</span><span class="n">partition</span><span class="p">.</span><span class="k">mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nonstrict</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--dept_partition_dynamic表只有2个字段，依据查询的dept表loc字段进行动态分区
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">insert</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">dept_partition_dynamic</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">partition</span><span class="p">(</span><span class="n">loc</span><span class="p">)</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">select</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">deptno</span><span class="p">,</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">dname</span><span class="p">,</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">loc</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">from</span><span class="w"> </span><span class="n">dept</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>（3）查看目标分区表的分区情况</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">show</span><span class="w"> </span><span class="n">partitions</span><span class="w"> </span><span class="n">dept_partition_dynamic</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/06-hive-06/image-20231008091408439.png" >
+		<img src="/../../images/06-hive-06/image-20231008091408439.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231008091408439">
+	</a>
+	
+	<figcaption>image-20231008091408439</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/06-hive-06/image-20231008091510824.png" >
+		<img src="/../../images/06-hive-06/image-20231008091510824.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231008091510824">
+	</a>
+	
+	<figcaption>image-20231008091510824</figcaption>
+	
+</figure></p>
+<h2 id="二分桶表bucket">二、分桶表（bucket）</h2>
+<p>分桶表的基本原理是，首先为每行数据计算一个指定字段的数据的hash值，然后模以一个指定的分桶数，最后将取模运算结果相同的行，写入同一个文件中，这个文件就称为一个分桶（bucket）。</p>
+<h3 id="21-分桶表语法">2.1 分桶表语法</h3>
+<p>1）建表语句</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">create</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">stu_buck</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">id</span><span class="w"> </span><span class="nb">int</span><span class="p">,</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">name</span><span class="w"> </span><span class="n">string</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">clustered</span><span class="w"> </span><span class="k">by</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="c1">--根据id字段分桶
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">into</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="n">buckets</span><span class="w">  </span><span class="c1">--设置分桶数量
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">row</span><span class="w"> </span><span class="n">format</span><span class="w"> </span><span class="n">delimited</span><span class="w"> </span><span class="n">fields</span><span class="w"> </span><span class="n">terminated</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="s1">&#39;\t&#39;</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>2）数据装载</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">--student.txt
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="mi">1001</span><span class="w">	</span><span class="n">student1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="mi">1002</span><span class="w">	</span><span class="n">student2</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="mi">1003</span><span class="w">	</span><span class="n">student3</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="mi">1004</span><span class="w">	</span><span class="n">student4</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--装载语句
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">load</span><span class="w"> </span><span class="k">data</span><span class="w"> </span><span class="k">local</span><span class="w"> </span><span class="n">inpath</span><span class="w"> </span><span class="s1">&#39;/opt/module/hive/datas/student.txt&#39;</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">into</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">stu_buck</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>load后，就可以直接查看分桶结果了。</p>
+<h3 id="22-分桶排序表">2.2 分桶排序表</h3>
+<p>实现分桶文件内字段排序。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">create</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">stu_buck_sort</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">id</span><span class="w"> </span><span class="nb">int</span><span class="p">,</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">name</span><span class="w"> </span><span class="n">string</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">clustered</span><span class="w"> </span><span class="k">by</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="n">sorted</span><span class="w"> </span><span class="k">by</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">into</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="n">buckets</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">row</span><span class="w"> </span><span class="n">format</span><span class="w"> </span><span class="n">delimited</span><span class="w"> </span><span class="n">fields</span><span class="w"> </span><span class="n">terminated</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="s1">&#39;\t&#39;</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>然后加入数据到表中，就会自动实现分桶排序。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/hive/">Hive</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/hive-11hive%E8%B0%83%E4%BC%98-%E4%BB%BB%E5%8A%A1%E5%B9%B6%E8%A1%8C%E5%BA%A6%E4%BC%98%E5%8C%96%E5%B0%8F%E6%96%87%E4%BB%B6%E5%90%88%E5%B9%B6%E4%BC%98%E5%8C%96%E6%9C%AC%E5%9C%B0%E6%A8%A1%E5%BC%8Fstage%E5%B9%B6%E8%A1%8C%E6%89%A7%E8%A1%8C%E4%B8%A5%E6%A0%BC%E6%A8%A1%E5%BC%8Fcbo%E4%BC%98%E5%8C%96/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hive-11）Hive调优-任务并行度优化、小文件合并优化、本地模式、Stage并行执行、严格模式、CBO优化</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hive-10hive%E8%B0%83%E4%BC%98-%E6%95%B0%E6%8D%AE%E5%80%BE%E6%96%9C%E8%B0%83%E4%BC%98/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hive-10）Hive调优-数据倾斜调优</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hive-09hive-explain%E6%89%A7%E8%A1%8C%E8%AE%A1%E5%88%92%E5%88%86%E6%9E%90%E5%8F%8Asql%E8%B0%83%E4%BC%98/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hive-09）Hive Explain执行计划分析及SQL调优</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hive-08hive%E9%85%8D%E7%BD%AE%E8%B0%83%E4%BC%98/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hive-08）Hive配置调优</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hive-07hive%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F%E6%96%87%E4%BB%B6%E5%8E%8B%E7%BC%A9/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hive-07）Hive文件格式、文件压缩</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#一-hive分区表partition"><strong>一</strong>、 Hive分区表（partition）</a>
+      <ol>
+        <li><a href="#11-分区表创建删除修复">1.1 分区表创建、删除、修复</a></li>
+        <li><a href="#12-分区表读写数据">1.2 分区表读写数据</a>
+          <ol>
+            <li><a href="#121-写数据">1.2.1 写数据</a></li>
+            <li><a href="#122-读数据">1.2.2 读数据</a></li>
+          </ol>
+        </li>
+        <li><a href="#13-二级分区表">1.3 二级分区表</a></li>
+        <li><a href="#14-动态分区">1.4 动态分区</a></li>
+      </ol>
+    </li>
+    <li><a href="#二分桶表bucket">二、分桶表（bucket）</a>
+      <ol>
+        <li><a href="#21-分桶表语法">2.1 分桶表语法</a></li>
+        <li><a href="#22-分桶排序表">2.2 分桶排序表</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

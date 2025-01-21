@@ -1,0 +1,1479 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Consul 服务注册与发现'><title>Consul 服务注册与发现</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/consul-%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C%E4%B8%8E%E5%8F%91%E7%8E%B0/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Consul 服务注册与发现'>
+<meta property='og:description' content='Consul 服务注册与发现'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/consul-%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C%E4%B8%8E%E5%8F%91%E7%8E%B0/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='SpringCloud' /><meta property='article:tag' content='Consul' /><meta property='article:published_time' content='2024-09-25T10:00:40&#43;00:00'/><meta property='article:modified_time' content='2024-09-25T10:00:40&#43;00:00'/>
+<meta name="twitter:title" content="Consul 服务注册与发现">
+<meta name="twitter:description" content="Consul 服务注册与发现">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/springcloud/" >
+                SpringCloud
+            </a>
+        
+            <a href="/categories/consul/" >
+                Consul
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/consul-%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C%E4%B8%8E%E5%8F%91%E7%8E%B0/">Consul 服务注册与发现</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        Consul 服务注册与发现
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Sep 25, 2024</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 8 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <p>在微服务开发的过程中，需要引入服务治理功能，实现微服务之间的动态注册与发现。我们本文介绍Consul。</p>
+<p>官网地址：</p>
+<p><a class="link" href="https://developer.hashicorp.com/consul"  target="_blank" rel="noopener"
+    >https://developer.hashicorp.com/consul</a></p>
+<p><a class="link" href="https://docs.spring.io/spring-cloud-consul/docs/current/reference/html/"  target="_blank" rel="noopener"
+    >https://docs.spring.io/spring-cloud-consul/docs/current/reference/html/</a></p>
+<h2 id="一consul-简介">一、Consul 简介</h2>
+<p>Consul是由HashiCorp基于Go语言开发的支持多数据中心的分布式高可用服务发布和注册软件, 采用Raft算法保持服务的一致性, 且支持健康检查，Consul和Eureka的侵入式服务中心不同的是, Consul是以独立的软件形式运行, 对项目侵入性小, 更方便部署。Consul的特性如下：</p>
+<ul>
+<li>服务发现：解决在分布式环境中，如何找到可用的服务地址的问题，支持通过DNS和HTTP查询服务地址。</li>
+<li>健康检查：定时监控服务是否正常，对于异常的服务会主动下线。</li>
+<li>键值存储：配置中心解决方案，是一种key/value存储结构，区别就是key是以目录树结构形式组织的，可以用来存储系统配置信息。</li>
+<li>多数据中心：支持多数据中心部署。</li>
+</ul>
+<p><figure 
+	>
+	<a href="/../../images/springcloud-consul/image-20241011111403657.png" >
+		<img src="/../../images/springcloud-consul/image-20241011111403657.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20241011111403657">
+	</a>
+	
+	<figcaption>image-20241011111403657</figcaption>
+	
+</figure></p>
+<h3 id="11-consul架构">1.1 Consul架构</h3>
+<p>官方架构图：</p>
+<p><figure 
+	>
+	<a href="/../../images/springcloud-consul/image-20241008103947679.png" >
+		<img src="/../../images/springcloud-consul/image-20241008103947679.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20241008103947679">
+	</a>
+	
+	<figcaption>image-20241008103947679</figcaption>
+	
+</figure></p>
+<p>​		从官方给出的架构图可以看出，Consul 是支持多数据中心的，图中有两个 DataCenter 通过 Internet 连接，并且只有 Server 可以跨数据中心通信，<strong>多数据中心的架构相对复杂一些，这里我们只讨论单数据中心</strong>。</p>
+<p>下图是单数据中心的部署架构：</p>
+<p><figure 
+	>
+	<a href="/../../images/springcloud-consul/image-20241008090959979.png" >
+		<img src="/../../images/springcloud-consul/image-20241008090959979.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20241008090959979">
+	</a>
+	
+	<figcaption>image-20241008090959979</figcaption>
+	
+</figure></p>
+<p>​		在单个数据中心中，Consul 分为 Client 和 Server 两种节点（所有的节点也被称为 Agent），<strong>Server 节点保存数据，Client 负责健康检查及转发数据请求到 Server，Client 可以选择和应用部署在同一个节点上；</strong></p>
+<p>​		Server 节点有一个 Leader 和多个Follower，Leader 节点会将数据同步到 Follower，官方推荐 Server 的数量是 3 个或者 5 个，在 Leader 挂掉的时候会启动选举机制产生一个新的 Leader，以保证整个集群的正常运转。</p>
+<p>​		集群内数据的读写请求可以直接发到 Server（单节点就是这种情况），也可以通过 Client 使用 RPC 转发到 Server，请求最终会到达 Leader 节点，在允许数据轻微陈旧的情况下，读请求也可以在普通的 Server 节点完成，<strong>集群内数据的读写和复制都是通过 TCP 的 8300 端口完成。</strong></p>
+<p>​		<strong>可以简单理解为，server是集群数据节点，client是服务节点。</strong></p>
+<h3 id="12-下载安装">1.2 下载安装</h3>
+<p>（1）下载地址：https://developer.hashicorp.com/consul/install</p>
+<p><figure 
+	>
+	<a href="/../../images/springcloud-consul/image-20240930112520512.png" >
+		<img src="/../../images/springcloud-consul/image-20240930112520512.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20240930112520512">
+	</a>
+	
+	<figcaption>image-20240930112520512</figcaption>
+	
+</figure></p>
+<p>此处我们准备在linux服务器上安装Consul，所以需确认下载的版本。</p>
+<p>（2）确定Linux系统架构</p>
+<p>您可以通过命令行来检查您的Linux系统架构。在终端中执行以下命令：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 ~<span class="o">]</span>$ uname -m
+</span></span><span class="line"><span class="cl">x86_64
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 ~<span class="o">]</span>$ cat /etc/os-release
+</span></span><span class="line"><span class="cl"><span class="nv">NAME</span><span class="o">=</span><span class="s2">&#34;CentOS Linux&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">VERSION</span><span class="o">=</span><span class="s2">&#34;7 (Core)&#34;</span>
+</span></span><span class="line"><span class="cl">....
+</span></span></code></pre></div><p>（3）根据<code>uname -m</code>的输出，可以判断系统架构</p>
+<ul>
+<li>x86_64：表示您的系统是基于AMD64架构（64位）。您应该选择下载AMD64版本。</li>
+<li>i386或i686：表示您的系统是基于386架构（32位）。您应该选择下载386版本。</li>
+<li>armv7l或类似的：表示您在使用32位的ARM系统。您应该选择ARM版本。</li>
+<li>aarch64：表示您的系统是基于ARM64架构（64位）。您应该选择下载ARM64版本。</li>
+</ul>
+<p>所以我们下载CentOS AMD64版本。当前最新版本是consul_1.19.2。</p>
+<p>（4）上传并解压</p>
+<p>解压至 /usr/local/bin/（系统的环境变量）目录下。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 software<span class="o">]</span><span class="c1"># unzip consul_1.19.2_linux_amd64.zip -d /usr/local/bin/</span>
+</span></span><span class="line"><span class="cl">Archive:  consul_1.19.2_linux_amd64.zip
+</span></span><span class="line"><span class="cl">  inflating: /usr/local/bin/LICENSE.txt
+</span></span><span class="line"><span class="cl">  inflating: /usr/local/bin/consul
+</span></span></code></pre></div><h2 id="二consul-单机版部署">二、Consul 单机版部署</h2>
+<p>机器IP是10.10.82.112。</p>
+<p>创建<code>/opt/module/consul</code> 目录，作为 consul 的数据存放目录。在此目录下创建一个启动 consul 的脚本文件 start_consul.sh</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 consul<span class="o">]</span><span class="c1"># vim /opt/module/consul/start_consul.sh</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="c1"># agent -server 表示以 server 模式启动服务</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># -ui 参数提供一个 web ui 界面</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># -client 允许访问的客户端地址，可以是IP，也可以是网段。0.0.0.0不限制</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># -bootstrap-expect=1 意思是以集群的方式启动，只不过集群中只有当前这个节点</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># -data-dir 目录会用来存放 consul 的数据信息，如服务注册、是否健康等</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># -node=consul-01 节点名称</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># -datacenter 数据中心名称</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># -advertise 往往配置外网IP</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># -bind监听地址，表示节点之间通信使用该地址，0.0.0.0不限制IP,本机可以使用localhost、127.0.0.1访问，外部可以用过私有IP、公有IP访问本机consul</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">nohup /usr/local/bin/consul agent -server -ui -client 0.0.0.0 -bootstrap-expect<span class="o">=</span><span class="m">1</span> -data-dir<span class="o">=</span>/opt/module/consul -node<span class="o">=</span>consul-01  -datacenter SH-TMP -bind<span class="o">=</span>0.0.0.0  -log-file<span class="o">=</span>/opt/module/consul/consul.log <span class="p">&amp;</span>
+</span></span></code></pre></div><p>修改执行权限，并启动：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 consul<span class="o">]</span><span class="c1"># chmod 755 start_consul.sh</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 consul<span class="o">]</span><span class="c1"># ./start_consul.sh</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 consul<span class="o">]</span><span class="c1"># nohup: appending output to ‘nohup.out’</span>
+</span></span></code></pre></div><p>访问：http://10.10.82.112:8500/</p>
+<p><figure 
+	>
+	<a href="/../../images/springcloud-consul/image-20241008135457893.png" >
+		<img src="/../../images/springcloud-consul/image-20241008135457893.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20241008135457893">
+	</a>
+	
+	<figcaption>image-20241008135457893</figcaption>
+	
+</figure></p>
+<h2 id="三consul-集群部署">三、Consul 集群部署</h2>
+<h3 id="31-集群规划">3.1 集群规划</h3>
+<p>继续使用之前Hadoop的5台机器，host对应关系如下：</p>
+<pre tabindex="0"><code>10.10.82.112 hadoop1
+10.10.82.113 hadoop2
+10.10.82.114 hadoop3
+10.10.82.90 hadoop4
+10.10.82.91 hadoop5
+</code></pre><table>
+<thead>
+<tr>
+<th></th>
+<th>hadoop1</th>
+<th>hadoop2</th>
+<th>hadoop3</th>
+<th>hadoop4</th>
+<th>hadoop5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>consul</td>
+<td>consul Server</td>
+<td>consul Server</td>
+<td>consul Server</td>
+<td>consul Client</td>
+<td>consul Client</td>
+</tr>
+</tbody>
+</table>
+<p>分别在5台机器上安装consul:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 bin<span class="o">]</span><span class="c1"># pwd</span>
+</span></span><span class="line"><span class="cl">/usr/local/bin
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 bin<span class="o">]</span><span class="c1"># xsync consul</span>
+</span></span></code></pre></div><h3 id="32-配置文件">3.2 配置文件</h3>
+<p>集群配置较多，我们通过配置文件形式启动。</p>
+<h4 id="321-svrver配置文件">3.2.1 Svrver配置文件</h4>
+<p>在10.10.82.112上创建配置文件目录及日志目录：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 consul<span class="o">]</span><span class="c1"># mkdir -p /opt/module/consul.d/consul_data/logs/</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 consul<span class="o">]</span><span class="c1"># vim /opt/module/consul.d/consul.json</span>
+</span></span><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;datacenter&#34;</span>: <span class="s2">&#34;consul-cluster&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;node_name&#34;</span>: <span class="s2">&#34;consul-svr-01&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;server&#34;</span>: true,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;bootstrap_expect&#34;</span>: 3,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;data_dir&#34;</span>: <span class="s2">&#34;/opt/module/consul.d/consul_data&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;log_level&#34;</span>: <span class="s2">&#34;INFO&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;log_file&#34;</span>: <span class="s2">&#34;/opt/module/consul.d/consul_data/logs/&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;ui&#34;</span>: true,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;bind_addr&#34;</span>: <span class="s2">&#34;0.0.0.0&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;client_addr&#34;</span>: <span class="s2">&#34;0.0.0.0&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;retry_join&#34;</span>: <span class="o">[</span><span class="s2">&#34;10.10.82.113&#34;</span>,<span class="s2">&#34;10.10.82.114&#34;</span><span class="o">]</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;retry_interval&#34;</span>: <span class="s2">&#34;10s&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;raft_protocol&#34;</span>: 3,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;enable_debug&#34;</span>: false,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;rejoin_after_leave&#34;</span>: true,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;enable_syslog&#34;</span>: <span class="nb">false</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>参数说明：</p>
+<ul>
+<li>datacenter ：数据中心名称</li>
+<li>node_name ：节点名称</li>
+<li>server ：是否为 Server 模式，false 为 Client 模式</li>
+<li>bootstrap_expect ：此标志提供数据中心中预期的服务器数量。要么不提供此值，要么该值必须与集群中的其他服务器一致。如果提供，Consul 将等待直到指定数量的服务器可用为止，然后引导群集。这样可以自动选举最初的领导者。不能与旧 -bootstrap 标志一起使用。该标志需要 -server 模式。</li>
+<li>data_dir ：Server 节点数据目录</li>
+<li>-log-file-将所有 Consul 代理日志消息写入文件</li>
+<li>ui ：是否开启 UI 访问</li>
+<li>bind_addr ：Server 绑定的 IP，填本机即可</li>
+<li>client_addr ：作为 Client 绑定的 IP，默认为 127.0.0.1，也就是只有本地服务可以注册，这很明显是不符合需求的</li>
+<li>retry_join ：尝试加入的其他节点，填写集群中的其他节点 ip 即可</li>
+<li>raft_protocol ：Raft 协议版本</li>
+<li>rejoin_after_leave ：允许重新加入集群</li>
+</ul>
+<p>在10.10.82.113、10.10.82.114 上稍作修改：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="c1">###10.10.82.113</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 consul<span class="o">]</span><span class="c1"># mkdir -p /opt/module/consul.d/consul_data/logs/</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 consul<span class="o">]</span><span class="c1"># vim /opt/module/consul.d/consul.json</span>
+</span></span><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;datacenter&#34;</span>: <span class="s2">&#34;consul-cluster&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;node_name&#34;</span>: <span class="s2">&#34;consul-svr-02&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;server&#34;</span>: true,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;bootstrap_expect&#34;</span>: 3,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;data_dir&#34;</span>: <span class="s2">&#34;/opt/module/consul.d/consul_data&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;log_level&#34;</span>: <span class="s2">&#34;INFO&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;log_file&#34;</span>: <span class="s2">&#34;/opt/module/consul.d/consul_data/logs/&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;ui&#34;</span>: true,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;bind_addr&#34;</span>: <span class="s2">&#34;0.0.0.0&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;client_addr&#34;</span>: <span class="s2">&#34;0.0.0.0&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;retry_join&#34;</span>: <span class="o">[</span><span class="s2">&#34;10.10.82.112&#34;</span>,<span class="s2">&#34;10.10.82.114&#34;</span><span class="o">]</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;retry_interval&#34;</span>: <span class="s2">&#34;10s&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;raft_protocol&#34;</span>: 3,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;enable_debug&#34;</span>: false,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;rejoin_after_leave&#34;</span>: true,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;enable_syslog&#34;</span>: <span class="nb">false</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="c1">###10.10.82.114</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 consul<span class="o">]</span><span class="c1"># mkdir -p /opt/module/consul.d/consul_data/logs/</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 consul<span class="o">]</span><span class="c1"># vim /opt/module/consul.d/consul.json</span>
+</span></span><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;datacenter&#34;</span>: <span class="s2">&#34;consul-cluster&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;node_name&#34;</span>: <span class="s2">&#34;consul-svr-03&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;server&#34;</span>: true,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;bootstrap_expect&#34;</span>: 3,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;data_dir&#34;</span>: <span class="s2">&#34;/opt/module/consul.d/consul_data&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;log_level&#34;</span>: <span class="s2">&#34;INFO&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;log_file&#34;</span>: <span class="s2">&#34;/opt/module/consul.d/consul_data/logs/&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;ui&#34;</span>: true,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;bind_addr&#34;</span>: <span class="s2">&#34;0.0.0.0&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;client_addr&#34;</span>: <span class="s2">&#34;0.0.0.0&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;retry_join&#34;</span>: <span class="o">[</span><span class="s2">&#34;10.10.82.112&#34;</span>,<span class="s2">&#34;10.10.82.113&#34;</span><span class="o">]</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;retry_interval&#34;</span>: <span class="s2">&#34;10s&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;raft_protocol&#34;</span>: 3,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;enable_debug&#34;</span>: false,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;rejoin_after_leave&#34;</span>: true,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;enable_syslog&#34;</span>: <span class="nb">false</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>分别在3台机器上执行启动命令：</p>
+<pre tabindex="0"><code>[root@hadoop1 ~]# nohup /usr/local/bin/consul agent -config-file=/opt/module/consul.d/consul.json &amp;
+[root@hadoop2 ~]# nohup /usr/local/bin/consul agent -config-file=/opt/module/consul.d/consul.json &amp;
+[root@hadoop3 ~]# nohup /usr/local/bin/consul agent -config-file=/opt/module/consul.d/consul.json &amp;
+</code></pre><p>查看日志及server集群情况：</p>
+<pre tabindex="0"><code>[root@hadoop2 ~]# tail -f /opt/module/consul.d/consul_data/logs/consul.log
+
+[root@hadoop1 consul.d]#  /usr/local/bin/consul members
+Node           Address             Status  Type    Build   Protocol  DC              Partition  Segment
+consul-svr-01  192.168.2.169:8301  alive   server  1.19.2  2         consul-cluster  default    &lt;all&gt;
+consul-svr-02  192.168.2.170:8301  alive   server  1.19.2  2         consul-cluster  default    &lt;all&gt;
+consul-svr-03  192.168.2.171:8301  alive   server  1.19.2  2         consul-cluster  default    &lt;all&gt;
+</code></pre><p><figure 
+	>
+	<a href="/../../images/springcloud-consul/image-20241008170918786.png" >
+		<img src="/../../images/springcloud-consul/image-20241008170918786.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20241008170918786">
+	</a>
+	
+	<figcaption>image-20241008170918786</figcaption>
+	
+</figure></p>
+<p>访问任意节点，UI可以看到已注册，并且hadoop2节点被选举为leader。</p>
+<h4 id="322-client配置文件">3.2.2 Client配置文件</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="c1">###10.10.82.90</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 consul<span class="o">]</span><span class="c1"># mkdir -p /opt/module/consul.d/consul_data/logs/</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 consul<span class="o">]</span><span class="c1"># vim /opt/module/consul.d/consul.json</span>
+</span></span><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;datacenter&#34;</span>: <span class="s2">&#34;consul-cluster&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;node_name&#34;</span>: <span class="s2">&#34;consul-cli-01&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;data_dir&#34;</span>: <span class="s2">&#34;/opt/module/consul.d/consul_data&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;log_level&#34;</span>: <span class="s2">&#34;INFO&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;log_file&#34;</span>: <span class="s2">&#34;/opt/module/consul.d/consul_data/logs/&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;ui&#34;</span>: true,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;bind_addr&#34;</span>: <span class="s2">&#34;0.0.0.0&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;client_addr&#34;</span>: <span class="s2">&#34;0.0.0.0&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;retry_join&#34;</span>: <span class="o">[</span><span class="s2">&#34;10.10.82.112&#34;</span>,<span class="s2">&#34;10.10.82.113&#34;</span>,<span class="s2">&#34;10.10.82.114&#34;</span><span class="o">]</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;retry_interval&#34;</span>: <span class="s2">&#34;10s&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;raft_protocol&#34;</span>: 3,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;enable_debug&#34;</span>: false,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;rejoin_after_leave&#34;</span>: true,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;enable_syslog&#34;</span>: <span class="nb">false</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="c1">###10.10.82.91</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 consul<span class="o">]</span><span class="c1"># mkdir -p /opt/module/consul.d/consul_data/logs/</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 consul<span class="o">]</span><span class="c1"># vim /opt/module/consul.d/consul.json</span>
+</span></span><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;datacenter&#34;</span>: <span class="s2">&#34;consul-cluster&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;node_name&#34;</span>: <span class="s2">&#34;consul-cli-02&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;data_dir&#34;</span>: <span class="s2">&#34;/opt/module/consul.d/consul_data&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;log_level&#34;</span>: <span class="s2">&#34;INFO&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;log_file&#34;</span>: <span class="s2">&#34;/opt/module/consul.d/consul_data/logs/&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;ui&#34;</span>: true,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;bind_addr&#34;</span>: <span class="s2">&#34;0.0.0.0&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;client_addr&#34;</span>: <span class="s2">&#34;0.0.0.0&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;retry_join&#34;</span>: <span class="o">[</span><span class="s2">&#34;10.10.82.112&#34;</span>,<span class="s2">&#34;10.10.82.113&#34;</span>,<span class="s2">&#34;10.10.82.114&#34;</span><span class="o">]</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;retry_interval&#34;</span>: <span class="s2">&#34;10s&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;raft_protocol&#34;</span>: 3,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;enable_debug&#34;</span>: false,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;rejoin_after_leave&#34;</span>: true,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;enable_syslog&#34;</span>: <span class="nb">false</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>参数说明：Client端不需要配置<code>server</code>参数。</p>
+<p>查看日志及server集群情况：</p>
+<pre tabindex="0"><code>[root@hadoop4 ~]# tail -f /opt/module/consul.d/consul_data/logs/consul.log
+
+[root@hadoop4 ~]# /usr/local/bin/consul members
+Node           Address             Status  Type    Build   Protocol  DC              Partition  Segment
+consul-svr-01  192.168.2.169:8301  alive   server  1.19.2  2         consul-cluster  default    &lt;all&gt;
+consul-svr-02  192.168.2.170:8301  alive   server  1.19.2  2         consul-cluster  default    &lt;all&gt;
+consul-svr-03  192.168.2.171:8301  alive   server  1.19.2  2         consul-cluster  default    &lt;all&gt;
+consul-cli-01  192.168.2.172:8301  alive   client  1.19.2  2         consul-cluster  default    &lt;default&gt;
+consul-cli-02  192.168.2.173:8301  alive   client  1.19.2  2         consul-cluster  default    &lt;default&gt;
+</code></pre><h3 id="33-consul集群启停脚本">3.3 consul集群启停脚本</h3>
+<p>我们使用root用户在/bin目录下新建myhadoop</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 bin<span class="o">]</span><span class="c1"># vim myconsul</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="cp">#!/bin/bash
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="k">if</span> <span class="o">[</span> <span class="nv">$#</span> -lt <span class="m">1</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">   <span class="nb">echo</span> <span class="s2">&#34;No Args Input...&#34;</span>
+</span></span><span class="line"><span class="cl">   <span class="nb">exit</span> <span class="m">1</span>
+</span></span><span class="line"><span class="cl"><span class="k">fi</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">case</span> <span class="nv">$1</span> in
+</span></span><span class="line"><span class="cl">   <span class="s2">&#34;start&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">       <span class="nb">echo</span> <span class="s2">&#34; =================== 启动 consul 集群 ===================&#34;</span>
+</span></span><span class="line"><span class="cl">       <span class="k">for</span> host in hadoop1 hadoop2 hadoop3 hadoop4 hadoop5<span class="p">;</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">           <span class="nb">echo</span> <span class="o">===============</span> <span class="nv">$host</span> <span class="o">===============</span>
+</span></span><span class="line"><span class="cl">           ssh <span class="nv">$host</span> <span class="s2">&#34;nohup /usr/local/bin/consul agent -config-file=/opt/module/consul.d/consul.json &amp;&#34;</span>
+</span></span><span class="line"><span class="cl">       <span class="k">done</span>
+</span></span><span class="line"><span class="cl">       <span class="p">;;</span>
+</span></span><span class="line"><span class="cl">   <span class="s2">&#34;stop&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">       <span class="nb">echo</span> <span class="s2">&#34; =================== 关闭 consul 集群 ===================&#34;</span>
+</span></span><span class="line"><span class="cl">       <span class="k">for</span> host in hadoop1 hadoop2 hadoop3 hadoop4 hadoop5<span class="p">;</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">           <span class="nb">echo</span> <span class="o">===============</span> <span class="nv">$host</span> <span class="o">===============</span>
+</span></span><span class="line"><span class="cl">           ssh <span class="nv">$host</span> <span class="s2">&#34;/usr/local/bin/consul leave&#34;</span>
+</span></span><span class="line"><span class="cl">       <span class="k">done</span>
+</span></span><span class="line"><span class="cl">       <span class="p">;;</span>
+</span></span><span class="line"><span class="cl">   <span class="s2">&#34;jps&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">       <span class="nb">echo</span> <span class="s2">&#34; =================== 查看 consul 集群服务状态 ===================&#34;</span>
+</span></span><span class="line"><span class="cl">       <span class="k">for</span> host in hadoop1 hadoop2 hadoop3 hadoop4 hadoop5<span class="p">;</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">       		<span class="nb">echo</span> <span class="o">===============</span> <span class="nv">$host</span> <span class="o">===============</span>
+</span></span><span class="line"><span class="cl">       		ssh <span class="nv">$host</span>  ps -ef <span class="p">|</span> grep consul <span class="p">|</span> grep -v grep<span class="p">|</span>grep -v jps
+</span></span><span class="line"><span class="cl">		<span class="k">done</span>
+</span></span><span class="line"><span class="cl">		<span class="p">;;</span>
+</span></span><span class="line"><span class="cl">   *<span class="o">)</span>
+</span></span><span class="line"><span class="cl">       <span class="nb">echo</span> <span class="s2">&#34;Input Args Error...&#34;</span>
+</span></span><span class="line"><span class="cl">       <span class="p">;;</span>
+</span></span><span class="line"><span class="cl"><span class="k">esac</span>
+</span></span></code></pre></div><p>修改文件执行权限</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 bin<span class="o">]</span><span class="c1"># chmod 755 myconsul</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 ~<span class="o">]</span><span class="c1"># myconsul stop</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 ~<span class="o">]</span><span class="c1"># myconsul start</span>
+</span></span></code></pre></div><p>注意：该脚本依赖ssh,我们在前面搭建环境时已经配置。</p>
+<p>3 台 Server 和 2 台 Client 上的 Consul 服务都启动后会根据 consul.json 中的配置自动组成一个集群，并且 Server 会通过 Raft 协议在 Server 节点中选举出 leader 节点，可以用如下命令在任意一台机器上查看集群状态：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 ~<span class="o">]</span><span class="c1"># /usr/local/bin/consul members</span>
+</span></span><span class="line"><span class="cl">Node           Address             Status  Type    Build   Protocol  DC              Partition  Segment
+</span></span><span class="line"><span class="cl">consul-svr-01  192.168.2.169:8301  alive   server  1.19.2  <span class="m">2</span>         consul-cluster  default    &lt;all&gt;
+</span></span><span class="line"><span class="cl">consul-svr-02  192.168.2.170:8301  alive   server  1.19.2  <span class="m">2</span>         consul-cluster  default    &lt;all&gt;
+</span></span><span class="line"><span class="cl">consul-svr-03  192.168.2.171:8301  alive   server  1.19.2  <span class="m">2</span>         consul-cluster  default    &lt;all&gt;
+</span></span><span class="line"><span class="cl">consul-cli-01  192.168.2.172:8301  alive   client  1.19.2  <span class="m">2</span>         consul-cluster  default    &lt;default&gt;
+</span></span><span class="line"><span class="cl">consul-cli-02  192.168.2.173:8301  alive   client  1.19.2  <span class="m">2</span>         consul-cluster  default    &lt;default&gt;
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/springcloud-consul/image-20241009161532693.png" >
+		<img src="/../../images/springcloud-consul/image-20241009161532693.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20241009161532693">
+	</a>
+	
+	<figcaption>image-20241009161532693</figcaption>
+	
+</figure></p>
+<p>可以看到当前consul-svr-01是Leader节点，我们手动杀到该服务。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 ~<span class="o">]</span><span class="c1"># ps -ef | grep consul | grep -v grep | awk &#39;{print $2}&#39;|xargs kill -9</span>
+</span></span></code></pre></div><p>集群显示监测到该节点异常：</p>
+<p><figure 
+	>
+	<a href="/../../images/springcloud-consul/image-20241009161834926.png" >
+		<img src="/../../images/springcloud-consul/image-20241009161834926.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20241009161834926">
+	</a>
+	
+	<figcaption>image-20241009161834926</figcaption>
+	
+</figure></p>
+<p>然后选举出了新的Leader节点</p>
+<p><figure 
+	>
+	<a href="/../../images/springcloud-consul/image-20241009161851806.png" >
+		<img src="/../../images/springcloud-consul/image-20241009161851806.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20241009161851806">
+	</a>
+	
+	<figcaption>image-20241009161851806</figcaption>
+	
+</figure></p>
+<h3 id="34-consul-相关命令">3.4 Consul 相关命令</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">/usr/local/bin/consul --version <span class="c1">#查看版本</span>
+</span></span><span class="line"><span class="cl">/usr/local/bin/consul members <span class="c1">#查看集群中的所有成员</span>
+</span></span><span class="line"><span class="cl">/usr/local/bin/consul operator raft list-peers <span class="c1">#查看集群状态，如 leade、follower 等信息</span>
+</span></span><span class="line"><span class="cl">curl http://localhost:8500/v1/catalog/service/服务名 <span class="c1">#用 API 查询一个服务的信息</span>
+</span></span><span class="line"><span class="cl">/usr/local/bin/consul --help 
+</span></span></code></pre></div><h2 id="四服务注册与发现">四、服务注册与发现</h2>
+<p>consul集群搭建好了，我们测试一下服务的注册发现。</p>
+<h3 id="41-新建聚合父工程">4.1 新建聚合父工程</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="cp">&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;project</span> <span class="na">xmlns=</span><span class="s">&#34;http://maven.apache.org/POM/4.0.0&#34;</span>
+</span></span><span class="line"><span class="cl">         <span class="na">xmlns:xsi=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span>
+</span></span><span class="line"><span class="cl">         <span class="na">xsi:schemaLocation=</span><span class="s">&#34;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;modelVersion&gt;</span>4.0.0<span class="nt">&lt;/modelVersion&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;groupId&gt;</span>com.sxdx<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;artifactId&gt;</span>cloud-projects<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;version&gt;</span>1.0-SNAPSHOT<span class="nt">&lt;/version&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;modules&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;module&gt;</span>cloud-provider<span class="nt">&lt;/module&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;module&gt;</span>cloud-consumer<span class="nt">&lt;/module&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/modules&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;packaging&gt;</span>pom<span class="nt">&lt;/packaging&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;properties&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;maven.compiler.source&gt;</span>17<span class="nt">&lt;/maven.compiler.source&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;maven.compiler.target&gt;</span>17<span class="nt">&lt;/maven.compiler.target&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;project.build.sourceEncoding&gt;</span>UTF-8<span class="nt">&lt;/project.build.sourceEncoding&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;hutool.version&gt;</span>5.8.22<span class="nt">&lt;/hutool.version&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;lombok.version&gt;</span>1.18.26<span class="nt">&lt;/lombok.version&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;druid.version&gt;</span>1.1.20<span class="nt">&lt;/druid.version&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;mybatis.springboot.version&gt;</span>3.0.2<span class="nt">&lt;/mybatis.springboot.version&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;mysql.version&gt;</span>8.0.11<span class="nt">&lt;/mysql.version&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;swagger3.version&gt;</span>2.2.0<span class="nt">&lt;/swagger3.version&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;mapper.version&gt;</span>4.2.3<span class="nt">&lt;/mapper.version&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;fastjson2.version&gt;</span>2.0.40<span class="nt">&lt;/fastjson2.version&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;persistence-api.version&gt;</span>1.0.2<span class="nt">&lt;/persistence-api.version&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;spring.boot.test.version&gt;</span>3.1.5<span class="nt">&lt;/spring.boot.test.version&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;spring.boot.version&gt;</span>3.2.0<span class="nt">&lt;/spring.boot.version&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;spring.cloud.version&gt;</span>2023.0.0<span class="nt">&lt;/spring.cloud.version&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;spring.cloud.alibaba.version&gt;</span>2023.0.0.0-RC1<span class="nt">&lt;/spring.cloud.alibaba.version&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/properties&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;dependencyManagement&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;dependencies&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="c">&lt;!--springboot 3.2.0--&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;groupId&gt;</span>org.springframework.boot<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;artifactId&gt;</span>spring-boot-starter-parent<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;version&gt;</span>${spring.boot.version}<span class="nt">&lt;/version&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;type&gt;</span>pom<span class="nt">&lt;/type&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;scope&gt;</span>import<span class="nt">&lt;/scope&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="c">&lt;!--springcloud 2023.0.0--&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;groupId&gt;</span>org.springframework.cloud<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;artifactId&gt;</span>spring-cloud-dependencies<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;version&gt;</span>${spring.cloud.version}<span class="nt">&lt;/version&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;type&gt;</span>pom<span class="nt">&lt;/type&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;scope&gt;</span>import<span class="nt">&lt;/scope&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="c">&lt;!--springcloud alibaba 2022.0.0.0-RC2--&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;groupId&gt;</span>com.alibaba.cloud<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;artifactId&gt;</span>spring-cloud-alibaba-dependencies<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;version&gt;</span>${spring.cloud.alibaba.version}<span class="nt">&lt;/version&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;type&gt;</span>pom<span class="nt">&lt;/type&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;scope&gt;</span>import<span class="nt">&lt;/scope&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="c">&lt;!--SpringBoot集成mybatis--&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;groupId&gt;</span>org.mybatis.spring.boot<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;artifactId&gt;</span>mybatis-spring-boot-starter<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;version&gt;</span>${mybatis.springboot.version}<span class="nt">&lt;/version&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="c">&lt;!--Mysql数据库驱动8 --&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;groupId&gt;</span>mysql<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;artifactId&gt;</span>mysql-connector-java<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;version&gt;</span>${mysql.version}<span class="nt">&lt;/version&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="c">&lt;!--SpringBoot集成druid连接池--&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;groupId&gt;</span>com.alibaba<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;artifactId&gt;</span>druid-spring-boot-starter<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;version&gt;</span>${druid.version}<span class="nt">&lt;/version&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="c">&lt;!--通用Mapper4之tk.mybatis--&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;groupId&gt;</span>tk.mybatis<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;artifactId&gt;</span>mapper<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;version&gt;</span>${mapper.version}<span class="nt">&lt;/version&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="c">&lt;!--persistence--&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;groupId&gt;</span>javax.persistence<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;artifactId&gt;</span>persistence-api<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;version&gt;</span>${persistence-api.version}<span class="nt">&lt;/version&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="c">&lt;!-- fastjson2 --&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;groupId&gt;</span>com.alibaba.fastjson2<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;artifactId&gt;</span>fastjson2<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;version&gt;</span>${fastjson2.version}<span class="nt">&lt;/version&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="c">&lt;!-- swagger3 调用方式 http://你的主机IP地址:5555/swagger-ui/index.html --&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;groupId&gt;</span>org.springdoc<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;artifactId&gt;</span>springdoc-openapi-starter-webmvc-ui<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;version&gt;</span>${swagger3.version}<span class="nt">&lt;/version&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="c">&lt;!--hutool--&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;groupId&gt;</span>cn.hutool<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;artifactId&gt;</span>hutool-all<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;version&gt;</span>${hutool.version}<span class="nt">&lt;/version&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="c">&lt;!--lombok--&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;groupId&gt;</span>org.projectlombok<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;artifactId&gt;</span>lombok<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;version&gt;</span>${lombok.version}<span class="nt">&lt;/version&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;optional&gt;</span>true<span class="nt">&lt;/optional&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="c">&lt;!-- spring-boot-starter-test --&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;groupId&gt;</span>org.springframework.boot<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;artifactId&gt;</span>spring-boot-starter-test<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;version&gt;</span>${spring.boot.test.version}<span class="nt">&lt;/version&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/dependencies&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/dependencyManagement&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/project&gt;</span>
+</span></span></code></pre></div><p>后续我们在这个工程下测试spring.cloud.alibaba的组件，所以这里引入spring.cloud.alibaba。</p>
+<p>版本对应关系参考：https://sca.aliyun.com/docs/2023/overview/version-explain/?spm=5176.29160081.0.0.74805c72no4Jfx</p>
+<p><figure 
+	>
+	<a href="/../../images/springcloud-consul/image-20241011135445999.png" >
+		<img src="/../../images/springcloud-consul/image-20241011135445999.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20241011135445999">
+	</a>
+	
+	<figcaption>image-20241011135445999</figcaption>
+	
+</figure></p>
+<h3 id="42-新建springboot应用">4.2 新建Springboot应用</h3>
+<p>1、cloud-provider服务提供者</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="cp">&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;project</span> <span class="na">xmlns=</span><span class="s">&#34;http://maven.apache.org/POM/4.0.0&#34;</span>
+</span></span><span class="line"><span class="cl">         <span class="na">xmlns:xsi=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span>
+</span></span><span class="line"><span class="cl">         <span class="na">xsi:schemaLocation=</span><span class="s">&#34;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;parent&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;artifactId&gt;</span>cloud-projects<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;groupId&gt;</span>com.sxdx<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;version&gt;</span>1.0-SNAPSHOT<span class="nt">&lt;/version&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/parent&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;modelVersion&gt;</span>4.0.0<span class="nt">&lt;/modelVersion&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;artifactId&gt;</span>cloud-provider<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;properties&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;maven.compiler.source&gt;</span>17<span class="nt">&lt;/maven.compiler.source&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;maven.compiler.target&gt;</span>17<span class="nt">&lt;/maven.compiler.target&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;java.version&gt;</span>17<span class="nt">&lt;/java.version&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;project.build.sourceEncoding&gt;</span>UTF-8<span class="nt">&lt;/project.build.sourceEncoding&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/properties&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;dependencies&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="c">&lt;!--SpringBoot通用依赖模块--&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;groupId&gt;</span>org.springframework.boot<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;artifactId&gt;</span>spring-boot-starter-web<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;groupId&gt;</span>org.springframework.boot<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;artifactId&gt;</span>spring-boot-starter-actuator<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="c">&lt;!--test--&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;groupId&gt;</span>org.springframework.boot<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;artifactId&gt;</span>spring-boot-starter-test<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="c">&lt;!--SpringCloud consul discovery --&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;groupId&gt;</span>org.springframework.cloud<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;artifactId&gt;</span>spring-cloud-starter-consul-discovery<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/dependencies&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;build&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;plugins&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;plugin&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;groupId&gt;</span>org.springframework.boot<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;artifactId&gt;</span>spring-boot-maven-plugin<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">               <span class="c">&lt;!-- &lt;version&gt;3.0.0&lt;/version&gt;--&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;executions&gt;</span>
+</span></span><span class="line"><span class="cl">                    <span class="nt">&lt;execution&gt;</span>
+</span></span><span class="line"><span class="cl">                        <span class="nt">&lt;goals&gt;</span>
+</span></span><span class="line"><span class="cl">                            <span class="nt">&lt;goal&gt;</span>repackage<span class="nt">&lt;/goal&gt;</span>
+</span></span><span class="line"><span class="cl">                        <span class="nt">&lt;/goals&gt;</span>
+</span></span><span class="line"><span class="cl">                    <span class="nt">&lt;/execution&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;/executions&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;/plugin&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/plugins&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;finalName&gt;</span>${project.artifactId}<span class="nt">&lt;/finalName&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/build&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/project&gt;</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">server</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="m">8001</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spring</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">application</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">cloud-provider</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">cloud</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">consul</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="m">10.10.82.90</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="m">8500</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">discovery</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">service-name</span><span class="p">:</span><span class="w"> </span><span class="l">${spring.application.name}</span><span class="w">
+</span></span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.cloudprovider</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.boot.SpringApplication</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.boot.autoconfigure.SpringBootApplication</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.cloud.client.discovery.EnableDiscoveryClient</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nd">@SpringBootApplication</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@EnableDiscoveryClient</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">CloudProviderApplication</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">SpringApplication</span><span class="o">.</span><span class="na">run</span><span class="o">(</span><span class="n">CloudProviderApplication</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">args</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>2、cloud-provider服务提供者</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="cp">&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;project</span> <span class="na">xmlns=</span><span class="s">&#34;http://maven.apache.org/POM/4.0.0&#34;</span>
+</span></span><span class="line"><span class="cl">         <span class="na">xmlns:xsi=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span>
+</span></span><span class="line"><span class="cl">         <span class="na">xsi:schemaLocation=</span><span class="s">&#34;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;parent&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;artifactId&gt;</span>cloud-projects<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;groupId&gt;</span>com.sxdx<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;version&gt;</span>1.0-SNAPSHOT<span class="nt">&lt;/version&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/parent&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;modelVersion&gt;</span>4.0.0<span class="nt">&lt;/modelVersion&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;artifactId&gt;</span>cloud-consumer<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;properties&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;maven.compiler.source&gt;</span>17<span class="nt">&lt;/maven.compiler.source&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;maven.compiler.target&gt;</span>17<span class="nt">&lt;/maven.compiler.target&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;java.version&gt;</span>17<span class="nt">&lt;/java.version&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;project.build.sourceEncoding&gt;</span>UTF-8<span class="nt">&lt;/project.build.sourceEncoding&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/properties&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;dependencies&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="c">&lt;!--SpringBoot通用依赖模块--&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;groupId&gt;</span>org.springframework.boot<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;artifactId&gt;</span>spring-boot-starter-web<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;groupId&gt;</span>org.springframework.boot<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;artifactId&gt;</span>spring-boot-starter-actuator<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="c">&lt;!--test--&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;groupId&gt;</span>org.springframework.boot<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;artifactId&gt;</span>spring-boot-starter-test<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="c">&lt;!--SpringCloud consul discovery --&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;groupId&gt;</span>org.springframework.cloud<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;artifactId&gt;</span>spring-cloud-starter-consul-discovery<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/dependencies&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;build&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;plugins&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;plugin&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;groupId&gt;</span>org.springframework.boot<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;artifactId&gt;</span>spring-boot-maven-plugin<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="c">&lt;!-- &lt;version&gt;3.0.0&lt;/version&gt;--&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;executions&gt;</span>
+</span></span><span class="line"><span class="cl">                    <span class="nt">&lt;execution&gt;</span>
+</span></span><span class="line"><span class="cl">                        <span class="nt">&lt;goals&gt;</span>
+</span></span><span class="line"><span class="cl">                            <span class="nt">&lt;goal&gt;</span>repackage<span class="nt">&lt;/goal&gt;</span>
+</span></span><span class="line"><span class="cl">                        <span class="nt">&lt;/goals&gt;</span>
+</span></span><span class="line"><span class="cl">                    <span class="nt">&lt;/execution&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;/executions&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;/plugin&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/plugins&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;finalName&gt;</span>${project.artifactId}<span class="nt">&lt;/finalName&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/build&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/project&gt;</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">server</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="m">8002</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spring</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">application</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">cloud-consumer</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">cloud</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">consul</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="m">10.10.82.91</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="m">8500</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">discovery</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">service-name</span><span class="p">:</span><span class="w"> </span><span class="l">${spring.application.name}</span><span class="w">
+</span></span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.cloudconsumer</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.boot.SpringApplication</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.boot.autoconfigure.SpringBootApplication</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.cloud.client.discovery.EnableDiscoveryClient</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nd">@SpringBootApplication</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@EnableDiscoveryClient</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">CloudConsumerApplication</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">SpringApplication</span><span class="o">.</span><span class="na">run</span><span class="o">(</span><span class="n">CloudConsumerApplication</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">args</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><h3 id="43-服务部署与注册">4.3 服务部署与注册</h3>
+<p>将2个应用打包分别部署到hadoop4、hadoop5上，并做多实例部署。</p>
+<p>（1）cloud-provider服务提供者在hadoop4上部署2个实例（端口分别为8001、8002）</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop4 cloud-provider01<span class="o">]</span>$ tree
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">├── application.yaml
+</span></span><span class="line"><span class="cl">├── cloud-provider.jar
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop4 cloud-provider02<span class="o">]</span>$ tree
+</span></span><span class="line"><span class="cl">├── application.yaml
+</span></span><span class="line"><span class="cl">├── cloud-provider.jar
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop4 cloud-provider02<span class="o">]</span>$ ps -ef<span class="p">|</span>grep cloud
+</span></span><span class="line"><span class="cl">admin    <span class="m">11918</span> <span class="m">10542</span>  <span class="m">0</span> 10:42 pts/2    00:00:27 java -jar cloud-provider.jar
+</span></span><span class="line"><span class="cl">admin    <span class="m">12144</span> <span class="m">10542</span>  <span class="m">0</span> 10:45 pts/2    00:00:29 java -jar cloud-provider.jar
+</span></span></code></pre></div><p>（2）cloud-consumer服务提供者在hadoop5上部署2个实例（端口分别为8003、8004）</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop5 module<span class="o">]</span>$ tree cloudconsumer01
+</span></span><span class="line"><span class="cl">cloudconsumer01
+</span></span><span class="line"><span class="cl">├── application.yaml
+</span></span><span class="line"><span class="cl">├── cloud-consumer.jar
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop5 module<span class="o">]</span>$ tree cloudconsumer02
+</span></span><span class="line"><span class="cl">cloudconsumer02
+</span></span><span class="line"><span class="cl">├── application.yaml
+</span></span><span class="line"><span class="cl">├── cloud-consumer.jar
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop5 module<span class="o">]</span>$ ps -ef<span class="p">|</span>grep cloud
+</span></span><span class="line"><span class="cl">admin    <span class="m">18879</span> <span class="m">18751</span>  <span class="m">1</span> 10:33 pts/2    00:00:32 java -jar cloud-consumer.jar
+</span></span><span class="line"><span class="cl">admin    <span class="m">18934</span> <span class="m">18751</span>  <span class="m">1</span> 10:33 pts/2    00:00:32 java -jar cloud-consumer.jar
+</span></span></code></pre></div><p>此时再看consul注册页面，就可以看到已经注册到consul上了：</p>
+<p><figure 
+	>
+	<a href="/../../images/springcloud-consul/image-20241011113156729.png" >
+		<img src="/../../images/springcloud-consul/image-20241011113156729.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20241011113156729">
+	</a>
+	
+	<figcaption>image-20241011113156729</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/springcloud-consul/image-20241011113205748.png" >
+		<img src="/../../images/springcloud-consul/image-20241011113205748.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20241011113205748">
+	</a>
+	
+	<figcaption>image-20241011113205748</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/springcloud-consul/image-20241011113221385.png" >
+		<img src="/../../images/springcloud-consul/image-20241011113221385.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20241011113221385">
+	</a>
+	
+	<figcaption>image-20241011113221385</figcaption>
+	
+</figure></p>
+<h2 id="五服务配置与刷新">五、服务配置与刷新</h2>
+<p>consul除了服务注册外，还提供服务配置功能，可以帮组我们解决分布式部署application.yaml太多的问题。</p>
+<p>我们可以把一些yaml中的经常会变化的值存在consul中。配置规则如下：</p>
+<p><figure 
+	>
+	<a href="/../../images/springcloud-consul/image-20241011154925027.png" >
+		<img src="/../../images/springcloud-consul/image-20241011154925027.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20241011154925027">
+	</a>
+	
+	<figcaption>image-20241011154925027</figcaption>
+	
+</figure></p>
+<h3 id="51-添加consul配置">5.1 添加consul配置</h3>
+<p><figure 
+	>
+	<a href="/../../images/springcloud-consul/image-20241011155015953.png" >
+		<img src="/../../images/springcloud-consul/image-20241011155015953.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20241011155015953">
+	</a>
+	
+	<figcaption>image-20241011155015953</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/springcloud-consul/image-20241012170040658.png" >
+		<img src="/../../images/springcloud-consul/image-20241012170040658.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20241012170040658">
+	</a>
+	
+	<figcaption>image-20241012170040658</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/springcloud-consul/image-20241012170100020.png" >
+		<img src="/../../images/springcloud-consul/image-20241012170100020.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20241012170100020">
+	</a>
+	
+	<figcaption>image-20241012170100020</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/springcloud-consul/image-20241012170132341.png" >
+		<img src="/../../images/springcloud-consul/image-20241012170132341.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20241012170132341">
+	</a>
+	
+	<figcaption>image-20241012170132341</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/springcloud-consul/image-20241012170219186.png" >
+		<img src="/../../images/springcloud-consul/image-20241012170219186.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20241012170219186">
+	</a>
+	
+	<figcaption>image-20241012170219186</figcaption>
+	
+</figure></p>
+<h3 id="52-代码配置">5.2 代码配置</h3>
+<p>我们在cloud-provider新加如下jar包;</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="c">&lt;!--SpringCloud consul config--&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;groupId&gt;</span>org.springframework.cloud<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;artifactId&gt;</span>spring-cloud-starter-consul-config<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;groupId&gt;</span>org.springframework.cloud<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;artifactId&gt;</span>spring-cloud-starter-bootstrap<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/dependency&gt;</span>
+</span></span></code></pre></div><p>新建bootstrap.yml</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">spring</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">application</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">cloud-provider</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">profiles</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">active</span><span class="p">:</span><span class="w"> </span><span class="l">dev</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">cloud</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">consul</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="m">10.10.82.90</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="m">8500</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">discovery</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">service-name</span><span class="p">:</span><span class="w"> </span><span class="l">${spring.application.name}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">config</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">profile-separator</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">format</span><span class="p">:</span><span class="w"> </span><span class="l">yaml</span><span class="w">
+</span></span></span></code></pre></div><p>application-test.yaml</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">server</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="m">8001</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">jackson</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">date-format</span><span class="p">:</span><span class="w"> </span><span class="l">yyyy-MM-dd HH:mm:ss</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">time-zone</span><span class="p">:</span><span class="w"> </span><span class="l">GMT+8</span><span class="w">
+</span></span></span></code></pre></div><p>application-dev.yaml</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">server</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="m">8001</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spring</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">jackson</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">date-format</span><span class="p">:</span><span class="w"> </span><span class="l">yyyy-MM-dd HH:mm:ss</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">time-zone</span><span class="p">:</span><span class="w"> </span><span class="l">GMT+8</span><span class="w">
+</span></span></span></code></pre></div><p>这样程序在启动时会先读取bootstrap.yml文件内容，然后去找consul服务器上<code>/config/cloud-provider-dev/data</code> 下的配置。</p>
+<p>我们写一个测试案例;</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.cloudprovider.controller</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.beans.factory.annotation.Value</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.cloud.context.config.annotation.RefreshScope</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.web.bind.annotation.RequestMapping</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.web.bind.annotation.RestController</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nd">@RestController</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;test&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@RefreshScope</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">TestController</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@Value</span><span class="o">(</span><span class="s">&#34;${cloudprovide}&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">String</span> <span class="n">config</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@RequestMapping</span><span class="o">(</span><span class="s">&#34;/getConsulConfig&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getConsulConfig</span><span class="o">(){</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;获取ConsulConfig&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">config</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>注意：默认情况下，我们修改完consul的配置，应用是无感的，需要通过springcloud Bus或者@RefreshScope注解的方式刷新配置。</p>
+<h3 id="53-测试">5.3 测试</h3>
+<p>我们重新打包上传，服务器目录如下，并启动服务：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop4 cloud-provider01<span class="o">]</span>$ tree
+</span></span><span class="line"><span class="cl">.
+</span></span><span class="line"><span class="cl">├── application-dev.yaml
+</span></span><span class="line"><span class="cl">├── application-test.yaml
+</span></span><span class="line"><span class="cl">├── bootstrap.yml
+</span></span><span class="line"><span class="cl">├── cloud-provider.jar
+</span></span><span class="line"><span class="cl">└── nohup.out
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="m">0</span> directories, <span class="m">5</span> files
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop4 cloud-provider01<span class="o">]</span>$ nohup java -jar cloud-provider.jar <span class="p">&amp;</span>
+</span></span></code></pre></div><p>调用接口：http://hadoop4:8001/test/getConsulConfig</p>
+<p><figure 
+	>
+	<a href="/../../images/springcloud-consul/image-20241011162341095.png" >
+		<img src="/../../images/springcloud-consul/image-20241011162341095.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20241011162341095">
+	</a>
+	
+	<figcaption>image-20241011162341095</figcaption>
+	
+</figure></p>
+<p>可以看到我们获取到了consul的配置,我们修改consul配置的值，过段时间后再次调用接口：</p>
+<p><figure 
+	>
+	<a href="/../../images/springcloud-consul/image-20241011162544411.png" >
+		<img src="/../../images/springcloud-consul/image-20241011162544411.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20241011162544411">
+	</a>
+	
+	<figcaption>image-20241011162544411</figcaption>
+	
+</figure></p>
+<p>我们修改bootstrap.yml的 profiles. active.dev为test ，并重新启动服务再次调用接口。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">spring</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">application</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">cloud-provider</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">profiles</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">active</span><span class="p">:</span><span class="w"> </span><span class="l">dev</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">cloud</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">consul</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="m">10.10.82.90</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="m">8500</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">discovery</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">service-name</span><span class="p">:</span><span class="w"> </span><span class="l">${spring.application.name}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">config</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">profile-separator</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">format</span><span class="p">:</span><span class="w"> </span><span class="l">yaml</span><span class="w">
+</span></span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/springcloud-consul/image-20241011162737859.png" >
+		<img src="/../../images/springcloud-consul/image-20241011162737859.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20241011162737859">
+	</a>
+	
+	<figcaption>image-20241011162737859</figcaption>
+	
+</figure></p>
+<p><strong>注意：测试过程中发现application-xxx.yaml，其中xxx必须存在，consul似乎无法直接解析application.yaml</strong></p>
+<p>consul 的学习先到此结束。关于ACL和Consul UI保护用到时再研究。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/springcloud/">SpringCloud</a>
+        
+            <a href="/tags/consul/">Consul</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#一consul-简介">一、Consul 简介</a>
+      <ol>
+        <li><a href="#11-consul架构">1.1 Consul架构</a></li>
+        <li><a href="#12-下载安装">1.2 下载安装</a></li>
+      </ol>
+    </li>
+    <li><a href="#二consul-单机版部署">二、Consul 单机版部署</a></li>
+    <li><a href="#三consul-集群部署">三、Consul 集群部署</a>
+      <ol>
+        <li><a href="#31-集群规划">3.1 集群规划</a></li>
+        <li><a href="#32-配置文件">3.2 配置文件</a>
+          <ol>
+            <li><a href="#321-svrver配置文件">3.2.1 Svrver配置文件</a></li>
+            <li><a href="#322-client配置文件">3.2.2 Client配置文件</a></li>
+          </ol>
+        </li>
+        <li><a href="#33-consul集群启停脚本">3.3 consul集群启停脚本</a></li>
+        <li><a href="#34-consul-相关命令">3.4 Consul 相关命令</a></li>
+      </ol>
+    </li>
+    <li><a href="#四服务注册与发现">四、服务注册与发现</a>
+      <ol>
+        <li><a href="#41-新建聚合父工程">4.1 新建聚合父工程</a></li>
+        <li><a href="#42-新建springboot应用">4.2 新建Springboot应用</a></li>
+        <li><a href="#43-服务部署与注册">4.3 服务部署与注册</a></li>
+      </ol>
+    </li>
+    <li><a href="#五服务配置与刷新">五、服务配置与刷新</a>
+      <ol>
+        <li><a href="#51-添加consul配置">5.1 添加consul配置</a></li>
+        <li><a href="#52-代码配置">5.2 代码配置</a></li>
+        <li><a href="#53-测试">5.3 测试</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

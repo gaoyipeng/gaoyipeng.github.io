@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Spring-Security-OAuth2 on 十一爸爸的博客</title>
+    <link>https://garnettboy.gitee.io/tags/spring-security-oauth2/</link>
+    <description>Recent content in Spring-Security-OAuth2 on 十一爸爸的博客</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Mon, 05 Oct 2020 15:09:49 +0000</lastBuildDate><atom:link href="https://garnettboy.gitee.io/tags/spring-security-oauth2/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Activiti（30） 数据库存储Code,Client信息</title>
+      <link>https://garnettboy.gitee.io/p/activiti30-%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AD%98%E5%82%A8codeclient%E4%BF%A1%E6%81%AF/</link>
+      <pubDate>Mon, 05 Oct 2020 15:09:49 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti30-%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AD%98%E5%82%A8codeclient%E4%BF%A1%E6%81%AF/</guid>
+      <description>前面我们我们在集成Oauth2功能的的时候，授权码和客户端信息都是保存在内存中的，但是在生产环境下，这些信息都应该保存在数据库中，否则服务重启后，内存信息都会清空，而且不方便配置。
+1、数据库表 首先我们需要新建2张表来保存授权码和客户端信息：
+CREATE TABLE `oauth_client_details` ( `client_id` varchar(255) NOT NULL COMMENT &amp;#39;客户端标识&amp;#39;, `resource_ids` varchar(255) DEFAULT NULL COMMENT &amp;#39;接入资源列表&amp;#39;, `client_secret` varchar(255) DEFAULT NULL COMMENT &amp;#39;客户端秘钥&amp;#39;, `scope` varchar(255) DEFAULT NULL, `authorized_grant_types` varchar(255) DEFAULT NULL, `web_server_redirect_uri` varchar(255) DEFAULT NULL, `authorities` varchar(255) DEFAULT NULL, `access_token_validity` int(11) DEFAULT NULL, `refresh_token_validity` int(11) DEFAULT NULL, `additional_information` longtext, `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, `archived` tinyint(4) DEFAULT NULL, `trusted` tinyint(4) DEFAULT NULL, `autoapprove` varchar(255) DEFAULT NULL, PRIMARY KEY (`client_id`) USING BTREE ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT=&amp;#39;接入客户端信息&amp;#39;; CREATE TABLE `oauth_code` ( `code` varchar(255) DEFAULT NULL, `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP, `authentication` blob, KEY `code_index` (`code`) USING BTREE ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT; 表中插入数据：</description>
+    </item>
+    
+    <item>
+      <title>Activiti（29） 添加JWT支持</title>
+      <link>https://garnettboy.gitee.io/p/activiti29-%E6%B7%BB%E5%8A%A0jwt%E6%94%AF%E6%8C%81/</link>
+      <pubDate>Thu, 01 Oct 2020 13:19:58 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti29-%E6%B7%BB%E5%8A%A0jwt%E6%94%AF%E6%8C%81/</guid>
+      <description>1、为什么使用JWT 前面我们已经实现了基于token的方式来请求资源，并且添加了资源服务器的token验证配置：
+security: oauth2: client: client-id: kiki #指定了客户端id client-secret: 123456 # 指定了客户端密码 resource: token-info-uri: http://127.0.0.1:8101/oauth/check_token 也就是说每次请求，资源服务器都会将携带的token通过token-info-uri来向认证服务器验证 token。在请求数较少的时候这不是问题，但是用户量很大时，就会对系统造成一定的负担。我们可以通过JWT令牌的方式解决这个问题。至于什么是JWT，网上一搜一大把，我就不做介绍了。
+1.1 JWT令牌的优缺点 优点：
+jwt是基于json格式的，容易解析。 可以在令牌中自定义内容，具有很好的扩展性。 支持对称、非对称加密算法及数字签名技术，JWT防止篡改，安全系数高。 在资源服务器中使用jwt可以不依赖认证服务器即可完成验证。 服务端无需存储 token，交由客户端保存，节省空间 缺点：
+jwt令牌较长，并且会随着内容的添加而变长，占用空间较大。 1.2 添加依赖 我们分别在workflow-auth、workflow-activiti-rest服务中添加如下依赖：
+&amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.security&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-security-jwt&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.0.10.RELEASE&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; 2、 添加JWT支持 2.1 修改认证服务器 我们先修改TokenConfig,之前是InMemoryTokenStore内存中存储token，现在改为JWT方式，此处采用对称加密方式来生成jwt令牌，秘钥是123456.
+package com.sxdx.workflow.auth.config; import org.springframework.context.annotation.Bean; import org.springframework.context.annotation.Configuration; import org.springframework.context.annotation.Primary; import org.springframework.security.oauth2.provider.token.TokenStore; import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore; import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter; import org.springframework.security.oauth2.provider.token.store.JwtTokenStore; @Configuration public class TokenConfig { /*@Bean public TokenStore tokenStore() { return new InMemoryTokenStore(); }*/ @Bean public TokenStore tokenStore() { return new JwtTokenStore(accessTokenConverter()); } @Primary @Bean public JwtAccessTokenConverter accessTokenConverter() { JwtAccessTokenConverter converter = new JwtAccessTokenConverter(); converter.</description>
+    </item>
+    
+    <item>
+      <title>Activiti（28） 搭建资源服务器</title>
+      <link>https://garnettboy.gitee.io/p/activiti28-%E6%90%AD%E5%BB%BA%E8%B5%84%E6%BA%90%E6%9C%8D%E5%8A%A1%E5%99%A8/</link>
+      <pubDate>Thu, 01 Oct 2020 09:30:11 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti28-%E6%90%AD%E5%BB%BA%E8%B5%84%E6%BA%90%E6%9C%8D%E5%8A%A1%E5%99%A8/</guid>
+      <description>前面我们已经搭建好了认证服务器，接下来我们将workflow-activiti-rest改造为资源服务器。
+1、引入依赖 首先在workflow-activiti-rest的pom 文件中加入以下依赖：
+&amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.cloud&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-cloud-starter&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.cloud&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-cloud-starter-oauth2&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.cloud&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-cloud-starter-security&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; 2、配置资源服务器 资源服务器需要创建两大配置：
+资源服务配置：配置资源信息及访问策略。 WebSecurity配置：Security配置，验证token的授权信息。 2.1 创建资源服务配置类 我们在config包下新建ResourceServerConfig
+package com.sxdx.workflow.activiti.rest.config; import org.springframework.context.annotation.Configuration; import org.springframework.core.annotation.Order; import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity; import org.springframework.security.config.annotation.web.builders.HttpSecurity; import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer; import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter; import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer; /** * @program: workflow-activiti * @description: 资源服务配置 * @author: garnett * @create: 2020-09-26 17:05 **/ @Configuration @EnableResourceServer public class ResourceServerConfig extends ResourceServerConfigurerAdapter { public static final String RESOURCE_ID = &amp;#34;activiti-rest&amp;#34;; @Override public void configure(ResourceServerSecurityConfigurer resources) throws Exception { resources.</description>
+    </item>
+    
+    <item>
+      <title>Activiti（27） 搭建认证服务器</title>
+      <link>https://garnettboy.gitee.io/p/activiti27-%E6%90%AD%E5%BB%BA%E8%AE%A4%E8%AF%81%E6%9C%8D%E5%8A%A1%E5%99%A8/</link>
+      <pubDate>Mon, 28 Sep 2020 16:59:32 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti27-%E6%90%AD%E5%BB%BA%E8%AE%A4%E8%AF%81%E6%9C%8D%E5%8A%A1%E5%99%A8/</guid>
+      <description>1、搭建认证服务器 我们希望搭建的各个微服务系统是受保护的，只有通过合法的认证信息才能访问相关资源。我们搭建一个统一给微服务发放访问令牌的认证服务器：workflow-auth。
+我们新建一个module:
+image-20200928145259651 image-20200928145359591 修改workflow-auth的pom，内容如下：
+&amp;lt;?xml version=&amp;#34;1.0&amp;#34; encoding=&amp;#34;UTF-8&amp;#34;?&amp;gt; &amp;lt;project xmlns=&amp;#34;http://maven.apache.org/POM/4.0.0&amp;#34; xmlns:xsi=&amp;#34;http://www.w3.org/2001/XMLSchema-instance&amp;#34; xsi:schemaLocation=&amp;#34;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&amp;#34;&amp;gt; &amp;lt;parent&amp;gt; &amp;lt;artifactId&amp;gt;workflow-activiti&amp;lt;/artifactId&amp;gt; &amp;lt;groupId&amp;gt;com.sxdx&amp;lt;/groupId&amp;gt; &amp;lt;version&amp;gt;1.0-SNAPSHOT&amp;lt;/version&amp;gt; &amp;lt;/parent&amp;gt; &amp;lt;modelVersion&amp;gt;4.0.0&amp;lt;/modelVersion&amp;gt; &amp;lt;artifactId&amp;gt;workflow-auth&amp;lt;/artifactId&amp;gt; &amp;lt;properties&amp;gt; &amp;lt;java.version&amp;gt;1.8&amp;lt;/java.version&amp;gt; &amp;lt;/properties&amp;gt; &amp;lt;dependencies&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.projectlombok&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;lombok&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.boot&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-boot-starter-web&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.cloud&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-cloud-starter&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.cloud&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-cloud-starter-oauth2&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.cloud&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-cloud-starter-security&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.boot&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-boot-starter-test&amp;lt;/artifactId&amp;gt; &amp;lt;scope&amp;gt;test&amp;lt;/scope&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;artifactId&amp;gt;workflow-common&amp;lt;/artifactId&amp;gt; &amp;lt;groupId&amp;gt;com.sxdx&amp;lt;/groupId&amp;gt; &amp;lt;version&amp;gt;1.0-SNAPSHOT&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;/dependencies&amp;gt; &amp;lt;build&amp;gt; &amp;lt;plugins&amp;gt; &amp;lt;plugin&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.boot&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-boot-maven-plugin&amp;lt;/artifactId&amp;gt; &amp;lt;/plugin&amp;gt; &amp;lt;/plugins&amp;gt; &amp;lt;/build&amp;gt; &amp;lt;/project&amp;gt; 这里有一点说明，我们此处引入了workflow-common依赖，因为workflow-common中包含pagehelper依赖，会要求有数据源，这里我们先把pagehelper的依赖，放入workflow-activiti-rest的pom 文件中。并在workflow-common中添加spring-boot-starter
+&amp;lt;!--把workflow-common的pagehelper删除，添加到workflow-activiti-rest中--&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;com.github.pagehelper&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;pagehelper-spring-boot-starter&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;!</description>
+    </item>
+    
+    <item>
+      <title>Activiti（26） Spring-Security-OAuth2简介</title>
+      <link>https://garnettboy.gitee.io/p/activiti26-spring-security-oauth2%E7%AE%80%E4%BB%8B/</link>
+      <pubDate>Mon, 28 Sep 2020 14:01:47 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti26-spring-security-oauth2%E7%AE%80%E4%BB%8B/</guid>
+      <description>前面关于Activiti6的介绍，已经告一段落，基本的流程操作步骤都已经有了，后期有什么遗漏再做补充。
+之前的流程演示时，我们都是直接使用Swagger或者是Postman来调用接口，没有任何验证过程、无法保证系统安全性。本节我们为系统集成Spring-Security-OAuth2来实现资源的认证和授权。
+1、Spring-Security-OAuth2简介 Spring-Security-OAuth2分为Spring-Security和OAuth2两个知识点。Spring-Security-OAuth2提供了这2个知识点的整合。
+Spring Security是一个基于Spring的企业应用系统提供声明式的安全访问控制解决方案的安全框架。由于它 是Spring生态系统中的一员，因此它伴随着整个Spring生态系统不断修正、升级，在spring boot项目中加入spring security更是十分简单，使用Spring Security 减少了为企业系统安全控制编写大量重复代码的工作。
+OAuth（开放授权）是一个开放标准协议，允许用户授权第三方应用访问他们存储在另外的服务提供者上的信息，而不需要将用户名和密码提供给第三方应用或分享他们数据的所有内容。
+OAuth是一种用来规范令牌（Token）发放的授权机制，主要包含了四种授权模式：授权码模式、简化模式、密码模式和客户端模式。Spring Security OAuth2对这四种授权模式进行了实现。
+2、四种授权模式 这里简要的介绍一下4种授权模式及他们适用的范围。
+2.1 授权码模式 授权码模式（authorization code）是功能最完整、流程最严密的授权模式。它的特点就是通过客户端的后台服务器，与&amp;quot;服务提供商&amp;quot;的认证服务器进行互动。
+适用于和外部系统的对接，例如我们经常使用的微信扫码登录、QQ登录、Github登录都是这种模式。
+授权码模式 步骤如下：
+（A）用户打开客户端以后，客户端要求用户给予授权。 （B）用户同意给予客户端授权。 （C）客户端使用上一步获得的授权，向认证服务器申请令牌。 （D）认证服务器对客户端进行认证以后，确认无误，同意发放令牌。 （E）客户端使用令牌，向资源服务器申请获取资源。 （F）资源服务器确认令牌无误，同意向客户端开放资源。
+A步骤中，客户端申请认证的URI，包含以下参数：
+response_type：表示授权类型，必选项，此处的值固定为&amp;quot;code&amp;quot; client_id：表示客户端的ID，必选项 redirect_uri：表示重定向URI，必选项 scope：表示申请的权限范围，可选项 state：表示客户端的当前状态，可以指定任意值，认证服务器会原封不动地返回这个值。 C步骤中，服务器回应客户端的URI，包含以下参数：
+code：表示授权码。该码的有效期应该很短，通常设为10分钟，客户端只能使用该码一次，否则会被授权服务器拒绝。该码与客户端ID和重定向URI，是一 一对应关系。 state：如果客户端的请求中包含这个参数，认证服务器的回应也一模一样包含这个参数。 D步骤中，客户端向认证服务器申请令牌的HTTP请求，包含以下参数：
+grant_type：表示使用的授权模式，必选项，此处的值固定为&amp;quot;authorization_code&amp;quot;。 code：表示上一步获得的授权码，必选项。 redirect_uri：表示重定向URI，必选项，且必须与A步骤中的该参数值保持一致。 client_id：表示客户端ID，必选项。 client_secret：表示客户端security，必选项。 scope：表示申请的权限范围，可选项 2.2 密码模式 密码模式（Resource Owner Password Credentials Grant）中，用户向客户端提供自己的用户名和密码。客户端使用这些信息，向认证服务器索要授权。
+适用于客户端是自己开发的系统，因为我们会将用户名、密码提供给client客户端，必须要是可信系统才行。
+密码模式 步骤如下： （A）用户向客户端提供用户名和密码。 （B）客户端将用户名和密码发给认证服务器，向后者请求令牌。 （C）认证服务器确认无误后，向客户端提供访问令牌。
+B步骤中，客户端发出的HTTP请求，包含以下参数：
+grant_type：表示授权类型，此处的值固定为”password”，必选项。 username：表示用户名，必选项。 password：表示用户的密码，必选项。 scope：表示权限范围，可选项。 2.3 客户端模式 客户端模式（client_credentials）直接根据client的id和密钥即可获取token，无需用户参与。这种模式比较合适消费api的后端服务，此模式不支持refresh token。
+在这里插入图片描述 步骤如下： （A）用户向客户端提供用户名和密码。 （B）客户端将用户名和密码发给认证服务器，向后者请求令牌。</description>
+    </item>
+    
+    <item>
+      <title>spring security oauth2 SSO 单点登录及自定义令牌配置</title>
+      <link>https://garnettboy.gitee.io/p/spring-security-oauth2-sso-%E5%8D%95%E7%82%B9%E7%99%BB%E5%BD%95%E5%8F%8A%E8%87%AA%E5%AE%9A%E4%B9%89%E4%BB%A4%E7%89%8C%E9%85%8D%E7%BD%AE/</link>
+      <pubDate>Sat, 14 Dec 2019 21:58:18 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/spring-security-oauth2-sso-%E5%8D%95%E7%82%B9%E7%99%BB%E5%BD%95%E5%8F%8A%E8%87%AA%E5%AE%9A%E4%B9%89%E4%BB%A4%E7%89%8C%E9%85%8D%E7%BD%AE/</guid>
+      <description>上一节 spring security oauth2 授权码模式、密码模式代码实践 介绍了spring security oauth2 的3种模式。 本节我们将在上一节的基础上实现SSO单点登录，及自定义自定义令牌配置。SSO单点登录的概念就不做解释了，请自行百度。
+1、自定义令牌配置 上一节我们在认证服务器 spring-security-oauth2 的资源配置类 KikiAuthorizationServerConfigurer 中定义了 ClientDetails：
+@Overridepublic void configure(ClientDetailsServiceConfigurer clients) throws Exception {clients.inMemory().withClient(&amp;#34;kiki&amp;#34;).secret(passwordEncoder.encode(&amp;#34;123456&amp;#34;)).authorizedGrantTypes(&amp;#34;password&amp;#34;, &amp;#34;refresh_token&amp;#34;,&amp;#34;authorization_code&amp;#34;,&amp;#34;client_credentials&amp;#34;).autoApprove(true).scopes(&amp;#34;all&amp;#34;).redirectUris(&amp;#34;http://localhost:8001/getCode&amp;#34;);} 指定了 client-id为kiki ，client-secret为123456，scopes范围为all,以及redirectUris。并且配置了它支持的认证类型：
+&amp;ldquo;authorization_code&amp;rdquo;：授权码模式 &amp;ldquo;password&amp;rdquo;：密码模式 client_credentials:客户端模式 &amp;ldquo;refresh_token&amp;rdquo;：刷新token 现在我们修改认证服务器 KikiAuthorizationServerConfigurer如下：
+clients.inMemory().withClient(&amp;#34;kiki&amp;#34;).secret(passwordEncoder.encode(&amp;#34;123456&amp;#34;)).authorizedGrantTypes(&amp;#34;password&amp;#34;, &amp;#34;refresh_token&amp;#34;,&amp;#34;authorization_code&amp;#34;,&amp;#34;client_credentials&amp;#34;).autoApprove(true).scopes(&amp;#34;all&amp;#34;).redirectUris(&amp;#34;http://localhost:8001/getCode&amp;#34;).resourceIds(&amp;#34;kiki-resource&amp;#34;).and().withClient(&amp;#34;client1&amp;#34;).secret(passwordEncoder.encode(&amp;#34;123456&amp;#34;)).authorizedGrantTypes(&amp;#34;authorization_code&amp;#34;, &amp;#34;password&amp;#34;,&amp;#34;refresh_token&amp;#34;).autoApprove(true).scopes(&amp;#34;read&amp;#34;).redirectUris(&amp;#34;http://localhost:8002/one/login&amp;#34;).resourceIds(&amp;#34;client1-resource&amp;#34;).and().withClient(&amp;#34;client2&amp;#34;).secret(passwordEncoder.encode(&amp;#34;123456&amp;#34;)).authorizedGrantTypes(&amp;#34;authorization_code&amp;#34;,&amp;#34;password&amp;#34;, &amp;#34;refresh_token&amp;#34;).autoApprove(true).scopes(&amp;#34;read&amp;#34;,&amp;#34;write&amp;#34;).redirectUris(&amp;#34;http://localhost:8003/two/login&amp;#34;).resourceIds(&amp;#34;client2-resource&amp;#34;); 可以看到，我们新增了2个 Client，分别为client1，client2.</description>
+    </item>
+    
+    <item>
+      <title>spring security oauth2 授权码模式、密码模式代码实践</title>
+      <link>https://garnettboy.gitee.io/p/spring-security-oauth2-%E6%8E%88%E6%9D%83%E7%A0%81%E6%A8%A1%E5%BC%8F%E5%AF%86%E7%A0%81%E6%A8%A1%E5%BC%8F%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/</link>
+      <pubDate>Tue, 10 Dec 2019 22:15:04 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/spring-security-oauth2-%E6%8E%88%E6%9D%83%E7%A0%81%E6%A8%A1%E5%BC%8F%E5%AF%86%E7%A0%81%E6%A8%A1%E5%BC%8F%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/</guid>
+      <description>上一节 spring security oauth2 基础知识 介绍了spring security oauth2 基础知识.
+本节实例代码演示,为了之后有一个可供代码实践的环境，本次搭建一个名为 spring-all 的聚合工程，今后不特殊说明，均在此项目下进行演示。
+环境说明：IDEA2019.2 、jdk 1.8 、maven 3.6.2
+1、搭建 spring-all 1.1创建父级 maven项目： spring-all 创建spring-all &amp;lt;?xml version=&amp;#34;1.0&amp;#34; encoding=&amp;#34;UTF-8&amp;#34;?&amp;gt;&amp;lt;project xmlns=&amp;#34;http://maven.apache.org/POM/4.0.0&amp;#34;xmlns:xsi=&amp;#34;http://www.w3.org/2001/XMLSchema-instance&amp;#34;xsi:schemaLocation=&amp;#34;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&amp;#34;&amp;gt;&amp;lt;modelVersion&amp;gt;4.0.0&amp;lt;/modelVersion&amp;gt;&amp;lt;groupId&amp;gt;com.sxdx&amp;lt;/groupId&amp;gt;&amp;lt;artifactId&amp;gt;spring-all&amp;lt;/artifactId&amp;gt;&amp;lt;version&amp;gt;1.0-SNAPSHOT&amp;lt;/version&amp;gt;&amp;lt;packaging&amp;gt;pom&amp;lt;/packaging&amp;gt;&amp;lt;modules&amp;gt;&amp;lt;module&amp;gt;../spring-security-oauth2&amp;lt;/module&amp;gt;&amp;lt;/modules&amp;gt;&amp;lt;parent&amp;gt;&amp;lt;groupId&amp;gt;org.springframework.boot&amp;lt;/groupId&amp;gt;&amp;lt;artifactId&amp;gt;spring-boot-starter-parent&amp;lt;/artifactId&amp;gt;&amp;lt;version&amp;gt;2.1.6.RELEASE&amp;lt;/version&amp;gt;&amp;lt;relativePath/&amp;gt; &amp;lt;!-- lookup parent from repository --&amp;gt;&amp;lt;/parent&amp;gt;&amp;lt;properties&amp;gt;&amp;lt;spring-cloud.version&amp;gt;Greenwich.SR1&amp;lt;/spring-cloud.version&amp;gt;&amp;lt;/properties&amp;gt;&amp;lt;dependencyManagement&amp;gt;&amp;lt;dependencies&amp;gt;&amp;lt;dependency&amp;gt;&amp;lt;groupId&amp;gt;org.springframework.cloud&amp;lt;/groupId&amp;gt;&amp;lt;artifactId&amp;gt;spring-cloud-dependencies&amp;lt;/artifactId&amp;gt;&amp;lt;version&amp;gt;${spring-cloud.version}&amp;lt;/version&amp;gt;&amp;lt;type&amp;gt;pom&amp;lt;/type&amp;gt;&amp;lt;scope&amp;gt;import&amp;lt;/scope&amp;gt;&amp;lt;/dependency&amp;gt;&amp;lt;/dependencies&amp;gt;&amp;lt;/dependencyManagement&amp;gt;&amp;lt;/project&amp;gt; 指定 packaging为pom，表示这是一个纯聚合模块，无需打包为jar或者war。指定spring-boot版本：2.1.6.RELEASE，spring-cloud版本：Greenwich.SR1
+它们的对应关系：
+spring boot spring cloud Hoxton 2.</description>
+    </item>
+    
+    <item>
+      <title>spring security oauth2 基础知识</title>
+      <link>https://garnettboy.gitee.io/p/spring-security-oauth2-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/</link>
+      <pubDate>Sun, 08 Dec 2019 17:12:08 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/spring-security-oauth2-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/</guid>
+      <description>{% note info %} OAuth（开放授权）是一个开放标准，允许用户授权第三方移动应用访问他们存储在另外的服务提供者上的信息，而不需要将用户名和密码提供给第三方移动应用或分享他们数据的所有内容，OAuth2.0是OAuth协议的延续版本，但不向后兼容OAuth 1.0即完全废止了OAuth1.0。{% endnote %}
+{% note info %} OAuth是一种用来规范令牌（Token）发放的授权机制，主要包含了四种授权模式：授权码模式、简化模式、密码模式和客户端模式。Spring Security OAuth2对这四种授权模式进行了实现.{% endnote %}
+名词定义 （1）Third-party application：第三方应用程序，本文中又称&amp;quot;客户端&amp;quot;（client）。 （2）HTTP service：HTTP服务提供商，本文中简称&amp;quot;服务提供商&amp;quot;。 （3）Resource Owner：资源所有者。 （4）User Agent：用户代理，本文中就是指浏览器。 （5）Authorization server：认证服务器，即服务提供商专门用来处理认证的服务器。 （6）Resource server：资源服务器，即服务提供商存放用户生成的资源的服务器。它与认证服务器，可以是同一台服务器，也可以是不同的服务器。
+目前只用到过授权码模式、密码模式。另外两种不怎么常见。
+授权码模式 授权码模式（authorization code）是功能最完整、流程最严密的授权模式。它的特点就是通过客户端的后台服务器，与&amp;quot;服务提供商&amp;quot;的认证服务器进行互动。
+授权码模式 *步骤如下： （A）用户打开客户端以后，客户端要求用户给予授权。 （B）用户同意给予客户端授权。 （C）客户端使用上一步获得的授权，向认证服务器申请令牌。 （D）认证服务器对客户端进行认证以后，确认无误，同意发放令牌。 （E）客户端使用令牌，向资源服务器申请获取资源。 （F）资源服务器确认令牌无误，同意向客户端开放资源。
+A步骤中，客户端申请认证的URI，包含以下参数： response_type：表示授权类型，必选项，此处的值固定为&amp;quot;code&amp;quot; client_id：表示客户端的ID，必选项 redirect_uri：表示重定向URI，可选项 scope：表示申请的权限范围，可选项 state：表示客户端的当前状态，可以指定任意值，认证服务器会原封不动地返回这个值。 C步骤中，服务器回应客户端的URI，包含以下参数： code：表示授权码，必选项。该码的有效期应该很短，通常设为10分钟，客户端只能使用该码一次，否则会被授权服务器拒绝。该码与客户端ID和重定向URI，是一 一对应关系。 state：如果客户端的请求中包含这个参数，认证服务器的回应也必须一模一样包含这个参数。 D步骤中，客户端向认证服务器申请令牌的HTTP请求，包含以下参数： grant_type：表示使用的授权模式，必选项，此处的值固定为&amp;quot;authorization_code&amp;quot;。 code：表示上一步获得的授权码，必选项。 redirect_uri：表示重定向URI，必选项，且必须与A步骤中的该参数值保持一致。 client_id：表示客户端ID，必选项。 client_id：表示客户端ID，必选项。 密码模式 密码模式（Resource Owner Password Credentials Grant）中，用户向客户端提供自己的用户名和密码。客户端使用这些信息，向认证服务器索要授权。
+密码模式 步骤如下： （A）用户向客户端提供用户名和密码。 （B）客户端将用户名和密码发给认证服务器，向后者请求令牌。 （C）认证服务器确认无误后，向客户端提供访问令牌。
+B步骤中，客户端发出的HTTP请求，包含以下参数：</description>
+    </item>
+    
+  </channel>
+</rss>

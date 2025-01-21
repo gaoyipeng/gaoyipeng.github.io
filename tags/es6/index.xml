@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>ES6 on 十一爸爸的博客</title>
+    <link>https://garnettboy.gitee.io/tags/es6/</link>
+    <description>Recent content in ES6 on 十一爸爸的博客</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Mon, 13 Jan 2025 10:40:09 +0000</lastBuildDate><atom:link href="https://garnettboy.gitee.io/tags/es6/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>ES6-ES11 知识点笔记</title>
+      <link>https://garnettboy.gitee.io/p/es6-es11-%E7%9F%A5%E8%AF%86%E7%82%B9%E7%AC%94%E8%AE%B0/</link>
+      <pubDate>Mon, 13 Jan 2025 10:40:09 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/es6-es11-%E7%9F%A5%E8%AF%86%E7%82%B9%E7%AC%94%E8%AE%B0/</guid>
+      <description>本文记录一下学习的ES6-ES11知识点。方便后续查找。ECMAScript 是由 Ecma 国际通过 ECMA-262 标准化的脚本程序设计语言。
+1、ECMA-262历史 image-20250113154506937 从 ES6 开始，每年发布一个版本，版本号比年份最后一位大1，例如2020年，第11版。2024年已经发布了第15版
+image-20250113154951496 2、ES6新特性 2.1 let let 关键字用来声明变量，使用 let 声明的变量有几个特点：
+不允许重复声明 块儿级作用域 不存在变量提升 不影响作用域链 &amp;lt;!DOCTYPE html&amp;gt; &amp;lt;html lang=&amp;#34;en&amp;#34;&amp;gt; &amp;lt;head&amp;gt; &amp;lt;meta charset=&amp;#34;UTF-8&amp;#34;&amp;gt; &amp;lt;meta name=&amp;#34;viewport&amp;#34; content=&amp;#34;width=device-width, initial-scale=1.0&amp;#34;&amp;gt; &amp;lt;title&amp;gt;let&amp;lt;/title&amp;gt; &amp;lt;/head&amp;gt; &amp;lt;body&amp;gt; &amp;lt;script&amp;gt; //声明变量 let a; let b,c,d; let e = 100; let f = 521, g = &amp;#39;iloveyou&amp;#39;, h = []; //1. 变量不能重复声明,Uncaught SyntaxError: Identifier &amp;#39;star&amp;#39; has already been declared let star = &amp;#39;罗志祥&amp;#39;; let star = &amp;#39;小猪&amp;#39;; //2.</description>
+    </item>
+    
+    <item>
+      <title>ES6知识点笔记（1）</title>
+      <link>https://garnettboy.gitee.io/p/es6%E7%9F%A5%E8%AF%86%E7%82%B9%E7%AC%94%E8%AE%B01/</link>
+      <pubDate>Wed, 23 Dec 2020 10:40:09 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/es6%E7%9F%A5%E8%AF%86%E7%82%B9%E7%AC%94%E8%AE%B01/</guid>
+      <description>本文记录一下常见的ES6知识点。参考：http://caibaojian.com/es6/class.html
+1、javascript的作用域 ES5中的var是没有块级作用域的(例如在 if/for 中)
+ES6中的let是有块级作用的(例如在 if/for 中)
+ES5之前因为if和for都没有块级作用域的概念, 所以在很多时候, 我们都必须借助于function的作用域来解决应用外面变量的问题
+ES6中，加入了 let, let 它是有if 和 for 的块级作用域
+image-20201223110754587 1.1 var 的局限性 先看一个ES5中经典的小案例：
+&amp;lt;body&amp;gt; &amp;lt;button&amp;gt;按钮1&amp;lt;/button&amp;gt; &amp;lt;button&amp;gt;按钮2&amp;lt;/button&amp;gt; &amp;lt;button&amp;gt;按钮3&amp;lt;/button&amp;gt; &amp;lt;script&amp;gt; // 1.没有块级作用域引起的问题: for的块级 var btns = document.getElementsByTagName(&amp;#39;button&amp;#39;); for (var i=0; i&amp;lt;btns.length; i++) { btns[i].addEventListener(&amp;#39;click&amp;#39;, function () { console.log(&amp;#39;第&amp;#39; + i + &amp;#39;个按钮被点击&amp;#39;); }) } &amp;lt;/script&amp;gt; &amp;lt;/body&amp;gt; image-20201223112159023 无论点击那个按钮，都是打印“第3个按钮被点击”。这是因为for代码块没有作用域，当for循环绑定监听完成的时候，i是几？是3
+ES5如何避免这个问题呢？可以使用闭包来解决：为什么闭包可以解决问题: 因为函数是一个作用域。
+&amp;lt;button&amp;gt;按钮1&amp;lt;/button&amp;gt; &amp;lt;button&amp;gt;按钮2&amp;lt;/button&amp;gt; &amp;lt;button&amp;gt;按钮3&amp;lt;/button&amp;gt; &amp;lt;script&amp;gt; // 2.情况二: ES5中使用闭包,为什么闭包可以解决问题: 函数是一个作用域. var btns = document.getElementsByTagName(&amp;#39;button&amp;#39;); for (var i=0; i&amp;lt;btns.</description>
+    </item>
+    
+  </channel>
+</rss>

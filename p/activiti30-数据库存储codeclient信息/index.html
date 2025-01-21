@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Activiti（30） 数据库存储Code,Client信息'><title>Activiti（30） 数据库存储Code,Client信息</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/activiti30-%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AD%98%E5%82%A8codeclient%E4%BF%A1%E6%81%AF/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Activiti（30） 数据库存储Code,Client信息'>
+<meta property='og:description' content='Activiti（30） 数据库存储Code,Client信息'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/activiti30-%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AD%98%E5%82%A8codeclient%E4%BF%A1%E6%81%AF/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Activiti' /><meta property='article:tag' content='Spring-Security-OAuth2' /><meta property='article:published_time' content='2020-10-05T15:09:49&#43;00:00'/><meta property='article:modified_time' content='2020-10-05T15:09:49&#43;00:00'/>
+<meta name="twitter:title" content="Activiti（30） 数据库存储Code,Client信息">
+<meta name="twitter:description" content="Activiti（30） 数据库存储Code,Client信息">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/activiti/" >
+                Activiti
+            </a>
+        
+            <a href="/categories/spring-security-oauth2/" >
+                Spring-Security-OAuth2
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/activiti30-%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AD%98%E5%82%A8codeclient%E4%BF%A1%E6%81%AF/">Activiti（30） 数据库存储Code,Client信息</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        Activiti（30） 数据库存储Code,Client信息
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Oct 05, 2020</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 3 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <p>前面我们我们在集成Oauth2功能的的时候，授权码和客户端信息都是保存在内存中的，但是在生产环境下，这些信息都应该保存在数据库中，否则服务重启后，内存信息都会清空，而且不方便配置。</p>
+<h2 id="1数据库表">1、数据库表</h2>
+<p>首先我们需要新建2张表来保存授权码和客户端信息：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="o">`</span><span class="n">oauth_client_details</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">client_id</span><span class="o">`</span><span class="w"> </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;客户端标识&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">resource_ids</span><span class="o">`</span><span class="w"> </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;接入资源列表&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">client_secret</span><span class="o">`</span><span class="w"> </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;客户端秘钥&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="k">scope</span><span class="o">`</span><span class="w"> </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">authorized_grant_types</span><span class="o">`</span><span class="w"> </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">web_server_redirect_uri</span><span class="o">`</span><span class="w"> </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">authorities</span><span class="o">`</span><span class="w"> </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">access_token_validity</span><span class="o">`</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">refresh_token_validity</span><span class="o">`</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">additional_information</span><span class="o">`</span><span class="w"> </span><span class="n">longtext</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">create_time</span><span class="o">`</span><span class="w"> </span><span class="k">timestamp</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">CURRENT_TIMESTAMP</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">UPDATE</span><span class="w"> </span><span class="k">CURRENT_TIMESTAMP</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">archived</span><span class="o">`</span><span class="w"> </span><span class="n">tinyint</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="k">trusted</span><span class="o">`</span><span class="w"> </span><span class="n">tinyint</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">autoapprove</span><span class="o">`</span><span class="w"> </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">client_id</span><span class="o">`</span><span class="p">)</span><span class="w"> </span><span class="k">USING</span><span class="w"> </span><span class="n">BTREE</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w"> </span><span class="n">ENGINE</span><span class="o">=</span><span class="n">InnoDB</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="n">CHARSET</span><span class="o">=</span><span class="n">utf8</span><span class="w"> </span><span class="n">ROW_FORMAT</span><span class="o">=</span><span class="k">DYNAMIC</span><span class="w"> </span><span class="k">COMMENT</span><span class="o">=</span><span class="s1">&#39;接入客户端信息&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="o">`</span><span class="n">oauth_code</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">code</span><span class="o">`</span><span class="w"> </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">create_time</span><span class="o">`</span><span class="w"> </span><span class="k">timestamp</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">CURRENT_TIMESTAMP</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">authentication</span><span class="o">`</span><span class="w"> </span><span class="nb">blob</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">KEY</span><span class="w"> </span><span class="o">`</span><span class="n">code_index</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">code</span><span class="o">`</span><span class="p">)</span><span class="w"> </span><span class="k">USING</span><span class="w"> </span><span class="n">BTREE</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w"> </span><span class="n">ENGINE</span><span class="o">=</span><span class="n">InnoDB</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="n">CHARSET</span><span class="o">=</span><span class="n">utf8</span><span class="w"> </span><span class="n">ROW_FORMAT</span><span class="o">=</span><span class="n">COMPACT</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>表中插入数据：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">INSERT</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="o">`</span><span class="n">activiti</span><span class="o">-</span><span class="n">demo</span><span class="o">`</span><span class="p">.</span><span class="o">`</span><span class="n">oauth_client_details</span><span class="o">`</span><span class="p">(</span><span class="o">`</span><span class="n">client_id</span><span class="o">`</span><span class="p">,</span><span class="w"> </span><span class="o">`</span><span class="n">resource_ids</span><span class="o">`</span><span class="p">,</span><span class="w"> </span><span class="o">`</span><span class="n">client_secret</span><span class="o">`</span><span class="p">,</span><span class="w"> </span><span class="o">`</span><span class="k">scope</span><span class="o">`</span><span class="p">,</span><span class="w"> </span><span class="o">`</span><span class="n">authorized_grant_types</span><span class="o">`</span><span class="p">,</span><span class="w"> </span><span class="o">`</span><span class="n">web_server_redirect_uri</span><span class="o">`</span><span class="p">,</span><span class="w"> </span><span class="o">`</span><span class="n">authorities</span><span class="o">`</span><span class="p">,</span><span class="w"> </span><span class="o">`</span><span class="n">access_token_validity</span><span class="o">`</span><span class="p">,</span><span class="w"> </span><span class="o">`</span><span class="n">refresh_token_validity</span><span class="o">`</span><span class="p">,</span><span class="w"> </span><span class="o">`</span><span class="n">additional_information</span><span class="o">`</span><span class="p">,</span><span class="w"> </span><span class="o">`</span><span class="n">create_time</span><span class="o">`</span><span class="p">,</span><span class="w"> </span><span class="o">`</span><span class="n">archived</span><span class="o">`</span><span class="p">,</span><span class="w"> </span><span class="o">`</span><span class="k">trusted</span><span class="o">`</span><span class="p">,</span><span class="w"> </span><span class="o">`</span><span class="n">autoapprove</span><span class="o">`</span><span class="p">)</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;activiti-rest&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;activiti-rest,activiti-web,activiti-auth&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;$2a$10$RwjayO3IOpr0L8t8We2YC.FoEodRUQJowNPsOOKmkF8hZ4Mfn/V8y&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;ROLE_ADMIN,ROLE_USER,ROLE_API&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;client_credentials,password,authorization_code,implicit,refresh_token&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;https://www.baidu.com&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">7200</span><span class="p">,</span><span class="w"> </span><span class="mi">259200</span><span class="p">,</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;2020-09-28 13:50:46&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;true&#39;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">INSERT</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="o">`</span><span class="n">activiti</span><span class="o">-</span><span class="n">demo</span><span class="o">`</span><span class="p">.</span><span class="o">`</span><span class="n">oauth_client_details</span><span class="o">`</span><span class="p">(</span><span class="o">`</span><span class="n">client_id</span><span class="o">`</span><span class="p">,</span><span class="w"> </span><span class="o">`</span><span class="n">resource_ids</span><span class="o">`</span><span class="p">,</span><span class="w"> </span><span class="o">`</span><span class="n">client_secret</span><span class="o">`</span><span class="p">,</span><span class="w"> </span><span class="o">`</span><span class="k">scope</span><span class="o">`</span><span class="p">,</span><span class="w"> </span><span class="o">`</span><span class="n">authorized_grant_types</span><span class="o">`</span><span class="p">,</span><span class="w"> </span><span class="o">`</span><span class="n">web_server_redirect_uri</span><span class="o">`</span><span class="p">,</span><span class="w"> </span><span class="o">`</span><span class="n">authorities</span><span class="o">`</span><span class="p">,</span><span class="w"> </span><span class="o">`</span><span class="n">access_token_validity</span><span class="o">`</span><span class="p">,</span><span class="w"> </span><span class="o">`</span><span class="n">refresh_token_validity</span><span class="o">`</span><span class="p">,</span><span class="w"> </span><span class="o">`</span><span class="n">additional_information</span><span class="o">`</span><span class="p">,</span><span class="w"> </span><span class="o">`</span><span class="n">create_time</span><span class="o">`</span><span class="p">,</span><span class="w"> </span><span class="o">`</span><span class="n">archived</span><span class="o">`</span><span class="p">,</span><span class="w"> </span><span class="o">`</span><span class="k">trusted</span><span class="o">`</span><span class="p">,</span><span class="w"> </span><span class="o">`</span><span class="n">autoapprove</span><span class="o">`</span><span class="p">)</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;activiti-web&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;activiti-rest,activiti-web,activiti-auth&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;$2a$10$RwjayO3IOpr0L8t8We2YC.FoEodRUQJowNPsOOKmkF8hZ4Mfn/V8y&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;ROLE_ADMIN,ROLE_USER,ROLE_API&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;client_credentials,password,authorization_code,implicit,refresh_token&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;https://www.baidu.com&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">7200</span><span class="p">,</span><span class="w"> </span><span class="mi">259200</span><span class="p">,</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;2020-09-28 13:51:00&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;true&#39;</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></div><p><figure 
+	>
+	<a href="/images/activiti6-30/image-20201005195451023.png" >
+		<img src="/images/activiti6-30/image-20201005195451023.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201005195451023">
+	</a>
+	
+	<figcaption>image-20201005195451023</figcaption>
+	
+</figure></p>
+<p>此处定义了2个客户端信息，其中的<code>client_secret</code>字段，明文是123456，此处需要保存加密后的字符串，因为我们代码中使用的是<code>BCryptPasswordEncoder</code>加密，所以使用如下方法即可获取加密串：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@Test</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kt">void</span> <span class="nf">test1</span><span class="o">(){</span>
+</span></span><span class="line"><span class="cl">    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;-------------&#34;</span><span class="o">+</span><span class="k">new</span> <span class="n">BCryptPasswordEncoder</span><span class="o">().</span><span class="na">encode</span><span class="o">(</span><span class="s">&#34;123456&#34;</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><h2 id="2认证服务器集成mybatis-plusdruid">2、认证服务器集成Mybatis-Plus、Druid</h2>
+<p>因为涉及到了数据库操作，所以我们需要在认证服务器中集成Mybatis-plus。这个集成步骤在前面搭建workflow-activiti-rest服务时已经介绍过了。</p>
+<h3 id="21-添加依赖">2.1 添加依赖</h3>
+<p>在<code>workflow-auth</code>服务的pom中添加：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;groupId&gt;</span>com.baomidou<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;artifactId&gt;</span>mybatis-plus-boot-starter<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;groupId&gt;</span>p6spy<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;artifactId&gt;</span>p6spy<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;groupId&gt;</span>com.baomidou<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;artifactId&gt;</span>dynamic-datasource-spring-boot-starter<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;groupId&gt;</span>com.baomidou<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;artifactId&gt;</span>mybatis-plus-extension<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;groupId&gt;</span>com.baomidou<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;artifactId&gt;</span>mybatis-plus-generator<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;groupId&gt;</span>org.freemarker<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;artifactId&gt;</span>freemarker<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="c">&lt;!-- Mysql驱动包 --&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;groupId&gt;</span>mysql<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;artifactId&gt;</span>mysql-connector-java<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="c">&lt;!--阿里数据库连接池 --&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;groupId&gt;</span>com.alibaba<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;artifactId&gt;</span>druid-spring-boot-starter<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/dependency&gt;</span>
+</span></span></code></pre></div><h3 id="22-spyproperties">2.2 spy.properties</h3>
+<p>在<code>src/main/resources/spy.properties</code>路径下新建spy.properties文件。用于格式化SQL语句。</p>
+<p>spy.properties内容如下：</p>
+<pre tabindex="0"><code class="language-properties" data-lang="properties">appender=com.p6spy.engine.spy.appender.Slf4JLogger
+</code></pre><h3 id="23-修改配置">2.3 修改配置</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="c"># mybatis-plus相关配置</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">mybatis-plus</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="c"># xml扫描，多个目录用逗号或者分号分隔（告诉 Mapper 所对应的 XML 文件位置）</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">mapper-locations</span><span class="p">:</span><span class="w"> </span><span class="l">classpath:mapper/*.xml</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="c"># 以下配置均有默认值,可以不设置</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">global-config</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">banner</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">db-config</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="c">#主键类型 AUTO:&#34;数据库ID自增&#34; INPUT:&#34;用户输入ID&#34;,ID_WORKER:&#34;全局唯一ID (数字类型唯一ID)&#34;, UUID:&#34;全局唯一ID UUID&#34;;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">id-type</span><span class="p">:</span><span class="w"> </span><span class="l">auto</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="c">#字段策略 IGNORED:&#34;忽略判断&#34;  NOT_NULL:&#34;非 NULL 判断&#34;)  NOT_EMPTY:&#34;非空判断&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">field-strategy</span><span class="p">:</span><span class="w"> </span><span class="l">NOT_EMPTY</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="c">#数据库类型</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">db-type</span><span class="p">:</span><span class="w"> </span><span class="l">MYSQL</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">configuration</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">jdbc-type-for-null</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c"># 是否开启自动驼峰命名规则映射:从数据库列名到Java属性驼峰命名的类似映射</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">map-underscore-to-camel-case</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c"># 如果查询结果中包含空值的列，则 MyBatis 在映射的时候，不会映射这个字段</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">call-setters-on-nulls</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c"># 这个配置会将执行的sql打印出来，在开发或测试的时候可以用</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">log-impl</span><span class="p">:</span><span class="w"> </span><span class="l">org.apache.ibatis.logging.stdout.StdOutImpl</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spring</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">autoconfigure</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">exclude</span><span class="p">:</span><span class="w"> </span><span class="l">com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceAutoConfigure</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="c"># activiti 模块</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="c"># 解决启动报错：class path resource [processes/] cannot be resolved to URL because it does not exist</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">activiti</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">check-process-definitions</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c"># 检测身份信息表是否存在</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c">#db-identity-used: false</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">history-level</span><span class="p">:</span><span class="w"> </span><span class="l">full</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">datasource</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">dynamic</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">p6spy</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="c">#druid配置</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">druid</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="c">#初始化大小,最小,最大</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">initial-size</span><span class="p">:</span><span class="w"> </span><span class="m">5</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">min-idle</span><span class="p">:</span><span class="w"> </span><span class="m">5</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">max-active</span><span class="p">:</span><span class="w"> </span><span class="m">20</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="c">#配置获取连接等待超时的时间</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">max-wait</span><span class="p">:</span><span class="w"> </span><span class="m">60000</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="c">#配置间隔多久才进行一次检测,检测需要关闭的空闲连接,单位是毫秒</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">time-between-eviction-runs-millis</span><span class="p">:</span><span class="w"> </span><span class="m">60000</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="c">#配置一个连接在池中最小生存的时间,单位是毫秒</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">min-evictable-idle-time-millis</span><span class="p">:</span><span class="w"> </span><span class="m">300000</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">validation-query</span><span class="p">:</span><span class="w"> </span><span class="l">SELECT 1 FROM DUAL</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">test-while-idle</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">test-on-borrow</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">test-on-return</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="c">#打开PSCache,并且指定每个连接上PSCache的大小</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">pool-prepared-statements</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">max-pool-prepared-statement-per-connection-size</span><span class="p">:</span><span class="w"> </span><span class="m">20</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="c">#配置监控统计拦截的filters,去掉后监控界面sql无法统计,&#39;wall&#39;用于防火墙</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">filters</span><span class="p">:</span><span class="w"> </span><span class="l">stat,wall</span><span class="w"> </span><span class="c"># 注意这个值和druid原生不一致，默认启动了stat,wall</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">filter</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">log4j</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">wall</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">config</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">              </span><span class="c"># 允许多个语句一起执行</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">              </span><span class="nt">multi-statement-allow</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">db-type</span><span class="p">:</span><span class="w"> </span><span class="l">mysql</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">stat</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">db-type</span><span class="p">:</span><span class="w"> </span><span class="l">mysql</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="c"># 默认源</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">primary</span><span class="p">:</span><span class="w"> </span><span class="l">activiti-demo</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">datasource</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">activiti-demo</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l">jdbc:mysql://localhost:3306/activiti-demo?useUnicode=true&amp;characterEncoding=utf8&amp;zeroDateTimeBehavior=convertToNull&amp;useSSL=true&amp;serverTimezone=GMT%2B8&amp;nullCatalogMeansCurrent=true</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">username</span><span class="p">:</span><span class="w"> </span><span class="l">root</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="cp">*******</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">driver-class-name</span><span class="p">:</span><span class="w"> </span><span class="l">com.mysql.jdbc.Driver</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="c">#slave:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="c">#url: jdbc:mysql://localhost:3306/slave1?useUnicode=true&amp;characterEncoding=utf8&amp;zeroDateTimeBehavior=convertToNull&amp;useSSL=true&amp;serverTimezone=GMT%2B8&amp;nullCatalogMeansCurrent=true</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="c">#username: root</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="c">#password: 123456</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="c">#driver-class-name: com.mysql.jdbc.Driver</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="c">#schema: db/schema.sql</span><span class="w">
+</span></span></span></code></pre></div><h3 id="24-druid配置">2.4 Druid配置</h3>
+<p>将workflow-activiti-rest服务config目录下的DruidConfiguration.java拷贝到workflow-auth的config目录下：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-30/image-20201005195132971.png" >
+		<img src="/images/activiti6-30/image-20201005195132971.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201005195132971">
+	</a>
+	
+	<figcaption>image-20201005195132971</figcaption>
+	
+</figure></p>
+<h2 id="3修改资源拦截配置">3、修改资源拦截配置</h2>
+<p>我们需要修改一下资源配置类<code>ResourceServerConfig</code>，将druid、swagger等资源放行。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kt">void</span> <span class="nf">configure</span><span class="o">(</span><span class="n">HttpSecurity</span> <span class="n">http</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">http</span>
+</span></span><span class="line"><span class="cl">        <span class="o">.</span><span class="na">csrf</span><span class="o">().</span><span class="na">disable</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">        <span class="o">.</span><span class="na">requestMatchers</span><span class="o">().</span><span class="na">antMatchers</span><span class="o">(</span><span class="s">&#34;/**&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">        <span class="o">.</span><span class="na">and</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">        <span class="o">.</span><span class="na">authorizeRequests</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">        <span class="o">.</span><span class="na">antMatchers</span><span class="o">(</span><span class="s">&#34;/v2/api-docs&#34;</span><span class="o">,</span> <span class="s">&#34;/swagger-resources/configuration/ui&#34;</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">                     <span class="s">&#34;/swagger-resources&#34;</span><span class="o">,</span> <span class="s">&#34;/swagger-resources/configuration/security&#34;</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">                     <span class="s">&#34;/swagger-ui.html&#34;</span><span class="o">,</span> <span class="s">&#34;/webjars/**&#34;</span><span class="o">).</span><span class="na">permitAll</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">        <span class="o">.</span><span class="na">antMatchers</span><span class="o">(</span><span class="s">&#34;/druid/**&#34;</span><span class="o">).</span><span class="na">permitAll</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">        <span class="o">.</span><span class="na">antMatchers</span><span class="o">(</span><span class="s">&#34;/**&#34;</span><span class="o">).</span><span class="na">authenticated</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/images/activiti6-30/image-20201005215018337.png" >
+		<img src="/images/activiti6-30/image-20201005215018337.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201005215018337">
+	</a>
+	
+	<figcaption>image-20201005215018337</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-30/image-20201005215030074.png" >
+		<img src="/images/activiti6-30/image-20201005215030074.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201005215030074">
+	</a>
+	
+	<figcaption>image-20201005215030074</figcaption>
+	
+</figure></p>
+<h2 id="4修改授权服务">4、修改授权服务</h2>
+<h3 id="41-修改authorizationserverconfig">4.1 修改AuthorizationServerConfig</h3>
+<p>之前的客户端信息、授权码服务，我们是这样配置的：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 配置客户端详情信息
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param clients
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @throws Exception
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kt">void</span> <span class="nf">configure</span><span class="o">(</span><span class="n">ClientDetailsServiceConfigurer</span> <span class="n">clients</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">clients</span><span class="o">.</span><span class="na">inMemory</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">        <span class="o">.</span><span class="na">withClient</span><span class="o">(</span><span class="s">&#34;kiki&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">        <span class="o">.</span><span class="na">secret</span><span class="o">(</span><span class="n">passwordEncoder</span><span class="o">.</span><span class="na">encode</span><span class="o">(</span><span class="s">&#34;123456&#34;</span><span class="o">))</span>
+</span></span><span class="line"><span class="cl">        <span class="o">.</span><span class="na">authorizedGrantTypes</span><span class="o">(</span><span class="s">&#34;password&#34;</span><span class="o">,</span><span class="s">&#34;authorization_code&#34;</span><span class="o">,</span><span class="s">&#34;client_credentials&#34;</span> <span class="o">,</span><span class="s">&#34;implicit&#34;</span><span class="o">,</span><span class="s">&#34;refresh_token&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">        <span class="o">.</span><span class="na">autoApprove</span><span class="o">(</span><span class="kc">true</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">        <span class="o">.</span><span class="na">scopes</span><span class="o">(</span><span class="s">&#34;all&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">        <span class="o">.</span><span class="na">redirectUris</span><span class="o">(</span><span class="s">&#34;https://www.baidu.com&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">        <span class="o">.</span><span class="na">resourceIds</span><span class="o">(</span><span class="s">&#34;activiti-rest&#34;</span><span class="o">,</span><span class="s">&#34;activiti-web&#34;</span><span class="o">,</span><span class="s">&#34;activiti-auth&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">  * 授权码服务：配置授权码模式下授权码存储方式
+</span></span></span><span class="line"><span class="cl"><span class="cm">  * @return
+</span></span></span><span class="line"><span class="cl"><span class="cm">  */</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@Bean</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="n">AuthorizationCodeServices</span> <span class="nf">authorizationCodeServices</span><span class="o">(){</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="k">new</span> <span class="n">InMemoryAuthorizationCodeServices</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>现在我们修改为：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@Autowired</span>
+</span></span><span class="line"><span class="cl"><span class="kd">private</span> <span class="n">ClientDetailsService</span> <span class="n">clientDetailsService</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">  * 配置客户端详情信息
+</span></span></span><span class="line"><span class="cl"><span class="cm">  * @param clients
+</span></span></span><span class="line"><span class="cl"><span class="cm">  * @throws Exception
+</span></span></span><span class="line"><span class="cl"><span class="cm">  */</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kt">void</span> <span class="nf">configure</span><span class="o">(</span><span class="n">ClientDetailsServiceConfigurer</span> <span class="n">clients</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">clients</span><span class="o">.</span><span class="na">withClientDetails</span><span class="o">(</span><span class="n">clientDetailsService</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">  * 数据库获取客户端信息
+</span></span></span><span class="line"><span class="cl"><span class="cm">  * @param dataSource
+</span></span></span><span class="line"><span class="cl"><span class="cm">  * @return
+</span></span></span><span class="line"><span class="cl"><span class="cm">  */</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@Bean</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="n">ClientDetailsService</span> <span class="nf">clientDetailsService</span><span class="o">(</span><span class="n">DataSource</span> <span class="n">dataSource</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ClientDetailsService</span> <span class="n">clientDetailsService</span> <span class="o">=</span> <span class="k">new</span> <span class="n">JdbcClientDetailsService</span><span class="o">(</span><span class="n">dataSource</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">((</span><span class="n">JdbcClientDetailsService</span><span class="o">)</span> <span class="n">clientDetailsService</span><span class="o">).</span><span class="na">setPasswordEncoder</span><span class="o">(</span><span class="n">passwordEncoder</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">clientDetailsService</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">  * 授权码服务：配置授权码模式下授权码存储方式
+</span></span></span><span class="line"><span class="cl"><span class="cm">  * @return
+</span></span></span><span class="line"><span class="cl"><span class="cm">  */</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@Bean</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="n">AuthorizationCodeServices</span> <span class="nf">authorizationCodeServices</span><span class="o">(</span><span class="n">DataSource</span> <span class="n">dataSource</span><span class="o">){</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="k">new</span> <span class="n">JdbcAuthorizationCodeServices</span><span class="o">(</span><span class="n">dataSource</span><span class="o">);</span><span class="c1">//设置授权码模式的授权码如何存取
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">//return new InMemoryAuthorizationCodeServices();
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">}</span>
+</span></span></code></pre></div><p>另外，我们上面重新定义了ClientDetailsService ，会和<code>org/springframework/security/oauth2/config/annotation/configuration/ClientDetailsServiceConfiguration.class</code>中的Bean冲突：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-30/image-20201026120728154.png" >
+		<img src="/images/activiti6-30/image-20201026120728154.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201026120728154">
+	</a>
+	
+	<figcaption>image-20201026120728154</figcaption>
+	
+</figure></p>
+<p>启动会报如下错误：</p>
+<pre tabindex="0"><code>The bean &#39;clientDetailsService&#39;, defined in class path resource [org/sxdx/workflowauth/config/AuthorizationServerConfig.class], could not be registered. A bean with that name has already been defined in BeanDefinition defined in class path resource [org/springframework/security/oauth2/config/annotation/configuration/ClientDetailsServiceConfiguration.class] and overriding is disabled.
+</code></pre><p>此处我们添加如下配置来解决这个问题:l</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">spring</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">main</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">allow-bean-definition-overriding</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span></code></pre></div><p>这样就修改为通过数据库保存client和code信息了。可以发现，此处我们并没有指定表名，那么不需要告诉程序从那张表获取数据吗，不需要，这是因为Oauth2已经设置了默认的表名和表结构，我们只需创建好对应的表即可。</p>
+<p>表结构可以参考github：https://github.com/spring-projects/spring-security-oauth/blob/master/spring-security-oauth2/src/test/resources/schema.sql</p>
+<h2 id="5验证">5、验证</h2>
+<p>我们重启服务后验证授权码模式。</p>
+<p>浏览器访问：http://localhost:8101/oauth/authorize?response_type=code&amp;client_id=activiti-rest&amp;redirect_uri=https://www.baidu.com&amp;state=state</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-30/image-20201005195328343.png" >
+		<img src="/images/activiti6-30/image-20201005195328343.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201005195328343">
+	</a>
+	
+	<figcaption>image-20201005195328343</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-30/image-20201005200143937.png" >
+		<img src="/images/activiti6-30/image-20201005200143937.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201005200143937">
+	</a>
+	
+	<figcaption>image-20201005200143937</figcaption>
+	
+</figure></p>
+<p>此时查看<code>oauth_code</code>表：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-30/image-20201005200229939.png" >
+		<img src="/images/activiti6-30/image-20201005200229939.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201005200229939">
+	</a>
+	
+	<figcaption>image-20201005200229939</figcaption>
+	
+</figure></p>
+<p>可以看到授权码已经保存到了数据库中。我们使用code获取token：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-30/image-20201005201246472.png" >
+		<img src="/images/activiti6-30/image-20201005201246472.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201005201246472">
+	</a>
+	
+	<figcaption>image-20201005201246472</figcaption>
+	
+</figure></p>
+<p>我们还需要设置请求头，key为Authorization，value为Basic加上client_id:client_secret经过base64加密后的值（可以使用http://tool.chinaz.com/Tools/Base64.aspx）</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-30/image-20201005201034760.png" >
+		<img src="/images/activiti6-30/image-20201005201034760.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201005201034760">
+	</a>
+	
+	<figcaption>image-20201005201034760</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-30/image-20201005201306951.png" >
+		<img src="/images/activiti6-30/image-20201005201306951.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201005201306951">
+	</a>
+	
+	<figcaption>image-20201005201306951</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-30/image-20201005201329024.png" >
+		<img src="/images/activiti6-30/image-20201005201329024.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201005201329024">
+	</a>
+	
+	<figcaption>image-20201005201329024</figcaption>
+	
+</figure></p>
+<p>可以看到我们成功获取了token。</p>
+<p>此时再次查看<code>oauth_code</code>表：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-30/image-20201005201407526.png" >
+		<img src="/images/activiti6-30/image-20201005201407526.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201005201407526">
+	</a>
+	
+	<figcaption>image-20201005201407526</figcaption>
+	
+</figure></p>
+<p>发现记录已经被清空了。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/activiti/">Activiti</a>
+        
+            <a href="/tags/spring-security-oauth2/">Spring-Security-OAuth2</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/activiti29-%E6%B7%BB%E5%8A%A0jwt%E6%94%AF%E6%8C%81/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（29） 添加JWT支持</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti28-%E6%90%AD%E5%BB%BA%E8%B5%84%E6%BA%90%E6%9C%8D%E5%8A%A1%E5%99%A8/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（28） 搭建资源服务器</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti27-%E6%90%AD%E5%BB%BA%E8%AE%A4%E8%AF%81%E6%9C%8D%E5%8A%A1%E5%99%A8/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（27） 搭建认证服务器</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti26-spring-security-oauth2%E7%AE%80%E4%BB%8B/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（26） Spring-Security-OAuth2简介</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti6%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%B3%BB%E7%BB%9F%E6%90%AD%E5%BB%BA%E6%95%99%E7%A8%8B/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti6工作流系统搭建教程</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#1数据库表">1、数据库表</a></li>
+    <li><a href="#2认证服务器集成mybatis-plusdruid">2、认证服务器集成Mybatis-Plus、Druid</a>
+      <ol>
+        <li><a href="#21-添加依赖">2.1 添加依赖</a></li>
+        <li><a href="#22-spyproperties">2.2 spy.properties</a></li>
+        <li><a href="#23-修改配置">2.3 修改配置</a></li>
+        <li><a href="#24-druid配置">2.4 Druid配置</a></li>
+      </ol>
+    </li>
+    <li><a href="#3修改资源拦截配置">3、修改资源拦截配置</a></li>
+    <li><a href="#4修改授权服务">4、修改授权服务</a>
+      <ol>
+        <li><a href="#41-修改authorizationserverconfig">4.1 修改AuthorizationServerConfig</a></li>
+      </ol>
+    </li>
+    <li><a href="#5验证">5、验证</a></li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

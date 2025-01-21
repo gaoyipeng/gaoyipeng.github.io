@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Dubbo on 十一爸爸的博客</title>
+    <link>https://garnettboy.gitee.io/tags/dubbo/</link>
+    <description>Recent content in Dubbo on 十一爸爸的博客</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Fri, 30 Oct 2020 15:16:18 +0000</lastBuildDate><atom:link href="https://garnettboy.gitee.io/tags/dubbo/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Spring Boot整合Dubbo</title>
+      <link>https://garnettboy.gitee.io/p/spring-boot%E6%95%B4%E5%90%88dubbo/</link>
+      <pubDate>Fri, 30 Oct 2020 15:16:18 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/spring-boot%E6%95%B4%E5%90%88dubbo/</guid>
+      <description>Dubbo是阿里巴巴公司开源的一个高性能优秀的服务框架，使得应用可通过高性能的 RPC 实现服务的输出和输入功能，可以和Spring框架无缝集成。
+本节学习SpringBoot集成Dubbo。Dubbo 的官网地址：http://dubbo.apache.org/zh-cn/
+duubo的架构图：
+image-20201101211901922 1、注册中心 在进行Dubbo前我们需要准备一个注册中心。就是架构图中的Registry。Dubbo支持的注册中心很多，但是官方推荐使用Zookeeper.
+image-20201101204950403 此处我们下载一个Zookeeper。地址：https://zookeeper.apache.org/
+image-20201101205540238 当前最新版本是3.6.2：
+image-20201101205803361 下载后解压，将config目录下的zoo_sample.cfg重命名为zoo.cfg(Zookeeper配置文件，默认端口为2181，
+另外还需修改临时数据保存目录，在config同目录下新建一个data文件夹。zoo.cfg修改内容如下：
+image-20201101211025261 然后双击bin目录下的zkServer.cmd启动即可。
+image-20201101211717925 2、监控中心 Dubbo给我们提供了dubbo-admin和dubbo-monitor-simple用于监控Dubbo服务，提供可视化界面来监控接口暴露，服务注册情况，也可以显示接口的调用明细和调用时间。下载地址：https://github.com/apache/dubbo-admin/tree/master
+3、聚合工程 image-20201030154213254 image-20201030154241644 删除src目录，修改POM如下：
+&amp;lt;?xml version=&amp;#34;1.0&amp;#34; encoding=&amp;#34;UTF-8&amp;#34;?&amp;gt; &amp;lt;project xmlns=&amp;#34;http://maven.apache.org/POM/4.0.0&amp;#34; xmlns:xsi=&amp;#34;http://www.w3.org/2001/XMLSchema-instance&amp;#34; xsi:schemaLocation=&amp;#34;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&amp;#34;&amp;gt; &amp;lt;modelVersion&amp;gt;4.0.0&amp;lt;/modelVersion&amp;gt; &amp;lt;groupId&amp;gt;com.sxdx&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;dubbo-boot&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.0-SNAPSHOT&amp;lt;/version&amp;gt; &amp;lt;packaging&amp;gt;pom&amp;lt;/packaging&amp;gt; &amp;lt;modules&amp;gt; &amp;lt;module&amp;gt;server-provider&amp;lt;/module&amp;gt; &amp;lt;module&amp;gt;common-api&amp;lt;/module&amp;gt; &amp;lt;module&amp;gt;service-consumer&amp;lt;/module&amp;gt; &amp;lt;/modules&amp;gt; &amp;lt;properties&amp;gt; &amp;lt;project.build.sourceEncoding&amp;gt;UTF-8&amp;lt;/project.build.sourceEncoding&amp;gt; &amp;lt;project.reporting.outputEncoding&amp;gt;UTF-8&amp;lt;/project.reporting.outputEncoding&amp;gt; &amp;lt;java.version&amp;gt;1.8&amp;lt;/java.version&amp;gt; &amp;lt;dubbo.spring.boot.starter.version&amp;gt;2.7.7&amp;lt;/dubbo.spring.boot.starter.version&amp;gt; &amp;lt;lombok.version&amp;gt;1.18.10&amp;lt;/lombok.version&amp;gt; &amp;lt;zookeeper.version&amp;gt;3.6.2&amp;lt;/zookeeper.version&amp;gt; &amp;lt;curator.version&amp;gt;4.0.1&amp;lt;/curator.version&amp;gt; &amp;lt;spring-boot.version&amp;gt;2.1.6.RELEASE&amp;lt;/spring-boot.version&amp;gt; &amp;lt;/properties&amp;gt; &amp;lt;dependencyManagement&amp;gt; &amp;lt;dependencies&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.apache.dubbo&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;dubbo-spring-boot-starter&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;${dubbo.spring.boot.starter.version}&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.boot&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-boot-dependencies&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;${spring-boot.version}&amp;lt;/version&amp;gt; &amp;lt;type&amp;gt;pom&amp;lt;/type&amp;gt; &amp;lt;scope&amp;gt;import&amp;lt;/scope&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.apache.curator&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;curator-framework&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;${curator.</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='HDFS 冷热数据分离（异构存储）'><title>（Hadoop20）HDFS 冷热数据分离（异构存储）</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/hadoop20hdfs-%E5%86%B7%E7%83%AD%E6%95%B0%E6%8D%AE%E5%88%86%E7%A6%BB%E5%BC%82%E6%9E%84%E5%AD%98%E5%82%A8/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='（Hadoop20）HDFS 冷热数据分离（异构存储）'>
+<meta property='og:description' content='HDFS 冷热数据分离（异构存储）'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/hadoop20hdfs-%E5%86%B7%E7%83%AD%E6%95%B0%E6%8D%AE%E5%88%86%E7%A6%BB%E5%BC%82%E6%9E%84%E5%AD%98%E5%82%A8/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Hadoop' /><meta property='article:tag' content='HDFS' /><meta property='article:published_time' content='2023-09-05T10:36:40&#43;00:00'/><meta property='article:modified_time' content='2023-09-05T10:36:40&#43;00:00'/>
+<meta name="twitter:title" content="（Hadoop20）HDFS 冷热数据分离（异构存储）">
+<meta name="twitter:description" content="HDFS 冷热数据分离（异构存储）">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/hadoop/" >
+                Hadoop
+            </a>
+        
+            <a href="/categories/hdfs/" >
+                HDFS
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/hadoop20hdfs-%E5%86%B7%E7%83%AD%E6%95%B0%E6%8D%AE%E5%88%86%E7%A6%BB%E5%BC%82%E6%9E%84%E5%AD%98%E5%82%A8/">（Hadoop20）HDFS 冷热数据分离（异构存储）</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        HDFS 冷热数据分离（异构存储）
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Sep 05, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 2 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <h2 id="一冷热数据分离">一、冷热数据分离</h2>
+<p>冷热数据分离：不同的数据，存储在不同类型的硬盘中，达到最佳性能。比如有些我们不常用的数据，可以找一个普通磁盘存储，而经常使用的则可以存放在固态硬盘中。</p>
+<h3 id="11-hdfs的存储类型">1.1 HDFS的存储类型</h3>
+<ul>
+<li>RAM_DISK：（内存镜像文件系统）</li>
+<li>SSD：（SSD固态硬盘）</li>
+<li>DISK：（普通磁盘，在HDFS中，如果没有主动声明数据目录存储类型默认都是DISK）</li>
+<li>ARCHIVE：（没有特指哪种存储介质，主要的指的是计算能力比较弱而存储密度比较高的存储介质，用来解决数据量的容量扩增的问题，一般用于归档）</li>
+</ul>
+<h3 id="12-hdfs的存储策略">1.2 HDFS的存储策略</h3>
+<table>
+<thead>
+<tr>
+<th>策略ID</th>
+<th>策略名称</th>
+<th>副本分布</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>15</td>
+<td>Lazy_Persist</td>
+<td>RAM_DISK:1，DISK:n-1</td>
+<td>一个副本保存在内存RAM_DISK中，其余副本保存在磁盘中。</td>
+</tr>
+<tr>
+<td>12</td>
+<td>All_SSD</td>
+<td>SSD:n</td>
+<td>所有副本都保存在SSD中。</td>
+</tr>
+<tr>
+<td>10</td>
+<td>One_SSD</td>
+<td>SSD:1，DISK:n-1</td>
+<td>一个副本保存在SSD中，其余副本保存在磁盘中。</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Hot(default)</td>
+<td>DISK:n</td>
+<td>所有副本保存在磁盘中，这也是默认的存储策略。</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Warm</td>
+<td>DSIK:1，ARCHIVE:n-1</td>
+<td>一个副本保存在磁盘上，其余副本保存在归档存储上。</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Cold</td>
+<td>ARCHIVE:n</td>
+<td>所有副本都保存在归档存储上。</td>
+</tr>
+<tr>
+<td>1</td>
+<td>Provided</td>
+<td>Provided:1,DISK:n-1</td>
+<td>用于在HDFS之外存储数据</td>
+</tr>
+</tbody>
+</table>
+<p><strong>策略往往和存储介质相匹配，从Lazy_Persist到Cold，设备的访问速度从快到慢。</strong></p>
+<h3 id="13-异构存储-shell-操作">1.3 <strong>异构存储</strong> <strong>Shell</strong> 操作</h3>
+<p>（1）查看当前有哪些存储策略可以用,</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 hadoop-3.1.3<span class="o">]</span>$ hdfs storagepolicies -listPolicies
+</span></span><span class="line"><span class="cl">Block Storage Policies:
+</span></span><span class="line"><span class="cl">        BlockStoragePolicy<span class="o">{</span>PROVIDED:1, <span class="nv">storageTypes</span><span class="o">=[</span>PROVIDED, DISK<span class="o">]</span>, <span class="nv">creationFallbacks</span><span class="o">=[</span>PROVIDED, DISK<span class="o">]</span>, <span class="nv">replicationFallbacks</span><span class="o">=[</span>PROVIDED, DISK<span class="o">]}</span>
+</span></span><span class="line"><span class="cl">        BlockStoragePolicy<span class="o">{</span>COLD:2, <span class="nv">storageTypes</span><span class="o">=[</span>ARCHIVE<span class="o">]</span>, <span class="nv">creationFallbacks</span><span class="o">=[]</span>, <span class="nv">replicationFallbacks</span><span class="o">=[]}</span>
+</span></span><span class="line"><span class="cl">        BlockStoragePolicy<span class="o">{</span>WARM:5, <span class="nv">storageTypes</span><span class="o">=[</span>DISK, ARCHIVE<span class="o">]</span>, <span class="nv">creationFallbacks</span><span class="o">=[</span>DISK, ARCHIVE<span class="o">]</span>, <span class="nv">replicationFallbacks</span><span class="o">=[</span>DISK, ARCHIVE<span class="o">]}</span>
+</span></span><span class="line"><span class="cl">        BlockStoragePolicy<span class="o">{</span>HOT:7, <span class="nv">storageTypes</span><span class="o">=[</span>DISK<span class="o">]</span>, <span class="nv">creationFallbacks</span><span class="o">=[]</span>, <span class="nv">replicationFallbacks</span><span class="o">=[</span>ARCHIVE<span class="o">]}</span>
+</span></span><span class="line"><span class="cl">        BlockStoragePolicy<span class="o">{</span>ONE_SSD:10, <span class="nv">storageTypes</span><span class="o">=[</span>SSD, DISK<span class="o">]</span>, <span class="nv">creationFallbacks</span><span class="o">=[</span>SSD, DISK<span class="o">]</span>, <span class="nv">replicationFallbacks</span><span class="o">=[</span>SSD, DISK<span class="o">]}</span>
+</span></span><span class="line"><span class="cl">        BlockStoragePolicy<span class="o">{</span>ALL_SSD:12, <span class="nv">storageTypes</span><span class="o">=[</span>SSD<span class="o">]</span>, <span class="nv">creationFallbacks</span><span class="o">=[</span>DISK<span class="o">]</span>, <span class="nv">replicationFallbacks</span><span class="o">=[</span>DISK<span class="o">]}</span>
+</span></span><span class="line"><span class="cl">        BlockStoragePolicy<span class="o">{</span>LAZY_PERSIST:15, <span class="nv">storageTypes</span><span class="o">=[</span>RAM_DISK, DISK<span class="o">]</span>, <span class="nv">creationFallbacks</span><span class="o">=[</span>DISK<span class="o">]</span>, <span class="nv">replicationFallbacks</span><span class="o">=[</span>DISK<span class="o">]}</span>
+</span></span></code></pre></div><p>（2）为指定路径（数据存储目录）设置指定的存储策略</p>
+<pre tabindex="0"><code>hdfs storagepolicies -setStoragePolicy -path xxx -policy xxx
+</code></pre><p>（3）获取指定路径（数据存储目录或文件）的存储策略</p>
+<pre tabindex="0"><code>hdfs storagepolicies -getStoragePolicy -path xxx
+</code></pre><p>（4）取消存储策略；执行改命令之后该目录或者文件，以其上级的目录为准，如果是根目录，那么就是 HOT</p>
+<pre tabindex="0"><code>hdfs storagepolicies -unsetStoragePolicy -path xxx
+</code></pre><p>（5）查看文件块的分布</p>
+<pre tabindex="0"><code>bin/hdfs fsck xxx -files -blocks -locations
+</code></pre><p>（6）查看集群节点</p>
+<pre tabindex="0"><code>hadoop dfsadmin -report
+</code></pre><h3 id="14-存储介质配置">1.4 存储介质配置</h3>
+<p>hadoop并不会真正的去识别存储介质是SSD还是普通磁盘，这个需要我们手动配置。</p>
+<p>示例：生产环境下需要根据实际情况进行配置。比如<code>/opt/module/hadoop-3.1.3/hdfsdata/ssd</code>目录挂载的是固态硬盘，<code>/opt/module/hadoop-3.1.3/hdfsdata/disk</code>挂载的是普通磁盘，就可以做如下的配置。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl">【hdfs-site.xml】
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;property&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;name&gt;</span>dfs.storage.policy.enabled<span class="nt">&lt;/name&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;value&gt;</span>true<span class="nt">&lt;/value&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/property&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;property&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;name&gt;</span>dfs.datanode.data.dir<span class="nt">&lt;/name&gt;</span> 
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;value&gt;</span>&gt;[SSD]file:///opt/module/hadoop-3.1.3/hdfsdata/ssd,[DISK]file:///opt/module/hadoop-
+</span></span><span class="line"><span class="cl">3.1.3/hdfsdata/disk<span class="nt">&lt;/value&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/property&gt;</span>
+</span></span></code></pre></div><p><strong>每个节点我们可以根据实际情况进行单独配置</strong></p>
+<p>配置完成后，进行以下操作：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="c1">##初始化namenode</span>
+</span></span><span class="line"><span class="cl">$ hdfs namenode -format
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">## 重启集群</span>
+</span></span><span class="line"><span class="cl">myhadoop.sh start
+</span></span></code></pre></div><p>如果我们未对某个目录进行存储策略设置，那么由于<strong>默认策略就是HOT</strong>，HDFS会选择配置了<code>[DISK]</code>的目录进行存储。</p>
+<p><figure 
+	>
+	<a href="/../../images/20-hadoop-08/image-20230906105710008.png" >
+		<img src="/../../images/20-hadoop-08/image-20230906105710008.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230906105710008">
+	</a>
+	
+	<figcaption>image-20230906105710008</figcaption>
+	
+</figure></p>
+<h4 id="141-设置存储策略">1.4.1 设置存储策略</h4>
+<p>如果我们设置了某个目录的存储策略，例如</p>
+<pre tabindex="0"><code>$ hdfs storagepolicies -setStoragePolicy  -path /path111 -policy All_SSD
+</code></pre><p>此时我们再往<code>/path111</code>目录上传数据时，HDFS会选择配置了<code>[SSD]</code>的目录进行存储。</p>
+<h4 id="142-修改存储策略">1.4.2 修改存储策略</h4>
+<p>如果我们已经上传了文件，但是现在想要将文件降级，放到<code>Cold</code>策略的存储路径下，如何进行操作？</p>
+<p>1、修改存储策略</p>
+<pre tabindex="0"><code>$ hdfs storagepolicies -setStoragePolicy  -path /hdfsdata -policy Cold
+</code></pre><p>此时使用命令 <code>hdfs fsck /hdfsdata -files -blocks -locations</code>查看文件的存储位置是不会发生变化的，需要手动进行移动。</p>
+<p>2、手动移动文件</p>
+<pre tabindex="0"><code>$ hdfs mover /hdfsdata
+</code></pre><p>再次查看文件位置，就会发现，文件都移动到了<code>ARCHIVE</code>类型的目录下了。</p>
+<blockquote>
+<p><strong>注意：当我们将目录设置为 COLD 并且我们未配置 ARCHIVE 存储目录的情况下，不可以向该目录直接上传文件，会报出异常。</strong></p>
+</blockquote>
+<h4 id="143-lazy_persist-策略说明">1.4.3 LAZY_PERSIST 策略说明</h4>
+<p>LAZY_PERSIST 策略会把一个副本保存在内存RAM_DISK中，其余副本保存在磁盘中。</p>
+<p>由于存储到内存中，存在安全性问题，一旦系统故障，内存中的数据就会丢失，所以该策略是不推荐的。</p>
+<p>如果需要存储到内存，需要添加配置<code>dfs.datanode.max.locked.memory</code>，并且设置Value不小于<code>dfs.block.size</code>参数值（128M）：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;property&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;name&gt;</span>dfs.datanode.max.locked.memory<span class="nt">&lt;/name&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;value&gt;</span>0<span class="nt">&lt;/value&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;description&gt;</span>
+</span></span><span class="line"><span class="cl">    The amount of memory in bytes to use for caching of block replicas in
+</span></span><span class="line"><span class="cl">    memory on the datanode. The datanode&#39;s maximum locked memory soft ulimit
+</span></span><span class="line"><span class="cl">    (RLIMIT_MEMLOCK) must be set to at least this value, else the datanode
+</span></span><span class="line"><span class="cl">    will abort on startup.
+</span></span><span class="line"><span class="cl">    By default, this parameter is set to 0, which disables in-memory caching.
+</span></span><span class="line"><span class="cl">    If the native libraries are not available to the DataNode, this
+</span></span><span class="line"><span class="cl">    configuration has no effect.
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;/description&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/property&gt;</span>
+</span></span></code></pre></div><p>但是由于虚拟机<code>max locked memory</code>参数为64KB，参数配置过大，上传还会报错，所以我们只能修改<code>dfs.block.size</code>参数值。这在生产环境下是不适用的。</p>
+<p><figure 
+	>
+	<a href="/../../images/20-hadoop-08/image-20230906111753457.png" >
+		<img src="/../../images/20-hadoop-08/image-20230906111753457.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230906111753457">
+	</a>
+	
+	<figcaption>image-20230906111753457</figcaption>
+	
+</figure></p>
+<p>所以，默认情况下，当设置某个某个目录未LAZY_PERSIST 策略时，所有的文件块都是存储在 DISK上。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/hadoop/">Hadoop</a>
+        
+            <a href="/tags/hdfs/">HDFS</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/hadoop21hdfs-%E5%AE%89%E5%85%A8%E6%A8%A1%E5%BC%8F%E6%85%A2%E7%A3%81%E7%9B%98%E7%9B%91%E6%8E%A7%E5%B0%8F%E6%96%87%E4%BB%B6%E5%BD%92%E6%A1%A3%E8%A7%A3%E5%BD%92%E6%A1%A3%E9%9B%86%E7%BE%A4%E6%95%B0%E6%8D%AE%E8%BF%81%E7%A7%BB/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hadoop21）HDFS 安全模式、慢磁盘监控、小文件归档、解归档、集群数据迁移</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hadoop19hdfs-%E7%BA%A0%E5%88%A0%E7%A0%81/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hadoop19）HDFS 纠删码</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hadoop18hdfs-%E9%9B%86%E7%BE%A4%E6%89%A9%E5%AE%B9%E5%8F%8A%E7%BC%A9%E5%AE%B9%E9%BB%91%E7%99%BD%E5%90%8D%E5%8D%95%E9%85%8D%E7%BD%AE/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hadoop18）HDFS 集群扩容及缩容、黑白名单配置</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hadoop17hdfs-%E6%95%B0%E6%8D%AE%E5%9D%87%E8%A1%A1balancer%E5%92%8Cdisk-balancer/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hadoop17）HDFS 数据均衡（Balancer和Disk Balancer）</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hadoop16hadoop-hdfs%E5%8F%82%E6%95%B0%E8%B0%83%E4%BC%98%E5%A4%9A%E7%9B%AE%E5%BD%95%E9%85%8D%E7%BD%AE/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hadoop16）Hadoop HDFS参数调优、多目录配置</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#一冷热数据分离">一、冷热数据分离</a>
+      <ol>
+        <li><a href="#11-hdfs的存储类型">1.1 HDFS的存储类型</a></li>
+        <li><a href="#12-hdfs的存储策略">1.2 HDFS的存储策略</a></li>
+        <li><a href="#13-异构存储-shell-操作">1.3 <strong>异构存储</strong> <strong>Shell</strong> 操作</a></li>
+        <li><a href="#14-存储介质配置">1.4 存储介质配置</a>
+          <ol>
+            <li><a href="#141-设置存储策略">1.4.1 设置存储策略</a></li>
+            <li><a href="#142-修改存储策略">1.4.2 修改存储策略</a></li>
+            <li><a href="#143-lazy_persist-策略说明">1.4.3 LAZY_PERSIST 策略说明</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

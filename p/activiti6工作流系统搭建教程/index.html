@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Activiti6工作流系统搭建教程'><title>Activiti6工作流系统搭建教程</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/activiti6%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%B3%BB%E7%BB%9F%E6%90%AD%E5%BB%BA%E6%95%99%E7%A8%8B/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Activiti6工作流系统搭建教程'>
+<meta property='og:description' content='Activiti6工作流系统搭建教程'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/activiti6%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%B3%BB%E7%BB%9F%E6%90%AD%E5%BB%BA%E6%95%99%E7%A8%8B/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Activiti' /><meta property='article:published_time' content='2022-09-07T09:50:37&#43;00:00'/><meta property='article:modified_time' content='2022-09-07T09:50:37&#43;00:00'/>
+<meta name="twitter:title" content="Activiti6工作流系统搭建教程">
+<meta name="twitter:description" content="Activiti6工作流系统搭建教程">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/activiti/" >
+                Activiti
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/activiti6%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%B3%BB%E7%BB%9F%E6%90%AD%E5%BB%BA%E6%95%99%E7%A8%8B/">Activiti6工作流系统搭建教程</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        Activiti6工作流系统搭建教程
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Sep 07, 2022</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 1 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <p>《Activiti6工作流系统搭建教程》是一款基于SpringBoot2.1.6 、 Activiti6.0.0、Mysql :5.7、Mybatis-plus 3.3.2 构建的工作流后端控制系统。</p>
+<p>本教程宗旨是让大家都有能力搭建自己的工作流平台。本教程通过图文结合的方式，手把手展示框架搭建过程。</p>
+<p>提供了大量的基础功能实现，完整的实现了流程的部署、运行、跟踪等。目前已经基本满足大部分的工作需求，另外说明，本教程除普通表单外，其他功能并没有接入前端页面。演示主要以接口交互为主。因为每个公司需求不同，故只提供后端接口，后期如果需要孵化为公司项目，只需一个前端即可。</p>
+<h2 id="章节目录">章节目录</h2>
+<p><a class="link" href="https://www.kancloud.cn/gaoyipeng/garnett/1822588"  target="_blank" rel="noopener"
+    >一、使用教程</a></p>
+<ul>
+<li>​     <a class="link" href="https://www.kancloud.cn/gaoyipeng/garnett/1822589"  target="_blank" rel="noopener"
+    >环境说明</a></li>
+<li>​     <a class="link" href="https://www.kancloud.cn/gaoyipeng/garnett/1822590"  target="_blank" rel="noopener"
+    >导入教程</a></li>
+<li>​    <a class="link" href="https://www.kancloud.cn/gaoyipeng/garnett/1822591"  target="_blank" rel="noopener"
+    >系统展示</a></li>
+<li>​     <a class="link" href="https://www.kancloud.cn/gaoyipeng/garnett/1846895"  target="_blank" rel="noopener"
+    >更新历史</a></li>
+</ul>
+<p><a class="link" href="https://www.kancloud.cn/gaoyipeng/garnett/1822592"  target="_blank" rel="noopener"
+    >二、搭建教程</a></p>
+<ul>
+<li>​     <a class="link" href="https://www.kancloud.cn/gaoyipeng/garnett/1822593"  target="_blank" rel="noopener"
+    >基本概念</a></li>
+<li>​     <a class="link" href="https://www.kancloud.cn/gaoyipeng/garnett/1902086"  target="_blank" rel="noopener"
+    >资料下载</a></li>
+<li>​     <a class="link" href="https://www.kancloud.cn/gaoyipeng/garnett/1822594"  target="_blank" rel="noopener"
+    >环境搭建</a></li>
+<li>​     <a class="link" href="https://www.kancloud.cn/gaoyipeng/garnett/1822595"  target="_blank" rel="noopener"
+    >集成Activiti-Modeler</a></li>
+<li>​    <a class="link" href="https://www.kancloud.cn/gaoyipeng/garnett/1822596"  target="_blank" rel="noopener"
+    >七大Service接口</a></li>
+<li>​     <a class="link" href="https://www.kancloud.cn/gaoyipeng/garnett/1822597"  target="_blank" rel="noopener"
+    >流程定义文件—流程定义—流程模型 的相互转化</a></li>
+<li>​     <a class="link" href="https://www.kancloud.cn/gaoyipeng/garnett/1822598"  target="_blank" rel="noopener"
+    >用户和用户组</a></li>
+</ul>
+<p><a class="link" href="https://www.kancloud.cn/gaoyipeng/garnett/1881703"  target="_blank" rel="noopener"
+    >三、任务表单</a></p>
+<ul>
+<li>
+<p>​     <a class="link" href="https://www.kancloud.cn/gaoyipeng/garnett/1822599"  target="_blank" rel="noopener"
+    >表单分类</a></p>
+</li>
+<li>
+<p>​     <a class="link" href="https://www.kancloud.cn/gaoyipeng/garnett/1822600"  target="_blank" rel="noopener"
+    >动态表单实战、集成Swagger、Logback</a></p>
+</li>
+<li>
+<p>​    <a class="link" href="https://www.kancloud.cn/gaoyipeng/garnett/1822601"  target="_blank" rel="noopener"
+    >外置表单实战</a></p>
+</li>
+<li>
+<p>​    <a class="link" href="https://www.kancloud.cn/gaoyipeng/garnett/1822602"  target="_blank" rel="noopener"
+    >普通表单实战,集成Thymeleaf,Mybatis-Plus</a></p>
+</li>
+<li>
+<p>​    <a class="link" href="https://www.kancloud.cn/gaoyipeng/garnett/1822603"  target="_blank" rel="noopener"
+    >表单模式选型</a></p>
+</li>
+</ul>
+<p><a class="link" href="https://www.kancloud.cn/gaoyipeng/garnett/1822604"  target="_blank" rel="noopener"
+    >四、多实例（会签）</a></p>
+<p><a class="link" href="https://www.kancloud.cn/gaoyipeng/garnett/1881704"  target="_blank" rel="noopener"
+    >五、子流程和调用活动</a></p>
+<ul>
+<li>​    <a class="link" href="https://www.kancloud.cn/gaoyipeng/garnett/1822605"  target="_blank" rel="noopener"
+    >子流程</a></li>
+<li>​     <a class="link" href="https://www.kancloud.cn/gaoyipeng/garnett/1822606"  target="_blank" rel="noopener"
+    >事件子流程</a></li>
+<li>​     <a class="link" href="https://www.kancloud.cn/gaoyipeng/garnett/1822607"  target="_blank" rel="noopener"
+    >调用活动</a></li>
+<li>​     <a class="link" href="https://www.kancloud.cn/gaoyipeng/garnett/1902087"  target="_blank" rel="noopener"
+    >事务子流程</a></li>
+</ul>
+<p><a class="link" href="https://www.kancloud.cn/gaoyipeng/garnett/1846896"  target="_blank" rel="noopener"
+    >六、流程历史管理、补充获取流程定义列表接口</a></p>
+<p><a class="link" href="https://www.kancloud.cn/gaoyipeng/garnett/1881705"  target="_blank" rel="noopener"
+    >七、事件</a></p>
+<ul>
+<li>
+<p>​     <a class="link" href="https://www.kancloud.cn/gaoyipeng/garnett/1902088"  target="_blank" rel="noopener"
+    >事件类别</a></p>
+</li>
+<li>
+<p>​     <a class="link" href="https://www.kancloud.cn/gaoyipeng/garnett/1881706"  target="_blank" rel="noopener"
+    >Activiti启动事件</a></p>
+</li>
+<li>
+<p>​     <a class="link" href="https://www.kancloud.cn/gaoyipeng/garnett/1902089"  target="_blank" rel="noopener"
+    >Activiti结束事件</a></p>
+</li>
+<li>
+<p>​     <a class="link" href="https://www.kancloud.cn/gaoyipeng/garnett/1902090"  target="_blank" rel="noopener"
+    >边界事件（一）</a></p>
+</li>
+<li>
+<p>​     <a class="link" href="https://www.kancloud.cn/gaoyipeng/garnett/1902091"  target="_blank" rel="noopener"
+    >边界事件（二）</a></p>
+</li>
+</ul>
+<p><a class="link" href="https://www.kancloud.cn/gaoyipeng/garnett/1912370"  target="_blank" rel="noopener"
+    >八、网关</a></p>
+<p><a class="link" href="https://www.kancloud.cn/gaoyipeng/garnett/1912371"  target="_blank" rel="noopener"
+    >九、接口完善</a></p>
+<ul>
+<li>​	  <a class="link" href="https://www.kancloud.cn/gaoyipeng/garnett/1912372"  target="_blank" rel="noopener"
+    >审批意见管理</a></li>
+<li>​	  <a class="link" href="https://www.kancloud.cn/gaoyipeng/garnett/1934888"  target="_blank" rel="noopener"
+    >Activiti流程驳回、流程回退</a></li>
+<li>​	  <a class="link" href="https://www.kancloud.cn/gaoyipeng/garnett/1934889"  target="_blank" rel="noopener"
+    >Activiti任务委托</a></li>
+<li>​	  <a class="link" href="https://www.kancloud.cn/gaoyipeng/garnett/1934890"  target="_blank" rel="noopener"
+    >Activiti流程的挂起、激活</a></li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/activiti/">Activiti</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/activiti33-spring-security%E8%8E%B7%E5%8F%96%E5%BD%93%E5%89%8D%E6%93%8D%E4%BD%9C%E4%BA%BA%E4%BF%A1%E6%81%AF/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（33） Spring-Security获取当前操作人信息</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti34-%E4%BD%BF%E7%94%A8swagger%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（34） 使用Swagger生成静态接口文档</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti35-%E4%BD%BF%E7%94%A8swagger%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（35） 使用Swagger生成静态接口文档</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti32-%E6%9B%BF%E6%8D%A2activiti%E7%94%A8%E6%88%B7%E5%92%8C%E7%94%A8%E6%88%B7%E7%BB%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（32） 替换Activiti用户和用户组</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti31-rbac%E5%9F%BA%E4%BA%8E%E8%A7%92%E8%89%B2%E7%9A%84%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（31） RBAC基于角色的访问控制</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#章节目录">章节目录</a></li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Linux on 十一爸爸的博客</title>
+    <link>https://garnettboy.gitee.io/categories/linux/</link>
+    <description>Recent content in Linux on 十一爸爸的博客</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Sat, 12 Nov 2022 09:06:27 +0000</lastBuildDate><atom:link href="https://garnettboy.gitee.io/categories/linux/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Linux 笔记</title>
+      <link>https://garnettboy.gitee.io/p/linux-%E7%AC%94%E8%AE%B0/</link>
+      <pubDate>Sat, 12 Nov 2022 09:06:27 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/linux-%E7%AC%94%E8%AE%B0/</guid>
+      <description>一、linux笔记 1.1、基本常识 1.1.1 Unix主要发行版本 image-20221230094553368 1.1.2 linux版本分类 image-20221230094658474 image-20221230094743133 1.1.3 VMware网络连接方式 image-20221230094932219 1.2 目录结构 image-20221230095432428 image-20221230095501145 image-20221230095522694 1.3 操作命令 命令提示符
+image-20221230100501012 1.3.0 常用快捷键 image-20230118155419140 1.3.1 目录命令 1.3.1.1 ls命令 image-20221230100617279 示例：
+image-20221230100706966 1.3.1.2 cd命令 image-20221230100756102 image-20221230100813791 image-20221230100846288 1.3.1.3 pwd命令 image-20221230101048767 1.3.1.4 mkdir命令 image-20221230101544721 1.3.2 文件命令 1.3.2.1 touch命令 image-20221230101953382 1.3.2.2 stat命令 image-20221230102029903 1.3.2.3 cat命令 1.3.2.4 more命令 1.3.2.5 less命令 image-20221230164727106 image-20221230164744450 1.3.2.6 head命令 image-20230109160144107 1.3.2.7 tail命令 image-20230109160206412 1.3.2.8 ln命令 image-20230109163318119 image-20230109163338605 image-20230109163514068 1.3.3 目录文件命令 1.</description>
+    </item>
+    
+    <item>
+      <title>CentOS7安装JDK1.8</title>
+      <link>https://garnettboy.gitee.io/p/centos7%E5%AE%89%E8%A3%85jdk1.8/</link>
+      <pubDate>Thu, 05 Nov 2020 09:06:27 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/centos7%E5%AE%89%E8%A3%85jdk1.8/</guid>
+      <description>此处记录一下在阿里云服务器安装JDK1.8的步骤。
+1、下载JDK
+当前最新版本下载地址：http://www.oracle.com/technetwork/java/javase/downloads/index.html
+历史版本下载地址：　http://www.oracle.com/technetwork/java/javase/archive-139210.html
+image-20201105091118797 2、创建目录/usr/local/java，将下载的安装包使用xftp等工具上传到此目录
+image-20201105104107231 3、通过 rpm -qa | grep java 命令查看是否安装过 jdk
+image-20201105091820996 我的显示没有安装，如果安装了，通过 rpm -e xxx --nodeps 命令进行装卸，xxx表示你通过 rpm -qa | grep java 命令 查到的安装包的名字。
+4、解压tar -zxvf jdk-8u271-linux-i586.tar.gz
+image-20201105104250856 5、通过 vim /etc/profile 命令来编辑环境变量的配置文件
+在文档底部插入如下内容：
+export JAVA_HOME=/usr/local/java/jdk1.8.0_271export CLASSPATH=.:${JAVA_HOME}/jre/lib/rt.jar:${JAVA_HOME}/lib/dt.jar:${JAVA_HOME}/lib/tools.jarexport PATH=$PATH:${JAVA_HOME}/bin image-20201105111852140 6、通过 source /etc/profile 命令使更改的配置立即生效
+7、查看版本发现报错
+image-20201105114302642 解决办法：执行sudo yum install glibc.i686，中间会问安装一些依赖包，输入y：
+image-20201105114422846 image-20201105114439941 再次查看可以看到已经安装成功了。</description>
+    </item>
+    
+  </channel>
+</rss>
