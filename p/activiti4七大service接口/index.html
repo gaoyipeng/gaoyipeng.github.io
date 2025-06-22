@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Activiti（4）七大Service接口'><title>Activiti（4）七大Service接口</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/activiti4%E4%B8%83%E5%A4%A7service%E6%8E%A5%E5%8F%A3/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Activiti（4）七大Service接口'>
+<meta property='og:description' content='Activiti（4）七大Service接口'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/activiti4%E4%B8%83%E5%A4%A7service%E6%8E%A5%E5%8F%A3/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Activiti' /><meta property='article:published_time' content='2020-05-29T09:09:47&#43;00:00'/><meta property='article:modified_time' content='2020-05-29T09:09:47&#43;00:00'/>
+<meta name="twitter:title" content="Activiti（4）七大Service接口">
+<meta name="twitter:description" content="Activiti（4）七大Service接口">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/activiti/" >
+                Activiti
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/activiti4%E4%B8%83%E5%A4%A7service%E6%8E%A5%E5%8F%A3/">Activiti（4）七大Service接口</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        Activiti（4）七大Service接口
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">May 29, 2020</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 5 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <blockquote>
+<p>本节我们介绍Activiti提供的 7大Service接口。先了解这7个service的用途，有利于我们更好的学习activiti.</p>
+</blockquote>
+<p><figure 
+	>
+	<a href="/images/activiti6-04/image-20200529100807061-1655020075397.png" >
+		<img src="/images/activiti6-04/image-20200529100807061-1655020075397.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200529100807061">
+	</a>
+	
+	<figcaption>image-20200529100807061</figcaption>
+	
+</figure></p>
+<h1 id="1流程模型">1、流程模型</h1>
+<p>我们通过使用下面这个请假流程模型来练习这7个Activiti Service。</p>
+<h2 id="11-流程图">1.1 流程图</h2>
+<p>流程节点的具体内容，可以使用Eclipse Designer来查看。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-04/image-20200529101645437-1655020075398.png" >
+		<img src="/images/activiti6-04/image-20200529101645437-1655020075398.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200529101645437">
+	</a>
+	
+	<figcaption>image-20200529101645437</figcaption>
+	
+</figure></p>
+<p>以下是各个节点需要注意的点，gif 图片将就着看吧~~~</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-04/leave-1655020075398.gif" >
+		<img src="/images/activiti6-04/leave-1655020075398.gif"
+			
+			
+			
+			loading="lazy"
+			alt="leave.gif">
+	</a>
+	
+	<figcaption>leave.gif</figcaption>
+	
+</figure></p>
+<h2 id="12-流程定义">1.2 流程定义</h2>
+<p>以下是上面流程图对应的定义文件。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="cp">&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;definitions</span> <span class="na">xmlns=</span><span class="s">&#34;http://www.omg.org/spec/BPMN/20100524/MODEL&#34;</span> <span class="na">xmlns:xsi=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span> <span class="na">xmlns:xsd=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema&#34;</span> <span class="na">xmlns:activiti=</span><span class="s">&#34;http://activiti.org/bpmn&#34;</span> <span class="na">xmlns:bpmndi=</span><span class="s">&#34;http://www.omg.org/spec/BPMN/20100524/DI&#34;</span> <span class="na">xmlns:omgdc=</span><span class="s">&#34;http://www.omg.org/spec/DD/20100524/DC&#34;</span> <span class="na">xmlns:omgdi=</span><span class="s">&#34;http://www.omg.org/spec/DD/20100524/DI&#34;</span> <span class="na">typeLanguage=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema&#34;</span> <span class="na">expressionLanguage=</span><span class="s">&#34;http://www.w3.org/1999/XPath&#34;</span> <span class="na">targetNamespace=</span><span class="s">&#34;http://www.kafeitu.me/activiti/leave&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;process</span> <span class="na">id=</span><span class="s">&#34;leave&#34;</span> <span class="na">name=</span><span class="s">&#34;请假流程-普通表单&#34;</span> <span class="na">isExecutable=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;documentation&gt;</span>请假流程演示<span class="nt">&lt;/documentation&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;startEvent</span> <span class="na">id=</span><span class="s">&#34;startevent1&#34;</span> <span class="na">name=</span><span class="s">&#34;Start&#34;</span> <span class="na">activiti:initiator=</span><span class="s">&#34;applyUserId&#34;</span><span class="nt">&gt;&lt;/startEvent&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;userTask</span> <span class="na">id=</span><span class="s">&#34;deptLeaderVerify&#34;</span> <span class="na">name=</span><span class="s">&#34;部门领导审批&#34;</span> <span class="na">activiti:candidateGroups=</span><span class="s">&#34;deptLeader&#34;</span><span class="nt">&gt;&lt;/userTask&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;exclusiveGateway</span> <span class="na">id=</span><span class="s">&#34;exclusivegateway5&#34;</span> <span class="na">name=</span><span class="s">&#34;Exclusive Gateway&#34;</span><span class="nt">&gt;&lt;/exclusiveGateway&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;userTask</span> <span class="na">id=</span><span class="s">&#34;modifyApply&#34;</span> <span class="na">name=</span><span class="s">&#34;调整申请&#34;</span> <span class="na">activiti:assignee=</span><span class="s">&#34;${applyUserId}&#34;</span><span class="nt">&gt;&lt;/userTask&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;userTask</span> <span class="na">id=</span><span class="s">&#34;hrVerify&#34;</span> <span class="na">name=</span><span class="s">&#34;人事审批&#34;</span> <span class="na">activiti:candidateGroups=</span><span class="s">&#34;hr&#34;</span><span class="nt">&gt;&lt;/userTask&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;exclusiveGateway</span> <span class="na">id=</span><span class="s">&#34;exclusivegateway6&#34;</span> <span class="na">name=</span><span class="s">&#34;Exclusive Gateway&#34;</span><span class="nt">&gt;&lt;/exclusiveGateway&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;userTask</span> <span class="na">id=</span><span class="s">&#34;reportBack&#34;</span> <span class="na">name=</span><span class="s">&#34;销假&#34;</span> <span class="na">activiti:assignee=</span><span class="s">&#34;${applyUserId}&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:taskListener</span> <span class="na">event=</span><span class="s">&#34;complete&#34;</span> <span class="na">delegateExpression=</span><span class="s">&#34;${reportBackEndProcessor}&#34;</span><span class="nt">&gt;&lt;/activiti:taskListener&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/userTask&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;endEvent</span> <span class="na">id=</span><span class="s">&#34;endevent1&#34;</span> <span class="na">name=</span><span class="s">&#34;End&#34;</span><span class="nt">&gt;&lt;/endEvent&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;exclusiveGateway</span> <span class="na">id=</span><span class="s">&#34;exclusivegateway7&#34;</span> <span class="na">name=</span><span class="s">&#34;Exclusive Gateway&#34;</span><span class="nt">&gt;&lt;/exclusiveGateway&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow2&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;startevent1&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;deptLeaderVerify&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow3&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;deptLeaderVerify&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;exclusivegateway5&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow4&#34;</span> <span class="na">name=</span><span class="s">&#34;不同意&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;exclusivegateway5&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;modifyApply&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;conditionExpression</span> <span class="na">xsi:type=</span><span class="s">&#34;tFormalExpression&#34;</span><span class="nt">&gt;</span><span class="cp">&lt;![CDATA[${!deptLeaderApproved}]]&gt;</span><span class="nt">&lt;/conditionExpression&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow5&#34;</span> <span class="na">name=</span><span class="s">&#34;同意&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;exclusivegateway5&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;hrVerify&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;conditionExpression</span> <span class="na">xsi:type=</span><span class="s">&#34;tFormalExpression&#34;</span><span class="nt">&gt;</span><span class="cp">&lt;![CDATA[${deptLeaderApproved}]]&gt;</span><span class="nt">&lt;/conditionExpression&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow6&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;hrVerify&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;exclusivegateway6&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow7&#34;</span> <span class="na">name=</span><span class="s">&#34;同意&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;exclusivegateway6&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;reportBack&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;conditionExpression</span> <span class="na">xsi:type=</span><span class="s">&#34;tFormalExpression&#34;</span><span class="nt">&gt;</span><span class="cp">&lt;![CDATA[${hrApproved}]]&gt;</span><span class="nt">&lt;/conditionExpression&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow8&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;reportBack&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;endevent1&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow9&#34;</span> <span class="na">name=</span><span class="s">&#34;不同意&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;exclusivegateway6&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;modifyApply&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;conditionExpression</span> <span class="na">xsi:type=</span><span class="s">&#34;tFormalExpression&#34;</span><span class="nt">&gt;</span><span class="cp">&lt;![CDATA[${!hrApproved}]]&gt;</span><span class="nt">&lt;/conditionExpression&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow10&#34;</span> <span class="na">name=</span><span class="s">&#34;重新申请&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;exclusivegateway7&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;deptLeaderVerify&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;conditionExpression</span> <span class="na">xsi:type=</span><span class="s">&#34;tFormalExpression&#34;</span><span class="nt">&gt;</span><span class="cp">&lt;![CDATA[${reApply}]]&gt;</span><span class="nt">&lt;/conditionExpression&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow11&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;modifyApply&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;exclusivegateway7&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow12&#34;</span> <span class="na">name=</span><span class="s">&#34;结束流程&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;exclusivegateway7&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;endevent1&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;conditionExpression</span> <span class="na">xsi:type=</span><span class="s">&#34;tFormalExpression&#34;</span><span class="nt">&gt;</span><span class="cp">&lt;![CDATA[${!reApply}]]&gt;</span><span class="nt">&lt;/conditionExpression&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;/process&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;bpmndi:BPMNDiagram</span> <span class="na">id=</span><span class="s">&#34;BPMNDiagram_leave&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;bpmndi:BPMNPlane</span> <span class="na">bpmnElement=</span><span class="s">&#34;leave&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNPlane_leave&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;startevent1&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_startevent1&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;35.0&#34;</span> <span class="na">width=</span><span class="s">&#34;35.0&#34;</span> <span class="na">x=</span><span class="s">&#34;0.0&#34;</span> <span class="na">y=</span><span class="s">&#34;46.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;deptLeaderVerify&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_deptLeaderVerify&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;55.0&#34;</span> <span class="na">width=</span><span class="s">&#34;105.0&#34;</span> <span class="na">x=</span><span class="s">&#34;80.0&#34;</span> <span class="na">y=</span><span class="s">&#34;36.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;exclusivegateway5&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_exclusivegateway5&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;40.0&#34;</span> <span class="na">width=</span><span class="s">&#34;40.0&#34;</span> <span class="na">x=</span><span class="s">&#34;240.0&#34;</span> <span class="na">y=</span><span class="s">&#34;43.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;modifyApply&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_modifyApply&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;55.0&#34;</span> <span class="na">width=</span><span class="s">&#34;105.0&#34;</span> <span class="na">x=</span><span class="s">&#34;208.0&#34;</span> <span class="na">y=</span><span class="s">&#34;114.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;hrVerify&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_hrVerify&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;55.0&#34;</span> <span class="na">width=</span><span class="s">&#34;105.0&#34;</span> <span class="na">x=</span><span class="s">&#34;348.0&#34;</span> <span class="na">y=</span><span class="s">&#34;36.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;exclusivegateway6&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_exclusivegateway6&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;40.0&#34;</span> <span class="na">width=</span><span class="s">&#34;40.0&#34;</span> <span class="na">x=</span><span class="s">&#34;485.0&#34;</span> <span class="na">y=</span><span class="s">&#34;43.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;reportBack&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_reportBack&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;55.0&#34;</span> <span class="na">width=</span><span class="s">&#34;105.0&#34;</span> <span class="na">x=</span><span class="s">&#34;580.0&#34;</span> <span class="na">y=</span><span class="s">&#34;36.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;endevent1&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_endevent1&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;35.0&#34;</span> <span class="na">width=</span><span class="s">&#34;35.0&#34;</span> <span class="na">x=</span><span class="s">&#34;615.0&#34;</span> <span class="na">y=</span><span class="s">&#34;195.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;exclusivegateway7&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_exclusivegateway7&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;40.0&#34;</span> <span class="na">width=</span><span class="s">&#34;40.0&#34;</span> <span class="na">x=</span><span class="s">&#34;240.0&#34;</span> <span class="na">y=</span><span class="s">&#34;192.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;flow2&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_flow2&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;35.0&#34;</span> <span class="na">y=</span><span class="s">&#34;63.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;80.0&#34;</span> <span class="na">y=</span><span class="s">&#34;63.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;flow3&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_flow3&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;185.0&#34;</span> <span class="na">y=</span><span class="s">&#34;63.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;240.0&#34;</span> <span class="na">y=</span><span class="s">&#34;63.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;flow4&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_flow4&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;260.0&#34;</span> <span class="na">y=</span><span class="s">&#34;83.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;260.0&#34;</span> <span class="na">y=</span><span class="s">&#34;114.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;bpmndi:BPMNLabel&gt;</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;11.0&#34;</span> <span class="na">width=</span><span class="s">&#34;33.0&#34;</span> <span class="na">x=</span><span class="s">&#34;270.0&#34;</span> <span class="na">y=</span><span class="s">&#34;83.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/bpmndi:BPMNLabel&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;flow5&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_flow5&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;280.0&#34;</span> <span class="na">y=</span><span class="s">&#34;63.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;348.0&#34;</span> <span class="na">y=</span><span class="s">&#34;63.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;bpmndi:BPMNLabel&gt;</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;11.0&#34;</span> <span class="na">width=</span><span class="s">&#34;22.0&#34;</span> <span class="na">x=</span><span class="s">&#34;300.0&#34;</span> <span class="na">y=</span><span class="s">&#34;46.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/bpmndi:BPMNLabel&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;flow6&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_flow6&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;453.0&#34;</span> <span class="na">y=</span><span class="s">&#34;63.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;485.0&#34;</span> <span class="na">y=</span><span class="s">&#34;63.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;flow7&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_flow7&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;525.0&#34;</span> <span class="na">y=</span><span class="s">&#34;63.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;580.0&#34;</span> <span class="na">y=</span><span class="s">&#34;63.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;bpmndi:BPMNLabel&gt;</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;11.0&#34;</span> <span class="na">width=</span><span class="s">&#34;22.0&#34;</span> <span class="na">x=</span><span class="s">&#34;539.0&#34;</span> <span class="na">y=</span><span class="s">&#34;46.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/bpmndi:BPMNLabel&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;flow8&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_flow8&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;632.0&#34;</span> <span class="na">y=</span><span class="s">&#34;91.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;632.0&#34;</span> <span class="na">y=</span><span class="s">&#34;195.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;flow9&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_flow9&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;505.0&#34;</span> <span class="na">y=</span><span class="s">&#34;83.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;504.0&#34;</span> <span class="na">y=</span><span class="s">&#34;141.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;313.0&#34;</span> <span class="na">y=</span><span class="s">&#34;141.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;bpmndi:BPMNLabel&gt;</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;11.0&#34;</span> <span class="na">width=</span><span class="s">&#34;33.0&#34;</span> <span class="na">x=</span><span class="s">&#34;515.0&#34;</span> <span class="na">y=</span><span class="s">&#34;83.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/bpmndi:BPMNLabel&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;flow10&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_flow10&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;240.0&#34;</span> <span class="na">y=</span><span class="s">&#34;212.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;132.0&#34;</span> <span class="na">y=</span><span class="s">&#34;212.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;132.0&#34;</span> <span class="na">y=</span><span class="s">&#34;91.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;bpmndi:BPMNLabel&gt;</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;11.0&#34;</span> <span class="na">width=</span><span class="s">&#34;44.0&#34;</span> <span class="na">x=</span><span class="s">&#34;142.0&#34;</span> <span class="na">y=</span><span class="s">&#34;192.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/bpmndi:BPMNLabel&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;flow11&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_flow11&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;260.0&#34;</span> <span class="na">y=</span><span class="s">&#34;169.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;260.0&#34;</span> <span class="na">y=</span><span class="s">&#34;192.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;flow12&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_flow12&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;280.0&#34;</span> <span class="na">y=</span><span class="s">&#34;212.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;615.0&#34;</span> <span class="na">y=</span><span class="s">&#34;212.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;bpmndi:BPMNLabel&gt;</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;11.0&#34;</span> <span class="na">width=</span><span class="s">&#34;44.0&#34;</span> <span class="na">x=</span><span class="s">&#34;429.0&#34;</span> <span class="na">y=</span><span class="s">&#34;219.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/bpmndi:BPMNLabel&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/bpmndi:BPMNPlane&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;/bpmndi:BPMNDiagram&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/definitions&gt;</span>
+</span></span></code></pre></div><p>1.3 节点审批人员约定</p>
+<table>
+<thead>
+<tr>
+<th>用户名</th>
+<th>ACT_ID_USER(表)</th>
+<th>ACT_ID_GROUP(表)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>发起人(startmen)</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>部门领导</td>
+<td>deptmen</td>
+<td>deptLeader</td>
+</tr>
+<tr>
+<td>人事领导</td>
+<td>hrmen</td>
+<td>hr</td>
+</tr>
+</tbody>
+</table>
+<h1 id="2单元测试">2、单元测试</h1>
+<h2 id="21-获取流程引擎及各个service接口">2.1 获取流程引擎及各个Service接口</h2>
+<blockquote>
+<p>只有先获取了流程引擎，才能获取其他的Service接口。</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.workflow.activiti.rest</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.activiti.engine.*</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.junit.Before</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.junit.Test</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.junit.runner.RunWith</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.boot.test.context.SpringBootTest</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.test.context.junit4.SpringRunner</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import static</span> <span class="nn">org.junit.Assert.assertNotNull</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nd">@SpringBootTest</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@RunWith</span><span class="o">(</span><span class="n">SpringRunner</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">ActivitiServiceTest</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">ProcessEngine</span> <span class="n">processEngine</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">IdentityService</span> <span class="n">identityService</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">RepositoryService</span> <span class="n">repositoryService</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">RuntimeService</span> <span class="n">runtimeService</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">TaskService</span> <span class="n">taskService</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">HistoryService</span> <span class="n">historyService</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@Test</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">before</span><span class="o">(){</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ProcessEngineConfiguration</span> <span class="n">processEngineConfiguration</span> <span class="o">=</span> <span class="n">ProcessEngineConfiguration</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">createStandaloneProcessEngineConfiguration</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">processEngineConfiguration</span><span class="o">.</span><span class="na">setJdbcDriver</span><span class="o">(</span><span class="s">&#34;com.mysql.cj.jdbc.Driver&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">processEngineConfiguration</span><span class="o">.</span><span class="na">setJdbcUrl</span><span class="o">(</span><span class="s">&#34;jdbc:mysql://localhost:3306/activiti-demo?useUnicode=true&amp;characterEncoding=utf8&amp;zeroDateTimeBehavior=convertToNull&amp;useSSL=true&amp;serverTimezone=GMT%2B8&amp;nullCatalogMeansCurrent=true&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">processEngineConfiguration</span><span class="o">.</span><span class="na">setJdbcUsername</span><span class="o">(</span><span class="s">&#34;root&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">processEngineConfiguration</span><span class="o">.</span><span class="na">setJdbcPassword</span><span class="o">(</span><span class="s">&#34;xxxxxxx&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//如果表不存在，则自动创建表
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">processEngineConfiguration</span><span class="o">.</span><span class="na">setDatabaseSchemaUpdate</span><span class="o">(</span><span class="n">ProcessEngineConfiguration</span><span class="o">.</span><span class="na">DB_SCHEMA_UPDATE_TRUE</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">processEngine</span> <span class="o">=</span> <span class="n">processEngineConfiguration</span><span class="o">.</span><span class="na">buildProcessEngine</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">processEngine</span><span class="o">.</span><span class="na">toString</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        
+</span></span><span class="line"><span class="cl">        <span class="n">repositoryService</span> <span class="o">=</span> <span class="n">processEngine</span><span class="o">.</span><span class="na">getRepositoryService</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">identityService</span> <span class="o">=</span> <span class="n">processEngine</span><span class="o">.</span><span class="na">getIdentityService</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">runtimeService</span> <span class="o">=</span> <span class="n">processEngine</span><span class="o">.</span><span class="na">getRuntimeService</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">taskService</span> <span class="o">=</span> <span class="n">processEngine</span><span class="o">.</span><span class="na">getTaskService</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">historyService</span> <span class="o">=</span> <span class="n">processEngine</span><span class="o">.</span><span class="na">getHistoryService</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        
+</span></span><span class="line"><span class="cl">        <span class="n">assertNotNull</span><span class="o">(</span><span class="n">processEngine</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>测试结果：查看 activiti-demo 数据库，可以看到生成了28张表。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-04/image-20200529164306561-1655020075398.png" >
+		<img src="/images/activiti6-04/image-20200529164306561-1655020075398.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200529164306561">
+	</a>
+	
+	<figcaption>image-20200529164306561</figcaption>
+	
+</figure></p>
+<h2 id="22-初始化审批人">2.2 初始化审批人</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.workflow.activiti.rest</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.activiti.engine.*</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.activiti.engine.identity.User</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.junit.Before</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.junit.Test</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.junit.runner.RunWith</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.boot.test.context.SpringBootTest</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.test.context.junit4.SpringRunner</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import static</span> <span class="nn">org.junit.Assert.assertEquals</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import static</span> <span class="nn">org.junit.Assert.assertNotNull</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nd">@SpringBootTest</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@RunWith</span><span class="o">(</span><span class="n">SpringRunner</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">ActivitiServiceTest</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">ProcessEngine</span> <span class="n">processEngine</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">IdentityService</span> <span class="n">identityService</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">RepositoryService</span> <span class="n">repositoryService</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">RuntimeService</span> <span class="n">runtimeService</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">TaskService</span> <span class="n">taskService</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">HistoryService</span> <span class="n">historyService</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 获取流程引擎及各个Service
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Before</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">before</span><span class="o">(){</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ProcessEngineConfiguration</span> <span class="n">processEngineConfiguration</span> <span class="o">=</span> <span class="n">ProcessEngineConfiguration</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">createStandaloneProcessEngineConfiguration</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">processEngineConfiguration</span><span class="o">.</span><span class="na">setJdbcDriver</span><span class="o">(</span><span class="s">&#34;com.mysql.cj.jdbc.Driver&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">processEngineConfiguration</span><span class="o">.</span><span class="na">setJdbcUrl</span><span class="o">(</span><span class="s">&#34;jdbc:mysql://localhost:3306/activiti-demo?useUnicode=true&amp;characterEncoding=utf8&amp;zeroDateTimeBehavior=convertToNull&amp;useSSL=true&amp;serverTimezone=GMT%2B8&amp;nullCatalogMeansCurrent=true&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">processEngineConfiguration</span><span class="o">.</span><span class="na">setJdbcUsername</span><span class="o">(</span><span class="s">&#34;root&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">processEngineConfiguration</span><span class="o">.</span><span class="na">setJdbcPassword</span><span class="o">(</span><span class="s">&#34;gaoyipeng&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">       <span class="c1">//如果表不存在，则自动创建表
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>       <span class="n">processEngineConfiguration</span><span class="o">.</span><span class="na">setDatabaseSchemaUpdate</span><span class="o">(</span><span class="n">ProcessEngineConfiguration</span><span class="o">.</span><span class="na">DB_SCHEMA_UPDATE_TRUE</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">processEngine</span> <span class="o">=</span> <span class="n">processEngineConfiguration</span><span class="o">.</span><span class="na">buildProcessEngine</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">processEngine</span><span class="o">.</span><span class="na">toString</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">repositoryService</span> <span class="o">=</span> <span class="n">processEngine</span><span class="o">.</span><span class="na">getRepositoryService</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">identityService</span> <span class="o">=</span> <span class="n">processEngine</span><span class="o">.</span><span class="na">getIdentityService</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">runtimeService</span> <span class="o">=</span> <span class="n">processEngine</span><span class="o">.</span><span class="na">getRuntimeService</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">taskService</span> <span class="o">=</span> <span class="n">processEngine</span><span class="o">.</span><span class="na">getTaskService</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">historyService</span> <span class="o">=</span> <span class="n">processEngine</span><span class="o">.</span><span class="na">getHistoryService</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">assertNotNull</span><span class="o">(</span><span class="n">processEngine</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 初始化审批人 act_id_user: deptmen， hrmen
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Test</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">initUser</span><span class="o">(){</span>
+</span></span><span class="line"><span class="cl">        <span class="n">User</span> <span class="n">deptmen</span> <span class="o">=</span> <span class="n">identityService</span><span class="o">.</span><span class="na">newUser</span><span class="o">(</span><span class="s">&#34;deptmen&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">deptmen</span><span class="o">.</span><span class="na">setFirstName</span><span class="o">(</span><span class="s">&#34;部门领导&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">identityService</span><span class="o">.</span><span class="na">saveUser</span><span class="o">(</span><span class="n">deptmen</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">User</span> <span class="n">hrmen</span> <span class="o">=</span> <span class="n">identityService</span><span class="o">.</span><span class="na">newUser</span><span class="o">(</span><span class="s">&#34;hrmen&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">hrmen</span><span class="o">.</span><span class="na">setFirstName</span><span class="o">(</span><span class="s">&#34;人事领导&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">identityService</span><span class="o">.</span><span class="na">saveUser</span><span class="o">(</span><span class="n">hrmen</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">assertEquals</span><span class="o">(</span><span class="n">2</span><span class="o">,</span><span class="n">identityService</span><span class="o">.</span><span class="na">createUserQuery</span><span class="o">().</span><span class="na">count</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>执行结果：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-04/image-20200529143545904-1655020075398.png" >
+		<img src="/images/activiti6-04/image-20200529143545904-1655020075398.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200529143545904">
+	</a>
+	
+	<figcaption>image-20200529143545904</figcaption>
+	
+</figure></p>
+<h2 id="23-初始化组">2.3 初始化组</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 初始化组 act_id_group: deptLeader, hr
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 在Activiti中组分为2种：
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *   assignment：普通的岗位角色，是用户分配业务中的功能权限
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *   security-role: 安全角色，全局管理用户组织及整个流程的状态
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *   如果使用Activiti提供的Explorer，需要security-role才能看到manage页签，需要assignment才能claim任务
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Test</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">initGroup</span><span class="o">(){</span>
+</span></span><span class="line"><span class="cl">        <span class="n">Group</span> <span class="n">deptLeader</span> <span class="o">=</span> <span class="n">identityService</span><span class="o">.</span><span class="na">newGroup</span><span class="o">(</span><span class="s">&#34;deptLeader&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">deptLeader</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="s">&#34;deptLeader&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//扩展字段
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">deptLeader</span><span class="o">.</span><span class="na">setType</span><span class="o">(</span><span class="s">&#34;assignment&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">identityService</span><span class="o">.</span><span class="na">saveGroup</span><span class="o">(</span><span class="n">deptLeader</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">Group</span> <span class="n">hr</span> <span class="o">=</span> <span class="n">identityService</span><span class="o">.</span><span class="na">newGroup</span><span class="o">(</span><span class="s">&#34;hr&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">hr</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="s">&#34;hr&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">hr</span><span class="o">.</span><span class="na">setType</span><span class="o">(</span><span class="s">&#34;assignment&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">identityService</span><span class="o">.</span><span class="na">saveGroup</span><span class="o">(</span><span class="n">hr</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">assertEquals</span><span class="o">(</span><span class="n">2</span><span class="o">,</span><span class="n">identityService</span><span class="o">.</span><span class="na">createGroupQuery</span><span class="o">().</span><span class="na">count</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span> 
+</span></span></code></pre></div><p>执行结果：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-04/image-20200529145814813-1655020075398.png" >
+		<img src="/images/activiti6-04/image-20200529145814813-1655020075398.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200529145814813">
+	</a>
+	
+	<figcaption>image-20200529145814813</figcaption>
+	
+</figure></p>
+<h2 id="24-初始化人员组的关系">2.4 初始化人员、组的关系</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 初始化人员、组的关系
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Test</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">initMemberShip</span><span class="o">(){</span>
+</span></span><span class="line"><span class="cl">        <span class="n">identityService</span><span class="o">.</span><span class="na">createMembership</span><span class="o">(</span><span class="s">&#34;deptmen&#34;</span><span class="o">,</span><span class="s">&#34;deptLeader&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">identityService</span><span class="o">.</span><span class="na">createMembership</span><span class="o">(</span><span class="s">&#34;hrmen&#34;</span><span class="o">,</span><span class="s">&#34;hr&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span></code></pre></div><p>执行结果：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-04/image-20200529150116825-1655020075398.png" >
+		<img src="/images/activiti6-04/image-20200529150116825-1655020075398.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200529150116825">
+	</a>
+	
+	<figcaption>image-20200529150116825</figcaption>
+	
+</figure></p>
+<p>API 补充：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">//删除user
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">identityService</span><span class="o">.</span><span class="na">deleteUser</span><span class="o">(</span><span class="n">userId</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="c1">//删除group
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">identityService</span><span class="o">.</span><span class="na">deleteGroup</span><span class="o">(</span><span class="n">groupId</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="c1">//删除user、group关联关系
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">identityService</span><span class="o">.</span><span class="na">deleteMembership</span><span class="o">(</span> <span class="n">userId</span><span class="o">,</span>  <span class="n">groupId</span><span class="o">);</span>
+</span></span></code></pre></div><h2 id="25-部署流程定义">2.5 部署流程定义</h2>
+<p>将下载好的leave.bpmn放到<code>src/main/resources</code>目录下</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 部署流程定义
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Test</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">deployTest</span><span class="o">(){</span>
+</span></span><span class="line"><span class="cl">        <span class="n">Deployment</span> <span class="n">deployment</span> <span class="o">=</span> <span class="n">repositoryService</span><span class="o">.</span><span class="na">createDeployment</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">addClasspathResource</span><span class="o">(</span><span class="s">&#34;leave.bpmn&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">deploy</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">assertNotNull</span><span class="o">(</span><span class="n">deployment</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span></code></pre></div><p>执行结果：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-04/image-20200529152439777-1655020075399.png" >
+		<img src="/images/activiti6-04/image-20200529152439777-1655020075399.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200529152439777">
+	</a>
+	
+	<figcaption>image-20200529152439777</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-04/image-20200529152450279-1655020075399.png" >
+		<img src="/images/activiti6-04/image-20200529152450279-1655020075399.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200529152450279">
+	</a>
+	
+	<figcaption>image-20200529152450279</figcaption>
+	
+</figure></p>
+<h2 id="26-发起审批">2.6 发起审批</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 发起流程
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Test</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">submitApplyTest</span><span class="o">(){</span>
+</span></span><span class="line"><span class="cl">        <span class="n">String</span> <span class="n">applyUserId</span> <span class="o">=</span> <span class="s">&#34;startmen&#34;</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//设置流程启动发起人,在流程开始之前设置，会自动在表ACT_HI_PROCINST 中的START_USER_ID_中设置用户ID
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">identityService</span><span class="o">.</span><span class="na">setAuthenticatedUserId</span><span class="o">(</span><span class="n">applyUserId</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">runtimeService</span><span class="o">.</span><span class="na">startProcessInstanceByKey</span><span class="o">(</span><span class="s">&#34;leave&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span></code></pre></div><p>执行结果：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-04/image-20200529154857621-1655020075399.png" >
+		<img src="/images/activiti6-04/image-20200529154857621-1655020075399.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200529154857621">
+	</a>
+	
+	<figcaption>image-20200529154857621</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-04/image-20200529154905575-1655020075399.png" >
+		<img src="/images/activiti6-04/image-20200529154905575-1655020075399.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200529154905575">
+	</a>
+	
+	<figcaption>image-20200529154905575</figcaption>
+	
+</figure></p>
+<h2 id="27-部门领导获取待办">2.7 部门领导获取待办</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"> <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 获取待办
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Test</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">getTaskTodo</span><span class="o">(){</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//根据当前人id查询待办任务
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">List</span><span class="o">&lt;</span><span class="n">Task</span><span class="o">&gt;</span> <span class="n">taskList</span> <span class="o">=</span> <span class="n">taskService</span><span class="o">.</span><span class="na">createTaskQuery</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">processDefinitionKey</span><span class="o">(</span><span class="s">&#34;leave&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">taskAssignee</span><span class="o">(</span><span class="s">&#34;deptmen&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">active</span><span class="o">().</span><span class="na">list</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//根据当前人未签收的任务
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">List</span><span class="o">&lt;</span><span class="n">Task</span><span class="o">&gt;</span> <span class="n">taskList1</span> <span class="o">=</span> <span class="n">taskService</span><span class="o">.</span><span class="na">createTaskQuery</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">processDefinitionKey</span><span class="o">(</span><span class="s">&#34;leave&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">taskCandidateUser</span><span class="o">(</span><span class="s">&#34;deptmen&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">active</span><span class="o">().</span><span class="na">list</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">List</span><span class="o">&lt;</span><span class="n">Task</span><span class="o">&gt;</span> <span class="n">list</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;&gt;();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">list</span><span class="o">.</span><span class="na">addAll</span><span class="o">(</span><span class="n">taskList</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">list</span><span class="o">.</span><span class="na">addAll</span><span class="o">(</span><span class="n">taskList1</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;-------&#34;</span><span class="o">+</span><span class="n">list</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">0</span><span class="o">).</span><span class="na">toString</span><span class="o">()+</span><span class="s">&#34;----&#34;</span><span class="o">+</span><span class="n">list</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">0</span><span class="o">).</span><span class="na">getName</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="n">assertEquals</span><span class="o">(</span><span class="n">1</span><span class="o">,</span><span class="n">list</span><span class="o">.</span><span class="na">size</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">Task</span> <span class="n">task</span> <span class="o">=</span> <span class="n">list</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">0</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span></code></pre></div><p>断点截图：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-04/image-20200529155701816-1655020075399.png" >
+		<img src="/images/activiti6-04/image-20200529155701816-1655020075399.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200529155701816">
+	</a>
+	
+	<figcaption>image-20200529155701816</figcaption>
+	
+</figure></p>
+<h2 id="28-部门领导审批通过流程">2.8 部门领导审批通过流程</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 获取待办并通过
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Test</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">getTaskTodo</span><span class="o">(){</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//根据当前人id查询待办任务
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">List</span><span class="o">&lt;</span><span class="n">Task</span><span class="o">&gt;</span> <span class="n">taskList</span> <span class="o">=</span> <span class="n">taskService</span><span class="o">.</span><span class="na">createTaskQuery</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">processDefinitionKey</span><span class="o">(</span><span class="s">&#34;leave&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">taskAssignee</span><span class="o">(</span><span class="s">&#34;deptmen&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">active</span><span class="o">().</span><span class="na">list</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//根据当前人未签收的任务
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">List</span><span class="o">&lt;</span><span class="n">Task</span><span class="o">&gt;</span> <span class="n">taskList1</span> <span class="o">=</span> <span class="n">taskService</span><span class="o">.</span><span class="na">createTaskQuery</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">processDefinitionKey</span><span class="o">(</span><span class="s">&#34;leave&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">taskCandidateUser</span><span class="o">(</span><span class="s">&#34;deptmen&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">active</span><span class="o">().</span><span class="na">list</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">List</span><span class="o">&lt;</span><span class="n">Task</span><span class="o">&gt;</span> <span class="n">list</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;&gt;();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">list</span><span class="o">.</span><span class="na">addAll</span><span class="o">(</span><span class="n">taskList</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">list</span><span class="o">.</span><span class="na">addAll</span><span class="o">(</span><span class="n">taskList1</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;-------&#34;</span><span class="o">+</span><span class="n">list</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">0</span><span class="o">).</span><span class="na">toString</span><span class="o">()+</span><span class="s">&#34;----&#34;</span><span class="o">+</span><span class="n">list</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">0</span><span class="o">).</span><span class="na">getName</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="n">assertEquals</span><span class="o">(</span><span class="n">1</span><span class="o">,</span><span class="n">list</span><span class="o">.</span><span class="na">size</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">Task</span> <span class="n">task</span> <span class="o">=</span> <span class="n">list</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">0</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">//审批流程
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">ProcessInstance</span> <span class="n">processInstance</span> <span class="o">=</span> <span class="n">runtimeService</span><span class="o">.</span><span class="na">createProcessInstanceQuery</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">processDefinitionKey</span><span class="o">(</span><span class="s">&#34;leave&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">singleResult</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 添加批注
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">identityService</span><span class="o">.</span><span class="na">setAuthenticatedUserId</span><span class="o">(</span><span class="s">&#34;deptmen&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">taskService</span><span class="o">.</span><span class="na">addComment</span><span class="o">(</span><span class="n">task</span><span class="o">.</span><span class="na">getId</span><span class="o">(),</span> <span class="n">processInstance</span><span class="o">.</span><span class="na">getId</span><span class="o">(),</span> <span class="s">&#34;deptmen【同意】了&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;</span> <span class="n">variables</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;&gt;();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">variables</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;deptLeaderApproved&#34;</span><span class="o">,</span> <span class="kc">true</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 只有签收任务，act_hi_taskinst 表的 assignee 字段才不为 null
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">taskService</span><span class="o">.</span><span class="na">claim</span><span class="o">(</span><span class="n">task</span><span class="o">.</span><span class="na">getId</span><span class="o">(),</span> <span class="s">&#34;deptmen&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">taskService</span><span class="o">.</span><span class="na">complete</span><span class="o">(</span><span class="n">task</span><span class="o">.</span><span class="na">getId</span><span class="o">(),</span> <span class="n">variables</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span></code></pre></div><p>执行结果：可以看到审批意见了</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-04/image-20200529160354305-1655020075399.png" >
+		<img src="/images/activiti6-04/image-20200529160354305-1655020075399.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200529160354305">
+	</a>
+	
+	<figcaption>image-20200529160354305</figcaption>
+	
+</figure></p>
+<h2 id="29-获取已办">2.9 获取已办</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 获取已完成的流程
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Test</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">getCompileTask</span><span class="o">(){</span>
+</span></span><span class="line"><span class="cl">        <span class="n">List</span><span class="o">&lt;</span><span class="n">HistoricTaskInstance</span><span class="o">&gt;</span> <span class="n">taskInstanceList</span> <span class="o">=</span> <span class="n">historyService</span><span class="o">.</span><span class="na">createHistoricTaskInstanceQuery</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">processDefinitionKey</span><span class="o">(</span><span class="s">&#34;leave&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">taskAssignee</span><span class="o">(</span><span class="s">&#34;deptmen&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">finished</span><span class="o">().</span><span class="na">list</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="o">(</span><span class="n">HistoricTaskInstance</span> <span class="n">instance</span>  <span class="o">:</span><span class="n">taskInstanceList</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">instance</span><span class="o">.</span><span class="na">getProcessInstanceId</span><span class="o">()+</span><span class="s">&#34;--&#34;</span><span class="o">+</span><span class="n">instance</span><span class="o">.</span><span class="na">getName</span><span class="o">()+</span><span class="s">&#34;--&#34;</span><span class="o">+</span><span class="n">instance</span><span class="o">.</span><span class="na">getAssignee</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span></code></pre></div><p>执行结果：可以看到 5001 这条流程，部门经理已经审批过了。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-04/image-20200529160953048-1655020075399.png" >
+		<img src="/images/activiti6-04/image-20200529160953048-1655020075399.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200529160953048">
+	</a>
+	
+	<figcaption>image-20200529160953048</figcaption>
+	
+</figure></p>
+<h2 id="210--获取审批意见">2.10  获取审批意见</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 获取审批意见
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Test</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">getHistoryComment</span><span class="o">(){</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//获取流程实例对象
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">ProcessInstance</span> <span class="n">processInstance</span> <span class="o">=</span> <span class="n">runtimeService</span><span class="o">.</span><span class="na">createProcessInstanceQuery</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">processDefinitionKey</span><span class="o">(</span><span class="s">&#34;leave&#34;</span><span class="o">).</span><span class="na">singleResult</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//获取历史活动集合
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">List</span><span class="o">&lt;</span><span class="n">HistoricActivityInstance</span><span class="o">&gt;</span> <span class="n">historicActivityInstanceList</span> <span class="o">=</span> <span class="n">historyService</span><span class="o">.</span><span class="na">createHistoricActivityInstanceQuery</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">processInstanceId</span><span class="o">(</span><span class="n">processInstance</span><span class="o">.</span><span class="na">getId</span><span class="o">())</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">activityType</span><span class="o">(</span><span class="s">&#34;userTask&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">finished</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">list</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="o">(</span><span class="n">HistoricActivityInstance</span> <span class="n">historicActivityInstance</span><span class="o">:</span><span class="n">historicActivityInstanceList</span> <span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">List</span><span class="o">&lt;</span><span class="n">Comment</span><span class="o">&gt;</span> <span class="n">commentList</span> <span class="o">=</span> <span class="n">taskService</span><span class="o">.</span><span class="na">getTaskComments</span><span class="o">(</span><span class="n">historicActivityInstance</span><span class="o">.</span><span class="na">getTaskId</span><span class="o">(),</span> <span class="s">&#34;comment&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">commentList</span><span class="o">.</span><span class="na">size</span><span class="o">();</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">commentList</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">i</span><span class="o">).</span><span class="na">getProcessInstanceId</span><span class="o">()+</span><span class="s">&#34;---&#34;</span><span class="o">+</span> <span class="n">commentList</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">i</span><span class="o">).</span><span class="na">getUserId</span><span class="o">()</span> <span class="o">+</span><span class="s">&#34;批复内容：&#34;</span> <span class="o">+</span> <span class="n">commentList</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">i</span><span class="o">).</span><span class="na">getFullMessage</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/images/activiti6-04/image-20200529161311961-1655020075399.png" >
+		<img src="/images/activiti6-04/image-20200529161311961-1655020075399.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200529161311961">
+	</a>
+	
+	<figcaption>image-20200529161311961</figcaption>
+	
+</figure></p>
+<p><strong>请记住这个5001，获取流程图时会用到。</strong></p>
+<p>常用的Service已经介绍完毕，有需要再添加其他用例。</p>
+<h1 id="3获取流程图">3、获取流程图</h1>
+<p>这个是比较固定的代码，不做详解介绍。只做演示。添加代码如下</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-04/image-20200601092940565-1655020075399.png" >
+		<img src="/images/activiti6-04/image-20200601092940565-1655020075399.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200601092940565">
+	</a>
+	
+	<figcaption>image-20200601092940565</figcaption>
+	
+</figure></p>
+<p>访问API：http://localhost:8080/process/read-resource/5001  ，pProcessInstanceId是流程实例：5001（<strong>act_hi_procinst</strong>表ID_）</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"> <span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;/read-resource/{pProcessInstanceId}&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">readResource</span><span class="o">(</span><span class="nd">@PathVariable</span><span class="o">(</span><span class="s">&#34;pProcessInstanceId&#34;</span><span class="o">)</span><span class="n">String</span> <span class="n">pProcessInstanceId</span><span class="o">,</span> <span class="n">HttpServletResponse</span> <span class="n">response</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">            <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 设置页面不缓存
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">response</span><span class="o">.</span><span class="na">setHeader</span><span class="o">(</span><span class="s">&#34;Pragma&#34;</span><span class="o">,</span> <span class="s">&#34;No-cache&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">response</span><span class="o">.</span><span class="na">setHeader</span><span class="o">(</span><span class="s">&#34;Cache-Control&#34;</span><span class="o">,</span> <span class="s">&#34;no-cache&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">response</span><span class="o">.</span><span class="na">setDateHeader</span><span class="o">(</span><span class="s">&#34;Expires&#34;</span><span class="o">,</span> <span class="n">0</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">String</span> <span class="n">processDefinitionId</span> <span class="o">=</span> <span class="s">&#34;&#34;</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ProcessInstance</span> <span class="n">processInstance</span> <span class="o">=</span> <span class="n">runtimeService</span><span class="o">.</span><span class="na">createProcessInstanceQuery</span><span class="o">().</span><span class="na">processInstanceId</span><span class="o">(</span><span class="n">pProcessInstanceId</span><span class="o">).</span><span class="na">singleResult</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span><span class="o">(</span><span class="n">processInstance</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">HistoricProcessInstance</span> <span class="n">historicProcessInstance</span> <span class="o">=</span> <span class="n">historyService</span><span class="o">.</span><span class="na">createHistoricProcessInstanceQuery</span><span class="o">().</span><span class="na">processInstanceId</span><span class="o">(</span><span class="n">pProcessInstanceId</span><span class="o">).</span><span class="na">singleResult</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">            <span class="n">processDefinitionId</span> <span class="o">=</span> <span class="n">historicProcessInstance</span><span class="o">.</span><span class="na">getProcessDefinitionId</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">processDefinitionId</span> <span class="o">=</span> <span class="n">processInstance</span><span class="o">.</span><span class="na">getProcessDefinitionId</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ProcessDefinitionQuery</span> <span class="n">pdq</span> <span class="o">=</span> <span class="n">repositoryService</span><span class="o">.</span><span class="na">createProcessDefinitionQuery</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ProcessDefinition</span> <span class="n">pd</span> <span class="o">=</span> <span class="n">pdq</span><span class="o">.</span><span class="na">processDefinitionId</span><span class="o">(</span><span class="n">processDefinitionId</span><span class="o">).</span><span class="na">singleResult</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">String</span> <span class="n">resourceName</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="na">getDiagramResourceName</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">if</span><span class="o">(</span><span class="n">resourceName</span><span class="o">.</span><span class="na">endsWith</span><span class="o">(</span><span class="s">&#34;.png&#34;</span><span class="o">)</span> <span class="o">&amp;&amp;</span> <span class="n">StringUtils</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">(</span><span class="n">pProcessInstanceId</span><span class="o">)</span> <span class="o">==</span> <span class="kc">false</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">        <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">getActivitiProccessImage</span><span class="o">(</span><span class="n">pProcessInstanceId</span><span class="o">,</span><span class="n">response</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">//ProcessDiagramGenerator.generateDiagram(pde, &#34;png&#34;, getRuntimeService().getActiveActivityIds(processInstanceId));
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="k">else</span>
+</span></span><span class="line"><span class="cl">        <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// 通过接口读取
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">InputStream</span> <span class="n">resourceAsStream</span> <span class="o">=</span> <span class="n">repositoryService</span><span class="o">.</span><span class="na">getResourceAsStream</span><span class="o">(</span><span class="n">pd</span><span class="o">.</span><span class="na">getDeploymentId</span><span class="o">(),</span> <span class="n">resourceName</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="c1">// 输出资源内容到相应对象
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="kt">byte</span><span class="o">[]</span> <span class="n">b</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">byte</span><span class="o">[</span><span class="n">1024</span><span class="o">];</span>
+</span></span><span class="line"><span class="cl">            <span class="kt">int</span> <span class="n">len</span> <span class="o">=</span> <span class="o">-</span><span class="n">1</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">            <span class="k">while</span> <span class="o">((</span><span class="n">len</span> <span class="o">=</span> <span class="n">resourceAsStream</span><span class="o">.</span><span class="na">read</span><span class="o">(</span><span class="n">b</span><span class="o">,</span> <span class="n">0</span><span class="o">,</span> <span class="n">1024</span><span class="o">))</span> <span class="o">!=</span> <span class="o">-</span><span class="n">1</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">response</span><span class="o">.</span><span class="na">getOutputStream</span><span class="o">().</span><span class="na">write</span><span class="o">(</span><span class="n">b</span><span class="o">,</span> <span class="n">0</span><span class="o">,</span> <span class="n">len</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span></code></pre></div><p>获取的流程图如下：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-04/image-20200601093323407-1655020075399.png" >
+		<img src="/images/activiti6-04/image-20200601093323407-1655020075399.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200601093323407">
+	</a>
+	
+	<figcaption>image-20200601093323407</figcaption>
+	
+</figure></p>
+<p>本节到此结束。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/activiti/">Activiti</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/activiti6%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%B3%BB%E7%BB%9F%E6%90%AD%E5%BB%BA%E6%95%99%E7%A8%8B/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti6工作流系统搭建教程</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti33-spring-security%E8%8E%B7%E5%8F%96%E5%BD%93%E5%89%8D%E6%93%8D%E4%BD%9C%E4%BA%BA%E4%BF%A1%E6%81%AF/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（33） Spring-Security获取当前操作人信息</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti34-%E4%BD%BF%E7%94%A8swagger%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（34） 使用Swagger生成静态接口文档</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti35-%E4%BD%BF%E7%94%A8swagger%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（35） 使用Swagger生成静态接口文档</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti32-%E6%9B%BF%E6%8D%A2activiti%E7%94%A8%E6%88%B7%E5%92%8C%E7%94%A8%E6%88%B7%E7%BB%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（32） 替换Activiti用户和用户组</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#11-流程图">1.1 流程图</a></li>
+    <li><a href="#12-流程定义">1.2 流程定义</a></li>
+  </ol>
+
+  <ol>
+    <li><a href="#21-获取流程引擎及各个service接口">2.1 获取流程引擎及各个Service接口</a></li>
+    <li><a href="#22-初始化审批人">2.2 初始化审批人</a></li>
+    <li><a href="#23-初始化组">2.3 初始化组</a></li>
+    <li><a href="#24-初始化人员组的关系">2.4 初始化人员、组的关系</a></li>
+    <li><a href="#25-部署流程定义">2.5 部署流程定义</a></li>
+    <li><a href="#26-发起审批">2.6 发起审批</a></li>
+    <li><a href="#27-部门领导获取待办">2.7 部门领导获取待办</a></li>
+    <li><a href="#28-部门领导审批通过流程">2.8 部门领导审批通过流程</a></li>
+    <li><a href="#29-获取已办">2.9 获取已办</a></li>
+    <li><a href="#210--获取审批意见">2.10  获取审批意见</a></li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

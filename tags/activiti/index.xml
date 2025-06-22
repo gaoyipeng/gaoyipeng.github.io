@@ -1,0 +1,590 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Activiti on 十一爸爸的博客</title>
+    <link>https://garnettboy.gitee.io/tags/activiti/</link>
+    <description>Recent content in Activiti on 十一爸爸的博客</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Wed, 07 Sep 2022 09:50:37 +0000</lastBuildDate><atom:link href="https://garnettboy.gitee.io/tags/activiti/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Activiti6工作流系统搭建教程</title>
+      <link>https://garnettboy.gitee.io/p/activiti6%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%B3%BB%E7%BB%9F%E6%90%AD%E5%BB%BA%E6%95%99%E7%A8%8B/</link>
+      <pubDate>Wed, 07 Sep 2022 09:50:37 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti6%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%B3%BB%E7%BB%9F%E6%90%AD%E5%BB%BA%E6%95%99%E7%A8%8B/</guid>
+      <description>《Activiti6工作流系统搭建教程》是一款基于SpringBoot2.1.6 、 Activiti6.0.0、Mysql :5.7、Mybatis-plus 3.3.2 构建的工作流后端控制系统。
+本教程宗旨是让大家都有能力搭建自己的工作流平台。本教程通过图文结合的方式，手把手展示框架搭建过程。
+提供了大量的基础功能实现，完整的实现了流程的部署、运行、跟踪等。目前已经基本满足大部分的工作需求，另外说明，本教程除普通表单外，其他功能并没有接入前端页面。演示主要以接口交互为主。因为每个公司需求不同，故只提供后端接口，后期如果需要孵化为公司项目，只需一个前端即可。
+章节目录 一、使用教程
+​ 环境说明 ​ 导入教程 ​ 系统展示 ​ 更新历史 二、搭建教程
+​ 基本概念 ​ 资料下载 ​ 环境搭建 ​ 集成Activiti-Modeler ​ 七大Service接口 ​ 流程定义文件—流程定义—流程模型 的相互转化 ​ 用户和用户组 三、任务表单
+​ 表单分类
+​ 动态表单实战、集成Swagger、Logback
+​ 外置表单实战
+​ 普通表单实战,集成Thymeleaf,Mybatis-Plus
+​ 表单模式选型
+四、多实例（会签）
+五、子流程和调用活动
+​ 子流程 ​ 事件子流程 ​ 调用活动 ​ 事务子流程 六、流程历史管理、补充获取流程定义列表接口
+七、事件
+​ 事件类别
+​ Activiti启动事件
+​ Activiti结束事件
+​ 边界事件（一）
+​ 边界事件（二）
+八、网关
+九、接口完善
+​	审批意见管理 ​	Activiti流程驳回、流程回退 ​	Activiti任务委托 ​	Activiti流程的挂起、激活 </description>
+    </item>
+    
+    <item>
+      <title>Activiti（33） Spring-Security获取当前操作人信息</title>
+      <link>https://garnettboy.gitee.io/p/activiti33-spring-security%E8%8E%B7%E5%8F%96%E5%BD%93%E5%89%8D%E6%93%8D%E4%BD%9C%E4%BA%BA%E4%BF%A1%E6%81%AF/</link>
+      <pubDate>Fri, 23 Oct 2020 09:19:39 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti33-spring-security%E8%8E%B7%E5%8F%96%E5%BD%93%E5%89%8D%E6%93%8D%E4%BD%9C%E4%BA%BA%E4%BF%A1%E6%81%AF/</guid>
+      <description>我们在介绍Activiti部分时，设置当前流程操作人是通过硬编码的方式：
+image-20201019211817418现在我们已经集成了spring-security-oauth2，我们可以通过Spring-Security获取当前操作人。
+因为这个是个通用操作，所以我们把这个代码写在workflow-common中。我们首先需要在workflow-common中添加Spring-Security Jar包：
+&amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.cloud&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-cloud-starter-oauth2&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.cloud&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-cloud-starter-security&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; 然后新建工具类：
+package com.sxdx.common.util; import lombok.extern.slf4j.Slf4j; import org.springframework.security.core.Authentication; import org.springframework.security.core.GrantedAuthority; import org.springframework.security.core.context.SecurityContextHolder; import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails; import java.util.Collection; /** * @program: workflow-activiti * @description: 常用工具类 * @author: garnett * @create: 2020-10-18 18:02 **/ @Slf4j public class workFlowUtil { private static Authentication getOauth2Authentication() { Authentication authentication = SecurityContextHolder.getContext().getAuthentication(); return authentication; } /** * 获取当前用户名称 * * @return String 用户名 */ public static String getCurrentUsername() { String name = getOauth2Authentication().</description>
+    </item>
+    
+    <item>
+      <title>Activiti（34） 使用Swagger生成静态接口文档</title>
+      <link>https://garnettboy.gitee.io/p/activiti34-%E4%BD%BF%E7%94%A8swagger%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3/</link>
+      <pubDate>Fri, 23 Oct 2020 09:19:39 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti34-%E4%BD%BF%E7%94%A8swagger%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3/</guid>
+      <description>实际工作中往往需要我们提供接口文档，但是有的用户并不能直接访问Swagger-UI 来获取接口，所以本节我们介绍一下如何使用Swagger生成静态接口文档。
+我们以workflow-activit-rest工程为例。本节我们演示生成HTML、MarkDown、PDF格式的静态接口文档。
+1、添加依赖 &amp;lt;!--swagger静态化输出依赖--&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;io.github.swagger2markup&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;swagger2markup&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.3.3&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; 另外还需要在POM文件中添加如下内容：
+&amp;lt;repositories&amp;gt; &amp;lt;repository&amp;gt; &amp;lt;id&amp;gt;spring-libs-milestone&amp;lt;/id&amp;gt; &amp;lt;url&amp;gt;https://repo.spring.io/libs-milestone&amp;lt;/url&amp;gt; &amp;lt;snapshots&amp;gt; &amp;lt;enabled&amp;gt;false&amp;lt;/enabled&amp;gt; &amp;lt;/snapshots&amp;gt; &amp;lt;/repository&amp;gt; &amp;lt;!-- jhipster-needle-maven-repository --&amp;gt; &amp;lt;/repositories&amp;gt; &amp;lt;pluginRepositories&amp;gt; &amp;lt;pluginRepository&amp;gt; &amp;lt;id&amp;gt;spring-plugins-release&amp;lt;/id&amp;gt; &amp;lt;url&amp;gt;https://repo.spring.io/plugins-release&amp;lt;/url&amp;gt; &amp;lt;snapshots&amp;gt; &amp;lt;enabled&amp;gt;false&amp;lt;/enabled&amp;gt; &amp;lt;/snapshots&amp;gt; &amp;lt;/pluginRepository&amp;gt; &amp;lt;/pluginRepositories&amp;gt; &amp;lt;!--swagger静态化插件 先执行测试类生成.adoc文件再运行maven命令 asciidoctor:process-asciidoc生成html--&amp;gt; &amp;lt;plugin&amp;gt; &amp;lt;groupId&amp;gt;org.asciidoctor&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;asciidoctor-maven-plugin&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.5.6&amp;lt;/version&amp;gt; &amp;lt;configuration&amp;gt; &amp;lt;sourceDirectory&amp;gt;./docs/asciidoc/generated&amp;lt;/sourceDirectory&amp;gt; &amp;lt;outputDirectory&amp;gt;./docs/asciidoc/html&amp;lt;/outputDirectory&amp;gt; &amp;lt;headerFooter&amp;gt;true&amp;lt;/headerFooter&amp;gt; &amp;lt;doctype&amp;gt;book&amp;lt;/doctype&amp;gt; &amp;lt;backend&amp;gt;html&amp;lt;/backend&amp;gt; &amp;lt;sourceHighlighter&amp;gt;coderay&amp;lt;/sourceHighlighter&amp;gt; &amp;lt;attributes&amp;gt; &amp;lt;!--菜单栏在左边--&amp;gt; &amp;lt;toc&amp;gt;left&amp;lt;/toc&amp;gt; &amp;lt;!--多标题排列--&amp;gt; &amp;lt;toclevels&amp;gt;3&amp;lt;/toclevels&amp;gt; &amp;lt;!--自动打数字序号--&amp;gt; &amp;lt;sectnums&amp;gt;true&amp;lt;/sectnums&amp;gt; &amp;lt;/attributes&amp;gt; &amp;lt;/configuration&amp;gt; &amp;lt;/plugin&amp;gt; 2、生成接口 此处我们写一个单元测试类来存放生成接口：
+package com.sxdx.workflow.activiti.rest; import io.github.swagger2markup.GroupBy; import io.github.swagger2markup.Language; import io.github.swagger2markup.Swagger2MarkupConfig; import io.github.swagger2markup.Swagger2MarkupConverter; import io.github.swagger2markup.builder.Swagger2MarkupConfigBuilder; import io.</description>
+    </item>
+    
+    <item>
+      <title>Activiti（35） 使用Swagger生成静态接口文档</title>
+      <link>https://garnettboy.gitee.io/p/activiti35-%E4%BD%BF%E7%94%A8swagger%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3/</link>
+      <pubDate>Fri, 23 Oct 2020 09:19:39 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti35-%E4%BD%BF%E7%94%A8swagger%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3/</guid>
+      <description>实际工作中往往需要我们提供接口文档，但是有的用户并不能直接访问Swagger-UI 来获取接口，所以本节我们介绍一下如何使用Swagger生成静态接口文档。
+我们以workflow-activit-rest工程为例。本节我们演示生成HTML、MarkDown、PDF格式的静态接口文档。
+1、添加依赖 &amp;lt;!--swagger静态化输出依赖--&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;io.github.swagger2markup&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;swagger2markup&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.3.3&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; 另外还需要在POM文件中添加如下内容：
+&amp;lt;repositories&amp;gt; &amp;lt;repository&amp;gt; &amp;lt;id&amp;gt;spring-libs-milestone&amp;lt;/id&amp;gt; &amp;lt;url&amp;gt;https://repo.spring.io/libs-milestone&amp;lt;/url&amp;gt; &amp;lt;snapshots&amp;gt; &amp;lt;enabled&amp;gt;false&amp;lt;/enabled&amp;gt; &amp;lt;/snapshots&amp;gt; &amp;lt;/repository&amp;gt; &amp;lt;!-- jhipster-needle-maven-repository --&amp;gt; &amp;lt;/repositories&amp;gt; &amp;lt;pluginRepositories&amp;gt; &amp;lt;pluginRepository&amp;gt; &amp;lt;id&amp;gt;spring-plugins-release&amp;lt;/id&amp;gt; &amp;lt;url&amp;gt;https://repo.spring.io/plugins-release&amp;lt;/url&amp;gt; &amp;lt;snapshots&amp;gt; &amp;lt;enabled&amp;gt;false&amp;lt;/enabled&amp;gt; &amp;lt;/snapshots&amp;gt; &amp;lt;/pluginRepository&amp;gt; &amp;lt;/pluginRepositories&amp;gt; &amp;lt;!--swagger静态化插件 先执行测试类生成.adoc文件再运行maven命令 asciidoctor:process-asciidoc生成html--&amp;gt; &amp;lt;plugin&amp;gt; &amp;lt;groupId&amp;gt;org.asciidoctor&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;asciidoctor-maven-plugin&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.5.6&amp;lt;/version&amp;gt; &amp;lt;configuration&amp;gt; &amp;lt;sourceDirectory&amp;gt;./docs/asciidoc/generated&amp;lt;/sourceDirectory&amp;gt; &amp;lt;outputDirectory&amp;gt;./docs/asciidoc/html&amp;lt;/outputDirectory&amp;gt; &amp;lt;headerFooter&amp;gt;true&amp;lt;/headerFooter&amp;gt; &amp;lt;doctype&amp;gt;book&amp;lt;/doctype&amp;gt; &amp;lt;backend&amp;gt;html&amp;lt;/backend&amp;gt; &amp;lt;sourceHighlighter&amp;gt;coderay&amp;lt;/sourceHighlighter&amp;gt; &amp;lt;attributes&amp;gt; &amp;lt;!--菜单栏在左边--&amp;gt; &amp;lt;toc&amp;gt;left&amp;lt;/toc&amp;gt; &amp;lt;!--多标题排列--&amp;gt; &amp;lt;toclevels&amp;gt;3&amp;lt;/toclevels&amp;gt; &amp;lt;!--自动打数字序号--&amp;gt; &amp;lt;sectnums&amp;gt;true&amp;lt;/sectnums&amp;gt; &amp;lt;/attributes&amp;gt; &amp;lt;/configuration&amp;gt; &amp;lt;/plugin&amp;gt; 2、生成接口 此处我们写一个单元测试类来存放生成接口：
+package com.sxdx.workflow.activiti.rest; import io.github.swagger2markup.GroupBy; import io.github.swagger2markup.Language; import io.github.swagger2markup.Swagger2MarkupConfig; import io.github.swagger2markup.Swagger2MarkupConverter; import io.github.swagger2markup.builder.Swagger2MarkupConfigBuilder; import io.</description>
+    </item>
+    
+    <item>
+      <title>Activiti（32） 替换Activiti用户和用户组</title>
+      <link>https://garnettboy.gitee.io/p/activiti32-%E6%9B%BF%E6%8D%A2activiti%E7%94%A8%E6%88%B7%E5%92%8C%E7%94%A8%E6%88%B7%E7%BB%84/</link>
+      <pubDate>Fri, 16 Oct 2020 16:53:23 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti32-%E6%9B%BF%E6%8D%A2activiti%E7%94%A8%E6%88%B7%E5%92%8C%E7%94%A8%E6%88%B7%E7%BB%84/</guid>
+      <description>介绍Activiti用户和用户组时我们使用的是activiti自带的用户表，这节我们使用RBAC的用户表代替activiti用户表。
+1、创建视图 前面我们已经介绍过，此处使用视图来替代原先的用户表
+1.1 表对应关系 系统表 activiti表 base_user(用户表) act_id_user base_role（角色表） act_id_group base_user_role(用户角色对照表) act_id_membership 用户组其实可以看做是我们平常说的角色。
+1.2 视图创建SQL # 根据 base_user、base_role 和 base_user_role 创建视图 # 需要根据具体的 用户表 和 角色表 进行相应字段的调整 -- 删除自带的用户信息表 DROP TABLE IF EXISTS ACT_ID_MEMBERSHIP; DROP TABLE IF EXISTS ACT_ID_GROUP; DROP TABLE IF EXISTS ACT_ID_USER; -- 如果之前存在视图则删除 DROP VIEW IF EXISTS ACT_ID_MEMBERSHIP; DROP VIEW IF EXISTS ACT_ID_USER; DROP VIEW IF EXISTS ACT_ID_GROUP; CREATE OR REPLACE VIEW act_id_user AS SELECT u.username AS ID_, 1 AS REV_, u.</description>
+    </item>
+    
+    <item>
+      <title>Activiti（31） RBAC基于角色的访问控制</title>
+      <link>https://garnettboy.gitee.io/p/activiti31-rbac%E5%9F%BA%E4%BA%8E%E8%A7%92%E8%89%B2%E7%9A%84%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6/</link>
+      <pubDate>Sat, 10 Oct 2020 11:14:54 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti31-rbac%E5%9F%BA%E4%BA%8E%E8%A7%92%E8%89%B2%E7%9A%84%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6/</guid>
+      <description>本节我们在系统中集成RBAC（Role-Based Access Control，基于角色的访问控制）模型。简单来说就是一个用户拥有若干角色，每一个角色拥有若干权限。这样就构造成“用户-角色-权限”的授权模型。在这种模型中，用户与角色之间，角色与权限之间，一般都是多对多的关系。
+1、表结构设计 image-20201015100138801image-20201017213317296比如获取用户名为 Garnett 的用户权限过程为：
+通过Garnett 这个user_id从base_user_role表获取对应的role_id的集合； 通过第1步获取的role_id从base_role_menu表获取对应的menu_id的集合； 通过第2步获取的menu_id从base_menu获取menu相关信息（base_menu表的permission为权限信息）。 另外我们补充一张base_dept表来存储组织机构数据。
+接下里我们贴出建表SQL：
+DROP TABLE IF EXISTS base_user; DROP TABLE IF EXISTS base_dept; DROP TABLE IF EXISTS base_role; DROP TABLE IF EXISTS base_menu; DROP TABLE IF EXISTS base_user_role; DROP TABLE IF EXISTS base_role_menu; CREATE TABLE `base_user` ( `user_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT &amp;#39;用户ID&amp;#39;, `username` varchar(50) NOT NULL COMMENT &amp;#39;用户名&amp;#39;, `password` varchar(128) NOT NULL COMMENT &amp;#39;密码&amp;#39;, `dept_id` bigint(20) DEFAULT NULL COMMENT &amp;#39;部门ID&amp;#39;, `email` varchar(128) DEFAULT NULL COMMENT &amp;#39;邮箱&amp;#39;, `mobile` varchar(20) DEFAULT NULL COMMENT &amp;#39;联系电话&amp;#39;, `status` char(1) NOT NULL COMMENT &amp;#39;状态 0锁定 1有效&amp;#39;, `order_num` double(20,0) DEFAULT NULL COMMENT &amp;#39;排序&amp;#39;, `create_time` datetime NOT NULL COMMENT &amp;#39;创建时间&amp;#39;, `modify_time` datetime DEFAULT NULL COMMENT &amp;#39;修改时间&amp;#39;, `last_login_time` datetime DEFAULT NULL COMMENT &amp;#39;最近访问时间&amp;#39;, `gender` char(1) DEFAULT NULL COMMENT &amp;#39;性别 0男 1女 2保密&amp;#39;, `avatar` varchar(255) DEFAULT NULL COMMENT &amp;#39;头像&amp;#39;, `description` varchar(255) DEFAULT NULL COMMENT &amp;#39;描述&amp;#39;, PRIMARY KEY (`user_id`) USING BTREE, UNIQUE KEY `username` (`username`) USING BTREE ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT=&amp;#39;用户表&amp;#39;; INSERT INTO `base_user` VALUES (1, &amp;#39;admin&amp;#39;, &amp;#39;$2a$10$v8hx0S0I2XTOMcDnDGhb3uwSWnMgy9ckgVM5x6GfwepuBwPnGv7bK&amp;#39;, 1, &amp;#39;admin@qq.</description>
+    </item>
+    
+    <item>
+      <title>Activiti（30） 数据库存储Code,Client信息</title>
+      <link>https://garnettboy.gitee.io/p/activiti30-%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AD%98%E5%82%A8codeclient%E4%BF%A1%E6%81%AF/</link>
+      <pubDate>Mon, 05 Oct 2020 15:09:49 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti30-%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AD%98%E5%82%A8codeclient%E4%BF%A1%E6%81%AF/</guid>
+      <description>前面我们我们在集成Oauth2功能的的时候，授权码和客户端信息都是保存在内存中的，但是在生产环境下，这些信息都应该保存在数据库中，否则服务重启后，内存信息都会清空，而且不方便配置。
+1、数据库表 首先我们需要新建2张表来保存授权码和客户端信息：
+CREATE TABLE `oauth_client_details` ( `client_id` varchar(255) NOT NULL COMMENT &amp;#39;客户端标识&amp;#39;, `resource_ids` varchar(255) DEFAULT NULL COMMENT &amp;#39;接入资源列表&amp;#39;, `client_secret` varchar(255) DEFAULT NULL COMMENT &amp;#39;客户端秘钥&amp;#39;, `scope` varchar(255) DEFAULT NULL, `authorized_grant_types` varchar(255) DEFAULT NULL, `web_server_redirect_uri` varchar(255) DEFAULT NULL, `authorities` varchar(255) DEFAULT NULL, `access_token_validity` int(11) DEFAULT NULL, `refresh_token_validity` int(11) DEFAULT NULL, `additional_information` longtext, `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, `archived` tinyint(4) DEFAULT NULL, `trusted` tinyint(4) DEFAULT NULL, `autoapprove` varchar(255) DEFAULT NULL, PRIMARY KEY (`client_id`) USING BTREE ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT=&amp;#39;接入客户端信息&amp;#39;; CREATE TABLE `oauth_code` ( `code` varchar(255) DEFAULT NULL, `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP, `authentication` blob, KEY `code_index` (`code`) USING BTREE ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT; 表中插入数据：</description>
+    </item>
+    
+    <item>
+      <title>Activiti（29） 添加JWT支持</title>
+      <link>https://garnettboy.gitee.io/p/activiti29-%E6%B7%BB%E5%8A%A0jwt%E6%94%AF%E6%8C%81/</link>
+      <pubDate>Thu, 01 Oct 2020 13:19:58 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti29-%E6%B7%BB%E5%8A%A0jwt%E6%94%AF%E6%8C%81/</guid>
+      <description>1、为什么使用JWT 前面我们已经实现了基于token的方式来请求资源，并且添加了资源服务器的token验证配置：
+security: oauth2: client: client-id: kiki #指定了客户端id client-secret: 123456 # 指定了客户端密码 resource: token-info-uri: http://127.0.0.1:8101/oauth/check_token 也就是说每次请求，资源服务器都会将携带的token通过token-info-uri来向认证服务器验证 token。在请求数较少的时候这不是问题，但是用户量很大时，就会对系统造成一定的负担。我们可以通过JWT令牌的方式解决这个问题。至于什么是JWT，网上一搜一大把，我就不做介绍了。
+1.1 JWT令牌的优缺点 优点：
+jwt是基于json格式的，容易解析。 可以在令牌中自定义内容，具有很好的扩展性。 支持对称、非对称加密算法及数字签名技术，JWT防止篡改，安全系数高。 在资源服务器中使用jwt可以不依赖认证服务器即可完成验证。 服务端无需存储 token，交由客户端保存，节省空间 缺点：
+jwt令牌较长，并且会随着内容的添加而变长，占用空间较大。 1.2 添加依赖 我们分别在workflow-auth、workflow-activiti-rest服务中添加如下依赖：
+&amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.security&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-security-jwt&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.0.10.RELEASE&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; 2、 添加JWT支持 2.1 修改认证服务器 我们先修改TokenConfig,之前是InMemoryTokenStore内存中存储token，现在改为JWT方式，此处采用对称加密方式来生成jwt令牌，秘钥是123456.
+package com.sxdx.workflow.auth.config; import org.springframework.context.annotation.Bean; import org.springframework.context.annotation.Configuration; import org.springframework.context.annotation.Primary; import org.springframework.security.oauth2.provider.token.TokenStore; import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore; import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter; import org.springframework.security.oauth2.provider.token.store.JwtTokenStore; @Configuration public class TokenConfig { /*@Bean public TokenStore tokenStore() { return new InMemoryTokenStore(); }*/ @Bean public TokenStore tokenStore() { return new JwtTokenStore(accessTokenConverter()); } @Primary @Bean public JwtAccessTokenConverter accessTokenConverter() { JwtAccessTokenConverter converter = new JwtAccessTokenConverter(); converter.</description>
+    </item>
+    
+    <item>
+      <title>Activiti（28） 搭建资源服务器</title>
+      <link>https://garnettboy.gitee.io/p/activiti28-%E6%90%AD%E5%BB%BA%E8%B5%84%E6%BA%90%E6%9C%8D%E5%8A%A1%E5%99%A8/</link>
+      <pubDate>Thu, 01 Oct 2020 09:30:11 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti28-%E6%90%AD%E5%BB%BA%E8%B5%84%E6%BA%90%E6%9C%8D%E5%8A%A1%E5%99%A8/</guid>
+      <description>前面我们已经搭建好了认证服务器，接下来我们将workflow-activiti-rest改造为资源服务器。
+1、引入依赖 首先在workflow-activiti-rest的pom 文件中加入以下依赖：
+&amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.cloud&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-cloud-starter&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.cloud&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-cloud-starter-oauth2&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.cloud&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-cloud-starter-security&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; 2、配置资源服务器 资源服务器需要创建两大配置：
+资源服务配置：配置资源信息及访问策略。 WebSecurity配置：Security配置，验证token的授权信息。 2.1 创建资源服务配置类 我们在config包下新建ResourceServerConfig
+package com.sxdx.workflow.activiti.rest.config; import org.springframework.context.annotation.Configuration; import org.springframework.core.annotation.Order; import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity; import org.springframework.security.config.annotation.web.builders.HttpSecurity; import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer; import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter; import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer; /** * @program: workflow-activiti * @description: 资源服务配置 * @author: garnett * @create: 2020-09-26 17:05 **/ @Configuration @EnableResourceServer public class ResourceServerConfig extends ResourceServerConfigurerAdapter { public static final String RESOURCE_ID = &amp;#34;activiti-rest&amp;#34;; @Override public void configure(ResourceServerSecurityConfigurer resources) throws Exception { resources.</description>
+    </item>
+    
+    <item>
+      <title>Activiti（27） 搭建认证服务器</title>
+      <link>https://garnettboy.gitee.io/p/activiti27-%E6%90%AD%E5%BB%BA%E8%AE%A4%E8%AF%81%E6%9C%8D%E5%8A%A1%E5%99%A8/</link>
+      <pubDate>Mon, 28 Sep 2020 16:59:32 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti27-%E6%90%AD%E5%BB%BA%E8%AE%A4%E8%AF%81%E6%9C%8D%E5%8A%A1%E5%99%A8/</guid>
+      <description>1、搭建认证服务器 我们希望搭建的各个微服务系统是受保护的，只有通过合法的认证信息才能访问相关资源。我们搭建一个统一给微服务发放访问令牌的认证服务器：workflow-auth。
+我们新建一个module:
+image-20200928145259651image-20200928145359591修改workflow-auth的pom，内容如下：
+&amp;lt;?xml version=&amp;#34;1.0&amp;#34; encoding=&amp;#34;UTF-8&amp;#34;?&amp;gt; &amp;lt;project xmlns=&amp;#34;http://maven.apache.org/POM/4.0.0&amp;#34; xmlns:xsi=&amp;#34;http://www.w3.org/2001/XMLSchema-instance&amp;#34; xsi:schemaLocation=&amp;#34;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&amp;#34;&amp;gt; &amp;lt;parent&amp;gt; &amp;lt;artifactId&amp;gt;workflow-activiti&amp;lt;/artifactId&amp;gt; &amp;lt;groupId&amp;gt;com.sxdx&amp;lt;/groupId&amp;gt; &amp;lt;version&amp;gt;1.0-SNAPSHOT&amp;lt;/version&amp;gt; &amp;lt;/parent&amp;gt; &amp;lt;modelVersion&amp;gt;4.0.0&amp;lt;/modelVersion&amp;gt; &amp;lt;artifactId&amp;gt;workflow-auth&amp;lt;/artifactId&amp;gt; &amp;lt;properties&amp;gt; &amp;lt;java.version&amp;gt;1.8&amp;lt;/java.version&amp;gt; &amp;lt;/properties&amp;gt; &amp;lt;dependencies&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.projectlombok&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;lombok&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.boot&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-boot-starter-web&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.cloud&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-cloud-starter&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.cloud&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-cloud-starter-oauth2&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.cloud&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-cloud-starter-security&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.boot&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-boot-starter-test&amp;lt;/artifactId&amp;gt; &amp;lt;scope&amp;gt;test&amp;lt;/scope&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;artifactId&amp;gt;workflow-common&amp;lt;/artifactId&amp;gt; &amp;lt;groupId&amp;gt;com.sxdx&amp;lt;/groupId&amp;gt; &amp;lt;version&amp;gt;1.0-SNAPSHOT&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;/dependencies&amp;gt; &amp;lt;build&amp;gt; &amp;lt;plugins&amp;gt; &amp;lt;plugin&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.boot&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-boot-maven-plugin&amp;lt;/artifactId&amp;gt; &amp;lt;/plugin&amp;gt; &amp;lt;/plugins&amp;gt; &amp;lt;/build&amp;gt; &amp;lt;/project&amp;gt; 这里有一点说明，我们此处引入了workflow-common依赖，因为workflow-common中包含pagehelper依赖，会要求有数据源，这里我们先把pagehelper的依赖，放入workflow-activiti-rest的pom 文件中。并在workflow-common中添加spring-boot-starter
+&amp;lt;!--把workflow-common的pagehelper删除，添加到workflow-activiti-rest中--&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;com.github.pagehelper&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;pagehelper-spring-boot-starter&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;!</description>
+    </item>
+    
+    <item>
+      <title>Activiti（26） Spring-Security-OAuth2简介</title>
+      <link>https://garnettboy.gitee.io/p/activiti26-spring-security-oauth2%E7%AE%80%E4%BB%8B/</link>
+      <pubDate>Mon, 28 Sep 2020 14:01:47 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti26-spring-security-oauth2%E7%AE%80%E4%BB%8B/</guid>
+      <description>前面关于Activiti6的介绍，已经告一段落，基本的流程操作步骤都已经有了，后期有什么遗漏再做补充。
+之前的流程演示时，我们都是直接使用Swagger或者是Postman来调用接口，没有任何验证过程、无法保证系统安全性。本节我们为系统集成Spring-Security-OAuth2来实现资源的认证和授权。
+1、Spring-Security-OAuth2简介 Spring-Security-OAuth2分为Spring-Security和OAuth2两个知识点。Spring-Security-OAuth2提供了这2个知识点的整合。
+Spring Security是一个基于Spring的企业应用系统提供声明式的安全访问控制解决方案的安全框架。由于它 是Spring生态系统中的一员，因此它伴随着整个Spring生态系统不断修正、升级，在spring boot项目中加入spring security更是十分简单，使用Spring Security 减少了为企业系统安全控制编写大量重复代码的工作。
+OAuth（开放授权）是一个开放标准协议，允许用户授权第三方应用访问他们存储在另外的服务提供者上的信息，而不需要将用户名和密码提供给第三方应用或分享他们数据的所有内容。
+OAuth是一种用来规范令牌（Token）发放的授权机制，主要包含了四种授权模式：授权码模式、简化模式、密码模式和客户端模式。Spring Security OAuth2对这四种授权模式进行了实现。
+2、四种授权模式 这里简要的介绍一下4种授权模式及他们适用的范围。
+2.1 授权码模式 授权码模式（authorization code）是功能最完整、流程最严密的授权模式。它的特点就是通过客户端的后台服务器，与&amp;quot;服务提供商&amp;quot;的认证服务器进行互动。
+适用于和外部系统的对接，例如我们经常使用的微信扫码登录、QQ登录、Github登录都是这种模式。
+授权码模式步骤如下：
+（A）用户打开客户端以后，客户端要求用户给予授权。 （B）用户同意给予客户端授权。 （C）客户端使用上一步获得的授权，向认证服务器申请令牌。 （D）认证服务器对客户端进行认证以后，确认无误，同意发放令牌。 （E）客户端使用令牌，向资源服务器申请获取资源。 （F）资源服务器确认令牌无误，同意向客户端开放资源。
+A步骤中，客户端申请认证的URI，包含以下参数：
+response_type：表示授权类型，必选项，此处的值固定为&amp;quot;code&amp;quot; client_id：表示客户端的ID，必选项 redirect_uri：表示重定向URI，必选项 scope：表示申请的权限范围，可选项 state：表示客户端的当前状态，可以指定任意值，认证服务器会原封不动地返回这个值。 C步骤中，服务器回应客户端的URI，包含以下参数：
+code：表示授权码。该码的有效期应该很短，通常设为10分钟，客户端只能使用该码一次，否则会被授权服务器拒绝。该码与客户端ID和重定向URI，是一 一对应关系。 state：如果客户端的请求中包含这个参数，认证服务器的回应也一模一样包含这个参数。 D步骤中，客户端向认证服务器申请令牌的HTTP请求，包含以下参数：
+grant_type：表示使用的授权模式，必选项，此处的值固定为&amp;quot;authorization_code&amp;quot;。 code：表示上一步获得的授权码，必选项。 redirect_uri：表示重定向URI，必选项，且必须与A步骤中的该参数值保持一致。 client_id：表示客户端ID，必选项。 client_secret：表示客户端security，必选项。 scope：表示申请的权限范围，可选项 2.2 密码模式 密码模式（Resource Owner Password Credentials Grant）中，用户向客户端提供自己的用户名和密码。客户端使用这些信息，向认证服务器索要授权。
+适用于客户端是自己开发的系统，因为我们会将用户名、密码提供给client客户端，必须要是可信系统才行。
+密码模式步骤如下： （A）用户向客户端提供用户名和密码。 （B）客户端将用户名和密码发给认证服务器，向后者请求令牌。 （C）认证服务器确认无误后，向客户端提供访问令牌。
+B步骤中，客户端发出的HTTP请求，包含以下参数：
+grant_type：表示授权类型，此处的值固定为”password”，必选项。 username：表示用户名，必选项。 password：表示用户的密码，必选项。 scope：表示权限范围，可选项。 2.3 客户端模式 客户端模式（client_credentials）直接根据client的id和密钥即可获取token，无需用户参与。这种模式比较合适消费api的后端服务，此模式不支持refresh token。
+在这里插入图片描述步骤如下： （A）用户向客户端提供用户名和密码。 （B）客户端将用户名和密码发给认证服务器，向后者请求令牌。</description>
+    </item>
+    
+    <item>
+      <title>Activiti（25） 流程的挂起、激活</title>
+      <link>https://garnettboy.gitee.io/p/activiti25-%E6%B5%81%E7%A8%8B%E7%9A%84%E6%8C%82%E8%B5%B7%E6%BF%80%E6%B4%BB/</link>
+      <pubDate>Sat, 19 Sep 2020 13:04:29 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti25-%E6%B5%81%E7%A8%8B%E7%9A%84%E6%8C%82%E8%B5%B7%E6%BF%80%E6%B4%BB/</guid>
+      <description>本节我们介绍流程的挂起、激活。
+使用场景：流程发起后，由于某些情况，需要暂停流程，或者流程暂停后再次激活。
+当流程实例被挂起时，无法通过下一个节点对应的任务id来继续这个流程实例。
+通过挂起某一特定的流程实例，可以终止当前的流程实例，而不影响到该流程定义的其他流程实例。
+激活之后可以继续该流程实例，不会对后续任务造成影响。
+流程挂起时 act_ru_task 的 SUSPENSION_STATE_ 为 2，默认为1
+1、 代码 @PostMapping( &amp;#34;/suspendProcessInstance&amp;#34;) @ApiOperation(value = &amp;#34;挂起、激活流程实例&amp;#34;,notes = &amp;#34;挂起、激活流程实例&amp;#34;) public CommonResponse suspendProcessInstance(@RequestParam(value = &amp;#34;processInstanceId&amp;#34;, required = true)@ApiParam(value = &amp;#34;流程实例ID&amp;#34; ,required = true)String processInstanceId, @RequestParam(value = &amp;#34;suspendState&amp;#34;, required = true)@ApiParam(value = &amp;#34;状态： 1、激活 2、挂起&amp;#34; ,required = true)String suspendState) { processService.suspendProcessInstance(processInstanceId, suspendState); return new CommonResponse().code(CodeEnum.SUCCESS.getCode()).message(&amp;#34;操作成功&amp;#34;); } /** * 挂起、激活流程实例 * @param processInstanceId * @param suspendState */ @Override public void suspendProcessInstance(String processInstanceId, String suspendState) { if (&amp;#34;2&amp;#34;.</description>
+    </item>
+    
+    <item>
+      <title>Activiti（24） 任务委托</title>
+      <link>https://garnettboy.gitee.io/p/activiti24-%E4%BB%BB%E5%8A%A1%E5%A7%94%E6%89%98/</link>
+      <pubDate>Sat, 19 Sep 2020 12:25:38 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti24-%E4%BB%BB%E5%8A%A1%E5%A7%94%E6%89%98/</guid>
+      <description>本节我们来介绍一下任务委托。
+1、任务委托 任务委托，顾名思义，就是把任务委托给别人。在activiti流程中，允许将某个用户的任务委托给另一个用户来处理。
+1.1 代码 @PostMapping(value = &amp;#34;/delegateTask&amp;#34;) @ApiOperation(value = &amp;#34;委托任务&amp;#34;,notes = &amp;#34;委托任务&amp;#34;) public CommonResponse delegateTask(@RequestParam(value = &amp;#34;taskId&amp;#34;, required = true)@ApiParam(value = &amp;#34;当前任务ID&amp;#34; ,required = true)String taskId, @RequestParam(value = &amp;#34;userId&amp;#34;, required = true)@ApiParam(value = &amp;#34;委托对象ID&amp;#34; ,required = true)String userId){ processService.delegateTask(taskId,userId); return new CommonResponse().code(CodeEnum.SUCCESS.getCode()).message(&amp;#34;任务委托成功&amp;#34;); } /** * 任务委托 * @param taskId * @param userId */ @Override public void delegateTask(String taskId, String userId) { taskService.delegateTask(taskId, userId); //添加备注 Task currentTask = taskService.createTaskQuery().taskId(taskId).singleResult(); taskService.addComment(taskId,currentTask.getProcessInstanceId(),&amp;#34;任务委托给&amp;#34;+userId); } 实现起来非常简单，只需要任务Id和被委托人的userID即可。</description>
+    </item>
+    
+    <item>
+      <title>Activiti（23） 流程驳回、流程回退（节点跳转）</title>
+      <link>https://garnettboy.gitee.io/p/activiti23-%E6%B5%81%E7%A8%8B%E9%A9%B3%E5%9B%9E%E6%B5%81%E7%A8%8B%E5%9B%9E%E9%80%80%E8%8A%82%E7%82%B9%E8%B7%B3%E8%BD%AC/</link>
+      <pubDate>Fri, 18 Sep 2020 20:09:05 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti23-%E6%B5%81%E7%A8%8B%E9%A9%B3%E5%9B%9E%E6%B5%81%E7%A8%8B%E5%9B%9E%E9%80%80%E8%8A%82%E7%82%B9%E8%B7%B3%E8%BD%AC/</guid>
+      <description>由于中国式流程的需要，我们添加一下流程驳回处理，流程驳回分为2种：驳回起点，驳回任意节点。
+1、Activiti节点跳转的三种方式 1.1 流程图配置连线 这个是最简单的实现方式，我们设置好跳转的连线和跳转条件，在驳回时实现跳转是最安全可靠的，不过中国式流程的功能需求(驳回、回退等)，经常是要求在没有连线的情况下完成跳转。如果全部节点都配置驳回连线，那么流程图就会变成一张复杂的蜘蛛网，所以不采用这种方式。
+1.2 动态修改连线 动态修改流程定义环节的连线，然后执行跳转，完成后再恢复流程定义。
+这种方法可以实现动态跳转，不需要修改Activiti自身执行，但是会动态修改系统中的流程定义缓存对象。理论上这会出现一个多线程下，全局变量不安全的问题。单个Activiti流程引擎中，流程定义缓存对象是被所有线程共用的，当一个应用服务器同时收到同个流程定义下的两个不同流程实例、同个环节的任务提交的请求。A任务要求驳回，所以该线程动态修改了流程定义；与此同时，B 任务要求正常流转，但是执行过程中，依据的流程定义已被修改，可能导致B流程也走向了驳回，所以不采用这种方式。
+1.3 修改执行计划 修改当前执行计划，设置从连线流转到目标节点，实现跳转。这种方法即可以实现动态跳转，又没有动态修改流程定义带来的不安全问题。
+2、流程驳回 流程驳回分为2种：驳回起点，驳回任意节点。
+@PostMapping(value = &amp;#34;/rejectAnyNode&amp;#34;) @ApiOperation(value = &amp;#34;流程驳回&amp;#34;,notes = &amp;#34;流程驳回&amp;#34;) public CommonResponse rejectAnyNode( @RequestParam(value = &amp;#34;taskId&amp;#34;, required = true) @ApiParam(value = &amp;#34;当前任务ID&amp;#34; ,required = true)String taskId, @RequestParam(value = &amp;#34;flowElementId&amp;#34;, required = false) @ApiParam(value = &amp;#34;驳回指定节点ID(为空则返回流程起始节点)&amp;#34; ,required = false)String flowElementId){ processService.rejectAnyNode(taskId,flowElementId); return new CommonResponse().code(CodeEnum.SUCCESS.getCode()).message(&amp;#34;流程驳回成功&amp;#34;); } /** * 驳回指定节点 * @param taskId * @param flowElementId */ @Override @Transactional(noRollbackFor = Exception.</description>
+    </item>
+    
+    <item>
+      <title>Activiti（22） Activiti审批意见管理</title>
+      <link>https://garnettboy.gitee.io/p/activiti22-activiti%E5%AE%A1%E6%89%B9%E6%84%8F%E8%A7%81%E7%AE%A1%E7%90%86/</link>
+      <pubDate>Tue, 08 Sep 2020 14:53:28 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti22-activiti%E5%AE%A1%E6%89%B9%E6%84%8F%E8%A7%81%E7%AE%A1%E7%90%86/</guid>
+      <description>这节我们介绍一下流程审批意见的管理，流程审批时添加审批意见是必须的。我们通过最开始的这个请假流程来完善审批意见管理功能。
+image-202009091709424631、为任务创建评论 审批意见一般是在完成审批时添加的，所以这里我们改造一下原先的任务审批接口。
+/** * 办理任务，提交task，并保存form */ @PostMapping(value = &amp;#34;/task/complete&amp;#34;) @ApiOperation(value = &amp;#34;办理任务&amp;#34;,notes = &amp;#34;办理任务、保存form、保存审批意见&amp;#34;) public CommonResponse completeTask(@RequestParam(value = &amp;#34;taskId&amp;#34;,required = true) @ApiParam(value = &amp;#34;任务ID&amp;#34;,required = true)String taskId, @RequestParam(value = &amp;#34;processInstanceId&amp;#34;,required = false) @ApiParam(value = &amp;#34;流程实例ID&amp;#34;,required = false)String processInstanceId, @RequestParam(value = &amp;#34;comment&amp;#34;,required = false,defaultValue = &amp;#34;同意&amp;#34;) @ApiParam(value = &amp;#34;审批意见&amp;#34;,required = false)String comment, @RequestParam(value = &amp;#34;type&amp;#34;,required = false) @ApiParam(value = &amp;#34;类型&amp;#34;,required = false)String type, HttpServletRequest request) { processService.completeTask(taskId,processInstanceId,comment,type,request); return new CommonResponse().</description>
+    </item>
+    
+    <item>
+      <title>Activiti（21） 网关</title>
+      <link>https://garnettboy.gitee.io/p/activiti21-%E7%BD%91%E5%85%B3/</link>
+      <pubDate>Mon, 07 Sep 2020 16:16:23 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti21-%E7%BD%91%E5%85%B3/</guid>
+      <description>网关用来控制流程的流向。网关一共有4种：
+image-202009071648554191、互斥网关（排他网关） 排他网关， 用来在流程中实现决策。当流程执行到这个网关，所有外出顺序流都会被处理一遍。 其中条件解析为true的顺序流（或者没有设置条件，概念上在顺序流上定义了一个*&amp;rsquo;true&amp;rsquo;*） 会被选中，让流程继续运行。
+注意：如果多个顺序流的条件结果为true， 那么XML中的第一个顺序流（也只有这一条）会被选中，并用来继续运行流程。 如果没有选中任何顺序流，会抛出一个异常。
+&amp;lt;exclusiveGateway id=&amp;#34;exclusiveGw&amp;#34; name=&amp;#34;Exclusive Gateway&amp;#34; /&amp;gt; 1.1 条件表达式 顺序流上可以设置条件表达式（UEL），使用的表达式需要返回boolean值，否则会在解析表达式时抛出异常。条件表达式分为2种：值表达式和方法表达式。
+&amp;lt;!--值表达式:order为流程变量--&amp;gt; &amp;lt;conditionExpression xsi:type=&amp;#34;tFormalExpression&amp;#34;&amp;gt; &amp;lt;![CDATA[${order.price &amp;gt; 100 &amp;amp;&amp;amp; order.price &amp;lt; 250}]]&amp;gt; &amp;lt;/conditionExpression&amp;gt; &amp;lt;!--方法表达式:调用方法返回一个boolean值--&amp;gt; &amp;lt;conditionExpression xsi:type=&amp;#34;tFormalExpression&amp;#34;&amp;gt; &amp;lt;![CDATA[${order.isStandardOrder()}]]&amp;gt; &amp;lt;/conditionExpression&amp;gt; 1.2 默认顺序流 所有的BPMN 2.0任务和网关都可以设置一个并且只能设置一个默认顺序流。 默认顺序流的条件设置不会生效。
+默认顺序流显示为了普通顺序流，起点有一个“斜线”标记。
+image-202009071737274992、并行网关 并行网关，它允许将流程 分成多条分支，也可以把多条分支 汇聚到一起。
+并行网关的功能是基于进入和外出的顺序流的：
+分支： 并行后的所有外出顺序流，为每个顺序流都创建一个并发分支。 汇聚： 所有到达并行网关，在此等待的进入分支， 直到所有进入顺序流的分支都到达以后， 流程就会通过汇聚网关。 注意，如果同一个并行网关有多个进入和多个外出顺序流， 它就同时具有分支和汇聚功能。 这时，网关会先汇聚所有进入的顺序流，然后再切分成多个并行分支。
+&amp;lt;parallelGateway id=&amp;#34;myParallelGateway&amp;#34; /&amp;gt; 3、包含网关（包容性网关） 包含网关可以看做是排他网关和并行网关的结合体。 和排他网关一样，你可以在外出顺序流上定义条件，包含网关会解析它们。 但是主要的区别是包含网关可以选择多于一条顺序流，这和并行网关一样。
+如果没有条件为true，就会抛出一个异常。 如果想避免异常，可以定义一个默认顺序流。
+包含网关的功能是基于进入和外出顺序流的：
+分支： 所有外出顺序流的条件都会被解析，结果为true的顺序流会以并行方式继续执行， 会为每个顺序流创建一个分支。 汇聚： 所有并行分支到达包含网关，会进入等待状态， 直到每个包含流程token的进入顺序流的分支都到达。 这是与并行网关的最大不同。换句话说，包含网关只会等待被选中执行了的进入顺序流。 在汇聚之后，流程会穿过包含网关继续执行。 注意，如果同一个包含节点拥有多个进入和外出顺序流， 它就会同时含有分支和汇聚功能。 这时，网关会先汇聚所有拥有流程token的进入顺序流， 再根据条件判断结果为true的外出顺序流，为它们生成多条并行分支。</description>
+    </item>
+    
+    <item>
+      <title>Activiti（20） 中间事件</title>
+      <link>https://garnettboy.gitee.io/p/activiti20-%E4%B8%AD%E9%97%B4%E4%BA%8B%E4%BB%B6/</link>
+      <pubDate>Mon, 07 Sep 2020 09:50:03 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti20-%E4%B8%AD%E9%97%B4%E4%BA%8B%E4%BB%B6/</guid>
+      <description>中间事件是指可以单独作为流程元素的事件，BPMN2.0规范中所指的中间事件也包括边界事件。
+中间事件按照其特性可以分为两类：中间Catching(捕获)事件和中间Throwing(抛出)事件，当流程到达中间Catching事件时，它会一直在等待被触发，直接接收到的信息，才会被触发，而当流程到达中间Throwing事件时，该事件会自动被触发并抛出相应的结果或者信息。
+1、定时器捕获中间事件 定时器中间事件是一个Catching事件，当执行到达捕获事件节点， 就会启动一个定时器。 当定时器触发（一段时间之后），流程就会沿着定时中间事件的外出节点继续执行。
+此处我们设计一个简单流程来验证：
+发起流程后到达定时器中间捕获事件，设置5分钟后流程继续执行。
+image-20200907113112480bpmn流程定义：
+&amp;lt;?xml version=&amp;#34;1.0&amp;#34; encoding=&amp;#34;UTF-8&amp;#34;?&amp;gt; &amp;lt;definitions xmlns=&amp;#34;http://www.omg.org/spec/BPMN/20100524/MODEL&amp;#34; xmlns:xsi=&amp;#34;http://www.w3.org/2001/XMLSchema-instance&amp;#34; xmlns:xsd=&amp;#34;http://www.w3.org/2001/XMLSchema&amp;#34; xmlns:activiti=&amp;#34;http://activiti.org/bpmn&amp;#34; xmlns:bpmndi=&amp;#34;http://www.omg.org/spec/BPMN/20100524/DI&amp;#34; xmlns:omgdc=&amp;#34;http://www.omg.org/spec/DD/20100524/DC&amp;#34; xmlns:omgdi=&amp;#34;http://www.omg.org/spec/DD/20100524/DI&amp;#34; typeLanguage=&amp;#34;http://www.w3.org/2001/XMLSchema&amp;#34; expressionLanguage=&amp;#34;http://www.w3.org/1999/XPath&amp;#34; targetNamespace=&amp;#34;http://www.activiti.org/processdef&amp;#34;&amp;gt; &amp;lt;process id=&amp;#34;timerCapturesIntermediateEvents&amp;#34; name=&amp;#34;定时器捕获中间事件&amp;#34; isExecutable=&amp;#34;true&amp;#34;&amp;gt; &amp;lt;startEvent id=&amp;#34;start&amp;#34;&amp;gt;&amp;lt;/startEvent&amp;gt; &amp;lt;intermediateCatchEvent id=&amp;#34;sid-DBB0D1AA-199B-49BE-8FEC-9C032EDEF40C&amp;#34;&amp;gt; &amp;lt;timerEventDefinition&amp;gt; &amp;lt;timeDuration&amp;gt;PT5M&amp;lt;/timeDuration&amp;gt; &amp;lt;/timerEventDefinition&amp;gt; &amp;lt;/intermediateCatchEvent&amp;gt; &amp;lt;userTask id=&amp;#34;sid-D04C33DE-965D-4A0B-948D-FABE89724AC0&amp;#34; name=&amp;#34;部门经理审批&amp;#34; activiti:candidateGroups=&amp;#34;deptLeader&amp;#34;&amp;gt;&amp;lt;/userTask&amp;gt; &amp;lt;sequenceFlow id=&amp;#34;sid-FF8DB79B-EE0D-4E84-8D9E-9B31A7D23FA2&amp;#34; sourceRef=&amp;#34;sid-DBB0D1AA-199B-49BE-8FEC-9C032EDEF40C&amp;#34; targetRef=&amp;#34;sid-D04C33DE-965D-4A0B-948D-FABE89724AC0&amp;#34;&amp;gt;&amp;lt;/sequenceFlow&amp;gt; &amp;lt;endEvent id=&amp;#34;sid-D9EEEB07-659D-4B9C-AE7A-E461497B9EEE&amp;#34;&amp;gt;&amp;lt;/endEvent&amp;gt; &amp;lt;sequenceFlow id=&amp;#34;sid-A86BAC22-8FBC-4DB0-901B-241D77BCF0DB&amp;#34; sourceRef=&amp;#34;sid-D04C33DE-965D-4A0B-948D-FABE89724AC0&amp;#34; targetRef=&amp;#34;sid-D9EEEB07-659D-4B9C-AE7A-E461497B9EEE&amp;#34;&amp;gt;&amp;lt;/sequenceFlow&amp;gt; &amp;lt;sequenceFlow id=&amp;#34;sid-85DAA48B-046E-4884-8C5F-8FC39FE6C515&amp;#34; sourceRef=&amp;#34;start&amp;#34; targetRef=&amp;#34;sid-DBB0D1AA-199B-49BE-8FEC-9C032EDEF40C&amp;#34;&amp;gt;&amp;lt;/sequenceFlow&amp;gt; &amp;lt;/process&amp;gt; &amp;lt;bpmndi:BPMNDiagram id=&amp;#34;BPMNDiagram_timerCapturesIntermediateEvents&amp;#34;&amp;gt; &amp;lt;bpmndi:BPMNPlane bpmnElement=&amp;#34;timerCapturesIntermediateEvents&amp;#34; id=&amp;#34;BPMNPlane_timerCapturesIntermediateEvents&amp;#34;&amp;gt; &amp;lt;bpmndi:BPMNShape bpmnElement=&amp;#34;start&amp;#34; id=&amp;#34;BPMNShape_start&amp;#34;&amp;gt; &amp;lt;omgdc:Bounds height=&amp;#34;30.0&amp;#34; width=&amp;#34;30.0&amp;#34; x=&amp;#34;210.0&amp;#34; y=&amp;#34;127.0&amp;#34;&amp;gt;&amp;lt;/omgdc:Bounds&amp;gt; &amp;lt;/bpmndi:BPMNShape&amp;gt; &amp;lt;bpmndi:BPMNShape bpmnElement=&amp;#34;sid-DBB0D1AA-199B-49BE-8FEC-9C032EDEF40C&amp;#34; id=&amp;#34;BPMNShape_sid-DBB0D1AA-199B-49BE-8FEC-9C032EDEF40C&amp;#34;&amp;gt; &amp;lt;omgdc:Bounds height=&amp;#34;31.</description>
+    </item>
+    
+    <item>
+      <title>Activiti（19） 边界事件</title>
+      <link>https://garnettboy.gitee.io/p/activiti19-%E8%BE%B9%E7%95%8C%E4%BA%8B%E4%BB%B6/</link>
+      <pubDate>Sun, 30 Aug 2020 11:33:03 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti19-%E8%BE%B9%E7%95%8C%E4%BA%8B%E4%BB%B6/</guid>
+      <description>边界事件都是捕获事件，它会附在一个环节上。当节点运行时， 事件会监听对应的触发类型。
+image-202008301632410541、边界错误事件 全称：节点边界上的中间捕获错误事件，它会捕获节点范围内抛出的错误。
+边界错误事件，大多用于子流程， 或调用活动。往往和错误结束事件一起使用。
+当捕获了错误事件时，边界任务绑定的节点就会销毁， 也会销毁内部所有的执行分支 （比如，同步节点，内嵌子流程，等等）。 流程执行会继续沿着边界事件的外出连线继续执行。
+这个在介绍 结束事件—错误结束事件 时已经演示过了，这里不再赘述。
+2、定时边界事件 定时边界事件就是一个暂停等待警告的时钟。当流程执行到绑定了边界事件的环节， 会启动一个定时器。默认当定时器触发时（比如，一定时间之后），环节就会中断， 并沿着定时边界事件的外出连线继续执行。但是如果不想让原环节中断，可以将cancelActivity属性设置为false。
+cancelActivity：
+true：中断 ，边界事件2个圆圈是实线。 false：非中断，边界事件2个圆圈是虚线线。 2.1 定义流程 我们此处定义一个简单流程来验证一下：
+部门经理节点设置了一个定时边界事件，设置为5分钟后。并且取消活动打钩（cancelActivity=true）。我们看看流程到达部门经理审批节点5分钟后，会有什么变化。
+image-20200830215139310image-20200831141828981&amp;lt;?xml version=&amp;#34;1.0&amp;#34; encoding=&amp;#34;UTF-8&amp;#34;?&amp;gt; &amp;lt;definitions xmlns=&amp;#34;http://www.omg.org/spec/BPMN/20100524/MODEL&amp;#34; xmlns:xsi=&amp;#34;http://www.w3.org/2001/XMLSchema-instance&amp;#34; xmlns:xsd=&amp;#34;http://www.w3.org/2001/XMLSchema&amp;#34; xmlns:activiti=&amp;#34;http://activiti.org/bpmn&amp;#34; xmlns:bpmndi=&amp;#34;http://www.omg.org/spec/BPMN/20100524/DI&amp;#34; xmlns:omgdc=&amp;#34;http://www.omg.org/spec/DD/20100524/DC&amp;#34; xmlns:omgdi=&amp;#34;http://www.omg.org/spec/DD/20100524/DI&amp;#34; typeLanguage=&amp;#34;http://www.w3.org/2001/XMLSchema&amp;#34; expressionLanguage=&amp;#34;http://www.w3.org/1999/XPath&amp;#34; targetNamespace=&amp;#34;http://www.activiti.org/processdef&amp;#34;&amp;gt; &amp;lt;process id=&amp;#34;timedBoundaryEvent&amp;#34; name=&amp;#34;定时边界事件&amp;#34; isExecutable=&amp;#34;true&amp;#34;&amp;gt; &amp;lt;documentation&amp;gt;定时边界事件&amp;lt;/documentation&amp;gt; &amp;lt;startEvent id=&amp;#34;timedBoundaryStart&amp;#34; name=&amp;#34;定时边界事件&amp;#34; activiti:initiator=&amp;#34;applyUserId&amp;#34;&amp;gt;&amp;lt;/startEvent&amp;gt; &amp;lt;userTask id=&amp;#34;deptApprove&amp;#34; name=&amp;#34;部门经理审批&amp;#34; activiti:candidateGroups=&amp;#34;deptLeader&amp;#34;&amp;gt;&amp;lt;/userTask&amp;gt; &amp;lt;userTask id=&amp;#34;hrApprove&amp;#34; name=&amp;#34;人事审批&amp;#34; activiti:candidateGroups=&amp;#34;hr&amp;#34;&amp;gt;&amp;lt;/userTask&amp;gt; &amp;lt;sequenceFlow id=&amp;#34;sid-7601B3F7-54E1-46F0-A829-3594101FC3DD&amp;#34; sourceRef=&amp;#34;deptApprove&amp;#34; targetRef=&amp;#34;hrApprove&amp;#34;&amp;gt;&amp;lt;/sequenceFlow&amp;gt; &amp;lt;userTask id=&amp;#34;manageApprove&amp;#34; name=&amp;#34;manager审批&amp;#34; activiti:candidateGroups=&amp;#34;generalManager&amp;#34;&amp;gt;&amp;lt;/userTask&amp;gt; &amp;lt;boundaryEvent id=&amp;#34;timedBoundaryId&amp;#34; attachedToRef=&amp;#34;deptApprove&amp;#34; cancelActivity=&amp;#34;true&amp;#34;&amp;gt; &amp;lt;timerEventDefinition&amp;gt; &amp;lt;timeDuration&amp;gt;PT5M&amp;lt;/timeDuration&amp;gt; &amp;lt;/timerEventDefinition&amp;gt; &amp;lt;/boundaryEvent&amp;gt; &amp;lt;endEvent id=&amp;#34;sid-D9E71CF8-CABF-445A-957C-024AEB9D7F51&amp;#34;&amp;gt;&amp;lt;/endEvent&amp;gt; &amp;lt;sequenceFlow id=&amp;#34;sid-F621A86A-13E3-4D59-82CB-4670F6331C10&amp;#34; sourceRef=&amp;#34;hrApprove&amp;#34; targetRef=&amp;#34;sid-D9E71CF8-CABF-445A-957C-024AEB9D7F51&amp;#34;&amp;gt;&amp;lt;/sequenceFlow&amp;gt; &amp;lt;sequenceFlow id=&amp;#34;sid-F6F7372A-2378-41E6-8712-4A602A923B22&amp;#34; sourceRef=&amp;#34;timedBoundaryStart&amp;#34; targetRef=&amp;#34;deptApprove&amp;#34;&amp;gt;&amp;lt;/sequenceFlow&amp;gt; &amp;lt;sequenceFlow id=&amp;#34;sid-4DB7A535-3C11-4931-87DA-4DB6037D0A90&amp;#34; name=&amp;#34;触发定时边界事件&amp;#34; sourceRef=&amp;#34;timedBoundaryId&amp;#34; targetRef=&amp;#34;manageApprove&amp;#34;&amp;gt;&amp;lt;/sequenceFlow&amp;gt; &amp;lt;/process&amp;gt; &amp;lt;bpmndi:BPMNDiagram id=&amp;#34;BPMNDiagram_timedBoundaryEvent&amp;#34;&amp;gt; &amp;lt;bpmndi:BPMNPlane bpmnElement=&amp;#34;timedBoundaryEvent&amp;#34; id=&amp;#34;BPMNPlane_timedBoundaryEvent&amp;#34;&amp;gt; &amp;lt;bpmndi:BPMNShape bpmnElement=&amp;#34;timedBoundaryStart&amp;#34; id=&amp;#34;BPMNShape_timedBoundaryStart&amp;#34;&amp;gt; &amp;lt;omgdc:Bounds height=&amp;#34;30.</description>
+    </item>
+    
+    <item>
+      <title>Activiti（18） 事务子流程</title>
+      <link>https://garnettboy.gitee.io/p/activiti18-%E4%BA%8B%E5%8A%A1%E5%AD%90%E6%B5%81%E7%A8%8B/</link>
+      <pubDate>Thu, 27 Aug 2020 13:24:37 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti18-%E4%BA%8B%E5%8A%A1%E5%AD%90%E6%B5%81%E7%A8%8B/</guid>
+      <description>事务子流程是一种嵌入式子流程，可用于将多个活动组织在一个事务里。事务是工作的逻辑单元，可以组织一组独立活动，使得它们可以一起成功或失败。
+**事务的可能结果：**事务有三种不同的结果：
+事务成功：若未被取消，或被意外终止，则事务成功。若事务子流程成功，将使用出口顺序流离开。若流程后面抛出了补偿事件，成功的事务可以被补偿。*请注意：*与“普通”嵌入式子流程一样，可以使用补偿抛出中间事件，在事务成功完成后补偿。 结束取消：若执行到达取消结束事件时，事务被取消。当取消边界事件触发时，首先会中断当前范围的所有活动执行。接下来，启动事务范围内所有有效的的补偿边界事件（compensation boundary event）。补偿会同步执行，也就是说在离开事务前，边界事件会等待补偿完成。当补偿完成时，使用取消边界事件的出口顺序流，离开事务子流程。 错误结束：若由于抛出了错误结束事件，且未被事务子流程所在的范围捕获，则事务会被意外终止（错误被事件子流程的边界捕获也一样）。在这种情况下，不会进行补偿。 说明：学习事务子流程需要先对取消边界事件和取消结束事件的概念有一定的了解。（可以参考《边界事件》和《Activiti结束事件》这2篇教程）
+1、流程定义 此处我们画一个流程图来模拟事务可能的3种结果：
+1.1 流程定义 &amp;lt;?xml version=&amp;#34;1.0&amp;#34; encoding=&amp;#34;UTF-8&amp;#34;?&amp;gt; &amp;lt;definitions xmlns=&amp;#34;http://www.omg.org/spec/BPMN/20100524/MODEL&amp;#34; xmlns:xsi=&amp;#34;http://www.w3.org/2001/XMLSchema-instance&amp;#34; xmlns:xsd=&amp;#34;http://www.w3.org/2001/XMLSchema&amp;#34; xmlns:activiti=&amp;#34;http://activiti.org/bpmn&amp;#34; xmlns:bpmndi=&amp;#34;http://www.omg.org/spec/BPMN/20100524/DI&amp;#34; xmlns:omgdc=&amp;#34;http://www.omg.org/spec/DD/20100524/DC&amp;#34; xmlns:omgdi=&amp;#34;http://www.omg.org/spec/DD/20100524/DI&amp;#34; typeLanguage=&amp;#34;http://www.w3.org/2001/XMLSchema&amp;#34; expressionLanguage=&amp;#34;http://www.w3.org/1999/XPath&amp;#34; targetNamespace=&amp;#34;http://www.activiti.org/processdef&amp;#34;&amp;gt; &amp;lt;process id=&amp;#34;transactionSubProcess&amp;#34; isExecutable=&amp;#34;true&amp;#34;&amp;gt; &amp;lt;startEvent id=&amp;#34;sid-F0F15ABD-37D9-4EAC-960B-9E099AFEBC6D&amp;#34;&amp;gt;&amp;lt;/startEvent&amp;gt; &amp;lt;endEvent id=&amp;#34;sid-84E39C18-F341-4AE7-840E-213581EA1482&amp;#34;&amp;gt;&amp;lt;/endEvent&amp;gt; &amp;lt;sequenceFlow id=&amp;#34;sid-588CFB0B-F353-4AD3-93B7-028E85CF20AF&amp;#34; sourceRef=&amp;#34;sid-AC28574D-44AF-4650-BF00-9AB95E26B123&amp;#34; targetRef=&amp;#34;sid-84E39C18-F341-4AE7-840E-213581EA1482&amp;#34;&amp;gt;&amp;lt;/sequenceFlow&amp;gt; &amp;lt;endEvent id=&amp;#34;sid-614C6EFE-4E6D-4CD3-AB4D-E404CB716F13&amp;#34;&amp;gt;&amp;lt;/endEvent&amp;gt; &amp;lt;sequenceFlow id=&amp;#34;sid-1190457B-AD79-42A1-AF82-D553997E2552&amp;#34; sourceRef=&amp;#34;sid-C52F0179-A84E-4328-8996-69C01D3F372F&amp;#34; targetRef=&amp;#34;sid-614C6EFE-4E6D-4CD3-AB4D-E404CB716F13&amp;#34;&amp;gt;&amp;lt;/sequenceFlow&amp;gt; &amp;lt;endEvent id=&amp;#34;sid-DB9AC289-C0A7-4B15-A443-414784487BC6&amp;#34;&amp;gt;&amp;lt;/endEvent&amp;gt; &amp;lt;sequenceFlow id=&amp;#34;sid-551B1C78-B4E1-4D45-9544-8D24117D7B91&amp;#34; sourceRef=&amp;#34;sid-8A361F6E-ECF3-4EDF-AEB3-11E0C4FBC386&amp;#34; targetRef=&amp;#34;sid-DB9AC289-C0A7-4B15-A443-414784487BC6&amp;#34;&amp;gt;&amp;lt;/sequenceFlow&amp;gt; &amp;lt;transaction id=&amp;#34;sid-AC28574D-44AF-4650-BF00-9AB95E26B123&amp;#34; name=&amp;#34;subProcess&amp;#34;&amp;gt; &amp;lt;startEvent id=&amp;#34;sid-46AEBDA5-3FEF-4EF8-8370-922D206FFC3D&amp;#34;&amp;gt;&amp;lt;/startEvent&amp;gt; &amp;lt;serviceTask id=&amp;#34;sid-66402E45-A7AD-4C27-8CC3-156F0AA4CEE7&amp;#34; name=&amp;#34;A打款&amp;#34; activiti:class=&amp;#34;com.sxdx.workflow.activiti.rest.serviceTask.boundaryCompensationEvent.APaymentService&amp;#34;&amp;gt;&amp;lt;/serviceTask&amp;gt; &amp;lt;serviceTask id=&amp;#34;sid-6E0604FC-8D7B-4F99-BE32-76EE9DE7905A&amp;#34; name=&amp;#34;B收钱&amp;#34; activiti:class=&amp;#34;com.sxdx.workflow.activiti.rest.serviceTask.boundaryCompensationEvent.BReceivePaymentService&amp;#34;&amp;gt;&amp;lt;/serviceTask&amp;gt; &amp;lt;exclusiveGateway id=&amp;#34;sid-B0303DE4-1024-488D-82CD-78A4A1D2D336&amp;#34;&amp;gt;&amp;lt;/exclusiveGateway&amp;gt; &amp;lt;endEvent id=&amp;#34;sid-6F8681D7-0158-460C-8929-DFB96AC5A217&amp;#34; name=&amp;#34;错误结束&amp;#34;&amp;gt; &amp;lt;errorEventDefinition&amp;gt;&amp;lt;/errorEventDefinition&amp;gt; &amp;lt;/endEvent&amp;gt; &amp;lt;endEvent id=&amp;#34;sid-57226B0E-783D-4FD4-87BB-C228F160AEAF&amp;#34; name=&amp;#34;结束取消&amp;#34;&amp;gt; &amp;lt;cancelEventDefinition&amp;gt;&amp;lt;/cancelEventDefinition&amp;gt; &amp;lt;/endEvent&amp;gt; &amp;lt;serviceTask id=&amp;#34;sid-A66E0771-CB55-4F3F-9D91-7FF0CE66FEE4&amp;#34; name=&amp;#34;B收钱补偿&amp;#34; activiti:class=&amp;#34;com.</description>
+    </item>
+    
+    <item>
+      <title>Activiti（17）Activiti结束事件</title>
+      <link>https://garnettboy.gitee.io/p/activiti17activiti%E7%BB%93%E6%9D%9F%E4%BA%8B%E4%BB%B6/</link>
+      <pubDate>Fri, 21 Aug 2020 15:38:58 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti17activiti%E7%BB%93%E6%9D%9F%E4%BA%8B%E4%BB%B6/</guid>
+      <description>本节我们介绍Activiti的结束事件类型。
+1、结束事件 结束事件标志着（子）流程的（分支的）结束。结束事件总是抛出（型）事件。这意味着当流程执行到达结束事件时，会抛出一个结果。结束事件一共有以下几种：
+image-202008211553502941.1 空结束事件 “空”结束事件，意味着当到达这个事件时，抛出的结果没有特别指定。因此，引擎除了结束当前执行分支之外，不会多做任何事情。这个大家很好理解，不做演示了。
+XML表示：
+&amp;lt;endEvent id=&amp;#34;end&amp;#34; name=&amp;#34;endEvent&amp;#34; /&amp;gt; 1.2 错误结束事件 当流程执行到达错误结束事件时，结束执行的当前分支，并抛出错误。
+XML表示：
+错误结束事件，表示为结束事件，加上errorEventDefinition子元素：
+&amp;lt;endEvent id=&amp;#34;myErrorEndEvent&amp;#34;&amp;gt; &amp;lt;errorEventDefinition errorRef=&amp;#34;myError&amp;#34; /&amp;gt; &amp;lt;/endEvent&amp;gt; 错误结束事件，往往和错误开始事件一起出现。错误结束事件抛出一个异常编码，只要和错误启动事件设置的异常编码匹配，即可开启事件子流程。在前面的事件子流程章节，我们已经见过了，这里就不再赘述：
+image-20200820104351195除此之外错误结束事件抛出的错误编码还可以被错误边界事件捕获。这个在前面的子流程章节已经见到过，流程图如下：
+image-20200825094750481介绍子流程时我们我们没有演示错误边界事件捕获，此处实际操作一遍。前面的步骤就不一一演示了，直接演示财务审批（不同意）。
+这里贴出异常结束事件的XML:
+&amp;lt;endEvent id=&amp;#34;errorendevent2&amp;#34; name=&amp;#34;End&amp;#34;&amp;gt; &amp;lt;errorEventDefinition errorRef=&amp;#34;PAYMENT_REJECT&amp;#34;&amp;gt;&amp;lt;/errorEventDefinition&amp;gt; &amp;lt;/endEvent&amp;gt; 错误边界事件XML：
+*attachedToRef=&amp;ldquo;subprocessPay&amp;rdquo;*表示这个错误边界事件的监听对象是这个id为subprocessPay的子流程。
+&amp;lt;boundaryEvent id=&amp;#34;boundaryerror1&amp;#34; name=&amp;#34;Error&amp;#34; attachedToRef=&amp;#34;subprocessPay&amp;#34;&amp;gt; &amp;lt;errorEventDefinition errorRef=&amp;#34;PAYMENT_REJECT&amp;#34;&amp;gt;&amp;lt;/errorEventDefinition&amp;gt; &amp;lt;/boundaryEvent&amp;gt; image-20200825142333297image-20200825143225996此时我们再次查看流程图，可以看到异常结束事件抛出异常后，被错误边界事件捕获，流程流转至跳转申请节点：
+image-202008251433416861.3 终止结束事件 当流程执行到终止结束事件，当前的流程将会被终结，终止结束事件可以使用在嵌入子流程、调用子流程、事件子流程或者事务子流程中。
+一般情况下，当存在多实例的调用过程或嵌入式子流程时，只会终止一个实例，其他的实例与流程实例不会受影响。例如我们前面的子流程实例，如果子流程结束，主流程是不会一起结束的。
+终止结束事件使用terminateEventDefinition元素作为事件定义，如果将该元素的activiti:terminateAll属性设置为true，那么当终止结束事件被触发事时，流程实例的全部执行流均会被终结。
+XML表示：
+&amp;lt;endEvent id=&amp;#34;myEndEvent &amp;gt; &amp;lt;terminateEventDefinition activiti:terminateAll=&amp;#34;true&amp;#34;&amp;gt;&amp;lt;/terminateEventDefinition&amp;gt; &amp;lt;/endEvent&amp;gt; 我们画一个简单流程来验证一下。流程启动后有一个并行网关，分别是一个子流程、一个人事审批节点。终止结束事件勾选了终止全部。我们先走完子流程，看看人事这条线是否会随之结束。
+image-20200826112351885流程定义如下：
+&amp;lt;?xml version=&amp;#34;1.0&amp;#34; encoding=&amp;#34;UTF-8&amp;#34;?&amp;gt; &amp;lt;definitions xmlns=&amp;#34;http://www.omg.org/spec/BPMN/20100524/MODEL&amp;#34; xmlns:xsi=&amp;#34;http://www.w3.org/2001/XMLSchema-instance&amp;#34; xmlns:xsd=&amp;#34;http://www.w3.org/2001/XMLSchema&amp;#34; xmlns:activiti=&amp;#34;http://activiti.</description>
+    </item>
+    
+    <item>
+      <title>Activiti（16）Activiti启动事件</title>
+      <link>https://garnettboy.gitee.io/p/activiti16activiti%E5%90%AF%E5%8A%A8%E4%BA%8B%E4%BB%B6/</link>
+      <pubDate>Sun, 16 Aug 2020 17:08:25 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti16activiti%E5%90%AF%E5%8A%A8%E4%BA%8B%E4%BB%B6/</guid>
+      <description>我们先来总结下Activiti的各种事件，这些在流程设计器中都可以找到：
+事件分类：
+定义|事件 启动事件（捕获 Catching） 结束事件(抛出 Throwing) 边界事件（捕获 Catching） 中间事件 错误 错误（异常）启动事件 √ 错误结束事件√ 错误边界事件√ 信号 信号启动事件√ 信号边界事件√ 信号中间事件（捕获&amp;amp;抛出） 消息 消息启动事件√ 消息边界事件√ 消息中间事件（捕获） 取消 取消结束事件√ 取消边界事件√ 补偿 补偿边界事件√ 补偿中间抛出事件 √ 定时器 定时启动事件√ 定时边界事件√ 定时器中间事件（捕获） 终止 终止结束事件√ 本节我们介绍Activiti的启动事件类型。
+1、启动事件 从Activiti Modeler中即可看到，启动事件有以下这么几种，我们前面流程中使用的都是普通的开始事件。接下来我们介绍其他常用的开始事件。
+image-202008161712383871.1 开始事件 “空”启动事件，指的是没有特别指定启动流程实例的触发器。这意味着引擎无法预知何时启动流程实例。可以通过以下方法启动：
+ProcessInstance processInstance = runtimeService.startProcessInstanceByXXX(); formService.submitStartFormData(); **注意：**子流程（subprocess）总是有空启动事件。
+空启动事件的XML表示格式，就是普通的启动事件声明，而没有任何子元素（其他种类的启动事件都有子元素，用于声明其类型）。
+&amp;lt;startEvent id=&amp;#34;start&amp;#34; name=&amp;#34;my start event&amp;#34; /&amp;gt; 前面我们已经见过很多了，这里不做演示了。
+1.2 定时启动事件 定时器启动事件用于在给定的时间点创建流程实例。它可以用在只启动一次的流程中，也可以用在特定时间间隔下启动。
+XML表示：
+&amp;lt;startEvent id=&amp;#34;theStart&amp;#34;&amp;gt; &amp;lt;timerEventDefinition&amp;gt; &amp;lt;timeDate&amp;gt;2020-08-16T12:13:14&amp;lt;/timeDate&amp;gt; &amp;lt;/timerEventDefinition&amp;gt; &amp;lt;/startEvent&amp;gt; 注意：
+1、子流程中不能使用定时器启动事件。 定时器是从流程部署开始计时，不需要去启动流程。</description>
+    </item>
+    
+    <item>
+      <title>Activiti（15） 历史数据模块、补充获取流程定义列表接口</title>
+      <link>https://garnettboy.gitee.io/p/activiti15-%E5%8E%86%E5%8F%B2%E6%95%B0%E6%8D%AE%E6%A8%A1%E5%9D%97%E8%A1%A5%E5%85%85%E8%8E%B7%E5%8F%96%E6%B5%81%E7%A8%8B%E5%AE%9A%E4%B9%89%E5%88%97%E8%A1%A8%E6%8E%A5%E5%8F%A3/</link>
+      <pubDate>Mon, 20 Jul 2020 10:25:03 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti15-%E5%8E%86%E5%8F%B2%E6%95%B0%E6%8D%AE%E6%A8%A1%E5%9D%97%E8%A1%A5%E5%85%85%E8%8E%B7%E5%8F%96%E6%B5%81%E7%A8%8B%E5%AE%9A%E4%B9%89%E5%88%97%E8%A1%A8%E6%8E%A5%E5%8F%A3/</guid>
+      <description>本节我们介绍一下Activiti历史数据的查询。
+历史数据的查询是相对于运行时数据来查询的，流程图跟踪就是根据历史数据来展示的，直观的展示当前流程的活动节点。除此外我们经常需要查询历史流程实例、历史活动、历史流程变量等
+1、集成 Pagehelper分页插件 此处我们先集成下 Pagehelper分页插件。本来是准备使用这个来实现activiti查询结果分页的，但是实践发现，Pagehelper和Activiti不兼容，既然不兼容为啥还要写出来了。这个在文章末尾会有说明。
+pom.xml
+&amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;com.github.pagehelper&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;pagehelper-spring-boot-starter&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.2.13&amp;lt;/version&amp;gt; &amp;lt;!--使用spring boot2整合 pagehelper-spring-boot-starter必须排除一下依赖 因为pagehelper-spring-boot-starter也已经在pom依赖了mybatis与mybatis-spring 所以会与mybatis-plus-boot-starter中的mybatis与mybatis-spring发生冲突 --&amp;gt; &amp;lt;exclusions&amp;gt; &amp;lt;exclusion&amp;gt; &amp;lt;groupId&amp;gt;org.mybatis&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;mybatis&amp;lt;/artifactId&amp;gt; &amp;lt;/exclusion&amp;gt; &amp;lt;exclusion&amp;gt; &amp;lt;groupId&amp;gt;org.mybatis&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;mybatis-spring&amp;lt;/artifactId&amp;gt; &amp;lt;/exclusion&amp;gt; &amp;lt;/exclusions&amp;gt; &amp;lt;/dependency&amp;gt; application.yaml
+pagehelper: helperDialect: mysql # reasonable：分页合理化参数，默认值为false。当该参数设置为 true 时，pageNum&amp;lt;=0 时会查询第一页， pageNum&amp;gt;pages（超过总数时），会查询最后一页。默认false 时，直接根据参数进行查询。 reasonable: true supportMethodsArguments: true params: count=countSql 示例代码
+public PageInfo ecample(Integer pageNum, Integer pageSize,String keyWord) { //在mapper方法前通过指定page页码与size每页条数 Page&amp;lt;Object&amp;gt; pageObject = PageHelper.startPage(pageNum, pageSize); //这里就无须指定页码与条数并且该方法的对应sql也无须写limit //sql示例 select * from employee where name = #{keyword}(注意无须写limit分页) List&amp;lt;Employee&amp;gt; emps = employeeMapper.</description>
+    </item>
+    
+    <item>
+      <title>Activiti（14） 调用活动</title>
+      <link>https://garnettboy.gitee.io/p/activiti14-%E8%B0%83%E7%94%A8%E6%B4%BB%E5%8A%A8/</link>
+      <pubDate>Wed, 15 Jul 2020 16:04:01 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti14-%E8%B0%83%E7%94%A8%E6%B4%BB%E5%8A%A8/</guid>
+      <description>​	**调用活动（Call Activiti）**就是用来解决流程业务中重复设计的问题，只需要设计一个通用流程供其他的流程调用即可。这样当这个公共的部分发生变化时，无需大范围改动，只修改这个公用部分即可。
+​	如果说子流程是一个类中的private方法，只能当前类调用。那么调用活动就是把一个通用方法提取到一个单独的类中供所有类使用。
+​	与子流程不同的是：调用活动是以“引用”的方式把一个流程作为主流程的一个活动，当输出流到达调用活动时，流程引擎自动启动一个独立的流程。
+1、调用活动 演示流程依然是办公用品采购，只是分为2部分，一个办公用品采购主流程，一个通用付费流程。在主流程付款节点，调用通用付款流程。
+主流程：
+image-20200715165455427通用付款流程：
+image-202007151705363671.1 流程定义 1.1.1 主流程 &amp;lt;?xml version=&amp;#34;1.0&amp;#34; encoding=&amp;#34;UTF-8&amp;#34;?&amp;gt; &amp;lt;definitions xmlns=&amp;#34;http://www.omg.org/spec/BPMN/20100524/MODEL&amp;#34; xmlns:xsi=&amp;#34;http://www.w3.org/2001/XMLSchema-instance&amp;#34; xmlns:activiti=&amp;#34;http://activiti.org/bpmn&amp;#34; xmlns:bpmndi=&amp;#34;http://www.omg.org/spec/BPMN/20100524/DI&amp;#34; xmlns:omgdc=&amp;#34;http://www.omg.org/spec/DD/20100524/DC&amp;#34; xmlns:omgdi=&amp;#34;http://www.omg.org/spec/DD/20100524/DI&amp;#34; typeLanguage=&amp;#34;http://www.w3.org/2001/XMLSchema&amp;#34; expressionLanguage=&amp;#34;http://www.w3.org/1999/XPath&amp;#34; targetNamespace=&amp;#34;http://www.kafeitu.me/activiti&amp;#34;&amp;gt; &amp;lt;process id=&amp;#34;purchase-callactivity&amp;#34; name=&amp;#34;办公用品采购--callactivity方式&amp;#34; isExecutable=&amp;#34;true&amp;#34;&amp;gt; &amp;lt;startEvent id=&amp;#34;startevent1&amp;#34; name=&amp;#34;startevent1&amp;#34; activiti:initiator=&amp;#34;applyUserId&amp;#34;&amp;gt; &amp;lt;extensionElements&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;dueDate&amp;#34; name=&amp;#34;到货期限&amp;#34; type=&amp;#34;date&amp;#34; datePattern=&amp;#34;yyyy-MM-dd&amp;#34; required=&amp;#34;true&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;listing&amp;#34; name=&amp;#34;物品清单&amp;#34; type=&amp;#34;bigtext&amp;#34; required=&amp;#34;true&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;amountMoney&amp;#34; name=&amp;#34;总金额&amp;#34; type=&amp;#34;double&amp;#34; required=&amp;#34;true&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;/extensionElements&amp;gt; &amp;lt;/startEvent&amp;gt; &amp;lt;userTask id=&amp;#34;deptLeaderAudit&amp;#34; name=&amp;#34;领导审批&amp;#34; activiti:candidateGroups=&amp;#34;deptLeader&amp;#34;&amp;gt; &amp;lt;extensionElements&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;applyUser&amp;#34; name=&amp;#34;申请人&amp;#34; type=&amp;#34;string&amp;#34; variable=&amp;#34;applyUserId&amp;#34; writable=&amp;#34;false&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;dueDate&amp;#34; name=&amp;#34;到货期限&amp;#34; type=&amp;#34;date&amp;#34; datePattern=&amp;#34;yyyy-MM-dd&amp;#34; writable=&amp;#34;false&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;listing&amp;#34; name=&amp;#34;物品清单&amp;#34; type=&amp;#34;bigtext&amp;#34; writable=&amp;#34;false&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;amountMoney&amp;#34; name=&amp;#34;总金额&amp;#34; type=&amp;#34;double&amp;#34; writable=&amp;#34;false&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;deptLeaderApproved&amp;#34; name=&amp;#34;是否同意&amp;#34; type=&amp;#34;enum&amp;#34;&amp;gt; &amp;lt;activiti:value id=&amp;#34;true&amp;#34; name=&amp;#34;同意&amp;#34;&amp;gt;&amp;lt;/activiti:value&amp;gt; &amp;lt;activiti:value id=&amp;#34;false&amp;#34; name=&amp;#34;驳回&amp;#34;&amp;gt;&amp;lt;/activiti:value&amp;gt; &amp;lt;/activiti:formProperty&amp;gt; &amp;lt;/extensionElements&amp;gt; &amp;lt;/userTask&amp;gt; &amp;lt;exclusiveGateway id=&amp;#34;exclusivegateway1&amp;#34; name=&amp;#34;Exclusive Gateway&amp;#34;&amp;gt;&amp;lt;/exclusiveGateway&amp;gt; &amp;lt;sequenceFlow id=&amp;#34;flow2&amp;#34; sourceRef=&amp;#34;deptLeaderAudit&amp;#34; targetRef=&amp;#34;exclusivegateway1&amp;#34;&amp;gt;&amp;lt;/sequenceFlow&amp;gt; &amp;lt;userTask id=&amp;#34;contactSupplier&amp;#34; name=&amp;#34;联系供货方&amp;#34; activiti:candidateGroups=&amp;#34;supportCrew&amp;#34;&amp;gt; &amp;lt;extensionElements&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;applyUser&amp;#34; name=&amp;#34;申请人&amp;#34; type=&amp;#34;string&amp;#34; variable=&amp;#34;applyUserId&amp;#34; writable=&amp;#34;false&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;dueDate&amp;#34; name=&amp;#34;到货期限&amp;#34; type=&amp;#34;date&amp;#34; datePattern=&amp;#34;yyyy-MM-dd&amp;#34; writable=&amp;#34;false&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;listing&amp;#34; name=&amp;#34;物品清单&amp;#34; type=&amp;#34;bigtext&amp;#34; writable=&amp;#34;false&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;amountMoney&amp;#34; name=&amp;#34;总金额&amp;#34; type=&amp;#34;double&amp;#34; writable=&amp;#34;false&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;supplier&amp;#34; name=&amp;#34;供货方&amp;#34; type=&amp;#34;string&amp;#34; required=&amp;#34;true&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;bankName&amp;#34; name=&amp;#34;开户行&amp;#34; type=&amp;#34;string&amp;#34; required=&amp;#34;true&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;bankAccount&amp;#34; name=&amp;#34;银行账号&amp;#34; type=&amp;#34;string&amp;#34; required=&amp;#34;true&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;planDate&amp;#34; name=&amp;#34;预计交货日期&amp;#34; type=&amp;#34;date&amp;#34; datePattern=&amp;#34;yyyy-MM-dd&amp;#34; required=&amp;#34;true&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;/extensionElements&amp;gt; &amp;lt;/userTask&amp;gt; &amp;lt;sequenceFlow id=&amp;#34;flow3&amp;#34; sourceRef=&amp;#34;exclusivegateway1&amp;#34; targetRef=&amp;#34;contactSupplier&amp;#34;&amp;gt; &amp;lt;conditionExpression xsi:type=&amp;#34;tFormalExpression&amp;#34;&amp;gt;&amp;lt;!</description>
+    </item>
+    
+    <item>
+      <title>Activiti（13） 事件子流程</title>
+      <link>https://garnettboy.gitee.io/p/activiti13-%E4%BA%8B%E4%BB%B6%E5%AD%90%E6%B5%81%E7%A8%8B/</link>
+      <pubDate>Wed, 15 Jul 2020 09:05:58 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti13-%E4%BA%8B%E4%BB%B6%E5%AD%90%E6%B5%81%E7%A8%8B/</guid>
+      <description>事件子流程：它和子流程类似，把一系列的活动归结到一起处理，不同的是事件子流程不能直接启动，而要“被动”的由其它事件触发启动。
+1、事件子流程 image-20200715103931544在上一节子流程中，如果付费子流程未通过财务或总经理审批，则定义了一个错误结束事件，并抛出一个异常编码，会被附加在付费子流程上的异常边界事件捕获，将流程定义到调整申请节点。这是处理流程异常的一种方式。
+而上图提供了另一种处理办法。不使用异常边界事件，而是定义一个子流程（包含一个事件启动流程，可以是异常启动事件、消息启动事件）来处理。图中异常结束事件抛出一个异常编码，只要和异常启动事件设置的异常编码匹配，即可开启 子流程。
+1.1 流程定义 &amp;lt;?xml version=&amp;#34;1.0&amp;#34; encoding=&amp;#34;UTF-8&amp;#34;?&amp;gt; &amp;lt;definitions xmlns=&amp;#34;http://www.omg.org/spec/BPMN/20100524/MODEL&amp;#34; xmlns:xsi=&amp;#34;http://www.w3.org/2001/XMLSchema-instance&amp;#34; xmlns:xsd=&amp;#34;http://www.w3.org/2001/XMLSchema&amp;#34; xmlns:activiti=&amp;#34;http://activiti.org/bpmn&amp;#34; xmlns:bpmndi=&amp;#34;http://www.omg.org/spec/BPMN/20100524/DI&amp;#34; xmlns:omgdc=&amp;#34;http://www.omg.org/spec/DD/20100524/DC&amp;#34; xmlns:omgdi=&amp;#34;http://www.omg.org/spec/DD/20100524/DI&amp;#34; typeLanguage=&amp;#34;http://www.w3.org/2001/XMLSchema&amp;#34; expressionLanguage=&amp;#34;http://www.w3.org/1999/XPath&amp;#34; targetNamespace=&amp;#34;http://www.kafeitu.me/activiti&amp;#34;&amp;gt; &amp;lt;process id=&amp;#34;purchase-error-event-subprocess-kiki&amp;#34; name=&amp;#34;办公用品采购--事件子流程(异常)&amp;#34; isExecutable=&amp;#34;true&amp;#34;&amp;gt; &amp;lt;startEvent id=&amp;#34;startevent1&amp;#34; name=&amp;#34;startevent1&amp;#34; activiti:initiator=&amp;#34;applyUserId&amp;#34;&amp;gt; &amp;lt;extensionElements&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;dueDate&amp;#34; name=&amp;#34;到货期限&amp;#34; type=&amp;#34;date&amp;#34; datePattern=&amp;#34;yyyy-MM-dd&amp;#34; required=&amp;#34;true&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;listing&amp;#34; name=&amp;#34;物品清单&amp;#34; type=&amp;#34;bigtext&amp;#34; required=&amp;#34;true&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;amountMoney&amp;#34; name=&amp;#34;总金额&amp;#34; type=&amp;#34;double&amp;#34; required=&amp;#34;true&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;/extensionElements&amp;gt; &amp;lt;/startEvent&amp;gt; &amp;lt;userTask id=&amp;#34;deptLeaderAudit&amp;#34; name=&amp;#34;领导审批&amp;#34; activiti:candidateGroups=&amp;#34;deptLeader&amp;#34;&amp;gt; &amp;lt;extensionElements&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;applyUser&amp;#34; name=&amp;#34;申请人&amp;#34; type=&amp;#34;string&amp;#34; variable=&amp;#34;applyUserId&amp;#34; writable=&amp;#34;false&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;dueDate&amp;#34; name=&amp;#34;到货期限&amp;#34; type=&amp;#34;date&amp;#34; datePattern=&amp;#34;yyyy-MM-dd&amp;#34; writable=&amp;#34;false&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;listing&amp;#34; name=&amp;#34;物品清单&amp;#34; type=&amp;#34;bigtext&amp;#34; writable=&amp;#34;false&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;amountMoney&amp;#34; name=&amp;#34;总金额&amp;#34; type=&amp;#34;double&amp;#34; writable=&amp;#34;false&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;deptLeaderApproved&amp;#34; name=&amp;#34;是否同意&amp;#34; type=&amp;#34;enum&amp;#34;&amp;gt; &amp;lt;activiti:value id=&amp;#34;true&amp;#34; name=&amp;#34;同意&amp;#34;&amp;gt;&amp;lt;/activiti:value&amp;gt; &amp;lt;activiti:value id=&amp;#34;false&amp;#34; name=&amp;#34;驳回&amp;#34;&amp;gt;&amp;lt;/activiti:value&amp;gt; &amp;lt;/activiti:formProperty&amp;gt; &amp;lt;/extensionElements&amp;gt; &amp;lt;/userTask&amp;gt; &amp;lt;exclusiveGateway id=&amp;#34;exclusivegateway1&amp;#34; name=&amp;#34;Exclusive Gateway&amp;#34;&amp;gt;&amp;lt;/exclusiveGateway&amp;gt; &amp;lt;sequenceFlow id=&amp;#34;flow2&amp;#34; sourceRef=&amp;#34;deptLeaderAudit&amp;#34; targetRef=&amp;#34;exclusivegateway1&amp;#34;&amp;gt;&amp;lt;/sequenceFlow&amp;gt; &amp;lt;userTask id=&amp;#34;contactSupplier&amp;#34; name=&amp;#34;联系供货方&amp;#34; activiti:candidateGroups=&amp;#34;supportCrew&amp;#34;&amp;gt; &amp;lt;extensionElements&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;applyUser&amp;#34; name=&amp;#34;申请人&amp;#34; type=&amp;#34;string&amp;#34; variable=&amp;#34;applyUserId&amp;#34; writable=&amp;#34;false&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;dueDate&amp;#34; name=&amp;#34;到货期限&amp;#34; type=&amp;#34;date&amp;#34; datePattern=&amp;#34;yyyy-MM-dd&amp;#34; writable=&amp;#34;false&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;listing&amp;#34; name=&amp;#34;物品清单&amp;#34; type=&amp;#34;bigtext&amp;#34; writable=&amp;#34;false&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;amountMoney&amp;#34; name=&amp;#34;总金额&amp;#34; type=&amp;#34;double&amp;#34; writable=&amp;#34;false&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;supplier&amp;#34; name=&amp;#34;供货方&amp;#34; type=&amp;#34;string&amp;#34; required=&amp;#34;true&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;bankName&amp;#34; name=&amp;#34;开户行&amp;#34; type=&amp;#34;string&amp;#34; required=&amp;#34;true&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;bankAccount&amp;#34; name=&amp;#34;银行账号&amp;#34; type=&amp;#34;string&amp;#34; required=&amp;#34;true&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;planDate&amp;#34; name=&amp;#34;预计交货日期&amp;#34; type=&amp;#34;date&amp;#34; datePattern=&amp;#34;yyyy-MM-dd&amp;#34; required=&amp;#34;true&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;/extensionElements&amp;gt; &amp;lt;/userTask&amp;gt; &amp;lt;sequenceFlow id=&amp;#34;flow3&amp;#34; sourceRef=&amp;#34;exclusivegateway1&amp;#34; targetRef=&amp;#34;contactSupplier&amp;#34;&amp;gt; &amp;lt;conditionExpression xsi:type=&amp;#34;tFormalExpression&amp;#34;&amp;gt;&amp;lt;!</description>
+    </item>
+    
+    <item>
+      <title>Activiti（12） 子流程</title>
+      <link>https://garnettboy.gitee.io/p/activiti12-%E5%AD%90%E6%B5%81%E7%A8%8B/</link>
+      <pubDate>Fri, 10 Jul 2020 09:02:12 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti12-%E5%AD%90%E6%B5%81%E7%A8%8B/</guid>
+      <description>1、基本概念 ​	子流程和调用活动的设计思想就是为了使流程设计更合理，更方便。在代码中，一个方法过多时会拆分为多个方法。流程设计也是如此。
+​	把不同阶段的流程任务抽取出来作为一个子流程（Subprocess），这样当业务发生变化时只需要聚焦在不同的子流程即可，主流程负责串联多个子流程。
+​	除了子流程，还有一个事件子流程，它和子流程类似，把一系列的活动归结到一起处理，不同的是事件子流程不能直接启动，而要“被动”的由其它事件触发启动。
+​	此时产生了一个问题，如果这 个子流程功能很通用，在多个流程中都用到了，难道我们每个流程都定义一次吗？如果后期子流程业务改动，需要修改所有流程中的子流程，这样非常不利于后期的修改维护。
+​	**调用活动（Call Activiti）**就是用来解决流程业务中重复设计的问题，只需要设计一个通用流程供其他的流程调用即可。这样当这个公共的部分发生变化时，无需大范围改动，只修改这个公用部分即可。
+​	如果说子流程是一个类中的private方法，只能当前类调用。那么调用活动就是把一个通用方法提取到一个单独的类中供所有类使用。
+2、子流程 我们使用《Activiti实战》中的办公用品采购流程来走一遍子流程。眼过千遍不如手过一遍。
+image-202007252045240772.1 流程定义 &amp;lt;?xml version=&amp;#34;1.0&amp;#34; encoding=&amp;#34;UTF-8&amp;#34;?&amp;gt; &amp;lt;definitions xmlns=&amp;#34;http://www.omg.org/spec/BPMN/20100524/MODEL&amp;#34; xmlns:xsi=&amp;#34;http://www.w3.org/2001/XMLSchema-instance&amp;#34; xmlns:xsd=&amp;#34;http://www.w3.org/2001/XMLSchema&amp;#34; xmlns:activiti=&amp;#34;http://activiti.org/bpmn&amp;#34; xmlns:bpmndi=&amp;#34;http://www.omg.org/spec/BPMN/20100524/DI&amp;#34; xmlns:omgdc=&amp;#34;http://www.omg.org/spec/DD/20100524/DC&amp;#34; xmlns:omgdi=&amp;#34;http://www.omg.org/spec/DD/20100524/DI&amp;#34; typeLanguage=&amp;#34;http://www.w3.org/2001/XMLSchema&amp;#34; expressionLanguage=&amp;#34;http://www.w3.org/1999/XPath&amp;#34; targetNamespace=&amp;#34;http://www.kafeitu.me/activiti&amp;#34;&amp;gt; &amp;lt;process id=&amp;#34;purchase-subprocess&amp;#34; name=&amp;#34;办公用品采购&amp;#34; isExecutable=&amp;#34;true&amp;#34;&amp;gt; &amp;lt;startEvent id=&amp;#34;startevent1&amp;#34; name=&amp;#34;startevent1&amp;#34; activiti:initiator=&amp;#34;applyUserId&amp;#34;&amp;gt; &amp;lt;extensionElements&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;dueDate&amp;#34; name=&amp;#34;到货期限&amp;#34; type=&amp;#34;date&amp;#34; datePattern=&amp;#34;yyyy-MM-dd&amp;#34; required=&amp;#34;true&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;listing&amp;#34; name=&amp;#34;物品清单&amp;#34; type=&amp;#34;bigtext&amp;#34; required=&amp;#34;true&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;amountMoney&amp;#34; name=&amp;#34;总金额&amp;#34; type=&amp;#34;double&amp;#34; required=&amp;#34;true&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;/extensionElements&amp;gt; &amp;lt;/startEvent&amp;gt; &amp;lt;userTask id=&amp;#34;deptLeaderAudit&amp;#34; name=&amp;#34;领导审批&amp;#34; activiti:candidateGroups=&amp;#34;deptLeader&amp;#34;&amp;gt; &amp;lt;extensionElements&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;applyUser&amp;#34; name=&amp;#34;申请人&amp;#34; type=&amp;#34;string&amp;#34; variable=&amp;#34;applyUserId&amp;#34; writable=&amp;#34;false&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;dueDate&amp;#34; name=&amp;#34;到货期限&amp;#34; type=&amp;#34;date&amp;#34; datePattern=&amp;#34;yyyy-MM-dd&amp;#34; writable=&amp;#34;false&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;listing&amp;#34; name=&amp;#34;物品清单&amp;#34; type=&amp;#34;bigtext&amp;#34; writable=&amp;#34;false&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;amountMoney&amp;#34; name=&amp;#34;总金额&amp;#34; type=&amp;#34;double&amp;#34; writable=&amp;#34;false&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;deptLeaderApproved&amp;#34; name=&amp;#34;是否同意&amp;#34; type=&amp;#34;enum&amp;#34;&amp;gt; &amp;lt;activiti:value id=&amp;#34;true&amp;#34; name=&amp;#34;同意&amp;#34;&amp;gt;&amp;lt;/activiti:value&amp;gt; &amp;lt;activiti:value id=&amp;#34;false&amp;#34; name=&amp;#34;驳回&amp;#34;&amp;gt;&amp;lt;/activiti:value&amp;gt; &amp;lt;/activiti:formProperty&amp;gt; &amp;lt;/extensionElements&amp;gt; &amp;lt;/userTask&amp;gt; &amp;lt;exclusiveGateway id=&amp;#34;exclusivegateway1&amp;#34; name=&amp;#34;Exclusive Gateway&amp;#34;&amp;gt;&amp;lt;/exclusiveGateway&amp;gt; &amp;lt;sequenceFlow id=&amp;#34;flow2&amp;#34; sourceRef=&amp;#34;deptLeaderAudit&amp;#34; targetRef=&amp;#34;exclusivegateway1&amp;#34;&amp;gt;&amp;lt;/sequenceFlow&amp;gt; &amp;lt;userTask id=&amp;#34;contactSupplier&amp;#34; name=&amp;#34;联系供货方&amp;#34; activiti:candidateGroups=&amp;#34;supportCrew&amp;#34;&amp;gt; &amp;lt;extensionElements&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;applyUser&amp;#34; name=&amp;#34;申请人&amp;#34; type=&amp;#34;string&amp;#34; variable=&amp;#34;applyUserId&amp;#34; writable=&amp;#34;false&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;dueDate&amp;#34; name=&amp;#34;到货期限&amp;#34; type=&amp;#34;date&amp;#34; datePattern=&amp;#34;yyyy-MM-dd&amp;#34; writable=&amp;#34;false&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;listing&amp;#34; name=&amp;#34;物品清单&amp;#34; type=&amp;#34;bigtext&amp;#34; writable=&amp;#34;false&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;amountMoney&amp;#34; name=&amp;#34;总金额&amp;#34; type=&amp;#34;double&amp;#34; writable=&amp;#34;false&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;supplier&amp;#34; name=&amp;#34;供货方&amp;#34; type=&amp;#34;string&amp;#34; required=&amp;#34;true&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;bankName&amp;#34; name=&amp;#34;开户行&amp;#34; type=&amp;#34;string&amp;#34; required=&amp;#34;true&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;bankAccount&amp;#34; name=&amp;#34;银行账号&amp;#34; type=&amp;#34;string&amp;#34; required=&amp;#34;true&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;planDate&amp;#34; name=&amp;#34;预计交货日期&amp;#34; type=&amp;#34;date&amp;#34; datePattern=&amp;#34;yyyy-MM-dd&amp;#34; required=&amp;#34;true&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;/extensionElements&amp;gt; &amp;lt;/userTask&amp;gt; &amp;lt;sequenceFlow id=&amp;#34;flow3&amp;#34; sourceRef=&amp;#34;exclusivegateway1&amp;#34; targetRef=&amp;#34;contactSupplier&amp;#34;&amp;gt; &amp;lt;conditionExpression xsi:type=&amp;#34;tFormalExpression&amp;#34;&amp;gt;&amp;lt;!</description>
+    </item>
+    
+    <item>
+      <title>Activiti（11） 多实例（会签）</title>
+      <link>https://garnettboy.gitee.io/p/activiti11-%E5%A4%9A%E5%AE%9E%E4%BE%8B%E4%BC%9A%E7%AD%BE/</link>
+      <pubDate>Thu, 02 Jul 2020 16:51:27 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti11-%E5%A4%9A%E5%AE%9E%E4%BE%8B%E4%BC%9A%E7%AD%BE/</guid>
+      <description>1、场景引入 现在我们有这样的一个需求，在一个任务节点的时候，我们需要多个人对这个节点进行审批，比如实际中这样一个例子，有5个人，那么当5个人都投票的时候大概分为如下几种：
+所有人都去投票，当所有人都投票完成的时候，这个节点结束，流程运转到下一个节点。(并行) 所有人都去投票,只要有任意2/3的人同意，这个节点结束，流程运转到下一个节点。(部分人投票只要满足条件就算完成)。 5人中有一个部门经理，只要部门经理投票过了，这个节点结束，流程运转到下一个节点（一票否决权）。 部门中根据职位不同，不同的人都不同的权重，当满足条件的时候，这个节点结束，流程运转到下一个节点。比如说a有0.2的权重，其他的四个人分别是0.1的权重，我们可以配置权重达到0.3就可以走向下一个节点，换言之a的权重是其他人的2倍，那就是a的投票相当于2个人投票。 部门所有人都去投票，a投票结束到b,b开始投票结束到c,一直如此，串行执行。最终到最后一个人再统计结果，决定流程的运转。（串行） 上面的五种情况，我们可以提取出来一些信息，我们的activiti 工作流引擎，必须支持如下功能，才能满足上面的需求：
+任务节点可以配置自定义满足条件。 任务节点必须支持串行、并行。 任务节点必须支持可以指定候选人或者候选组。 任务节点必须支持可以循环的次数。 任务节点必须支持可以自定义权重。 任务节点必须支持加签、减签。(就是动态的修改任务节点的处理人) 实际上的需求可能比上面的几种情况更加的复杂。
+2、并行会签 我们依旧使用请假流程来演示，此处我们合并部门领导和人事节点，合并为一个【部门/人事联合会签】。
+2.1 流程定义 image-20200702174847574&amp;lt;?xml version=&amp;#34;1.0&amp;#34; encoding=&amp;#34;UTF-8&amp;#34;?&amp;gt; &amp;lt;definitions xmlns=&amp;#34;http://www.omg.org/spec/BPMN/20100524/MODEL&amp;#34; xmlns:xsi=&amp;#34;http://www.w3.org/2001/XMLSchema-instance&amp;#34; xmlns:activiti=&amp;#34;http://activiti.org/bpmn&amp;#34; xmlns:bpmndi=&amp;#34;http://www.omg.org/spec/BPMN/20100524/DI&amp;#34; xmlns:omgdc=&amp;#34;http://www.omg.org/spec/DD/20100524/DC&amp;#34; xmlns:omgdi=&amp;#34;http://www.omg.org/spec/DD/20100524/DI&amp;#34; typeLanguage=&amp;#34;http://www.w3.org/2001/XMLSchema&amp;#34; expressionLanguage=&amp;#34;http://www.w3.org/1999/XPath&amp;#34; targetNamespace=&amp;#34;http://www.activiti.org/test&amp;#34;&amp;gt; &amp;lt;process id=&amp;#34;leave-countersign&amp;#34; name=&amp;#34;请假流程-会签&amp;#34; isExecutable=&amp;#34;true&amp;#34;&amp;gt; &amp;lt;documentation&amp;gt;请假流程演示-会签&amp;lt;/documentation&amp;gt; &amp;lt;startEvent id=&amp;#34;startevent1&amp;#34; name=&amp;#34;Start&amp;#34; activiti:initiator=&amp;#34;applyUserId&amp;#34;&amp;gt; &amp;lt;extensionElements&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;startDate&amp;#34; name=&amp;#34;请假开始日期&amp;#34; type=&amp;#34;date&amp;#34; datePattern=&amp;#34;yyyy-MM-dd&amp;#34; required=&amp;#34;true&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;endDate&amp;#34; name=&amp;#34;请假结束日期&amp;#34; type=&amp;#34;date&amp;#34; datePattern=&amp;#34;yyyy-MM-dd&amp;#34; required=&amp;#34;true&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;reason&amp;#34; name=&amp;#34;请假原因&amp;#34; type=&amp;#34;string&amp;#34; required=&amp;#34;true&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;users&amp;#34; name=&amp;#34;审批参与人&amp;#34; type=&amp;#34;users&amp;#34; required=&amp;#34;true&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;validScript&amp;#34; type=&amp;#34;javascript&amp;#34; default=&amp;#34;alert(&amp;#39;表单已经加载完毕&amp;#39;);&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;/extensionElements&amp;gt; &amp;lt;/startEvent&amp;gt; &amp;lt;userTask id=&amp;#34;countersign&amp;#34; name=&amp;#34;[部门/人事]联合会签&amp;#34; activiti:assignee=&amp;#34;${user}&amp;#34;&amp;gt; &amp;lt;extensionElements&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;startDate&amp;#34; name=&amp;#34;请假开始日期&amp;#34; type=&amp;#34;date&amp;#34; datePattern=&amp;#34;yyyy-MM-dd&amp;#34; writable=&amp;#34;false&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;endDate&amp;#34; name=&amp;#34;请假结束日期&amp;#34; type=&amp;#34;date&amp;#34; datePattern=&amp;#34;yyyy-MM-dd&amp;#34; writable=&amp;#34;false&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;reason&amp;#34; name=&amp;#34;请假原因&amp;#34; type=&amp;#34;string&amp;#34; writable=&amp;#34;false&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;approved&amp;#34; name=&amp;#34;审批意见&amp;#34; type=&amp;#34;enum&amp;#34; required=&amp;#34;true&amp;#34;&amp;gt; &amp;lt;activiti:value id=&amp;#34;true&amp;#34; name=&amp;#34;同意&amp;#34;&amp;gt;&amp;lt;/activiti:value&amp;gt; &amp;lt;activiti:value id=&amp;#34;false&amp;#34; name=&amp;#34;拒绝&amp;#34;&amp;gt;&amp;lt;/activiti:value&amp;gt; &amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:taskListener event=&amp;#34;complete&amp;#34; delegateExpression=&amp;#34;${leaveCounterSignCompleteListener}&amp;#34;&amp;gt;&amp;lt;/activiti:taskListener&amp;gt; &amp;lt;/extensionElements&amp;gt; &amp;lt;multiInstanceLoopCharacteristics isSequential=&amp;#34;false&amp;#34; activiti:collection=&amp;#34;users&amp;#34; activiti:elementVariable=&amp;#34;user&amp;#34;&amp;gt;&amp;lt;/multiInstanceLoopCharacteristics&amp;gt; &amp;lt;/userTask&amp;gt; &amp;lt;userTask id=&amp;#34;reportBack&amp;#34; name=&amp;#34;销假&amp;#34; activiti:assignee=&amp;#34;${applyUserId}&amp;#34;&amp;gt; &amp;lt;extensionElements&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;startDate&amp;#34; name=&amp;#34;请假开始日期&amp;#34; type=&amp;#34;date&amp;#34; datePattern=&amp;#34;yyyy-MM-dd&amp;#34; writable=&amp;#34;false&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;endDate&amp;#34; name=&amp;#34;请假结束日期&amp;#34; type=&amp;#34;date&amp;#34; datePattern=&amp;#34;yyyy-MM-dd&amp;#34; writable=&amp;#34;false&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;reason&amp;#34; name=&amp;#34;请假原因&amp;#34; type=&amp;#34;string&amp;#34; writable=&amp;#34;false&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;activiti:formProperty id=&amp;#34;reportBackDate&amp;#34; name=&amp;#34;销假日期&amp;#34; type=&amp;#34;date&amp;#34; default=&amp;#34;${endDate}&amp;#34; datePattern=&amp;#34;yyyy-MM-dd&amp;#34; required=&amp;#34;true&amp;#34;&amp;gt;&amp;lt;/activiti:formProperty&amp;gt; &amp;lt;/extensionElements&amp;gt; &amp;lt;/userTask&amp;gt; &amp;lt;endEvent id=&amp;#34;endevent1&amp;#34; name=&amp;#34;End&amp;#34;&amp;gt;&amp;lt;/endEvent&amp;gt; &amp;lt;sequenceFlow id=&amp;#34;flow2&amp;#34; sourceRef=&amp;#34;startevent1&amp;#34; targetRef=&amp;#34;countersign&amp;#34;&amp;gt; &amp;lt;extensionElements&amp;gt; &amp;lt;activiti:executionListener event=&amp;#34;take&amp;#34; expression=&amp;#34;${execution.</description>
+    </item>
+    
+    <item>
+      <title>Activiti（10） 普通表单实战,集成Thymeleaf,Mybatis-Plus</title>
+      <link>https://garnettboy.gitee.io/p/activiti10-%E6%99%AE%E9%80%9A%E8%A1%A8%E5%8D%95%E5%AE%9E%E6%88%98%E9%9B%86%E6%88%90thymeleafmybatis-plus/</link>
+      <pubDate>Mon, 22 Jun 2020 15:55:02 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti10-%E6%99%AE%E9%80%9A%E8%A1%A8%E5%8D%95%E5%AE%9E%E6%88%98%E9%9B%86%E6%88%90thymeleafmybatis-plus/</guid>
+      <description>前面我们介绍了动态表单和外置表单。还有一种称为普通表单。
+普通表单的特点是把表单的内容存放在一个页面（jsp、jsf、html等）文件中。表单提供流程所需的各种字段，提交到后台后，流程引擎利用这些字段推动流程。
+外置表单解决了动态表单需要代码生成页面的弊端。但是表单业务字段依然保存在Activiti 的act_hi_detail表中。无法做到业务数据和流程数据的分离。而普通表单可以解决这个问题。
+1、Springboot集成 Thymeleaf 因为普通表单会用到页面，所以先来集成Thymeleaf（此处我们使用springboot推荐的Thymeleaf）。
+1.1 引入jar包 &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.boot&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-boot-starter-thymeleaf&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; 1.2 yaml中添加下添加 spring: thymeleaf: cache: false 1.3 新建templates目录 在resources目录下建templates目录。Thymeleaf会默认到此目录下寻找html文件。
+这里贴出一些Thymeleaf默认配置
+#开启模板缓存（默认值：true）spring.thymeleaf.cache=true #Check that the template exists before rendering it.spring.thymeleaf.check-template=true #检查模板位置是否正确（默认值:true）spring.thymeleaf.check-template-location=true#Content-Type的值（默认值：text/html）spring.thymeleaf.content-type=text/html#开启MVC Thymeleaf视图解析（默认值：true）spring.thymeleaf.enabled=true#模板编码spring.thymeleaf.encoding=UTF-8#要被排除在解析之外的视图名称列表，用逗号分隔spring.thymeleaf.excluded-view-names=#要运用于模板之上的模板模式。另见StandardTemplate-ModeHandlers(默认值：HTML5)spring.thymeleaf.mode=HTML5#在构建URL时添加到视图名称前的前缀（默认值：classpath:/templates/）spring.thymeleaf.prefix=classpath:/templates/#在构建URL时添加到视图名称后的后缀（默认值：.html）spring.thymeleaf.suffix=.html#Thymeleaf模板解析器在解析器链中的顺序。默认情况下，它排第一位。顺序从1开始，只有在定义了额外的TemplateResolver Bean时才需要设置这个属性。spring.thymeleaf.template-resolver-order=#可解析的视图名称列表，用逗号分隔spring.thymeleaf.view-names= 一般开发中将spring.thymeleaf.cache设置为false，其他保持默认值即可。
+1.4 测试 controller： package com.sxdx.workflow.activiti.rest.controller; import io.swagger.annotations.Api; import lombok.extern.slf4j.Slf4j; import org.springframework.stereotype.Controller; import org.</description>
+    </item>
+    
+    <item>
+      <title>Activiti（9） 外置表单实战</title>
+      <link>https://garnettboy.gitee.io/p/activiti9-%E5%A4%96%E7%BD%AE%E8%A1%A8%E5%8D%95%E5%AE%9E%E6%88%98/</link>
+      <pubDate>Tue, 16 Jun 2020 15:55:02 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti9-%E5%A4%96%E7%BD%AE%E8%A1%A8%E5%8D%95%E5%AE%9E%E6%88%98/</guid>
+      <description>这节我们继续学习外置表单。这种方式常用于基于工作流平台开发的方式，代码写的很少，开发人员只要把表单内容写好保存到**.form**文件中即可，然后配置每个节点需要的表单名称（form key），实际运行时通过引擎提供的API读取Task对应的form内容输出到页面。
+此种方式对于在经常添加新流程的需求比较适用，可以快速发布新流程，把流程设计出来之后再设计表单之后两者关联就可以使用了。
+动态表单有一个弊端，就是每个节点的表单信息需要我们动态的构建。而且每个表单包含的字段不尽相同，这样就需要我们的开发人员针对每个节点的表单信息生成对应的页面。这样是不合理的。我们来看看相同流程情况下，外置表单如何实现。
+1、流程定义 leave-formkey.bpmn：
+&amp;lt;?xml version=&amp;#34;1.0&amp;#34; encoding=&amp;#34;UTF-8&amp;#34;?&amp;gt; &amp;lt;definitions xmlns=&amp;#34;http://www.omg.org/spec/BPMN/20100524/MODEL&amp;#34; xmlns:xsi=&amp;#34;http://www.w3.org/2001/XMLSchema-instance&amp;#34; xmlns:xsd=&amp;#34;http://www.w3.org/2001/XMLSchema&amp;#34; xmlns:activiti=&amp;#34;http://activiti.org/bpmn&amp;#34; xmlns:bpmndi=&amp;#34;http://www.omg.org/spec/BPMN/20100524/DI&amp;#34; xmlns:omgdc=&amp;#34;http://www.omg.org/spec/DD/20100524/DC&amp;#34; xmlns:omgdi=&amp;#34;http://www.omg.org/spec/DD/20100524/DI&amp;#34; typeLanguage=&amp;#34;http://www.w3.org/2001/XMLSchema&amp;#34; expressionLanguage=&amp;#34;http://www.w3.org/1999/XPath&amp;#34; targetNamespace=&amp;#34;http://www.kafeitu.me/activiti&amp;#34;&amp;gt; &amp;lt;process id=&amp;#34;leave-formkey&amp;#34; name=&amp;#34;请假流程-外置表单&amp;#34; isExecutable=&amp;#34;true&amp;#34;&amp;gt; &amp;lt;documentation&amp;gt;外置表单&amp;lt;/documentation&amp;gt; &amp;lt;startEvent id=&amp;#34;startevent1&amp;#34; name=&amp;#34;Start&amp;#34; activiti:initiator=&amp;#34;applyUserId&amp;#34; activiti:formKey=&amp;#34;leave-formkey/leave-start.form&amp;#34;&amp;gt;&amp;lt;/startEvent&amp;gt; &amp;lt;userTask id=&amp;#34;deptLeaderVerify&amp;#34; name=&amp;#34;部门经理审批&amp;#34; activiti:candidateGroups=&amp;#34;deptLeader&amp;#34; activiti:formKey=&amp;#34;leave-formkey/approve-deptLeader.form&amp;#34;&amp;gt;&amp;lt;/userTask&amp;gt; &amp;lt;exclusiveGateway id=&amp;#34;exclusivegateway1&amp;#34; name=&amp;#34;Exclusive Gateway&amp;#34;&amp;gt;&amp;lt;/exclusiveGateway&amp;gt; &amp;lt;userTask id=&amp;#34;hrVerify&amp;#34; name=&amp;#34;人事经理审批&amp;#34; activiti:candidateGroups=&amp;#34;hr&amp;#34; activiti:formKey=&amp;#34;leave-formkey/approve-hr.form&amp;#34;&amp;gt;&amp;lt;/userTask&amp;gt; &amp;lt;exclusiveGateway id=&amp;#34;exclusivegateway2&amp;#34; name=&amp;#34;Exclusive Gateway&amp;#34;&amp;gt;&amp;lt;/exclusiveGateway&amp;gt; &amp;lt;userTask id=&amp;#34;reportBack&amp;#34; name=&amp;#34;销假&amp;#34; activiti:assignee=&amp;#34;${applyUserId}&amp;#34; activiti:formKey=&amp;#34;leave-formkey/report-back.form&amp;#34;&amp;gt;&amp;lt;/userTask&amp;gt; &amp;lt;endEvent id=&amp;#34;endevent1&amp;#34; name=&amp;#34;End&amp;#34;&amp;gt;&amp;lt;/endEvent&amp;gt; &amp;lt;userTask id=&amp;#34;modifyApply&amp;#34; name=&amp;#34;调整申请内容&amp;#34; activiti:assignee=&amp;#34;${applyUserId}&amp;#34; activiti:formKey=&amp;#34;leave-formkey/modify-apply.form&amp;#34;&amp;gt;&amp;lt;/userTask&amp;gt; &amp;lt;exclusiveGateway id=&amp;#34;exclusivegateway3&amp;#34; name=&amp;#34;Exclusive Gateway&amp;#34;&amp;gt;&amp;lt;/exclusiveGateway&amp;gt; &amp;lt;sequenceFlow id=&amp;#34;flow1&amp;#34; sourceRef=&amp;#34;startevent1&amp;#34; targetRef=&amp;#34;deptLeaderVerify&amp;#34;&amp;gt;&amp;lt;/sequenceFlow&amp;gt; &amp;lt;sequenceFlow id=&amp;#34;flow2&amp;#34; sourceRef=&amp;#34;deptLeaderVerify&amp;#34; targetRef=&amp;#34;exclusivegateway1&amp;#34;&amp;gt;&amp;lt;/sequenceFlow&amp;gt; &amp;lt;sequenceFlow id=&amp;#34;flow3&amp;#34; name=&amp;#34;同意&amp;#34; sourceRef=&amp;#34;exclusivegateway1&amp;#34; targetRef=&amp;#34;hrVerify&amp;#34;&amp;gt; &amp;lt;conditionExpression xsi:type=&amp;#34;tFormalExpression&amp;#34;&amp;gt;&amp;lt;!</description>
+    </item>
+    
+    <item>
+      <title>Activiti（8） 动态表单实战、集成Swagger、Logback</title>
+      <link>https://garnettboy.gitee.io/p/activiti8-%E5%8A%A8%E6%80%81%E8%A1%A8%E5%8D%95%E5%AE%9E%E6%88%98%E9%9B%86%E6%88%90swaggerlogback/</link>
+      <pubDate>Mon, 08 Jun 2020 16:51:23 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti8-%E5%8A%A8%E6%80%81%E8%A1%A8%E5%8D%95%E5%AE%9E%E6%88%98%E9%9B%86%E6%88%90swaggerlogback/</guid>
+      <description>动态表单是直接将工作流节点处的表单嵌入流程定义文件BPMN中。系统利用JS或者模板引擎，根据流程定义中表单定义的各个子控件及其属性动态渲染出表单并加载出来。
+在正式开始介绍表单前，我们先完善一下系统。
+1、工程完善 1.1、集成Swagger 在开始实战前，我们先集成Swagger,这样有利于我们后期管理接口。
+在workflow-activiti-rest module的pom.xml文件中添加： &amp;lt;!-- swagger2--&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;io.springfox&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;springfox-swagger2&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;io.springfox&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;springfox-swagger-ui&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; 添加配置类 package com.sxdx.workflow.activiti.rest.config; import org.springframework.context.annotation.Bean; import org.springframework.context.annotation.Configuration; import springfox.documentation.builders.ApiInfoBuilder; import springfox.documentation.builders.PathSelectors; import springfox.documentation.builders.RequestHandlerSelectors; import springfox.documentation.service.ApiInfo; import springfox.documentation.service.Contact; import springfox.documentation.spi.DocumentationType; import springfox.documentation.spring.web.plugins.Docket; import springfox.documentation.swagger2.annotations.EnableSwagger2; @Configuration @EnableSwagger2 public class SwaggerConfig { /** * 通过 createRestApi函数来构建一个DocketBean * 函数名,可以随意命名,喜欢什么命名就什么命名 */ @Bean public Docket createRestApi() { return new Docket(DocumentationType.SWAGGER_2) .apiInfo(apiInfo())//调用apiInfo方法,创建一个ApiInfo实例,里面是展示在文档页面信息内容 .select() //控制暴露出去的路径下的实例 //如果某个接口不想暴露,可以使用以下注解 //@ApiIgnore 这样,该接口就不会暴露在 swagger2 的页面下 .</description>
+    </item>
+    
+    <item>
+      <title>Activiti（7） 表单分类</title>
+      <link>https://garnettboy.gitee.io/p/activiti7-%E8%A1%A8%E5%8D%95%E5%88%86%E7%B1%BB/</link>
+      <pubDate>Thu, 04 Jun 2020 15:54:31 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti7-%E8%A1%A8%E5%8D%95%E5%88%86%E7%B1%BB/</guid>
+      <description>前面几个章节，算是Activiti的入门阶段，让我们知道Activiti的大概工作模式。很多细节并没有介绍，并不足以应对工作中实际的业务。接下来学习表单，从实用的角度学习activiti。
+表单：用来显示流程中业务数据的页面和数据。(我是这么理解的~~)
+1、表单分类 动态表单 外置表单（FormKey） 普通表单 三种表单都有其优缺点，可根据具体场景灵活选用。需要说明的是，三种表单方式只是在任务节点上用户的表单定义方式上面有差别，而流程的运转机制则完全相同。
+1.1 动态表单 image-20200608105904854image-20200608110121083image-20200608110133758如图所示，区别于普通表单和外置表单，动态表单是直接将工作流节点处的表单嵌入流程定义文件BPMN中，系统利用JS或者模板引擎根据流程定义中表单定义的各个子控件及其属性动态渲染出表单加载出来。
+1.2 外置表单（FormKey） 这种方式常用于基于工作流平台开发的方式，代码写的很少，开发人员只要把表单内容写好保存到**.form**文件中即可，然后配置每个节点需要的表单名称（form key），实际运行时通过引擎提供的API读取Task对应的form内容输出到页面。
+此种方式对于在经常添加新流程的需求比较适用，可以快速发布新流程，把流程设计出来之后再设计表单之后两者关联就可以使用了。
+image-20200608111813077image-20200608111650312leave-start.form表单内容：
+&amp;lt;div class=&amp;#34;control-group&amp;#34;&amp;gt; &amp;lt;label class=&amp;#34;control-label&amp;#34; for=&amp;#34;startDate&amp;#34;&amp;gt;开始时间：&amp;lt;/label&amp;gt; &amp;lt;div class=&amp;#34;controls&amp;#34;&amp;gt; &amp;lt;input type=&amp;#34;text&amp;#34; id=&amp;#34;startDate&amp;#34; name=&amp;#34;startDate&amp;#34; class=&amp;#34;datepicker&amp;#34; data-date-format=&amp;#34;yyyy-mm-dd&amp;#34; required /&amp;gt; &amp;lt;/div&amp;gt; &amp;lt;/div&amp;gt; &amp;lt;div class=&amp;#34;control-group&amp;#34;&amp;gt; &amp;lt;label class=&amp;#34;control-label&amp;#34; for=&amp;#34;endDate&amp;#34;&amp;gt;结束时间：&amp;lt;/label&amp;gt; &amp;lt;div class=&amp;#34;controls&amp;#34;&amp;gt; &amp;lt;input type=&amp;#34;text&amp;#34; id=&amp;#34;endDate&amp;#34; name=&amp;#34;endDate&amp;#34; class=&amp;#34;datepicker&amp;#34; data-date-format=&amp;#34;yyyy-mm-dd&amp;#34; required /&amp;gt; &amp;lt;/div&amp;gt; &amp;lt;/div&amp;gt; &amp;lt;div class=&amp;#34;control-group&amp;#34;&amp;gt; &amp;lt;label class=&amp;#34;control-label&amp;#34; for=&amp;#34;reason&amp;#34;&amp;gt;请假原因：&amp;lt;/label&amp;gt; &amp;lt;div class=&amp;#34;controls&amp;#34;&amp;gt; &amp;lt;textarea id=&amp;#34;reason&amp;#34; name=&amp;#34;reason&amp;#34; required&amp;gt;&amp;lt;/textarea&amp;gt; &amp;lt;/div&amp;gt; &amp;lt;/div&amp;gt; 1.3 普通表单 这个是最灵活的一种方式（但是也最繁琐），常用于业务比较复杂的系统中，或者业务比较固定不变的需求中。</description>
+    </item>
+    
+    <item>
+      <title>Activiti（6） 用户和用户组</title>
+      <link>https://garnettboy.gitee.io/p/activiti6-%E7%94%A8%E6%88%B7%E5%92%8C%E7%94%A8%E6%88%B7%E7%BB%84/</link>
+      <pubDate>Wed, 03 Jun 2020 10:55:25 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti6-%E7%94%A8%E6%88%B7%E5%92%8C%E7%94%A8%E6%88%B7%E7%BB%84/</guid>
+      <description>本节我们来介绍一下activiti的用户和用户组。
+前面我们已经介绍过activiti的数据库表，涉及到用户和用户组的共4张。
+image-202006031102064421、引出问题 这4张表是activiti自动帮我们生成的。如果我们现在已经有一个成熟的系统，拥有自身的用户、权限等表结构。此时想要集成Activiti，难道要把用户信息都复制到Activiti的用户表中吗?
+当然不是，此时就用到了数据库视图技术。
+2、原用户体系 假设我们现在的用户体系包含如下几张表：
+sys_user(用户表)：
+CREATE TABLE `sys_user` ( `user_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT &amp;#39;用户ID&amp;#39;, `dept_id` bigint(20) DEFAULT NULL COMMENT &amp;#39;部门ID&amp;#39;, `login_name` varchar(30) NOT NULL COMMENT &amp;#39;登录账号&amp;#39;, `user_name` varchar(30) NOT NULL COMMENT &amp;#39;用户昵称&amp;#39;, `user_type` varchar(2) DEFAULT &amp;#39;00&amp;#39; COMMENT &amp;#39;用户类型（00系统用户）&amp;#39;, `email` varchar(50) DEFAULT &amp;#39;&amp;#39; COMMENT &amp;#39;用户邮箱&amp;#39;, `phonenumber` varchar(11) DEFAULT &amp;#39;&amp;#39; COMMENT &amp;#39;手机号码&amp;#39;, `sex` char(1) DEFAULT &amp;#39;0&amp;#39; COMMENT &amp;#39;用户性别（0男 1女 2未知）&amp;#39;, `avatar` varchar(100) DEFAULT &amp;#39;&amp;#39; COMMENT &amp;#39;头像路径&amp;#39;, `password` varchar(50) DEFAULT &amp;#39;&amp;#39; COMMENT &amp;#39;密码&amp;#39;, `salt` varchar(20) DEFAULT &amp;#39;&amp;#39; COMMENT &amp;#39;盐加密&amp;#39;, `status` char(1) DEFAULT &amp;#39;0&amp;#39; COMMENT &amp;#39;帐号状态（0正常 1停用）&amp;#39;, `del_flag` char(1) DEFAULT &amp;#39;0&amp;#39; COMMENT &amp;#39;删除标志（0代表存在 2代表删除）&amp;#39;, `login_ip` varchar(50) DEFAULT &amp;#39;&amp;#39; COMMENT &amp;#39;最后登陆IP&amp;#39;, `login_date` datetime DEFAULT NULL COMMENT &amp;#39;最后登陆时间&amp;#39;, `create_by` varchar(64) DEFAULT &amp;#39;&amp;#39; COMMENT &amp;#39;创建者&amp;#39;, `create_time` datetime DEFAULT NULL COMMENT &amp;#39;创建时间&amp;#39;, `update_by` varchar(64) DEFAULT &amp;#39;&amp;#39; COMMENT &amp;#39;更新者&amp;#39;, `update_time` datetime DEFAULT NULL COMMENT &amp;#39;更新时间&amp;#39;, `remark` varchar(500) DEFAULT NULL COMMENT &amp;#39;备注&amp;#39;, PRIMARY KEY (`user_id`) ) ENGINE=InnoDB AUTO_INCREMENT=110 DEFAULT CHARSET=utf8 COMMENT=&amp;#39;用户信息表&amp;#39;; sys_role（角色表）：</description>
+    </item>
+    
+    <item>
+      <title>Activiti（5）流程定义文件—流程定义—流程模型 的相互转化</title>
+      <link>https://garnettboy.gitee.io/p/activiti5%E6%B5%81%E7%A8%8B%E5%AE%9A%E4%B9%89%E6%96%87%E4%BB%B6%E6%B5%81%E7%A8%8B%E5%AE%9A%E4%B9%89%E6%B5%81%E7%A8%8B%E6%A8%A1%E5%9E%8B-%E7%9A%84%E7%9B%B8%E4%BA%92%E8%BD%AC%E5%8C%96/</link>
+      <pubDate>Mon, 01 Jun 2020 16:38:33 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti5%E6%B5%81%E7%A8%8B%E5%AE%9A%E4%B9%89%E6%96%87%E4%BB%B6%E6%B5%81%E7%A8%8B%E5%AE%9A%E4%B9%89%E6%B5%81%E7%A8%8B%E6%A8%A1%E5%9E%8B-%E7%9A%84%E7%9B%B8%E4%BA%92%E8%BD%AC%E5%8C%96/</guid>
+      <description>前面我们介绍了流程模型的创建、以及用流程模型部署流程定义。本节我们主要介绍，流程定义文件—流程定义—流程模型 的相互转化
+1、回顾 1.1 、生成流程模型 /** * 创建模型 */ @Test public void create() { String name = &amp;#34;请假流程&amp;#34;; String key = &amp;#34;leave&amp;#34;; String description = &amp;#34;这是一个简单的请假流程&amp;#34;; try { ObjectMapper objectMapper = new ObjectMapper(); ObjectNode editorNode = objectMapper.createObjectNode(); editorNode.put(&amp;#34;id&amp;#34;, &amp;#34;canvas&amp;#34;); editorNode.put(&amp;#34;resourceId&amp;#34;, &amp;#34;canvas&amp;#34;); ObjectNode stencilSetNode = objectMapper.createObjectNode(); stencilSetNode.put(&amp;#34;namespace&amp;#34;, &amp;#34;http://b3mn.org/stencilset/bpmn2.0#&amp;#34;); editorNode.put(&amp;#34;stencilset&amp;#34;, stencilSetNode); ObjectNode modelObjectNode = objectMapper.createObjectNode(); modelObjectNode.put(MODEL_NAME, name); modelObjectNode.put(ModelDataJsonConstants.MODEL_REVISION, 1); description = StringUtils.defaultString(description); modelObjectNode.put(MODEL_DESCRIPTION, description); Model newModel = repositoryService.newModel(); newModel.setMetaInfo(modelObjectNode.toString()); newModel.setName(name); newModel.setKey(StringUtils.defaultString(key)); repositoryService.</description>
+    </item>
+    
+    <item>
+      <title>Activiti（4）七大Service接口</title>
+      <link>https://garnettboy.gitee.io/p/activiti4%E4%B8%83%E5%A4%A7service%E6%8E%A5%E5%8F%A3/</link>
+      <pubDate>Fri, 29 May 2020 09:09:47 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti4%E4%B8%83%E5%A4%A7service%E6%8E%A5%E5%8F%A3/</guid>
+      <description>本节我们介绍Activiti提供的 7大Service接口。先了解这7个service的用途，有利于我们更好的学习activiti.
+image-202005291008070611、流程模型 我们通过使用下面这个请假流程模型来练习这7个Activiti Service。
+1.1 流程图 流程节点的具体内容，可以使用Eclipse Designer来查看。
+image-20200529101645437以下是各个节点需要注意的点，gif 图片将就着看吧~~~
+leave.gif1.2 流程定义 以下是上面流程图对应的定义文件。
+&amp;lt;?xml version=&amp;#34;1.0&amp;#34; encoding=&amp;#34;UTF-8&amp;#34;?&amp;gt; &amp;lt;definitions xmlns=&amp;#34;http://www.omg.org/spec/BPMN/20100524/MODEL&amp;#34; xmlns:xsi=&amp;#34;http://www.w3.org/2001/XMLSchema-instance&amp;#34; xmlns:xsd=&amp;#34;http://www.w3.org/2001/XMLSchema&amp;#34; xmlns:activiti=&amp;#34;http://activiti.org/bpmn&amp;#34; xmlns:bpmndi=&amp;#34;http://www.omg.org/spec/BPMN/20100524/DI&amp;#34; xmlns:omgdc=&amp;#34;http://www.omg.org/spec/DD/20100524/DC&amp;#34; xmlns:omgdi=&amp;#34;http://www.omg.org/spec/DD/20100524/DI&amp;#34; typeLanguage=&amp;#34;http://www.w3.org/2001/XMLSchema&amp;#34; expressionLanguage=&amp;#34;http://www.w3.org/1999/XPath&amp;#34; targetNamespace=&amp;#34;http://www.kafeitu.me/activiti/leave&amp;#34;&amp;gt; &amp;lt;process id=&amp;#34;leave&amp;#34; name=&amp;#34;请假流程-普通表单&amp;#34; isExecutable=&amp;#34;true&amp;#34;&amp;gt; &amp;lt;documentation&amp;gt;请假流程演示&amp;lt;/documentation&amp;gt; &amp;lt;startEvent id=&amp;#34;startevent1&amp;#34; name=&amp;#34;Start&amp;#34; activiti:initiator=&amp;#34;applyUserId&amp;#34;&amp;gt;&amp;lt;/startEvent&amp;gt; &amp;lt;userTask id=&amp;#34;deptLeaderVerify&amp;#34; name=&amp;#34;部门领导审批&amp;#34; activiti:candidateGroups=&amp;#34;deptLeader&amp;#34;&amp;gt;&amp;lt;/userTask&amp;gt; &amp;lt;exclusiveGateway id=&amp;#34;exclusivegateway5&amp;#34; name=&amp;#34;Exclusive Gateway&amp;#34;&amp;gt;&amp;lt;/exclusiveGateway&amp;gt; &amp;lt;userTask id=&amp;#34;modifyApply&amp;#34; name=&amp;#34;调整申请&amp;#34; activiti:assignee=&amp;#34;${applyUserId}&amp;#34;&amp;gt;&amp;lt;/userTask&amp;gt; &amp;lt;userTask id=&amp;#34;hrVerify&amp;#34; name=&amp;#34;人事审批&amp;#34; activiti:candidateGroups=&amp;#34;hr&amp;#34;&amp;gt;&amp;lt;/userTask&amp;gt; &amp;lt;exclusiveGateway id=&amp;#34;exclusivegateway6&amp;#34; name=&amp;#34;Exclusive Gateway&amp;#34;&amp;gt;&amp;lt;/exclusiveGateway&amp;gt; &amp;lt;userTask id=&amp;#34;reportBack&amp;#34; name=&amp;#34;销假&amp;#34; activiti:assignee=&amp;#34;${applyUserId}&amp;#34;&amp;gt; &amp;lt;extensionElements&amp;gt; &amp;lt;activiti:taskListener event=&amp;#34;complete&amp;#34; delegateExpression=&amp;#34;${reportBackEndProcessor}&amp;#34;&amp;gt;&amp;lt;/activiti:taskListener&amp;gt; &amp;lt;/extensionElements&amp;gt; &amp;lt;/userTask&amp;gt; &amp;lt;endEvent id=&amp;#34;endevent1&amp;#34; name=&amp;#34;End&amp;#34;&amp;gt;&amp;lt;/endEvent&amp;gt; &amp;lt;exclusiveGateway id=&amp;#34;exclusivegateway7&amp;#34; name=&amp;#34;Exclusive Gateway&amp;#34;&amp;gt;&amp;lt;/exclusiveGateway&amp;gt; &amp;lt;sequenceFlow id=&amp;#34;flow2&amp;#34; sourceRef=&amp;#34;startevent1&amp;#34; targetRef=&amp;#34;deptLeaderVerify&amp;#34;&amp;gt;&amp;lt;/sequenceFlow&amp;gt; &amp;lt;sequenceFlow id=&amp;#34;flow3&amp;#34; sourceRef=&amp;#34;deptLeaderVerify&amp;#34; targetRef=&amp;#34;exclusivegateway5&amp;#34;&amp;gt;&amp;lt;/sequenceFlow&amp;gt; &amp;lt;sequenceFlow id=&amp;#34;flow4&amp;#34; name=&amp;#34;不同意&amp;#34; sourceRef=&amp;#34;exclusivegateway5&amp;#34; targetRef=&amp;#34;modifyApply&amp;#34;&amp;gt; &amp;lt;conditionExpression xsi:type=&amp;#34;tFormalExpression&amp;#34;&amp;gt;&amp;lt;!</description>
+    </item>
+    
+    <item>
+      <title>Activiti（3）集成Activiti Modeler</title>
+      <link>https://garnettboy.gitee.io/p/activiti3%E9%9B%86%E6%88%90activiti-modeler/</link>
+      <pubDate>Thu, 28 May 2020 14:00:14 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti3%E9%9B%86%E6%88%90activiti-modeler/</guid>
+      <description>Activiti Modeler 是 Activiti 官方提供的一款在线流程设计的前端插件，可以方便流程设计与开发人员绘制流程图，保存流程模型，部署至流程定义等等。
+本节我们能就记录如何在spring boot项目中集成Activiti Modeler。
+1、材料准备 首先我们需要获取activiti-explorer.zip，这个是activiti-5.22.0才有的。
+链接：https://pan.baidu.com/s/1Qd633JJbddF2Hz5EpXTbAw 提取码：8d5o
+后续所有的资料都可以通过这个地址下载。
+2、集成 2.1 集成静态资源 在resources下新建static/modeler目录
+找到 activiti-5.22.0\wars\activiti-explorer.war，将如图3个目录复制到static/modeler目录下。
+image-20200528160054524将下载好的汉化文件stencilset.json复制到src/main/resources目录下 用下载好的汉化文件en.json替换 static/modeler/editor-app/i18n/en.json文件 2.2 集成后端代码 在 com/sxdx/workflow/activiti/rest 下新建modeler目录，将下载文件的 activiti-5.22.0\Activiti-master\modules\activiti-modeler\src\main\java\org\activiti\rest\editor 目录下的所有文件拷贝到此目录下：
+image-202005281617290332.3 代码修改 image-20200528173114196依次修改如下代码：
+1、static/modeler/editor-app/app-cfg.js
+image-202005281621411382、static/modeler/editor-app/configuration/toolbar-default-actions.js。
+image-202005281623358963、com/sxdx/workflow/activiti/rest/modeler 下的3个java文件中的所有方法的访问路径前都添加 /modeler
+image-202005281625127394、将ModelSaveRestResource的saveModel改为POST访问，否则Activiti Modeler无法保存。
+@RequestMapping(value=&amp;#34;/modeler/model/{modelId}/save&amp;#34;, method = RequestMethod.POST) @ResponseStatus(value = HttpStatus.OK) public void saveModel(@PathVariable String modelId, @RequestBody MultiValueMap&amp;lt;String, String&amp;gt; values) { //省略。。。 } 3、访问验证 启动服务，访问 http://localhost:8080/modeler/modeler.html
+image-20200528162901706会发现只有一个布局，各种功能及组件都没有显示出来。这是因为我们没有定义流程模型。</description>
+    </item>
+    
+    <item>
+      <title>Activiti（2）环境搭建</title>
+      <link>https://garnettboy.gitee.io/p/activiti2%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/</link>
+      <pubDate>Thu, 28 May 2020 10:10:57 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti2%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/</guid>
+      <description>本节我们使用springboot集成Activiti 环境。
+环境说明：
+IDEA: 2019.3
+JDK1.8
+Maven: 3.6.3
+SpringBoot:2.1.1
+Activiti :6.0.0
+Mysql :5.7
+代码地址：https://github.com/gaoyipeng/workflow-activiti6.git
+1、搭建maven聚合工程： 为了以后扩展方便，再此我们搭建一个聚合工程。
+1.1 框架搭建 image-20200528103143771image-20200528103347641删除src目录
+image-20200528103428378创建一个module工程
+image-20200528103452128image-20200528103557655目录结构如下：
+image-202005281040388821.2 pom文件 workflow-activiti父工程pom文件
+&amp;lt;?xml version=&amp;#34;1.0&amp;#34; encoding=&amp;#34;UTF-8&amp;#34;?&amp;gt; &amp;lt;project xmlns=&amp;#34;http://maven.apache.org/POM/4.0.0&amp;#34; xmlns:xsi=&amp;#34;http://www.w3.org/2001/XMLSchema-instance&amp;#34; xsi:schemaLocation=&amp;#34;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&amp;#34;&amp;gt; &amp;lt;modelVersion&amp;gt;4.0.0&amp;lt;/modelVersion&amp;gt; &amp;lt;groupId&amp;gt;org.sxdx&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;workflow-activiti&amp;lt;/artifactId&amp;gt; &amp;lt;packaging&amp;gt;pom&amp;lt;/packaging&amp;gt; &amp;lt;version&amp;gt;1.0-SNAPSHOT&amp;lt;/version&amp;gt; &amp;lt;modules&amp;gt; &amp;lt;module&amp;gt;workflow-activiti-rest&amp;lt;/module&amp;gt; &amp;lt;/modules&amp;gt; &amp;lt;properties&amp;gt; &amp;lt;project.build.sourceEncoding&amp;gt;UTF-8&amp;lt;/project.build.sourceEncoding&amp;gt; &amp;lt;project.reporting.outputEncoding&amp;gt;UTF-8&amp;lt;/project.reporting.outputEncoding&amp;gt; &amp;lt;java.version&amp;gt;1.8&amp;lt;/java.version&amp;gt; &amp;lt;druid.version&amp;gt;1.1.14&amp;lt;/druid.version&amp;gt; &amp;lt;swagger.version&amp;gt;2.9.2&amp;lt;/swagger.version&amp;gt; &amp;lt;fastjson.version&amp;gt;1.2.68&amp;lt;/fastjson.version&amp;gt; &amp;lt;activiti.version&amp;gt;6.0.0&amp;lt;/activiti.version&amp;gt; &amp;lt;/properties&amp;gt; &amp;lt;!-- 依赖声明 --&amp;gt; &amp;lt;dependencyManagement&amp;gt; &amp;lt;dependencies&amp;gt; &amp;lt;!-- SpringBoot的依赖配置--&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.boot&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-boot-dependencies&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;2.1.1.RELEASE&amp;lt;/version&amp;gt; &amp;lt;type&amp;gt;pom&amp;lt;/type&amp;gt; &amp;lt;scope&amp;gt;import&amp;lt;/scope&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;!</description>
+    </item>
+    
+    <item>
+      <title>Activiti（1） 基本概念</title>
+      <link>https://garnettboy.gitee.io/p/activiti1-%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5/</link>
+      <pubDate>Wed, 27 May 2020 14:35:43 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/activiti1-%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5/</guid>
+      <description>工作流一直是一个OA系统的灵魂。工作以来一直想要学习一套开源的工作流框架，但是一直因为各种原因耽搁了。今天正式开始学习activiti，记录下学习的过程。与君共勉~~~
+1、Activiti官网 官网地址：https://www.activiti.org/，截止2020.05.27，Activiti最新版本是7.1.0.m6
+Github地址：https://github.com/Activiti/Activiti
+image-202005280946473342、七大接口 Activiti引擎提供了7大Service接口，均可以通过ProcessEngine(流程引擎获取)
+image-202005280946095693、三大流程设计器 Eclipse Designer(推荐)：Eclipse插件，用来绘制activiti流程图，
+集成教程：https://blog.csdn.net/u012359995/article/details/47753293
+Activiti Modeler(推荐)：基于Web的流程设计器，可以实现浏览器绘制activiti流程图
+image-20200528100308803IDEA actiBPM：IDEA插件，兼容性不是很好，不建议使用
+安装教程：https://www.cnblogs.com/No2-explorer/p/11032469.html
+image-202005281004001124、28张表 activiti每个版本的表数量不一样，activiti6一共有28张表。
+4.1 ACT_RE_XXX 一共 3 张表。
+ACT_RE_DEPLOYMENT（部署信息表）用来存储部署时需要持久化保存下来的信息。ACT_RE_MODEL (流程设计模型表) 创建流程的设计模型时，保存在该数据表中。ACT_RE_PROCDEF（流程定义，解析表）流程解析表，解析成功了，在该表保存一条记录。业务流程定义数据表。 4.2 ACT_RU_XXX 一共 9 张表。
+ACT_RU_EVENT_SUBSCR （运行时事件）ACT_RU_EXECUTION（运行时流程执行实例）核心，我的待办任务查询表。ACT_RU_IDENTITYLINK（身份联系）主要存储当前节点参与者的信息, 任务参与者数据表。ACT_RU_JOB（运行中的任务）运行时定时任务数据表。ACT_RU_TASK (运行时任务数据表)（执行中实时任务）待办任务查询表ACT_RU_VARIABLE (运行时流程变量数据表) image-20200528113721639Activiti 6.0.0 新增的 3 张表
+ACT_RU_DEADLETTER_JOBACT_RU_SUSPENDED_JOBACT_RU_TIMER_JOB 4.3 ACT_HI_XXX 一共 8 张表。
+ACT_HI_ACTINST（历史节点表）历史活动信息。这里记录流程流转过的所有节点，与 HI_TASKINST 不同的是，HI_TASKINST 只记录 usertask 内容。ACT_HI_ATTACHMENT（附件信息）ACT_HI_COMMENT（历史审批意见表）ACT_HI_DETAIL（历史详细信息）历史详情表：流程中产生的变量详细，包括控制流程流转的变量，业务表单中填写的流程需要用到的变量等。ACT_HI_IDENTITYLINK （历史流程人员表）任务参与者数据表。主要存储历史节点参与者的信息。ACT_HI_PROCINST（历史流程实例信息）核心表ACT_HI_TASKINST（历史任务流程实例信息）核心表ACT_HI_VARINST（历史变量信息） 4.</description>
+    </item>
+    
+  </channel>
+</rss>

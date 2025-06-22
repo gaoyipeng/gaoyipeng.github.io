@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='k8s 概念及使用'><title>k8s 概念及使用</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/k8s-%E6%A6%82%E5%BF%B5%E5%8F%8A%E4%BD%BF%E7%94%A8/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='k8s 概念及使用'>
+<meta property='og:description' content='k8s 概念及使用'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/k8s-%E6%A6%82%E5%BF%B5%E5%8F%8A%E4%BD%BF%E7%94%A8/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='k8s' /><meta property='article:published_time' content='2025-06-17T09:36:40&#43;00:00'/><meta property='article:modified_time' content='2025-06-17T09:36:40&#43;00:00'/>
+<meta name="twitter:title" content="k8s 概念及使用">
+<meta name="twitter:description" content="k8s 概念及使用">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/k8s/" >
+                k8s
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/k8s-%E6%A6%82%E5%BF%B5%E5%8F%8A%E4%BD%BF%E7%94%A8/">k8s 概念及使用</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        k8s 概念及使用
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jun 17, 2025</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 7 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <h2 id="一k8s-概念">一、k8s 概念</h2>
+<p><strong>Kubernetes</strong>：作为开源的容器编排引擎，用来对容器化应用进行自动化部署、 扩缩和管理。</p>
+<h3 id="11-k8s-核心架构">1.1 K8S 核心架构</h3>
+<p><figure 
+	>
+	<a href="/../../images/k8s-02/image-20250619110607292.png" >
+		<img src="/../../images/k8s-02/image-20250619110607292.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20250619110607292">
+	</a>
+	
+	<figcaption>image-20250619110607292</figcaption>
+	
+</figure></p>
+<p>K8S 是属于<strong>Master-Worker架构</strong>，即有 Master 节点负责核心的调度、管理和运维，Worker 节点则执行用户的程序。但是在 K8S 中，主节点一般被称为<strong>Master Node</strong> ，而从节点则被称为<strong>Worker Node 或者 Node</strong>。</p>
+<p>**注意：**Master Node 和 Worker Node 是分别安装了 K8S 的 Master 和 Woker 组件的实体服务器，每个 Node 都对应了一台实体服务器（虽然 Master Node 可以和其中一个 Worker Node 安装在同一台服务器，但是建议 Master Node 单独部署），<strong>所有 Master Node 和 Worker Node 组成了K8S 集群</strong>，同一个集群可能存在多个 Master Node 和 Worker Node。</p>
+<p><strong>Master Node</strong>都有哪些组件：</p>
+<ul>
+<li>
+<p>kube-apiserver：</p>
+<p>K8S 的请求入口服务。API Server 负责接收 K8S 所有请求（来自 UI 界面或者 CLI 命令行工具），然后，API Server 根据用户的具体请求，去通知其他组件干活。</p>
+</li>
+<li>
+<p>Scheduler：</p>
+<p>K8S 所有 Worker Node 的调度器。当用户要部署服务时，Scheduler 会选择最合适的 Worker Node（服务器）来部署。</p>
+</li>
+<li>
+<p>Controller Manager：</p>
+<p>K8S 所有 Worker Node 的监控器。Controller Manager 有很多具体的 Controller，Node Controller、Service Controller、Volume Controller 等。Controller 负责监控和调整在 Worker Node上部署的服务的状态，比如用户要求 A 服务部署 2 个副本，那么当其中一个服务挂了的时候，Controller 会马上调整，让 Scheduler 再选择一个 Worker Node 重新部署服务。</p>
+</li>
+<li>
+<p>etcd：</p>
+<p>K8S 的存储服务。etcd 存储了 K8S 的关键配置和用户配置，K8S 中仅 API Server 才具备读写权限，其他组件必须通过 API Server 的接口才能读写数据。</p>
+</li>
+</ul>
+<p>接着来看<strong>Worker Node</strong>的组件：</p>
+<ul>
+<li>
+<p>Kubelet。</p>
+<p>Worker Node 的监视器，以及与 Master Node 的通讯器。Kubelet 是 Master Node 安插在Worker Node 上的“眼线”，它会定期向 Master Node 汇报自己 Node 上运行的服务的状态，并接受来自Master Node 的指示采取调整措施。负责控制所有容器的启动停止，保证节点工作正常。</p>
+</li>
+<li>
+<p>Kube-Proxy。</p>
+<p>K8S 的网络代理。Kube-Proxy 负责 Node 在 K8S 的网络通讯、以及对外部网络流量的负载均衡。</p>
+</li>
+<li>
+<p>Container Runtime。</p>
+<p>Worker Node 的运行环境。即安装了容器化所需的软件环境，确保容器化程序能够跑起来，比如 Docker Engine运行环境。</p>
+</li>
+</ul>
+<h3 id="12-k8s核心特性">1.2 K8S核心特性</h3>
+<ul>
+<li>服务发现与负载均衡：无需修改你的应用程序即可使用陌生的服务发现机制。</li>
+<li>存储编排：自动挂载所选存储系统，包括本地存储。</li>
+<li>Secret和配置管理：部署更新Secrets和应用程序的配置时不必重新构建容器镜像，且不必将软件堆栈配置中的秘密信息暴露出来。</li>
+<li>批量执行：除了服务之外，Kubernetes还可以管理你的批处理和CI工作负载，在期望时替换掉失效的容器。</li>
+<li>水平扩缩：使用一个简单的命令、一个UI或基于CPU使用情况自动对应用程序进行扩缩。</li>
+<li>自动化上线和回滚：Kubernetes会分步骤地将针对应用或其配置的更改上线，同时监视应用程序运行状况以确保你不会同时终止所有实例。</li>
+<li>自动装箱：根据资源需求和其他约束自动放置容器，同时避免影响可用性。</li>
+<li>自我修复：重新启动失败的容器，在节点死亡时替换并重新调度容器，杀死不响应用户定义的健康检查的容器。</li>
+</ul>
+<h2 id="二k8s-使用">二、k8s 使用</h2>
+<h3 id="21-kubectl">2.1 kubectl</h3>
+<p>kubectl是apiserver的客户端工具，工作在命令行下，能够连接apiserver实现各种增删改查等操作。</p>
+<p>kubectl官方使用文档：<a class="link" href="https://kubernetes.io/zh-cn/docs/reference/kubectl/"  target="_blank" rel="noopener"
+    >命令行工具 (kubectl) | Kubernetes</a></p>
+<h3 id="22--namespace">2.2  Namespace</h3>
+<p><a class="link" href="https://kubernetes.io/zh-cn/docs/concepts/overview/working-with-objects/namespaces/"  target="_blank" rel="noopener"
+    >名字空间 | Kubernetes</a></p>
+<p>K8s 中， 提供一种机制，将同一集群中的资源划分为相互隔离的组。同一命名空间内的资源名称要唯一，命名空间是用来隔离资源的，不隔离网络。Kubernetes 启动时会创建四个初始命名空间：</p>
+<ul>
+<li><strong>default</strong></li>
+</ul>
+<p>​	Kubernetes 包含这个命名空间，以便于你无需创建新的命名空间即可开始使用新集群。</p>
+<ul>
+<li><strong>kube-node-lease</strong></li>
+</ul>
+<p>​	该命名空间包含用于与各个节点关联的 对象。 节点租约允许 kubelet 发送 ， 由此控制面能够检测到节点故障。</p>
+<ul>
+<li><strong>kube-public</strong></li>
+</ul>
+<p>​	所有的客户端（包括未经身份验证的客户端）都可以读取该命名空间。 该命名空间主要预留为集群使</p>
+<p>用，以便某些资源需要在整个集群中可见可读。 该命名空间的公共属性只是一种约定而非要求。</p>
+<ul>
+<li>
+<p><strong>kube-system</strong></p>
+<p>该命名空间用于 Kubernetes 系统创建的对象</p>
+</li>
+</ul>
+<h4 id="221-命令管理namespace">2.2.1 命令管理namespace</h4>
+<p>常用命令：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="c1"># 查看namespace </span>
+</span></span><span class="line"><span class="cl">kubectl get namespace
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#查看kube-system下的pod </span>
+</span></span><span class="line"><span class="cl">kubectl get pods -n kube-system 
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#查看所有namespace下的pod </span>
+</span></span><span class="line"><span class="cl">kubectl get pods -A
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#创建命名空间 </span>
+</span></span><span class="line"><span class="cl">kubectl create namespace mynamespace
+</span></span></code></pre></div><h4 id="222-yaml方式管理namespace">2.2.2 yaml方式管理namespace</h4>
+<p>新建一个名为 my-namespace.yaml 的 YAML 文件，并写入下列内容：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Namespace</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">mynamespace</span><span class="w">
+</span></span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="c1">#创建命名空间 </span>
+</span></span><span class="line"><span class="cl">kubectl apply -f my-namespace.yaml
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#删除命名空间</span>
+</span></span><span class="line"><span class="cl">kubectl delete -f my-namespace.yaml
+</span></span></code></pre></div><h3 id="23-pod">2.3 Pod</h3>
+<p><a class="link" href="https://kubernetes.io/zh-cn/docs/concepts/workloads/pods/"  target="_blank" rel="noopener"
+    >Pod </a>是可以在 <strong>Kubernetes</strong> 中创建和管理的、最小的可部署的计算单元。Pod是一组（一个或多个）容器； 这些容器共享存储、网络、以及怎样运行这些容器的声明。</p>
+<h4 id="231-命令管理pod">2.3.1 命令管理Pod</h4>
+<p>我们创建一个pod，然后就可以看到在默认default分组下，创建了一个pod。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 ~<span class="o">]</span><span class="c1"># kubectl run mynginx --image=nginx:1.14.2</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 ~<span class="o">]</span><span class="c1"># kubectl get pod -A</span>
+</span></span><span class="line"><span class="cl">NAMESPACE     NAME                                       READY   STATUS    RESTARTS   AGE
+</span></span><span class="line"><span class="cl">default       mynginx                                    1/1     Running   <span class="m">0</span>          24m
+</span></span><span class="line"><span class="cl">kube-system   calico-kube-controllers-577f77cb5c-c9gfs   1/1     Running   <span class="m">0</span>          4h41m
+</span></span><span class="line"><span class="cl">kube-system   calico-node-69q7f                          1/1     Running   <span class="m">0</span>          3h38m
+</span></span><span class="line"><span class="cl">kube-system   calico-node-ctvjl                          1/1     Running   <span class="m">0</span>          3h37m
+</span></span><span class="line"><span class="cl">kube-system   calico-node-dhz78                          1/1     Running   <span class="m">0</span>          4h5m
+</span></span><span class="line"><span class="cl">kube-system   coredns-5897cd56c4-4b4vd                   1/1     Running   <span class="m">0</span>          4h45m
+</span></span><span class="line"><span class="cl">kube-system   coredns-5897cd56c4-8xz7t                   1/1     Running   <span class="m">0</span>          4h45m
+</span></span><span class="line"><span class="cl">kube-system   etcd-hadoop1                               1/1     Running   <span class="m">3</span>          4h46m
+</span></span><span class="line"><span class="cl">kube-system   kube-apiserver-hadoop1                     1/1     Running   <span class="m">3</span>          4h46m
+</span></span><span class="line"><span class="cl">kube-system   kube-controller-manager-hadoop1            1/1     Running   <span class="m">3</span>          4h46m
+</span></span><span class="line"><span class="cl">kube-system   kube-proxy-6dk5b                           1/1     Running   <span class="m">4</span>          4h45m
+</span></span><span class="line"><span class="cl">kube-system   kube-proxy-74t2h                           1/1     Running   <span class="m">0</span>          3h37m
+</span></span><span class="line"><span class="cl">kube-system   kube-proxy-n7xcn                           1/1     Running   <span class="m">1</span>          3h59m
+</span></span><span class="line"><span class="cl">kube-system   kube-scheduler-hadoop1                     1/1     Running   <span class="m">3</span>          4h46m
+</span></span></code></pre></div><p>我们查看这个pod的详情：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 ~<span class="o">]</span><span class="c1"># kubectl describe pod mynginx</span>
+</span></span><span class="line"><span class="cl">Name:         mynginx
+</span></span><span class="line"><span class="cl">Namespace:    default
+</span></span><span class="line"><span class="cl">Priority:     <span class="m">0</span>
+</span></span><span class="line"><span class="cl">Node:         hadoop3/192.168.40.131
+</span></span><span class="line"><span class="cl">Start Time:   Fri, <span class="m">20</span> Jun <span class="m">2025</span> 17:03:55 +0800
+</span></span><span class="line"><span class="cl">Labels:       <span class="nv">run</span><span class="o">=</span>mynginx
+</span></span><span class="line"><span class="cl">Annotations:  cni.projectcalico.org/containerID: 7983fa0568ece5005fb0b92846044d2be752aa595451bfca96abb531ad7afaec
+</span></span><span class="line"><span class="cl">              cni.projectcalico.org/podIP: 10.244.241.129/32
+</span></span><span class="line"><span class="cl">              cni.projectcalico.org/podIPs: 10.244.241.129/32
+</span></span><span class="line"><span class="cl">Status:       Running
+</span></span><span class="line"><span class="cl">IP:           10.244.241.129
+</span></span><span class="line"><span class="cl">IPs:
+</span></span><span class="line"><span class="cl">  IP:  10.244.241.129
+</span></span><span class="line"><span class="cl">Containers:
+</span></span><span class="line"><span class="cl">  mynginx:
+</span></span><span class="line"><span class="cl">    Container ID:   docker://21b1bfc877f4a26050f09e0911ea68555e0b029b46f2700301d99e324b983fdc
+</span></span><span class="line"><span class="cl">    Image:          nginx:1.14.2
+</span></span><span class="line"><span class="cl">    Image ID:       docker-pullable://nginx@sha256:f7988fb6c02e0ce69257d9bd9cf37ae20a60f1df7563c3a2a6abe24160306b8d
+</span></span><span class="line"><span class="cl">    Port:           &lt;none&gt;
+</span></span><span class="line"><span class="cl">    Host Port:      &lt;none&gt;
+</span></span><span class="line"><span class="cl">    State:          Running
+</span></span><span class="line"><span class="cl">      Started:      Fri, <span class="m">20</span> Jun <span class="m">2025</span> 17:04:14 +0800
+</span></span><span class="line"><span class="cl">    Ready:          True
+</span></span><span class="line"><span class="cl">    Restart Count:  <span class="m">0</span>
+</span></span><span class="line"><span class="cl">    Environment:    &lt;none&gt;
+</span></span><span class="line"><span class="cl">    Mounts:
+</span></span><span class="line"><span class="cl">      /var/run/secrets/kubernetes.io/serviceaccount from default-token-jbpjh <span class="o">(</span>ro<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Conditions:
+</span></span><span class="line"><span class="cl">  Type              Status
+</span></span><span class="line"><span class="cl">  Initialized       True
+</span></span><span class="line"><span class="cl">  Ready             True
+</span></span><span class="line"><span class="cl">  ContainersReady   True
+</span></span><span class="line"><span class="cl">  PodScheduled      True
+</span></span><span class="line"><span class="cl">Volumes:
+</span></span><span class="line"><span class="cl">  default-token-jbpjh:
+</span></span><span class="line"><span class="cl">    Type:        Secret <span class="o">(</span>a volume populated by a Secret<span class="o">)</span>
+</span></span><span class="line"><span class="cl">    SecretName:  default-token-jbpjh
+</span></span><span class="line"><span class="cl">    Optional:    <span class="nb">false</span>
+</span></span><span class="line"><span class="cl">QoS Class:       BestEffort
+</span></span><span class="line"><span class="cl">Node-Selectors:  &lt;none&gt;
+</span></span><span class="line"><span class="cl">Tolerations:     node.kubernetes.io/not-ready:NoExecute <span class="nv">op</span><span class="o">=</span>Exists <span class="k">for</span> 300s
+</span></span><span class="line"><span class="cl">                 node.kubernetes.io/unreachable:NoExecute <span class="nv">op</span><span class="o">=</span>Exists <span class="k">for</span> 300s
+</span></span><span class="line"><span class="cl">Events:
+</span></span><span class="line"><span class="cl">  Type    Reason     Age   From               Message
+</span></span><span class="line"><span class="cl">  ----    ------     ----  ----               -------
+</span></span><span class="line"><span class="cl">  Normal  Scheduled  79s   default-scheduler  Successfully assigned default/mynginx to hadoop3
+</span></span><span class="line"><span class="cl">  Normal  Pulling    77s   kubelet            Pulling image <span class="s2">&#34;nginx:1.14.2&#34;</span>
+</span></span><span class="line"><span class="cl">  Normal  Pulled     62s   kubelet            Successfully pulled image <span class="s2">&#34;nginx:1.14.2&#34;</span> in 15.201785788s
+</span></span><span class="line"><span class="cl">  Normal  Created    60s   kubelet            Created container mynginx
+</span></span><span class="line"><span class="cl">  Normal  Started    60s   kubelet            Started container mynginx
+</span></span></code></pre></div><p>我们可以看到Pod的创建过程。其中的镜像操作其实是docker来完成的。</p>
+<p>可以看到这个nginx的pod,部署到了hadoop3节点。我们访问一下：</p>
+<p><figure 
+	>
+	<a href="/../../images/k8s-02/image-20250620173639260.png" >
+		<img src="/../../images/k8s-02/image-20250620173639260.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20250620173639260">
+	</a>
+	
+	<figcaption>image-20250620173639260</figcaption>
+	
+</figure></p>
+<p>其它Pod操作命令：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="c1"># 获取pod的信息，默认查询default命名空间下</span>
+</span></span><span class="line"><span class="cl">kubectl get pod
+</span></span><span class="line"><span class="cl"><span class="c1">#-owide 表示更详细的显示信息 -n 命名空间 查询对应namespace下的pod</span>
+</span></span><span class="line"><span class="cl">kubectl get pod -owide
+</span></span><span class="line"><span class="cl">kubectl get pod -owide -n default
+</span></span><span class="line"><span class="cl"><span class="c1">#查看pod的详情 6</span>
+</span></span><span class="line"><span class="cl">kubectl describe pod &lt;pod-name&gt; 
+</span></span><span class="line"><span class="cl"><span class="c1"># 查看Pod的运行日志 </span>
+</span></span><span class="line"><span class="cl">kubectl logs &lt;pod-name&gt; 
+</span></span><span class="line"><span class="cl"><span class="c1"># 删除pod </span>
+</span></span><span class="line"><span class="cl">kubectl delete pod &lt;pod-name&gt;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 监听pod </span>
+</span></span><span class="line"><span class="cl">kubectl get pod -w
+</span></span></code></pre></div><h4 id="231-yaml方式管理pod">2.3.1 yaml方式管理pod</h4>
+<p>新建一个名为 my-pod.yaml 的 YAML 文件，并写入下列内容，在一个pod中同时安装2个容器：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Pod</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">labels</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l">mypod</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">mypod</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">containers</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">nginx:1.14.2</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">nginx</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">tomcat:9.0.55</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">tomcat</span><span class="w">
+</span></span></span></code></pre></div><p>命令：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="c1">#创建pod</span>
+</span></span><span class="line"><span class="cl"> kubectl apply -f my-pod.yaml
+</span></span><span class="line"><span class="cl"> 
+</span></span><span class="line"><span class="cl"><span class="c1">#查看其中一个日志，这里选择tomcat</span>
+</span></span><span class="line"><span class="cl"> kubectl logs  mypod tomcat
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#进入pod中的某个容器</span>
+</span></span><span class="line"><span class="cl">kubectl <span class="nb">exec</span> -it   mypod  -c tomcat -- sh
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#删除pod</span>
+</span></span><span class="line"><span class="cl">kubectl delete -f  my-pod.yaml
+</span></span></code></pre></div><p>未删除前，我们查看下容器是否正常：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 k8s<span class="o">]</span><span class="c1"># kubectl get pod -owide</span>
+</span></span><span class="line"><span class="cl">NAME    READY   STATUS    RESTARTS   AGE   IP               NODE      NOMINATED NODE   READINESS GATES
+</span></span><span class="line"><span class="cl">mypod   2/2     Running   <span class="m">0</span>          38s   10.244.241.132   hadoop3   &lt;none&gt;           &lt;none&gt;
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 k8s<span class="o">]</span><span class="c1"># curl 10.244.241.132</span>
+</span></span><span class="line"><span class="cl">&lt;!DOCTYPE html&gt;
+</span></span><span class="line"><span class="cl">&lt;html&gt;
+</span></span><span class="line"><span class="cl">&lt;head&gt;
+</span></span><span class="line"><span class="cl">&lt;title&gt;Welcome to nginx!&lt;/title&gt;
+</span></span><span class="line"><span class="cl">&lt;style&gt;
+</span></span><span class="line"><span class="cl">    body <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        width: 35em<span class="p">;</span>
+</span></span><span class="line"><span class="cl">        margin: <span class="m">0</span> auto<span class="p">;</span>
+</span></span><span class="line"><span class="cl">        font-family: Tahoma, Verdana, Arial, sans-serif<span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">&lt;/style&gt;
+</span></span><span class="line"><span class="cl">&lt;/head&gt;
+</span></span><span class="line"><span class="cl">&lt;body&gt;
+</span></span><span class="line"><span class="cl">&lt;h1&gt;Welcome to nginx!&lt;/h1&gt;
+</span></span><span class="line"><span class="cl">&lt;p&gt;If you see this page, the nginx web server is successfully installed and
+</span></span><span class="line"><span class="cl">working. Further configuration is required.&lt;/p&gt;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">&lt;p&gt;For online documentation and support please refer to
+</span></span><span class="line"><span class="cl">&lt;a <span class="nv">href</span><span class="o">=</span><span class="s2">&#34;http://nginx.org/&#34;</span>&gt;nginx.org&lt;/a&gt;.&lt;br/&gt;
+</span></span><span class="line"><span class="cl">Commercial support is available at
+</span></span><span class="line"><span class="cl">&lt;a <span class="nv">href</span><span class="o">=</span><span class="s2">&#34;http://nginx.com/&#34;</span>&gt;nginx.com&lt;/a&gt;.&lt;/p&gt;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">&lt;p&gt;&lt;em&gt;Thank you <span class="k">for</span> using nginx.&lt;/em&gt;&lt;/p&gt;
+</span></span><span class="line"><span class="cl">&lt;/body&gt;
+</span></span><span class="line"><span class="cl">&lt;/html&gt;
+</span></span></code></pre></div><h3 id="24-deployment">2.4 Deployment</h3>
+<p><a class="link" href="https://kubernetes.io/zh-cn/docs/concepts/workloads/controllers/deployment/"  target="_blank" rel="noopener"
+    >Deployments | Kubernetes</a></p>
+<p>​		前面已经介绍过了Pod,但是有个问题，直接创建的 Pod 如果崩溃或被删除，K8S并不会创建新的Pod ，导致服务中断。如果想更新 Pod 需要手动删除旧 Pod、创建新 Pod，过程繁琐且易出错。更新 Pod 后，无法回退到旧版本。此时就需要用到Deployment了。</p>
+<p>​		Deployment负责创建和更新应用程序的实例，<strong>使Pod拥有多副本，自愈，扩缩容等能力</strong>。创建Deployment后Kubernetes Master 将应用程序实例调度到集群中的各个节点上。如果托管实例的节点关闭或被删除，Deployment控制器会将该实例替换为群集中另一个节点上的实例。这提供了一种自我修复机制来解决机器故障维护问题。</p>
+<h4 id="241-命令管理deployment">2.4.1 命令管理Deployment</h4>
+<p>我们创建一个Deployment,查看它的信息，可以看到，</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">kubectl create deployment my-tomcat --image<span class="o">=</span>tomcat:9.0.55
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">kubectl get deployment
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">kubectl describe deployment my-tomcat
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">kubectl get pod -owide
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#删除</span>
+</span></span><span class="line"><span class="cl">kubectl delete deployment my-tomcat 
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/k8s-02/image-20250621200244330.png" >
+		<img src="/../../images/k8s-02/image-20250621200244330.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20250621200244330">
+	</a>
+	
+	<figcaption>image-20250621200244330</figcaption>
+	
+</figure></p>
+<h4 id="242-自愈能力">2.4.2 自愈能力</h4>
+<p>我们添加一个监听，然后删除刚刚添加的pod。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="c1">#查看pod信息，-w意思是一直等待观察pod信息的变动</span>
+</span></span><span class="line"><span class="cl">kubectl get pod -w
+</span></span><span class="line"><span class="cl"><span class="c1">#开另外一个命令窗口执行如下命令</span>
+</span></span><span class="line"><span class="cl">kubectl delete pod my-tomcat-6d6b57c8c8-lvsfq 
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/k8s-02/image-20250621200951138.png" >
+		<img src="/../../images/k8s-02/image-20250621200951138.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20250621200951138">
+	</a>
+	
+	<figcaption>image-20250621200951138</figcaption>
+	
+</figure></p>
+<p>我们可以看到之前那个tomcat的pod被销毁，但是又重新启动了一个新的tomcat pod，这是k8s的服务<strong>自愈功能</strong>。</p>
+<h4 id="243-多副本">2.4.3 多副本</h4>
+<p>命令行方式：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 ~<span class="o">]</span><span class="c1"># kubectl create deployment my-tomcat --image=tomcat:9.0.55 --replicas=3</span>
+</span></span><span class="line"><span class="cl">deployment.apps/my-tomcat created
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 ~<span class="o">]</span><span class="c1"># kubectl get pod -w</span>
+</span></span><span class="line"><span class="cl">NAME                         READY   STATUS    RESTARTS   AGE
+</span></span><span class="line"><span class="cl">my-tomcat-6d6b57c8c8-4n8mn   1/1     Running   <span class="m">0</span>          6s
+</span></span><span class="line"><span class="cl">my-tomcat-6d6b57c8c8-wgrbp   1/1     Running   <span class="m">0</span>          6s
+</span></span><span class="line"><span class="cl">my-tomcat-6d6b57c8c8-zzfvx   1/1     Running   <span class="m">0</span>          6s
+</span></span></code></pre></div><p>yaml方式：</p>
+<p>新建一个名为 my-deployment.yaml 的 YAML 文件，并写入下列内容：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">apps/v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Deployment</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">labels</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l">my-tomcat</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">my-tomcat</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">replicas</span><span class="p">:</span><span class="w"> </span><span class="m">3</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">selector</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">matchLabels</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l">my-tomcat</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">template</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">labels</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l">my-tomcat</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">containers</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">tomcat:9.0.55</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">tomcat   </span><span class="w">
+</span></span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 k8s<span class="o">]</span><span class="c1"># kubectl apply -f my-deployment.yaml</span>
+</span></span><span class="line"><span class="cl">deployment.apps/my-tomcat created
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 k8s<span class="o">]</span><span class="c1"># kubectl get pod -owide</span>
+</span></span><span class="line"><span class="cl">NAME                         READY   STATUS              RESTARTS   AGE   IP       NODE      NOMINATED NODE   READINESS GATES
+</span></span><span class="line"><span class="cl">my-tomcat-6d6b57c8c8-6q2wh   0/1     ContainerCreating   <span class="m">0</span>          5s    &lt;none&gt;   hadoop3   &lt;none&gt;           &lt;none&gt;
+</span></span><span class="line"><span class="cl">my-tomcat-6d6b57c8c8-fmjhw   0/1     ContainerCreating   <span class="m">0</span>          5s    &lt;none&gt;   hadoop3   &lt;none&gt;           &lt;none&gt;
+</span></span><span class="line"><span class="cl">my-tomcat-6d6b57c8c8-mvprg   0/1     ContainerCreating   <span class="m">0</span>          5s    &lt;none&gt;   hadoop3   &lt;none&gt;           &lt;none&gt;
+</span></span></code></pre></div><h4 id="244-扩缩容">2.4.4 扩缩容</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="c1"># 扩容到5个pod</span>
+</span></span><span class="line"><span class="cl">kubectl scale --replicas<span class="o">=</span><span class="m">5</span> deployment my-tomcat
+</span></span><span class="line"><span class="cl"><span class="c1"># 缩到2个pod</span>
+</span></span><span class="line"><span class="cl">kubectl scale --replicas<span class="o">=</span><span class="m">2</span> deployment my-tomcat
+</span></span><span class="line"><span class="cl"><span class="c1">#修改 replicas</span>
+</span></span><span class="line"><span class="cl">kubectl edit deployment my-tomcat
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/k8s-02/image-20250621204024203.png" >
+		<img src="/../../images/k8s-02/image-20250621204024203.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20250621204024203">
+	</a>
+	
+	<figcaption>image-20250621204024203</figcaption>
+	
+</figure></p>
+<p>逐步变为2个</p>
+<p><figure 
+	>
+	<a href="/../../images/k8s-02/image-20250621204111007.png" >
+		<img src="/../../images/k8s-02/image-20250621204111007.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20250621204111007">
+	</a>
+	
+	<figcaption>image-20250621204111007</figcaption>
+	
+</figure></p>
+<h4 id="245-滚动升级与回滚">2.4.5 滚动升级与回滚</h4>
+<p><strong>滚动升级</strong></p>
+<p>对my-tomcat这个deployment进行滚动升级和回滚，将tomcat版本由tomcat:9.0.55升级到tomcat:10.1.11，再回滚到tomcat:9.0.55</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 k8s<span class="o">]</span><span class="c1"># kubectl set image deployment my-tomcat tomcat=tomcat:10.1.11 --record</span>
+</span></span><span class="line"><span class="cl">deployment.apps/my-tomcat image updated
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 k8s<span class="o">]</span><span class="c1"># kubectl get pod -owide</span>
+</span></span><span class="line"><span class="cl">NAME                         READY   STATUS    RESTARTS   AGE   IP             NODE      NOMINATED NODE   READINESS GATES
+</span></span><span class="line"><span class="cl">my-tomcat-85c5c8f685-29t2f   1/1     Running   <span class="m">0</span>          62s   172.16.167.1   hadoop2   &lt;none&gt;           &lt;none&gt;
+</span></span><span class="line"><span class="cl">my-tomcat-85c5c8f685-j5cmz   1/1     Running   <span class="m">0</span>          17s   172.16.167.2   hadoop2   &lt;none&gt;           &lt;none&gt;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 k8s<span class="o">]</span><span class="c1"># kubectl describe pod my-tomcat-85c5c8f685-29t2f</span>
+</span></span><span class="line"><span class="cl">Name:         my-tomcat-85c5c8f685-29t2f
+</span></span><span class="line"><span class="cl">Namespace:    default
+</span></span><span class="line"><span class="cl">Priority:     <span class="m">0</span>
+</span></span><span class="line"><span class="cl">Node:         hadoop2/192.168.40.130
+</span></span><span class="line"><span class="cl">Start Time:   Sat, <span class="m">21</span> Jun <span class="m">2025</span> 20:42:41 +0800
+</span></span><span class="line"><span class="cl">Labels:       <span class="nv">app</span><span class="o">=</span>my-tomcat
+</span></span><span class="line"><span class="cl">              pod-template-hash<span class="o">=</span>85c5c8f685
+</span></span><span class="line"><span class="cl">Annotations:  cni.projectcalico.org/containerID: 676808c83a24c9877d88d00f66017340e2f5fdb0b2a514d2c1e39be3a5650f6f
+</span></span><span class="line"><span class="cl">              cni.projectcalico.org/podIP: 172.16.167.1/32
+</span></span><span class="line"><span class="cl">              cni.projectcalico.org/podIPs: 172.16.167.1/32
+</span></span><span class="line"><span class="cl">Status:       Running
+</span></span><span class="line"><span class="cl">IP:           172.16.167.1
+</span></span><span class="line"><span class="cl">IPs:
+</span></span><span class="line"><span class="cl">  IP:           172.16.167.1
+</span></span><span class="line"><span class="cl">Controlled By:  ReplicaSet/my-tomcat-85c5c8f685
+</span></span><span class="line"><span class="cl">Containers:
+</span></span><span class="line"><span class="cl">  tomcat:
+</span></span><span class="line"><span class="cl">    Container ID:   docker://c6687f5471c13c6ba93f66a4ca85203b3573eaa7871347a90b8ca4400d697ae0
+</span></span><span class="line"><span class="cl">    Image:          tomcat:10.1.11
+</span></span></code></pre></div><p><strong>版本回滚</strong></p>
+<p>查看历史版本：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 k8s<span class="o">]</span><span class="c1"># kubectl rollout history deploy my-tomcat</span>
+</span></span><span class="line"><span class="cl">deployment.apps/my-tomcat
+</span></span><span class="line"><span class="cl">REVISION  CHANGE-CAUSE
+</span></span><span class="line"><span class="cl"><span class="m">1</span>         &lt;none&gt;
+</span></span><span class="line"><span class="cl"><span class="m">2</span>         kubectl <span class="nb">set</span> image deployment my-tomcat <span class="nv">tomcat</span><span class="o">=</span>tomcat:10.1.11 --record<span class="o">=</span><span class="nb">true</span>
+</span></span></code></pre></div><p>回滚到上一个版本或者指定版本：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">kubectl rollout undo deployment my-tomcat     <span class="c1">#--to-revision 参数可以指定回退的版本</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#回滚(回到指定版本)</span>
+</span></span><span class="line"><span class="cl">kubectl rollout undo deployment/my-tomcat --to-revision<span class="o">=</span><span class="m">1</span>
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/k8s-02/image-20250621210042767.png" >
+		<img src="/../../images/k8s-02/image-20250621210042767.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20250621210042767">
+	</a>
+	
+	<figcaption>image-20250621210042767</figcaption>
+	
+</figure></p>
+<p>可以看到正常回滚了。</p>
+<h3 id="25-service">2.5 Service</h3>
+<p><a class="link" href="https://kubernetes.io/zh-cn/docs/concepts/services-networking/service/"  target="_blank" rel="noopener"
+    >服务（Service） | Kubernetes</a></p>
+<p>前面我们介绍了Pod、Deployment，但是有一个问题，尽管每个Pod 都有一个唯一的IP地址，但这些IP不会暴露在群集外部。无法在宿主机外部访问。此时就要用到Service了。</p>
+<p>Service是一个抽象层，它定义了一组Pod的逻辑集，并为这些Pod支持外部流量暴露、负载均衡和服务发现。</p>
+<h4 id="251-type类型">2.5.1 type类型</h4>
+<p>Service允许您的应用程序接收流量。Service也可以用在ServiceSpec标记type的方式暴露，type类型如下：</p>
+<ul>
+<li>
+<p>ClusterIP（默认）：在集群的内部IP上公开Service。这种类型使得Service只能从集群内访问。</p>
+<p>适用于：内部服务通信（如微服务间调用）</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="c">#命令</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="l">kubectl expose deploy/my-app --port=80 --target-port=8080 --type=ClusterIP</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c">#yaml</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Service</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">my-service</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">ClusterIP</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">selector</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l">my-app</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">ports</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l">TCP</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">       </span><span class="c"># Service 暴露的端口</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">targetPort</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w"> </span><span class="c"># Pod 的端口</span><span class="w">
+</span></span></span></code></pre></div></li>
+<li>
+<p>NodePort：使用NAT在集群中每个选定Node的相同端口上公开Service。使用 <strong><!-- raw HTML omitted -->:<!-- raw HTML omitted --></strong> 从集群外部访问Service。是ClusterIP的超集。</p>
+<p>适用于：需要从集群外部访问（开发测试环境）</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="c">#命令</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="l">kubectl expose deploy/my-app --port=80 --target-port=8080 --type=NodePort</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c">#yaml</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">NodePort</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">ports</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">targetPort</span><span class="p">:</span><span class="w"> </span><span class="m">8080</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">nodePort</span><span class="p">:</span><span class="w"> </span><span class="m">31000</span><span class="w"> </span><span class="c"># 可选，不指定则随机分配</span><span class="w">
+</span></span></span></code></pre></div></li>
+<li>
+<p>LoadBalancer：通过云提供商的负载均衡器（如 AWS ALB、GCP LB）暴露服务，自动分配外部 IP。</p>
+<p>适用于：生产环境对外暴露服务（公有云场景）</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="l">kubectl expose deploy/my-app --port=80 --target-port=8080 --type=LoadBalancer</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">LoadBalancer</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">ports</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">targetPort</span><span class="p">:</span><span class="w"> </span><span class="m">8080</span><span class="w">
+</span></span></span></code></pre></div></li>
+<li>
+<p>ExternalName：将 Service 映射到外部 DNS 名称（如数据库域名），不创建代理或端口映射。</p>
+<p>适用于：集成集群外服务（如外部数据库、API）</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="l">kubectl create svc externalname my-db --external-name=db.example.com</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">ExternalName</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">externalName</span><span class="p">:</span><span class="w"> </span><span class="l">my-database.example.com</span><span class="w">
+</span></span></span></code></pre></div></li>
+</ul>
+<h4 id="252-命令创建">2.5.2 命令创建</h4>
+<p>我们在前面的Deployment基础上进行实验：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 ~<span class="o">]</span><span class="c1"># kubectl create deployment my-tomcat --image=tomcat:9.0.55 --replicas=3</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 ~<span class="o">]</span><span class="c1"># kubectl get pod -owide</span>
+</span></span><span class="line"><span class="cl">NAME                         READY   STATUS    RESTARTS   AGE   IP               NODE      NOMINATED NODE   READINESS GATES
+</span></span><span class="line"><span class="cl">my-tomcat-6d6b57c8c8-2mkzc   1/1     Running   <span class="m">0</span>          35s   10.244.241.131   hadoop3   &lt;none&gt;           &lt;none&gt;
+</span></span><span class="line"><span class="cl">my-tomcat-6d6b57c8c8-gchp7   1/1     Running   <span class="m">0</span>          35s   10.244.241.130   hadoop3   &lt;none&gt;           &lt;none&gt;
+</span></span><span class="line"><span class="cl">my-tomcat-6d6b57c8c8-wlll6   1/1     Running   <span class="m">0</span>          36s   10.244.241.129   hadoop3   &lt;none&gt;           &lt;none&gt;
+</span></span></code></pre></div><p>我们为这个deployment添加service:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 ~<span class="o">]</span><span class="c1"># kubectl expose deployment my-tomcat --name=tomcat --port=8080 --type=NodePort</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#查看service信息，port信息里冒号后面的端口号就是对集群外暴露的访问接口</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 ~<span class="o">]</span><span class="c1"># kubectl get svc -o wide</span>
+</span></span><span class="line"><span class="cl">NAME         TYPE        CLUSTER-IP     EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>          AGE   SELECTOR
+</span></span><span class="line"><span class="cl">kubernetes   ClusterIP   10.96.0.1      &lt;none&gt;        443/TCP          4h    &lt;none&gt;
+</span></span><span class="line"><span class="cl">tomcat       NodePort    10.96.147.89   &lt;none&gt;        8080:31461/TCP   8s    <span class="nv">app</span><span class="o">=</span>my-tomcat
+</span></span></code></pre></div><p>此时通过宿主机访问，可以看到返回，404是应为tomcat:9.0.55版本的webapp目录下没有静态资源。</p>
+<p><figure 
+	>
+	<a href="/../../images/k8s-02/image-20250622161027696.png" >
+		<img src="/../../images/k8s-02/image-20250622161027696.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20250622161027696">
+	</a>
+	
+	<figcaption>image-20250622161027696</figcaption>
+	
+</figure></p>
+<p>tomcat版本太高返回404的解决办法：进入tomcat容器，把 webapps 目录删除，再把 webapps.dist 重命名为 webapps 即可。</p>
+<p>2.5.3 yaml管理</p>
+<p>我们先删除后再使用yaml方式创建</p>
+<pre tabindex="0"><code>[root@hadoop1 ~]# kubectl delete svc tomcat
+</code></pre><p>新疆my-svr.yaml文件：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Service</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">labels</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l">my-tomcat</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">my-tomcat</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">ports</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="m">8080</span><span class="w">  </span><span class="c"># service的虚拟ip对应的端口，在集群内网机器可以访问用service的虚拟ip加该端口号访问服务</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">nodePort</span><span class="p">:</span><span class="w"> </span><span class="m">30001</span><span class="w">   </span><span class="c"># service在宿主机上映射的外网访问端口，端口范围必须在30000-32767之间</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l">TCP</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">targetPort</span><span class="p">:</span><span class="w"> </span><span class="m">8080</span><span class="w">  </span><span class="c"># pod暴露的端口，一般与pod内部容器暴露的端口一致</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">selector</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l">my-tomcat</span><span class="w"> </span><span class="c">#对应deployment名称</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">NodePort</span><span class="w">
+</span></span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">kubectl apply -f my-svr.yaml
+</span></span></code></pre></div><p>可以看到效果一样。<figure 
+	>
+	<a href="/../../images/k8s-02/image-20250622162048409.png" >
+		<img src="/../../images/k8s-02/image-20250622162048409.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20250622162048409">
+	</a>
+	
+	<figcaption>image-20250622162048409</figcaption>
+	
+</figure></p>
+<h3 id="26-ingress">2.6 Ingress</h3>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/k8s/">k8s</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/k8s-%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">k8s 环境安装</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#一k8s-概念">一、k8s 概念</a>
+      <ol>
+        <li><a href="#11-k8s-核心架构">1.1 K8S 核心架构</a></li>
+        <li><a href="#12-k8s核心特性">1.2 K8S核心特性</a></li>
+      </ol>
+    </li>
+    <li><a href="#二k8s-使用">二、k8s 使用</a>
+      <ol>
+        <li><a href="#21-kubectl">2.1 kubectl</a></li>
+        <li><a href="#22--namespace">2.2  Namespace</a>
+          <ol>
+            <li><a href="#221-命令管理namespace">2.2.1 命令管理namespace</a></li>
+            <li><a href="#222-yaml方式管理namespace">2.2.2 yaml方式管理namespace</a></li>
+          </ol>
+        </li>
+        <li><a href="#23-pod">2.3 Pod</a>
+          <ol>
+            <li><a href="#231-命令管理pod">2.3.1 命令管理Pod</a></li>
+            <li><a href="#231-yaml方式管理pod">2.3.1 yaml方式管理pod</a></li>
+          </ol>
+        </li>
+        <li><a href="#24-deployment">2.4 Deployment</a>
+          <ol>
+            <li><a href="#241-命令管理deployment">2.4.1 命令管理Deployment</a></li>
+            <li><a href="#242-自愈能力">2.4.2 自愈能力</a></li>
+            <li><a href="#243-多副本">2.4.3 多副本</a></li>
+            <li><a href="#244-扩缩容">2.4.4 扩缩容</a></li>
+            <li><a href="#245-滚动升级与回滚">2.4.5 滚动升级与回滚</a></li>
+          </ol>
+        </li>
+        <li><a href="#25-service">2.5 Service</a>
+          <ol>
+            <li><a href="#251-type类型">2.5.1 type类型</a></li>
+            <li><a href="#252-命令创建">2.5.2 命令创建</a></li>
+          </ol>
+        </li>
+        <li><a href="#26-ingress">2.6 Ingress</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

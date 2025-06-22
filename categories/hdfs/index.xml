@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>HDFS on 十一爸爸的博客</title>
+    <link>https://garnettboy.gitee.io/categories/hdfs/</link>
+    <description>Recent content in HDFS on 十一爸爸的博客</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Tue, 05 Sep 2023 16:36:40 +0000</lastBuildDate><atom:link href="https://garnettboy.gitee.io/categories/hdfs/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>（Hadoop21）HDFS 安全模式、慢磁盘监控、小文件归档、解归档、集群数据迁移</title>
+      <link>https://garnettboy.gitee.io/p/hadoop21hdfs-%E5%AE%89%E5%85%A8%E6%A8%A1%E5%BC%8F%E6%85%A2%E7%A3%81%E7%9B%98%E7%9B%91%E6%8E%A7%E5%B0%8F%E6%96%87%E4%BB%B6%E5%BD%92%E6%A1%A3%E8%A7%A3%E5%BD%92%E6%A1%A3%E9%9B%86%E7%BE%A4%E6%95%B0%E6%8D%AE%E8%BF%81%E7%A7%BB/</link>
+      <pubDate>Tue, 05 Sep 2023 16:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/hadoop21hdfs-%E5%AE%89%E5%85%A8%E6%A8%A1%E5%BC%8F%E6%85%A2%E7%A3%81%E7%9B%98%E7%9B%91%E6%8E%A7%E5%B0%8F%E6%96%87%E4%BB%B6%E5%BD%92%E6%A1%A3%E8%A7%A3%E5%BD%92%E6%A1%A3%E9%9B%86%E7%BE%A4%E6%95%B0%E6%8D%AE%E8%BF%81%E7%A7%BB/</guid>
+      <description>一、安全模式 1.1 安全模式概念 ​	**安全模式：**文件系统只接受读数据请求，而不接受删除、修改等变更请求
+（1）进入安全模式场景
+​	➢ NameNode 在加载镜像文件和编辑日志期间处于安全模式；
+​	➢ NameNode 再接收 DataNode 注册时，处于安全模式。
+（2）退出安全模式条件
+​	➢ dfs.namenode.safemode.min.datanodes:最小可用 datanode 数量，默认 0
+​	➢ dfs.namenode.safemode.threshold-pct:副本数达到最小要求的 block 占系统总 block 数的百分比，默认 0.999f。（只允许丢一个块）
+​	➢ dfs.namenode.safemode.extension:稳定时间，默认值 30000 毫秒，即 30 秒
+所以在集群启动后的30秒内，无法进行删除、修改等操作，等待30秒后，会自动解除。
+image-202309061542046231.2 安全模式操作命令 （1）bin/hdfs dfsadmin -safemode get （功能描述：查看安全模式状态）（2）bin/hdfs dfsadmin -safemode enter （功能描述：进入安全模式状态）（3）bin/hdfs dfsadmin -safemode leave（功能描述：离开安全模式状态）（4）bin/hdfs dfsadmin -safemode wait （功能描述：等待安全模式状态） 1.3 安全模式应用 1.3.1 磁盘修复 如果数据块损坏，集群重启或者集群状态检查时，会进入安全模式，这种情况下集群只可读，影响操作使用。
+image-20230906154818808此时执行命令，离开安全模式，那么集群会显示损坏的数据块信息：
+$ hdfs dfsadmin -safemode leaveSafe mode is OFF image-20230906155109584我们按照提示的信息，将损坏的数据块文件删除，集群就可以恢复正常。</description>
+    </item>
+    
+    <item>
+      <title>（Hadoop20）HDFS 冷热数据分离（异构存储）</title>
+      <link>https://garnettboy.gitee.io/p/hadoop20hdfs-%E5%86%B7%E7%83%AD%E6%95%B0%E6%8D%AE%E5%88%86%E7%A6%BB%E5%BC%82%E6%9E%84%E5%AD%98%E5%82%A8/</link>
+      <pubDate>Tue, 05 Sep 2023 10:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/hadoop20hdfs-%E5%86%B7%E7%83%AD%E6%95%B0%E6%8D%AE%E5%88%86%E7%A6%BB%E5%BC%82%E6%9E%84%E5%AD%98%E5%82%A8/</guid>
+      <description>一、冷热数据分离 冷热数据分离：不同的数据，存储在不同类型的硬盘中，达到最佳性能。比如有些我们不常用的数据，可以找一个普通磁盘存储，而经常使用的则可以存放在固态硬盘中。
+1.1 HDFS的存储类型 RAM_DISK：（内存镜像文件系统） SSD：（SSD固态硬盘） DISK：（普通磁盘，在HDFS中，如果没有主动声明数据目录存储类型默认都是DISK） ARCHIVE：（没有特指哪种存储介质，主要的指的是计算能力比较弱而存储密度比较高的存储介质，用来解决数据量的容量扩增的问题，一般用于归档） 1.2 HDFS的存储策略 策略ID 策略名称 副本分布 说明 15 Lazy_Persist RAM_DISK:1，DISK:n-1 一个副本保存在内存RAM_DISK中，其余副本保存在磁盘中。 12 All_SSD SSD:n 所有副本都保存在SSD中。 10 One_SSD SSD:1，DISK:n-1 一个副本保存在SSD中，其余副本保存在磁盘中。 7 Hot(default) DISK:n 所有副本保存在磁盘中，这也是默认的存储策略。 5 Warm DSIK:1，ARCHIVE:n-1 一个副本保存在磁盘上，其余副本保存在归档存储上。 2 Cold ARCHIVE:n 所有副本都保存在归档存储上。 1 Provided Provided:1,DISK:n-1 用于在HDFS之外存储数据 策略往往和存储介质相匹配，从Lazy_Persist到Cold，设备的访问速度从快到慢。
+1.3 异构存储 Shell 操作 （1）查看当前有哪些存储策略可以用,
+[admin@hadoop1 hadoop-3.1.3]$ hdfs storagepolicies -listPolicies Block Storage Policies: BlockStoragePolicy{PROVIDED:1, storageTypes=[PROVIDED, DISK], creationFallbacks=[PROVIDED, DISK], replicationFallbacks=[PROVIDED, DISK]} BlockStoragePolicy{COLD:2, storageTypes=[ARCHIVE], creationFallbacks=[], replicationFallbacks=[]} BlockStoragePolicy{WARM:5, storageTypes=[DISK, ARCHIVE], creationFallbacks=[DISK, ARCHIVE], replicationFallbacks=[DISK, ARCHIVE]} BlockStoragePolicy{HOT:7, storageTypes=[DISK], creationFallbacks=[], replicationFallbacks=[ARCHIVE]} BlockStoragePolicy{ONE_SSD:10, storageTypes=[SSD, DISK], creationFallbacks=[SSD, DISK], replicationFallbacks=[SSD, DISK]} BlockStoragePolicy{ALL_SSD:12, storageTypes=[SSD], creationFallbacks=[DISK], replicationFallbacks=[DISK]} BlockStoragePolicy{LAZY_PERSIST:15, storageTypes=[RAM_DISK, DISK], creationFallbacks=[DISK], replicationFallbacks=[DISK]} （2）为指定路径（数据存储目录）设置指定的存储策略</description>
+    </item>
+    
+    <item>
+      <title>（Hadoop19）HDFS 纠删码</title>
+      <link>https://garnettboy.gitee.io/p/hadoop19hdfs-%E7%BA%A0%E5%88%A0%E7%A0%81/</link>
+      <pubDate>Mon, 04 Sep 2023 10:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/hadoop19hdfs-%E7%BA%A0%E5%88%A0%E7%A0%81/</guid>
+      <description>一、纠删码 1.1 纠删码介绍 HDFS 默认情况下，一个文件有 3 个副本，这样提高了数据的可靠性，但也带来了 2 倍的冗余开销。Hadoop3.x 引入了纠删码，采用计算的方式，可以节省约 50％左右的存储空间。
+例如:一个300M的文件，一式三份，共计需要900M存储空间，如果使用纠偏码，以RS-3-2-1024k为例，代表该文件可以分为3个100M的数据单元，2个100M的校验单元（实际上大小并不是这么计算的，这里只是为了简化理解）分别部署在5个节点上，只要这 5 个单元中，只要有任意的 3 个单元存在（不管是数据单元还是校验单元，只要剩余总数大于3），就可以得到原始数据。每个单元的大小是 1024k=1024*1024=1048576。这样最终只需要500M空间，以实现节约存储空间的目的。
+image-202309051548074771.2 纠删码策略分类 查看当前支持的纠删码策略：
+[admin@hadoop1 hadoop-3.1.3]$ hdfs ec -listPolicies Erasure Coding Policies: ErasureCodingPolicy=[Name=RS-10-4-1024k, Schema=[ECSchema=[Codec=rs, numDataUnits=10, numParityUnits=4]], CellSize=1048576, Id=5], State=DISABLED ErasureCodingPolicy=[Name=RS-3-2-1024k, Schema=[ECSchema=[Codec=rs, numDataUnits=3, numParityUnits=2]], CellSize=1048576, Id=2], State=DISABLED ErasureCodingPolicy=[Name=RS-6-3-1024k, Schema=[ECSchema=[Codec=rs, numDataUnits=6, numParityUnits=3]], CellSize=1048576, Id=1], State=ENABLED ErasureCodingPolicy=[Name=RS-LEGACY-6-3-1024k, Schema=[ECSchema=[Codec=rs-legacy, numDataUnits=6, numParityUnits=3]], CellSize=1048576, Id=3], State=DISABLED ErasureCodingPolicy=[Name=XOR-2-1-1024k, Schema=[ECSchema=[Codec=xor, numDataUnits=2, numParityUnits=1]], CellSize=1048576, Id=4], State=DISABLED 可以看到默认开启（ENABLED）的纠偏码是 RS-6-3-1024k 。以下是各纠偏码的介绍：
+RS-3-2-1024k：使用 RS 编码，每 3 个数据单元，生成 2 个校验单元，共 5 个单元，也就是说：这 5 个单元中，只要有任意的 3 个单元存在（不管是数据单元还是校验单元，只要总数=3），就可以得到原始数据。每个单元的大小是 1024k=1024*1024=1048576。 RS-10-4-1024k：使用 RS 编码，每 10 个数据单元（cell），生成 4 个校验单元，共 14个单元，也就是说：这 14 个单元中，只要有任意的 10 个单元存在（不管是数据单元还是校验单元，只要总数=10），就可以得到原始数据。每个单元的大小是1024k=1024*1024=1048576。 RS-6-3-1024k：使用 RS 编码，每 6 个数据单元，生成 3 个校验单元，共 9 个单元，也就是说：这 9 个单元中，只要有任意的 6 个单元存在（不管是数据单元还是校验单元，只要总数=6），就可以得到原始数据。每个单元的大小是 1024k=1024*1024=1048576。 RS-LEGACY-6-3-1024k：策略和上面的 RS-6-3-1024k 一样，只是编码的算法用的是 rs-legacy。 XOR-2-1-1024k：使用 XOR 编码（速度比 RS 编码快），每 2 个数据单元，生成 1 个校验单元，共 3 个单元，也就是说：这 3 个单元中，只要有任意的 2 个单元存在（不管是数据单元还是校验单元，只要总数= 2），就可以得到原始数据。每个单元的大小是1024k=1024*1024=1048576。 我们服务器资源有限，只有5台，所以选择RS-3-2-1024k作为测试对象。</description>
+    </item>
+    
+    <item>
+      <title>（Hadoop18）HDFS 集群扩容及缩容、黑白名单配置</title>
+      <link>https://garnettboy.gitee.io/p/hadoop18hdfs-%E9%9B%86%E7%BE%A4%E6%89%A9%E5%AE%B9%E5%8F%8A%E7%BC%A9%E5%AE%B9%E9%BB%91%E7%99%BD%E5%90%8D%E5%8D%95%E9%85%8D%E7%BD%AE/</link>
+      <pubDate>Sun, 03 Sep 2023 11:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/hadoop18hdfs-%E9%9B%86%E7%BE%A4%E6%89%A9%E5%AE%B9%E5%8F%8A%E7%BC%A9%E5%AE%B9%E9%BB%91%E7%99%BD%E5%90%8D%E5%8D%95%E9%85%8D%E7%BD%AE/</guid>
+      <description>一、服务器扩容 如果原有的数据节点的容量已经不能满足存储数据的需求，需要在原有集群基础上动态添加新的数据节点。
+hadoop1 hadoop2 hadoop3 hadoop4 hadoop5 HDFS NameNode DataNode SecondaryNameNode DataNode DataNode DataNode DataNode YARN NodeManager ResourceManager NodeManager NodeManager NodeManager NodeManager 1.1 环境准备 新增hadoop4、hadoop5 两台数据节点，修改5台机器的hosts文件:
+集群信息： 8c 16g 300g
+192.168.2.169 hadoop1192.168.2.170 hadoop2192.168.2.171 hadoop3192.168.2.172 hadoop4192.168.2.173 hadoop5 将hadoop1的内容拷贝到hadoop4、hadoop5。
+[root@hadoop1 opt]# scp -r module/* admin@hadoop4:/opt/module/ [root@hadoop1 opt]# sudo scp /etc/profile.d/myjdk.sh root@hadoop4:/etc/profile.d/myjdk.sh [root@hadoop1 opt]# sudo scp /etc/profile.d/myhadoop.sh root@hadoop4:/etc/profile.d/myhadoop.sh [root@hadoop1 opt]# scp -r module/* admin@hadoop5:/opt/module/ [root@hadoop1 opt]# sudo scp /etc/profile.d/myjdk.sh root@hadoop5:/etc/profile.</description>
+    </item>
+    
+    <item>
+      <title>（Hadoop17）HDFS 数据均衡（Balancer和Disk Balancer）</title>
+      <link>https://garnettboy.gitee.io/p/hadoop17hdfs-%E6%95%B0%E6%8D%AE%E5%9D%87%E8%A1%A1balancer%E5%92%8Cdisk-balancer/</link>
+      <pubDate>Sun, 03 Sep 2023 10:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/hadoop17hdfs-%E6%95%B0%E6%8D%AE%E5%9D%87%E8%A1%A1balancer%E5%92%8Cdisk-balancer/</guid>
+      <description>一、HDFS 数据均衡 HDFS上的balance目前有两类：
+Balancer：多数据节点之间的balance，以解决不同DataNode节点之间数据量失衡问题。 Disk Balancer：单数据节点内磁盘之间的balance，以解决单DataNode节点不同存储目录数据之间数据量失衡问题。 1.1 Balancer(节点间平衡) ​	当一个新的数据节点加入hdfs集群时，它里面并没有数据。 因此分配给新机器的任何map任务很可能不会读取本地数据，从而增加了网络带宽的使用。 另一方面，当某些数据节点满了时，新的数据块只会被放置在非满的数据节点上，从而降低了它们的读取并行度。
+​	由于多种相互竞争的考虑因素，数据可能不会均匀地放置在 DataNode上。 HDFS 为管理员提供了一个工具，可以分析数据块的放置并重新平衡 DataNode 上的数据。Balancer 就是重新平衡的工具。
+image-202309041450376481.1.1 均衡命令 sbin/start-balancer.sh -threshold 10 对于参数10，代表的是集群中各个节点的磁盘空间利用率相差不超过10%，可根据实际情况进行调整。
+停止数据均衡命令：
+sbin/stop-balancer.sh 注意：由于HDFS需要启动单独的Rebalance Server来执行Rebalance操作，所以尽量不要在NameNode上执行start-balancer.sh，而是找一台比较空闲的机器。
+1.2 disk balancer(节点内平衡) 生成均衡计划 (如果只有一块磁盘，不会生成计划)：
+hdfs diskbalancer -plan hadoop2 执行均衡计划：
+hdfs diskbalancer -execute hadoop2.plan.json 查看当前均衡任务的执行情况：
+hdfs diskbalancer -query hadoop2 取消均衡任务：
+hdfs diskbalancer -cancel node102.plan.json </description>
+    </item>
+    
+    <item>
+      <title>（Hadoop16）Hadoop HDFS参数调优、多目录配置</title>
+      <link>https://garnettboy.gitee.io/p/hadoop16hadoop-hdfs%E5%8F%82%E6%95%B0%E8%B0%83%E4%BC%98%E5%A4%9A%E7%9B%AE%E5%BD%95%E9%85%8D%E7%BD%AE/</link>
+      <pubDate>Fri, 01 Sep 2023 10:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/hadoop16hadoop-hdfs%E5%8F%82%E6%95%B0%E8%B0%83%E4%BC%98%E5%A4%9A%E7%9B%AE%E5%BD%95%E9%85%8D%E7%BD%AE/</guid>
+      <description>一、Hadoop参数调优 1.1 NameNode、DataNode内存设置 [admin@hadoop1 hadoop]$ jps 18576 NodeManager 18132 NameNode 18745 JobHistoryServer 18266 DataNode 18878 Jps ##查看内存分配情况：MaxHeapSize [admin@hadoop1 hadoop]$ jmap -heap 18266 [admin@hadoop1 hadoop]$ jmap -heap 18132 image-20230901150454287结果：hadoop1节点NameNode 和 DataNode 占用内存相等，都是自动分配的。但是我们hadoop1节点全部内存16G，如果NameNode 和 DataNode实际占用8G内存，那服务器及其他软件将不能正常运行。
+那么NameNode 和 DataNode 占用内存应该怎么设置？
+参考：https://docs.cloudera.com/documentation/enterprise/6/release-notes/topics/rg_hardware_requirements.html#concept_fzz_dq4_gbb
+image-20230901152216405修改NameNode 和 DataNode 占用内存方法：
+【/opt/module/hadoop-3.1.3/etc/hadoop/hadoop-env.sh】 export HDFS_NAMENODE_OPTS=&amp;#34;-Dhadoop.security.logger=INFO,RFAS -Xmx2048m&amp;#34; export HDFS_DATANODE_OPTS=&amp;#34;-Dhadoop.security.logger=ERROR,RFAS -Xmx2048m&amp;#34; 1.2 NameNode心跳并发配置 image-20230901153657363【hdfs-site.xml】 &amp;lt;!--NameNode 有一个工作线程池，用来处理不同 DataNode 的并发心跳以及客户端并发的元数据操作。 对于大集群或者有大量客户端的集群来说，通常需要增大该参数。默认值是 10。--&amp;gt; &amp;lt;property&amp;gt; &amp;lt;name&amp;gt;dfs.namenode.handler.count&amp;lt;/name&amp;gt; &amp;lt;value&amp;gt;21&amp;lt;/value&amp;gt; &amp;lt;/property&amp;gt; 计算公司：image-20230901154002335即： print int(20*math.log(3))，比如集群规模（DataNode 台数）为 3 台时，此参数设置为 21。</description>
+    </item>
+    
+    <item>
+      <title>（Hadoop5）Hadoop-Window环境配置</title>
+      <link>https://garnettboy.gitee.io/p/hadoop5hadoop-window%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/</link>
+      <pubDate>Wed, 02 Aug 2023 10:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/hadoop5hadoop-window%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/</guid>
+      <description>一、Window环境配置 我们前面操作HDFS都是直接使用命令，下面我们在windows环境搭建java工程来调用 linux 环境的Hadoop服务。首先我们需要在windows下搭建hadoop环境，并通过java工程调用HDFS服务。
+1.1 资料下载 Hadoop默认不支持windows环境，我们需要在windows下搭建hadoop环境，我们首先下载需要的客户端工具。
+Github下载：https://github.com/cdarlint/winutils
+网络不好可以使用如下连接：https://gitcode.net/mirrors/cdarlint/winutils
+image-20230804092618657我们使用和hadoop版本相近的hadoop-3.1.2来进行测试。
+1.2 配置环境变量 首先，我们将hadoop-3.1.2拷贝到非中文路径，我这里是D:\myinstall\hadoop-3.1.3\，然后编辑环境变量；
+image-20230804093032886image-20230804093107981二、创建java工程 源码：https://gitee.com/garnettboy/blog-demo-project.git
+2.1 pom.xml配置 &amp;lt;?xml version=&amp;#34;1.0&amp;#34; encoding=&amp;#34;UTF-8&amp;#34;?&amp;gt; &amp;lt;project xmlns=&amp;#34;http://maven.apache.org/POM/4.0.0&amp;#34; xmlns:xsi=&amp;#34;http://www.w3.org/2001/XMLSchema-instance&amp;#34; xsi:schemaLocation=&amp;#34;http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd&amp;#34;&amp;gt; &amp;lt;modelVersion&amp;gt;4.0.0&amp;lt;/modelVersion&amp;gt; &amp;lt;parent&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.boot&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-boot-starter-parent&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;2.7.12&amp;lt;/version&amp;gt; &amp;lt;relativePath/&amp;gt; &amp;lt;!-- lookup parent from repository --&amp;gt; &amp;lt;/parent&amp;gt; &amp;lt;groupId&amp;gt;com.sxdx&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;hdfs&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;0.0.1-SNAPSHOT&amp;lt;/version&amp;gt; &amp;lt;name&amp;gt;hadoop-hdfs&amp;lt;/name&amp;gt; &amp;lt;description&amp;gt;Demo project for Spring Boot&amp;lt;/description&amp;gt; &amp;lt;properties&amp;gt; &amp;lt;java.version&amp;gt;8&amp;lt;/java.version&amp;gt; &amp;lt;hadoop.version&amp;gt;3.1.3&amp;lt;/hadoop.version&amp;gt; &amp;lt;/properties&amp;gt; &amp;lt;dependencies&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.boot&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-boot-starter-web&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.boot&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-boot-starter-test&amp;lt;/artifactId&amp;gt; &amp;lt;scope&amp;gt;test&amp;lt;/scope&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;!--Lombok简化代码--&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.projectlombok&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;lombok&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;!-- hadoop依赖 --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.</description>
+    </item>
+    
+    <item>
+      <title>（Hadoop4）Hadoop-HDFS介绍及使用</title>
+      <link>https://garnettboy.gitee.io/p/hadoop4hadoop-hdfs%E4%BB%8B%E7%BB%8D%E5%8F%8A%E4%BD%BF%E7%94%A8/</link>
+      <pubDate>Wed, 26 Jul 2023 10:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/hadoop4hadoop-hdfs%E4%BB%8B%E7%BB%8D%E5%8F%8A%E4%BD%BF%E7%94%A8/</guid>
+      <description>一、HDFS介绍 1.1 HDFS组成架构 Hadoop Distributed File System，简称 HDFS，是一个分布式文件系统。适合一次写入，多次读出的场景。HDFS中主要包含以下几个角色。
+image-202307270916395741）NameNode：就是Master，它是一个主管、管理者。
+（1）管理HDFS的名称空间； （2）配置副本策略（数据备份）； （3）管理数据块（Block）映射信息（大文件会分块存储）； （4）处理客户端读写请求。 2）DataNode：就是Slave。NameNode下达命令，DataNode执行实际的操作。
+（1）存储实际的数据块； （2）执行数据块的读/写操作。 3）Client：就是客户端。
+（1）文件切分。文件上传HDFS的时候，Client将文件切分成一个一个的Block，然后进行上传； （2）与NameNode交互，获取文件的位置信息； （3）与DataNode交互，读取或者写入数据； （4）Client提供一些命令来管理HDFS，比如NameNode格式化； （5）Client可以通过一些命令来访问HDFS，比如对HDFS增删查改操作； 4）Secondary NameNode：并非NameNode的热备。当NameNode挂掉的时候，它并不能马上替换NameNode并提供服务。
+（1）辅助NameNode，分担其工作量，比如定期合并Fsimage和Edits，并推送给NameNode ； （2）在紧急情况下，可辅助恢复NameNode。 1.2 HDFS优缺点 优点：
+1）高容错性：数据自动保存多个副本。它通过增加副本的形式，提高容错性，某一个副本丢失以后，它可以自动恢复。 2）适合处理大数据：能够处理数据规模达到GB、TB、甚至PB级别的数据、能够处理百万规模以上的文件数量。 缺点：
+1）不适合低延时数据访问。比如毫秒级的存储数据。 2）无法高效的对大量小文件进行存储。因为NameNode的内存总是有限的，存储大量小文件的话，它会占用NameNode大量的内存来存储文件目录和块信息。小文件存储的寻址时间会超过读取时间。 3）不支持并发写入、文件随机修改。一个文件只能有一个写，不允许多个线程同时写，仅支持数据append（追加），不支持文件的随机修改。 1.3 HDFS文件块 HDFS中的文件在物理上是分块存储（Block），块的大小可以通过配置参数( dfs.blocksize）来规定，默认大小在Hadoop2.x/3.x版本中是128M，1.x版本中是64M。
+image-20230727094304459这里为什么设置128M呢？经过研究寻址时间为传输时间的1%时，为最佳状态。
+（1）HDFS的块设置太小，一个文件可能被分为多个块进行存储，会增加寻址时间，程序一直在找块的开始位置； （2）如果块设置的太大，从磁盘传输数据的时间会明显大于定位这个块开始位置所需的时间。导致程序在处理这块数据时，会非常慢。 总结：HDFS块的大小设置主要取决于磁盘传输速率，一般设置为128M，如果是固态硬盘，可以设置为256M.
+二、HDFS常用命令 基本语法:hadoop fs .... 或者hdfs dfs ....,两个是完全相同的。
+2.1 ls 显示目录信息
+[admin@hadoop1 ~]$ hadoop fs -ls / Found 5 items drwxr-xr-x - admin supergroup 0 2023-07-31 10:50 /demo drwxr-xr-x - admin supergroup 0 2023-07-19 15:48 /input drwxr-xr-x - admin supergroup 0 2023-07-19 17:40 /output1 drwxr-xr-x - admin supergroup 0 2023-07-20 16:05 /output2 drwx------ - admin supergroup 0 2023-07-20 16:04 /tmp image-202307311719045612.</description>
+    </item>
+    
+  </channel>
+</rss>

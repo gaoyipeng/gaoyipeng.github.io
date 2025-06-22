@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Hadoop-HDFS介绍及使用（组成架构、常用命令、工作原理）'><title>（Hadoop4）Hadoop-HDFS介绍及使用</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/hadoop4hadoop-hdfs%E4%BB%8B%E7%BB%8D%E5%8F%8A%E4%BD%BF%E7%94%A8/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='（Hadoop4）Hadoop-HDFS介绍及使用'>
+<meta property='og:description' content='Hadoop-HDFS介绍及使用（组成架构、常用命令、工作原理）'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/hadoop4hadoop-hdfs%E4%BB%8B%E7%BB%8D%E5%8F%8A%E4%BD%BF%E7%94%A8/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Hadoop' /><meta property='article:tag' content='HDFS' /><meta property='article:published_time' content='2023-07-26T10:36:40&#43;00:00'/><meta property='article:modified_time' content='2023-07-26T10:36:40&#43;00:00'/>
+<meta name="twitter:title" content="（Hadoop4）Hadoop-HDFS介绍及使用">
+<meta name="twitter:description" content="Hadoop-HDFS介绍及使用（组成架构、常用命令、工作原理）">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/hadoop/" >
+                Hadoop
+            </a>
+        
+            <a href="/categories/hdfs/" >
+                HDFS
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/hadoop4hadoop-hdfs%E4%BB%8B%E7%BB%8D%E5%8F%8A%E4%BD%BF%E7%94%A8/">（Hadoop4）Hadoop-HDFS介绍及使用</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        Hadoop-HDFS介绍及使用（组成架构、常用命令、工作原理）
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jul 26, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 5 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <h2 id="一hdfs介绍">一、HDFS介绍</h2>
+<h3 id="11-hdfs组成架构">1.1 HDFS组成架构</h3>
+<p>Hadoop Distributed File System，简称 HDFS，是一个分布式文件系统。适合一次写入，多次读出的场景。HDFS中主要包含以下几个角色。</p>
+<p><figure 
+	>
+	<a href="/../../images/hdfs-01/image-20230727091639574.png" >
+		<img src="/../../images/hdfs-01/image-20230727091639574.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230727091639574">
+	</a>
+	
+	<figcaption>image-20230727091639574</figcaption>
+	
+</figure></p>
+<p>1）NameNode：就是Master，它是一个主管、管理者。</p>
+<ul>
+<li>（1）管理HDFS的名称空间；</li>
+<li>（2）配置副本策略（数据备份）；</li>
+<li>（3）管理数据块（Block）映射信息（大文件会分块存储）；</li>
+<li>（4）处理客户端读写请求。</li>
+</ul>
+<p>2）DataNode：就是Slave。NameNode下达命令，DataNode执行实际的操作。</p>
+<ul>
+<li>（1）存储实际的数据块；</li>
+<li>（2）执行数据块的读/写操作。</li>
+</ul>
+<p>3）Client：就是客户端。</p>
+<ul>
+<li>（1）文件切分。文件上传HDFS的时候，Client将文件切分成一个一个的Block，然后进行上传；</li>
+<li>（2）与NameNode交互，获取文件的位置信息；</li>
+<li>（3）与DataNode交互，读取或者写入数据；</li>
+<li>（4）Client提供一些命令来管理HDFS，比如NameNode格式化；</li>
+<li>（5）Client可以通过一些命令来访问HDFS，比如对HDFS增删查改操作；</li>
+</ul>
+<p>4）Secondary NameNode：并非NameNode的热备。当NameNode挂掉的时候，它并不能马上替换NameNode并提供服务。</p>
+<ul>
+<li>（1）辅助NameNode，分担其工作量，比如定期合并Fsimage和Edits，并推送给NameNode ；</li>
+<li>（2）在紧急情况下，可辅助恢复NameNode。</li>
+</ul>
+<h3 id="12-hdfs优缺点">1.2 HDFS优缺点</h3>
+<p>优点：</p>
+<ul>
+<li>1）高容错性：数据自动保存多个副本。它通过增加副本的形式，提高容错性，某一个副本丢失以后，它可以自动恢复。</li>
+<li>2）适合处理大数据：能够处理数据规模达到GB、TB、甚至PB级别的数据、能够处理百万规模以上的文件数量。</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>1）不适合低延时数据访问。比如毫秒级的存储数据。</li>
+<li>2）无法高效的对大量小文件进行存储。因为NameNode的内存总是有限的，存储大量小文件的话，它会占用NameNode大量的内存来存储文件目录和块信息。小文件存储的寻址时间会超过读取时间。</li>
+<li>3）不支持并发写入、文件随机修改。一个文件只能有一个写，不允许多个线程同时写，仅支持数据append（追加），不支持文件的随机修改。</li>
+</ul>
+<h3 id="13-hdfs文件块">1.3 HDFS文件块</h3>
+<p>HDFS中的文件在物理上是分块存储（Block），块的大小可以通过配置参数( dfs.blocksize）来规定，默认大小在Hadoop2.x/3.x版本中是128M，1.x版本中是64M。</p>
+<p><figure 
+	>
+	<a href="/../../images/hdfs-01/image-20230727094304459.png" >
+		<img src="/../../images/hdfs-01/image-20230727094304459.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230727094304459">
+	</a>
+	
+	<figcaption>image-20230727094304459</figcaption>
+	
+</figure></p>
+<p>这里为什么设置128M呢？经过研究寻址时间为传输时间的1%时，为最佳状态。</p>
+<ul>
+<li>（1）HDFS的块设置太小，一个文件可能被分为多个块进行存储，会增加寻址时间，程序一直在找块的开始位置；</li>
+<li>（2）如果块设置的太大，从磁盘传输数据的时间会明显大于定位这个块开始位置所需的时间。导致程序在处理这块数据时，会非常慢。</li>
+</ul>
+<p>总结：HDFS块的大小设置主要取决于磁盘传输速率，一般设置为128M，如果是固态硬盘，可以设置为256M.</p>
+<h2 id="二hdfs常用命令">二、HDFS常用命令</h2>
+<p><strong>基本语法</strong>:<code>hadoop fs ....</code> 或者<code>hdfs dfs ....</code>,两个是完全相同的。</p>
+<h3 id="21-ls">2.1 <code>ls</code></h3>
+<p>显示目录信息</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 ~<span class="o">]</span>$ hadoop fs -ls /
+</span></span><span class="line"><span class="cl">Found <span class="m">5</span> items
+</span></span><span class="line"><span class="cl">drwxr-xr-x   - admin supergroup          <span class="m">0</span> 2023-07-31 10:50 /demo
+</span></span><span class="line"><span class="cl">drwxr-xr-x   - admin supergroup          <span class="m">0</span> 2023-07-19 15:48 /input
+</span></span><span class="line"><span class="cl">drwxr-xr-x   - admin supergroup          <span class="m">0</span> 2023-07-19 17:40 /output1
+</span></span><span class="line"><span class="cl">drwxr-xr-x   - admin supergroup          <span class="m">0</span> 2023-07-20 16:05 /output2
+</span></span><span class="line"><span class="cl">drwx------   - admin supergroup          <span class="m">0</span> 2023-07-20 16:04 /tmp
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/hdfs-01/image-20230731171904561.png" >
+		<img src="/../../images/hdfs-01/image-20230731171904561.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230731171904561">
+	</a>
+	
+	<figcaption>image-20230731171904561</figcaption>
+	
+</figure></p>
+<h3 id="22-mkdir">2.2 <code>mkdir</code></h3>
+<p>创建目录</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 ~<span class="o">]</span>$ hadoop fs -mkdir /demo
+</span></span></code></pre></div><h3 id="23-上传命令">2.3 上传命令</h3>
+<p>上传命令有以下3种：</p>
+<blockquote>
+<p><code>-moveFromLocal</code>：从本地剪切粘贴到 HDFS</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">hadoop fs -moveFromLocal ./text.txt   /demo
+</span></span></code></pre></div><blockquote>
+<p>-copyFromLocal：从本地文件系统中拷贝文件到 HDFS 路径去</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">hadoop fs -copyFromLocal ./copy.txt   /demo
+</span></span></code></pre></div><blockquote>
+<p>-put：等同于 copyFromLocal</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="c1">##上传并改名</span>
+</span></span><span class="line"><span class="cl">hadoop fs -put ./copy.txt   /demo/copy1.txt
+</span></span></code></pre></div><p>查看上传结果：</p>
+<p><figure 
+	>
+	<a href="/../../images/hdfs-01/image-20230801085936646.png" >
+		<img src="/../../images/hdfs-01/image-20230801085936646.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230801085936646">
+	</a>
+	
+	<figcaption>image-20230801085936646</figcaption>
+	
+</figure></p>
+<h3 id="24-appendtofile">2.4 <code>appendToFile</code></h3>
+<p>追加一个文件到已经存在的文件末尾</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">hadoop fs -appendToFile copy.txt /demo/text.txt
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/hdfs-01/image-20230801090220435.png" >
+		<img src="/../../images/hdfs-01/image-20230801090220435.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230801090220435">
+	</a>
+	
+	<figcaption>image-20230801090220435</figcaption>
+	
+</figure></p>
+<h3 id="25-下载命令">2.5 下载命令</h3>
+<blockquote>
+<p>-copyToLocal：从 HDFS 拷贝到本地</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">hadoop fs -copyToLocal  /demo/copy.txt ./
+</span></span></code></pre></div><blockquote>
+<p>-get：等同于 copyToLocal</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="c1">##下载并重新命名</span>
+</span></span><span class="line"><span class="cl">hadoop fs -get  /demo/copy.txt  ./copy01.txt
+</span></span></code></pre></div><h3 id="26-cat">2.6 cat</h3>
+<p>显示目录信息</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">hadoop fs -cat /demo/text.txt
+</span></span></code></pre></div><h3 id="27-chgrpchmodchown">2.7 <code>chgrp、chmod、chown</code></h3>
+<p>和Linux 文件系统中的用法一样，修改文件如下权限：</p>
+<p><figure 
+	>
+	<a href="/../../images/hdfs-01/image-20230801093938839.png" >
+		<img src="/../../images/hdfs-01/image-20230801093938839.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230801093938839">
+	</a>
+	
+	<figcaption>image-20230801093938839</figcaption>
+	
+</figure></p>
+<h3 id="28-cp">2.8 <code>cp</code></h3>
+<p>从 HDFS 的一个路径拷贝到 HDFS 的另一个路径</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">hadoop fs -cp /input/hello.txt /demo
+</span></span></code></pre></div><h3 id="29-mv">2.9 <code>mv</code></h3>
+<p>在 HDFS 目录中移动文件</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">hadoop fs -mv /input/hello.txt  /demo
+</span></span></code></pre></div><h3 id="210--tail">2.10  <code>tail</code></h3>
+<p>显示一个文件的末尾 1kb 的数据</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">hadoop fs -tail /input/hello.txt
+</span></span></code></pre></div><h3 id="211--rm-rm--r">2.11  <code>rm 、rm -r</code></h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">-rm：删除文件或文件夹
+</span></span><span class="line"><span class="cl">-rm -r：递归删除目录及目录里面内容
+</span></span></code></pre></div><h3 id="212--du">2.12  du</h3>
+<p>统计文件夹的大小信息</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 ~<span class="o">]</span>$ hadoop fs -du -s -h /demo
+</span></span><span class="line"><span class="cl"><span class="m">97</span>  <span class="m">291</span>  /demo
+</span></span></code></pre></div><p>说明：97 表示文件大小；291表示 97 *3 个副本；/demo表示查看的目录</p>
+<p>如果需要展示所有文件：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 ~<span class="o">]</span>$ hadoop fs -du  -h /demo
+</span></span><span class="line"><span class="cl"><span class="m">14</span>  <span class="m">42</span>   /demo/copy.txt
+</span></span><span class="line"><span class="cl"><span class="m">14</span>  <span class="m">42</span>   /demo/copy1.txt
+</span></span><span class="line"><span class="cl"><span class="m">41</span>  <span class="m">123</span>  /demo/hello.txt
+</span></span><span class="line"><span class="cl"><span class="m">28</span>  <span class="m">84</span>   /demo/text.txt
+</span></span></code></pre></div><h3 id="213--setrep">2.13  setrep</h3>
+<p>设置 HDFS 中文件的副本数量</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">hadoop fs -setrep <span class="m">10</span> /demo/copy.txt
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/hdfs-01/image-20230801140123424.png" >
+		<img src="/../../images/hdfs-01/image-20230801140123424.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230801140123424">
+	</a>
+	
+	<figcaption>image-20230801140123424</figcaption>
+	
+</figure></p>
+<p>HDFS默认副本数是3</p>
+<p><figure 
+	>
+	<a href="/../../images/hdfs-01/image-20230801101821381.png" >
+		<img src="/../../images/hdfs-01/image-20230801101821381.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230801101821381">
+	</a>
+	
+	<figcaption>image-20230801101821381</figcaption>
+	
+</figure></p>
+<p>这里设置的副本数只是记录在 NameNode 的元数据中，是否真的会有这么多副本，还得看 DataNode 的数量。因为目前只有 3 台设备，最多也就 3 个副本，如果设置文件的副本是10，也只有节点数的增加到 10台时，副本数才能达到 10。</p>
+<h2 id="三hdfs文件写入流程">三、HDFS文件写入流程</h2>
+<p><figure 
+	>
+	<a href="/../../images/hdfs-01/image-20230801161707137.png" >
+		<img src="/../../images/hdfs-01/image-20230801161707137.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230801161707137">
+	</a>
+	
+	<figcaption>image-20230801161707137</figcaption>
+	
+</figure></p>
+<ul>
+<li>（1）客户端通过 Distributed FileSystem（分布式文件系统） 模块向 NameNode 请求上传文件，NameNode 检查目标文件是否已存在，父目录是否存在。</li>
+<li>（2）NameNode 返回是否可以上传。</li>
+<li>（3）客户端请求第一个 Block 上传到哪几个 DataNode 服务器上。</li>
+<li>（4）NameNode 返回 3 个 DataNode 节点，分别为 dn1、dn2、dn3。</li>
+<li>（5）客户端通过 FSDataOutputStream 模块请求 dn1 上传数据，dn1 收到请求会继续调用dn2，然后 dn2 调用 dn3，将这个通信管道建立完成。</li>
+<li>（6）dn1、dn2、dn3 逐级应答客户端。</li>
+<li>（7）客户端开始往 dn1 上传第一个 Block（先从磁盘读取数据放到一个本地内存缓存），以 Packet 为单位，dn1 收到一个 Packet 就会传给 dn2，dn2 传给 dn3；dn1 每传一个 packet会放入一个应答队列等待应答。</li>
+<li>（8）当一个 Block 传输完成之后，客户端再次请求 NameNode 上传第二个 Block 的服务器。（重复执行 3-7 步）。</li>
+</ul>
+<h2 id="四hdfs文件读取流程">四、HDFS文件读取流程</h2>
+<p><figure 
+	>
+	<a href="/../../images/hdfs-01/image-20230802142201346.png" >
+		<img src="/../../images/hdfs-01/image-20230802142201346.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230802142201346">
+	</a>
+	
+	<figcaption>image-20230802142201346</figcaption>
+	
+</figure></p>
+<ul>
+<li>（1）客户端通过 DistributedFileSystem 向 NameNode 请求下载文件，NameNode 通过查询元数据，找到文件块所在的 DataNode 地址。</li>
+<li>（2）挑选一台 DataNode（就近原则，然后随机）服务器，请求读取数据。</li>
+<li>（3）DataNode 开始传输数据给客户端（从磁盘里面读取数据输入流，以 Packet 为单位来做校验）。</li>
+<li>（4）客户端以 Packet 为单位接收，先在本地缓存，然后写入目标文件。</li>
+</ul>
+<h2 id="五hdfs副本选择方式">五、HDFS副本选择方式</h2>
+<p>官方说明：http://hadoop.apache.org/docs/r3.1.3/hadoop-project-dist/hadoop-hdfs/HdfsDesign.html#Data_Replication</p>
+<pre tabindex="0"><code>For the common case, when the replication factor is three, HDFS’s placement policy is to put one replica on the local machine if the writer is on a datanode, otherwise on a random datanode, another replica on a node in a different (remote) rack, and the last on a different node in the same remote rack. This policy cuts the inter-rack write traffic which generally improves write performance. The chance of rack failure is far less than that of node failure; this policy does not impact data reliability and availability guarantees. However, it does reduce the aggregate network bandwidth used when reading data since a block is placed in only two unique racks rather than three. With this policy, the replicas of a file do not evenly distribute across the racks. One third of replicas are on one node, two thirds of replicas are on one rack, and the other third are evenly distributed across the remaining racks. This policy improves write performance without compromising data reliability or read performance.
+</code></pre><p>翻译：对于常见情况，当复制因子为3时，HDFS的放置策略是，如果写入器在datanode上，则将一个副本放在本地机器上，否则在随机datanode上，另一个副本放在不同(远程)机架中的节点上，最后一个副本放在同一远程机架中的不同节点上。该策略减少了机架间的写流量，从而提高了写性能。机架故障的概率远小于节点故障的概率;此策略不影响数据可靠性和可用性保证。然而，它确实减少了读取数据时使用的总网络带宽，因为一个块只放在两个唯一的机架中，而不是三个。使用此策略，文件的副本不会均匀地分布在机架上。三分之一的副本在一个节点上，三分之二的副本在一个机架上，另外三分之一均匀分布在其余机架上。在不影响数据可靠性和读性能的前提下，提高写性能。</p>
+<h2 id="六namenode-工作机制">六、<strong>NameNode</strong> 工作机制</h2>
+<p><strong>思考：NameNode 中的元数据是存储在哪里的？</strong></p>
+<p>这里需要引入2个概念：</p>
+<ul>
+<li>（1）Fsimage文件：HDFS文件系统元数据的保存文件，包含所有目录和文件inode的序列化信息。</li>
+<li>（2）Edits文件：存放HDFS文件系统的所有<strong>更新操作</strong>的文件，文件系统客户端执行的所有写操作首先会被记录到Edits文件中。</li>
+</ul>
+<p><strong>结论：Fsimage + Edits才是所有的元数据。每次NameNode启动的时候都会将Fsimage文件读入内存，并加载Edits里面的更新操作，保证内存中的元数据信息是最新的、同步的，可以看成NameNode启动的时候就将Fsimage和Edits文件进行了合并。</strong></p>
+<p>​		为什么要这样设计呢？为了保证读取速度，元数据需要存放在内存中。但如果只存在内存中，一旦断电，元数据丢失，整个集群就无法工作了。因此产生在磁盘中备份元数据的FsImage。当在内存中的元数据更新时，如果同时更新 FsImage，就会导致效率过低，但如果不更新，就会发生一致性问题，一旦 NameNode 节点断电，就会产生数据丢失。因此，引入 Edits 文件（只进行追加操作，效率很高）。每当元数据有更新或者添加元数据时，修改内存中的元数据并追加到 Edits 中。这样，一旦NameNode 节点断电，可以通过 FsImage 和 Edits 的合并，合成元数据。但是，如果长时间添加数据到 Edits 中，会导致该文件数据过大，效率降低，而且一旦断电，恢复元数据需要的时间过长。因此，需要定期进行 FsImage 和 Edits 的合并，如果这个操作由NameNode节点完成，又会效率过低。因此，引入一个新的节点SecondaryNamenode，专门用于 FsImage 和 Edits 的合并。</p>
+<h3 id="61-namenode工作机制">6.1 NameNode工作机制</h3>
+<p><figure 
+	>
+	<a href="/../../images/hdfs-01/image-20230802160241619.png" >
+		<img src="/../../images/hdfs-01/image-20230802160241619.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230802160241619">
+	</a>
+	
+	<figcaption>image-20230802160241619</figcaption>
+	
+</figure></p>
+<p><strong>第一阶段：NameNode启动</strong></p>
+<ul>
+<li>（1）第一次启动 NameNode 格式化后，创建 Fsimage 和 Edits 文件。如果不是第一次启动，直接加载编辑日志和镜像文件到内存。</li>
+<li>（2）客户端对元数据进行增删改的请求。</li>
+<li>（3）NameNode 记录操作日志，更新滚动日志。</li>
+<li>（4）NameNode 在内存中对元数据进行增删改。</li>
+</ul>
+<p><strong>第二阶段：Secondary NameNode工作</strong></p>
+<ul>
+<li>（1）Secondary NameNode 询问 NameNode 是否需要 <strong>CheckPoint</strong>。直接带回 NameNode是否检查结果。</li>
+<li>（2）Secondary NameNode 请求执行 CheckPoint。</li>
+<li>（3）NameNode 滚动正在写的 Edits 日志（生成一个新的edits_inprogress_00n）。</li>
+<li>（4）将滚动前的编辑日志和镜像文件拷贝到 Secondary NameNode。</li>
+<li>（5）Secondary NameNode 加载编辑日志和镜像文件到内存，并合并。</li>
+<li>（6）生成新的镜像文件 fsimage.chkpoint。</li>
+<li>（7）拷贝 fsimage.chkpoint 到 NameNode。</li>
+<li>（8）NameNode 将 fsimage.chkpoint 重新命名成 fsimage。</li>
+</ul>
+<h3 id="62--checkpoint-时间设置">6.2  <strong>CheckPoint</strong> <strong>时间设置</strong></h3>
+<p>Secondary NameNode 询问 NameNode 是否需要 <strong>CheckPoint</strong>来合并元数据文件。我们先来看一下namenode节点的Fsimage和Edits文件的数据：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 current<span class="o">]</span>$ <span class="nb">pwd</span>
+</span></span><span class="line"><span class="cl">/opt/module/hadoop-3.1.3/data/dfs/name/current
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 current<span class="o">]</span>$ ll
+</span></span><span class="line"><span class="cl">总用量 <span class="m">7704</span>
+</span></span><span class="line"><span class="cl">-rw-rw-r--. <span class="m">1</span> admin admin      <span class="m">42</span> 7月  <span class="m">19</span> 15:46 edits_0000000000000000001-0000000000000000002
+</span></span><span class="line"><span class="cl">-rw-rw-r--. <span class="m">1</span> admin admin <span class="m">1048576</span> 7月  <span class="m">19</span> 15:51 edits_0000000000000000003-0000000000000000044
+</span></span><span class="line"><span class="cl">-rw-rw-r--. <span class="m">1</span> admin admin      <span class="m">42</span> 7月  <span class="m">19</span> 16:02 edits_0000000000000000045-0000000000000000046
+</span></span><span class="line"><span class="cl">-rw-rw-r--. <span class="m">1</span> admin admin   <span class="m">20211</span> 7月  <span class="m">19</span> 17:02 edits_0000000000000000047-0000000000000000208
+</span></span><span class="line"><span class="cl">-rw-rw-r--. <span class="m">1</span> admin admin   <span class="m">61494</span> 7月  <span class="m">19</span> 18:02 edits_0000000000000000209-0000000000000000698
+</span></span><span class="line"><span class="cl">-rw-rw-r--. <span class="m">1</span> admin admin      <span class="m">42</span> 7月  <span class="m">19</span> 19:02 edits_0000000000000000699-0000000000000000700
+</span></span><span class="line"><span class="cl">-rw-rw-r--. <span class="m">1</span> admin admin      <span class="m">42</span> 7月  <span class="m">19</span> 20:02 edits_0000000000000000701-0000000000000000702
+</span></span><span class="line"><span class="cl">-rw-rw-r--. <span class="m">1</span> admin admin      <span class="m">42</span> 7月  <span class="m">19</span> 21:02 edits_0000000000000000703-0000000000000000704
+</span></span><span class="line"><span class="cl"><span class="c1">##此处省略</span>
+</span></span><span class="line"><span class="cl">-rw-rw-r--. <span class="m">1</span> admin admin      <span class="m">42</span> 8月   <span class="m">2</span> 13:19 edits_0000000000000001051-0000000000000001052
+</span></span><span class="line"><span class="cl">-rw-rw-r--. <span class="m">1</span> admin admin      <span class="m">42</span> 8月   <span class="m">2</span> 14:19 edits_0000000000000001053-0000000000000001054
+</span></span><span class="line"><span class="cl">-rw-rw-r--. <span class="m">1</span> admin admin      <span class="m">42</span> 8月   <span class="m">2</span> 15:19 edits_0000000000000001055-0000000000000001056
+</span></span><span class="line"><span class="cl">-rw-rw-r--. <span class="m">1</span> admin admin <span class="m">1048576</span> 8月   <span class="m">2</span> 15:26 edits_inprogress_0000000000000001057
+</span></span><span class="line"><span class="cl">-rw-rw-r--. <span class="m">1</span> admin admin    <span class="m">2255</span> 8月   <span class="m">2</span> 14:19 fsimage_0000000000000001054
+</span></span><span class="line"><span class="cl">-rw-rw-r--. <span class="m">1</span> admin admin      <span class="m">62</span> 8月   <span class="m">2</span> 14:19 fsimage_0000000000000001054.md5
+</span></span><span class="line"><span class="cl">-rw-rw-r--. <span class="m">1</span> admin admin    <span class="m">2255</span> 8月   <span class="m">2</span> 15:19 fsimage_0000000000000001056
+</span></span><span class="line"><span class="cl">-rw-rw-r--. <span class="m">1</span> admin admin      <span class="m">62</span> 8月   <span class="m">2</span> 15:19 fsimage_0000000000000001056.md5
+</span></span><span class="line"><span class="cl">-rw-rw-r--. <span class="m">1</span> admin admin       <span class="m">5</span> 8月   <span class="m">2</span> 15:19 seen_txid
+</span></span><span class="line"><span class="cl">-rw-rw-r--. <span class="m">1</span> admin admin     <span class="m">217</span> 7月  <span class="m">31</span> 10:19 VERSION
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 current<span class="o">]</span>$ cat seen_txid
+</span></span><span class="line"><span class="cl"><span class="m">1057</span>
+</span></span></code></pre></div><p>说明当前最新的edits文件是：edits_inprogress_0000000000000001057，而之前的edits文件都是Secondary NameNode在<strong>CheckPoint</strong>后合并的元数据文件。启动初次HDFS服务时则会加载最新的fsimage和edits（fsimage_0000000000000001056和edits_inprogress_0000000000000001057）</p>
+<p>我们可以看到edits文件时间间隔是一个小时，这个说明<strong>CheckPoint</strong>的频率是1小时一次，我们可以查看下配置文件来验证：</p>
+<p>1）通常情况下，SecondaryNameNode 每隔一小时执行一次CheckPoint。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl">[hdfs-default.xml]
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;property&gt;</span>
+</span></span><span class="line"><span class="cl"> 	<span class="nt">&lt;name&gt;</span>dfs.namenode.checkpoint.period<span class="nt">&lt;/name&gt;</span>
+</span></span><span class="line"><span class="cl"> 	<span class="nt">&lt;value&gt;</span>3600s<span class="nt">&lt;/value&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/property&gt;</span>
+</span></span></code></pre></div><p>2）或者当操作次数达到1百万时，SecondaryNameNode执行一次CheckPoint，一分钟检查一次操作次数：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl">[hdfs-default.xml]
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;property&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;name&gt;</span>dfs.namenode.checkpoint.txns<span class="nt">&lt;/name&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;value&gt;</span>1000000<span class="nt">&lt;/value&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;description&gt;</span>操作动作次数<span class="nt">&lt;/description&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/property&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;property&gt;</span>
+</span></span><span class="line"><span class="cl">     <span class="nt">&lt;name&gt;</span>dfs.namenode.checkpoint.check.period<span class="nt">&lt;/name&gt;</span>
+</span></span><span class="line"><span class="cl">     <span class="nt">&lt;value&gt;</span>60s<span class="nt">&lt;/value&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;description&gt;</span> 1 分钟检查一次操作次数<span class="nt">&lt;/description&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/property&gt;</span>
+</span></span></code></pre></div><h2 id="七datanode-工作机制">七、<strong>DataNode</strong> 工作机制</h2>
+<p><figure 
+	>
+	<a href="/../../images/hdfs-01/image-20230802171949637.png" >
+		<img src="/../../images/hdfs-01/image-20230802171949637.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230802171949637">
+	</a>
+	
+	<figcaption>image-20230802171949637</figcaption>
+	
+</figure></p>
+<p>（1）一个数据块在 DataNode 上以文件形式存储在磁盘上，包括两个文件，一个是数据本身，一个是元数据包括数据块的长度，块数据的校验和，以及时间戳（保存在meta文件中）。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 subdir0<span class="o">]</span>$ <span class="nb">pwd</span>
+</span></span><span class="line"><span class="cl">/opt/module/hadoop-3.1.3/data/dfs/data/current/BP-773851505-192.168.40.129-1689752625085/current/finalized/subdir0/subdir0
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 subdir0<span class="o">]</span>$ ll
+</span></span><span class="line"><span class="cl">总用量 <span class="m">191992</span>
+</span></span><span class="line"><span class="cl">-rw-rw-r--. <span class="m">1</span> admin admin        <span class="m">41</span> 7月  <span class="m">19</span> 15:48 blk_1073741825
+</span></span><span class="line"><span class="cl">-rw-rw-r--. <span class="m">1</span> admin admin        <span class="m">11</span> 7月  <span class="m">19</span> 15:48 blk_1073741825_1001.meta
+</span></span><span class="line"><span class="cl">-rw-rw-r--. <span class="m">1</span> admin admin <span class="m">134217728</span> 7月  <span class="m">31</span> 17:14 blk_1073741918
+</span></span><span class="line"><span class="cl">-rw-rw-r--. <span class="m">1</span> admin admin   <span class="m">1048583</span> 7月  <span class="m">31</span> 17:14 blk_1073741918_1094.meta
+</span></span><span class="line"><span class="cl">-rw-rw-r--. <span class="m">1</span> admin admin        <span class="m">41</span> 8月   <span class="m">1</span> 09:40 blk_1073741923
+</span></span><span class="line"><span class="cl">-rw-rw-r--. <span class="m">1</span> admin admin        <span class="m">11</span> 8月   <span class="m">1</span> 09:40 blk_1073741923_1100.meta
+</span></span><span class="line"><span class="cl">-rw-rw-r--. <span class="m">1</span> admin admin        <span class="m">58</span> 8月   <span class="m">2</span> 15:26 blk_1073741924
+</span></span><span class="line"><span class="cl">-rw-rw-r--. <span class="m">1</span> admin admin        <span class="m">11</span> 8月   <span class="m">2</span> 15:26 blk_1073741924_1101.meta
+</span></span></code></pre></div><p>（2）DataNode 启动后向 NameNode 注册，通过后，周期性（6 小时）的向 NameNode 上报所有的块信息。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl">[hdfs-default.xml]
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;property&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;name&gt;</span>dfs.blockreport.intervalMsec<span class="nt">&lt;/name&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;value&gt;</span>21600000<span class="nt">&lt;/value&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;description&gt;</span>Determines block reporting interval in milliseconds.（6 小时）<span class="nt">&lt;/description&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/property&gt;</span>
+</span></span></code></pre></div><p>（3）DataNode 扫描自己节点块信息列表的时间，默认 6 小时</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl">[hdfs-default.xml]
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;property&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;name&gt;</span>dfs.datanode.directoryscan.interval<span class="nt">&lt;/name&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;value&gt;</span>21600s<span class="nt">&lt;/value&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;description&gt;</span>Interval in seconds for Datanode to scan datadirectories and reconcile the difference between blocks in memory and on the disk.Support multiple time unit suffix(case insensitive), as described in dfs.heartbeat.interval.
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/description&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/property&gt;</span>
+</span></span></code></pre></div><p>(4) DataNode 向 NameNode 每 3 秒发送心跳一次，心跳返回结果带有 NameNode 给该 DataNode 的命令如复制块数据到另一台机器或删除某个数据块。如果超过 10 分钟+ 30秒 没有收到某个 DataNode 的心跳，则认为该节点不可用。</p>
+<pre tabindex="0"><code>公式：TimeOut = 2 * dfs.namenode.heartbeat.recheck-interval + 10 * dfs.heartbeat.interval
+</code></pre><p>而默认的<code>dfs.namenode.heartbeat.recheck-interval</code> 大小为5分钟，<code>dfs.heartbeat.interval</code>默认为3秒。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl">[hdfs-default.xml]
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;property&gt;</span>
+</span></span><span class="line"><span class="cl">     <span class="nt">&lt;name&gt;</span>dfs.namenode.heartbeat.recheck-interval<span class="nt">&lt;/name&gt;</span>
+</span></span><span class="line"><span class="cl">     <span class="nt">&lt;value&gt;</span>300000<span class="nt">&lt;/value&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/property&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;property&gt;</span>
+</span></span><span class="line"><span class="cl">     <span class="nt">&lt;name&gt;</span>dfs.heartbeat.interval<span class="nt">&lt;/name&gt;</span>
+</span></span><span class="line"><span class="cl">     <span class="nt">&lt;value&gt;</span>3<span class="nt">&lt;/value&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/property&gt;</span>
+</span></span></code></pre></div><p>HDFS笔记告一段落。。。。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/hadoop/">Hadoop</a>
+        
+            <a href="/tags/hdfs/">HDFS</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/hadoop21hdfs-%E5%AE%89%E5%85%A8%E6%A8%A1%E5%BC%8F%E6%85%A2%E7%A3%81%E7%9B%98%E7%9B%91%E6%8E%A7%E5%B0%8F%E6%96%87%E4%BB%B6%E5%BD%92%E6%A1%A3%E8%A7%A3%E5%BD%92%E6%A1%A3%E9%9B%86%E7%BE%A4%E6%95%B0%E6%8D%AE%E8%BF%81%E7%A7%BB/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hadoop21）HDFS 安全模式、慢磁盘监控、小文件归档、解归档、集群数据迁移</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hadoop20hdfs-%E5%86%B7%E7%83%AD%E6%95%B0%E6%8D%AE%E5%88%86%E7%A6%BB%E5%BC%82%E6%9E%84%E5%AD%98%E5%82%A8/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hadoop20）HDFS 冷热数据分离（异构存储）</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hadoop19hdfs-%E7%BA%A0%E5%88%A0%E7%A0%81/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hadoop19）HDFS 纠删码</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hadoop18hdfs-%E9%9B%86%E7%BE%A4%E6%89%A9%E5%AE%B9%E5%8F%8A%E7%BC%A9%E5%AE%B9%E9%BB%91%E7%99%BD%E5%90%8D%E5%8D%95%E9%85%8D%E7%BD%AE/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hadoop18）HDFS 集群扩容及缩容、黑白名单配置</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hadoop17hdfs-%E6%95%B0%E6%8D%AE%E5%9D%87%E8%A1%A1balancer%E5%92%8Cdisk-balancer/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hadoop17）HDFS 数据均衡（Balancer和Disk Balancer）</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#一hdfs介绍">一、HDFS介绍</a>
+      <ol>
+        <li><a href="#11-hdfs组成架构">1.1 HDFS组成架构</a></li>
+        <li><a href="#12-hdfs优缺点">1.2 HDFS优缺点</a></li>
+        <li><a href="#13-hdfs文件块">1.3 HDFS文件块</a></li>
+      </ol>
+    </li>
+    <li><a href="#二hdfs常用命令">二、HDFS常用命令</a>
+      <ol>
+        <li><a href="#21-ls">2.1 <code>ls</code></a></li>
+        <li><a href="#22-mkdir">2.2 <code>mkdir</code></a></li>
+        <li><a href="#23-上传命令">2.3 上传命令</a></li>
+        <li><a href="#24-appendtofile">2.4 <code>appendToFile</code></a></li>
+        <li><a href="#25-下载命令">2.5 下载命令</a></li>
+        <li><a href="#26-cat">2.6 cat</a></li>
+        <li><a href="#27-chgrpchmodchown">2.7 <code>chgrp、chmod、chown</code></a></li>
+        <li><a href="#28-cp">2.8 <code>cp</code></a></li>
+        <li><a href="#29-mv">2.9 <code>mv</code></a></li>
+        <li><a href="#210--tail">2.10  <code>tail</code></a></li>
+        <li><a href="#211--rm-rm--r">2.11  <code>rm 、rm -r</code></a></li>
+        <li><a href="#212--du">2.12  du</a></li>
+        <li><a href="#213--setrep">2.13  setrep</a></li>
+      </ol>
+    </li>
+    <li><a href="#三hdfs文件写入流程">三、HDFS文件写入流程</a></li>
+    <li><a href="#四hdfs文件读取流程">四、HDFS文件读取流程</a></li>
+    <li><a href="#五hdfs副本选择方式">五、HDFS副本选择方式</a></li>
+    <li><a href="#六namenode-工作机制">六、<strong>NameNode</strong> 工作机制</a>
+      <ol>
+        <li><a href="#61-namenode工作机制">6.1 NameNode工作机制</a></li>
+        <li><a href="#62--checkpoint-时间设置">6.2  <strong>CheckPoint</strong> <strong>时间设置</strong></a></li>
+      </ol>
+    </li>
+    <li><a href="#七datanode-工作机制">七、<strong>DataNode</strong> 工作机制</a></li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

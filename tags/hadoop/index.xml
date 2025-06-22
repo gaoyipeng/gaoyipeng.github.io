@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Hadoop on 十一爸爸的博客</title>
+    <link>https://garnettboy.gitee.io/tags/hadoop/</link>
+    <description>Recent content in Hadoop on 十一爸爸的博客</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Thu, 07 Sep 2023 10:36:40 +0000</lastBuildDate><atom:link href="https://garnettboy.gitee.io/tags/hadoop/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>（Hadoop23）Hadoop HA 高可用集群</title>
+      <link>https://garnettboy.gitee.io/p/hadoop23hadoop-ha-%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A4/</link>
+      <pubDate>Thu, 07 Sep 2023 10:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/hadoop23hadoop-ha-%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A4/</guid>
+      <description>常用链接
+说明 端口 链接 NameNode HTTP 端口（集群） 9870 http://hadoop1:9870/ 9870 http://hadoop2:9870/ 9870 http://hadoop3:9870/ MapReduce 查看执行任务端口（集群） 8080 http://hadoop1:8088/ 8080 http://hadoop2:8088/ 8080 http://hadoop3:8088/ 历史服务器通信端口 19888 http://hadoop1:19888/jobhistory 一、Hadoop 高可用集群 1.1 Hadoop 高可用集群规划 我们先来看下目前我们的Hadoop 集群的现状。
+hadoop1 hadoop2 hadoop3 hadoop4 hadoop5 HDFS NameNode DataNode SecondaryNameNode DataNode DataNode DataNode DataNode YARN NodeManager ResourceManager NodeManager NodeManager NodeManager NodeManager 可以看到我们的NameNode和ResourceManager都只有一个节点，如果节点发生故障，就会导致集群不可用。此时我们就需要HA高可用集群了（包括 HDFS 的 HA 和 YARN 的 HA），HA集群规划如下：
+hadoop1 hadoop2 hadoop3 hadoop4 hadoop5 HDFS NameNode NameNode NameNode DataNode DataNode DataNode DataNode DataNode journalnode journalnode journalnode YARN ResourceManager ResourceManager ResourceManager NodeManager NodeManager NodeManager NodeManager NodeManager Zookeeper Zookeeper Zookeeper Zookeeper ZKFC ZKFC ZKFC 注意：前提是服务器直接可以使用ssh免密登录</description>
+    </item>
+    
+    <item>
+      <title>（Hadoop22）Hadoop MapReduce 参数调优</title>
+      <link>https://garnettboy.gitee.io/p/hadoop22hadoop-mapreduce-%E5%8F%82%E6%95%B0%E8%B0%83%E4%BC%98/</link>
+      <pubDate>Wed, 06 Sep 2023 10:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/hadoop22hadoop-mapreduce-%E5%8F%82%E6%95%B0%E8%B0%83%E4%BC%98/</guid>
+      <description>一、MapReduce参数调优 1.1 map、suffle阶段优化 image-202309061709542121）自定义分区，减少数据倾斜：
+​	定义类，继承Partitioner接口，重写getPartition方法
+2）减少溢写的次数
+mapreduce.task.io.sort.mbShuffle的环形缓冲区大小，默认100m，可以提高到200mmapreduce.map.sort.spill.percent环形缓冲区溢出的阈值，默认80% ，可以提高的90% 3）增加每次Merge合并次数
+mapreduce.task.io.sort.factor默认10，可以提高到20 4）在不影响业务结果的前提条件下可以提前采用Combiner
+job.setCombinerClass(xxxReducer.class); 5）为了减少磁盘IO，可以采用Snappy或者LZO压缩
+conf.setBoolean(&amp;#34;mapreduce.map.output.compress&amp;#34;, true);conf.setClass(&amp;#34;mapreduce.map.output.compress.codec&amp;#34;, SnappyCodec.class,CompressionCodec.class); 6）mapreduce.map.memory.mb 默认MapTask内存上限1024MB。
+可以根据128m数据对应1G内存原则提高该内存。 7）mapreduce.map.java.opts：控制MapTask堆内存大小。（和mapreduce.map.memory.mb保持一致即可，如果内存不够，报：java.lang.OutOfMemoryError）
+8）mapreduce.map.cpu.vcores 默认MapTask的CPU核数1。计算密集型任务可以增加CPU核数
+9）异常重试：mapreduce.map.maxattempts每个Map Task最大重试次数，一旦重试次数超过该值，则认为Map Task运行失败，默认值：4。根据机器性能适当提高。
+1.2 reduce阶段优化 image-202309061713303461）`mapreduce.reduce.shuffle.parallelcopies` 每个Reduce去Map中拉取数据的并行数，默认值是5。可以提高到10。 2）`mapreduce.reduce.shuffle.input.buffer.percent `Buffer大小占Reduce可用内存的比例，默认值0.7。可以提高到0.8 3）`mapreduce.reduce.shuffle.merge.percent `Buffer中的数据达到多少比例开始写入磁盘，默认值0.66。可以提高到0.75 4）`mapreduce.reduce.memory.mb` 默认ReduceTask内存上限1024MB，根据128m数据对应1G内存原则，适当提高内存到4-6G 5）`mapreduce.reduce.java.opts`：控制ReduceTask堆内存大小。（如果内存不够，报：java.lang.OutOfMemoryError） 6）`mapreduce.reduce.cpu.vcores`默认ReduceTask的CPU核数1个。可以提高到2-4个 7）`mapreduce.reduce.maxattempts`每个Reduce Task最大重试次数，一旦重试次数超过该值，则认为Map Task运行失败，默认值：4。 8）`mapreduce.job.reduce.slowstart.completedmaps` 当MapTask完成的比例达到该值后才会为ReduceTask申请资源。默认是0.05。 9）`mapreduce.task.timeout`如果一个Task在一定时间内没有任何进入，即不会读取新的数据，也没有输出数据，则认为该Task处于Block状态，可能是卡住了，也许永远会卡住，为了防止因为用户程序永远Block住不退出，则强制设置了一个该超时时间（单位毫秒），默认是600000（10分钟）。如果你的程序对每条输入数据的处理时间过长，建议将该参数调大。 10）如果可以不用Reduce，尽可能不用。 示例：
+【mapred-site.xml】 &amp;lt;!-- 环形缓冲区大小，默认 100m --&amp;gt; &amp;lt;property&amp;gt; &amp;lt;name&amp;gt;mapreduce.task.io.sort.mb&amp;lt;/name&amp;gt; &amp;lt;value&amp;gt;100&amp;lt;/value&amp;gt; &amp;lt;/property&amp;gt; &amp;lt;!-- 环形缓冲区溢写阈值，默认 0.8 --&amp;gt; &amp;lt;property&amp;gt; &amp;lt;name&amp;gt;mapreduce.map.sort.spill.percent&amp;lt;/name&amp;gt; &amp;lt;value&amp;gt;0.80&amp;lt;/value&amp;gt; &amp;lt;/property&amp;gt; &amp;lt;!-- merge 合并次数，默认 10 个 --&amp;gt; &amp;lt;property&amp;gt; &amp;lt;name&amp;gt;mapreduce.</description>
+    </item>
+    
+    <item>
+      <title>（Hadoop21）HDFS 安全模式、慢磁盘监控、小文件归档、解归档、集群数据迁移</title>
+      <link>https://garnettboy.gitee.io/p/hadoop21hdfs-%E5%AE%89%E5%85%A8%E6%A8%A1%E5%BC%8F%E6%85%A2%E7%A3%81%E7%9B%98%E7%9B%91%E6%8E%A7%E5%B0%8F%E6%96%87%E4%BB%B6%E5%BD%92%E6%A1%A3%E8%A7%A3%E5%BD%92%E6%A1%A3%E9%9B%86%E7%BE%A4%E6%95%B0%E6%8D%AE%E8%BF%81%E7%A7%BB/</link>
+      <pubDate>Tue, 05 Sep 2023 16:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/hadoop21hdfs-%E5%AE%89%E5%85%A8%E6%A8%A1%E5%BC%8F%E6%85%A2%E7%A3%81%E7%9B%98%E7%9B%91%E6%8E%A7%E5%B0%8F%E6%96%87%E4%BB%B6%E5%BD%92%E6%A1%A3%E8%A7%A3%E5%BD%92%E6%A1%A3%E9%9B%86%E7%BE%A4%E6%95%B0%E6%8D%AE%E8%BF%81%E7%A7%BB/</guid>
+      <description>一、安全模式 1.1 安全模式概念 ​	**安全模式：**文件系统只接受读数据请求，而不接受删除、修改等变更请求
+（1）进入安全模式场景
+​	➢ NameNode 在加载镜像文件和编辑日志期间处于安全模式；
+​	➢ NameNode 再接收 DataNode 注册时，处于安全模式。
+（2）退出安全模式条件
+​	➢ dfs.namenode.safemode.min.datanodes:最小可用 datanode 数量，默认 0
+​	➢ dfs.namenode.safemode.threshold-pct:副本数达到最小要求的 block 占系统总 block 数的百分比，默认 0.999f。（只允许丢一个块）
+​	➢ dfs.namenode.safemode.extension:稳定时间，默认值 30000 毫秒，即 30 秒
+所以在集群启动后的30秒内，无法进行删除、修改等操作，等待30秒后，会自动解除。
+image-202309061542046231.2 安全模式操作命令 （1）bin/hdfs dfsadmin -safemode get （功能描述：查看安全模式状态）（2）bin/hdfs dfsadmin -safemode enter （功能描述：进入安全模式状态）（3）bin/hdfs dfsadmin -safemode leave（功能描述：离开安全模式状态）（4）bin/hdfs dfsadmin -safemode wait （功能描述：等待安全模式状态） 1.3 安全模式应用 1.3.1 磁盘修复 如果数据块损坏，集群重启或者集群状态检查时，会进入安全模式，这种情况下集群只可读，影响操作使用。
+image-20230906154818808此时执行命令，离开安全模式，那么集群会显示损坏的数据块信息：
+$ hdfs dfsadmin -safemode leaveSafe mode is OFF image-20230906155109584我们按照提示的信息，将损坏的数据块文件删除，集群就可以恢复正常。</description>
+    </item>
+    
+    <item>
+      <title>（Hadoop20）HDFS 冷热数据分离（异构存储）</title>
+      <link>https://garnettboy.gitee.io/p/hadoop20hdfs-%E5%86%B7%E7%83%AD%E6%95%B0%E6%8D%AE%E5%88%86%E7%A6%BB%E5%BC%82%E6%9E%84%E5%AD%98%E5%82%A8/</link>
+      <pubDate>Tue, 05 Sep 2023 10:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/hadoop20hdfs-%E5%86%B7%E7%83%AD%E6%95%B0%E6%8D%AE%E5%88%86%E7%A6%BB%E5%BC%82%E6%9E%84%E5%AD%98%E5%82%A8/</guid>
+      <description>一、冷热数据分离 冷热数据分离：不同的数据，存储在不同类型的硬盘中，达到最佳性能。比如有些我们不常用的数据，可以找一个普通磁盘存储，而经常使用的则可以存放在固态硬盘中。
+1.1 HDFS的存储类型 RAM_DISK：（内存镜像文件系统） SSD：（SSD固态硬盘） DISK：（普通磁盘，在HDFS中，如果没有主动声明数据目录存储类型默认都是DISK） ARCHIVE：（没有特指哪种存储介质，主要的指的是计算能力比较弱而存储密度比较高的存储介质，用来解决数据量的容量扩增的问题，一般用于归档） 1.2 HDFS的存储策略 策略ID 策略名称 副本分布 说明 15 Lazy_Persist RAM_DISK:1，DISK:n-1 一个副本保存在内存RAM_DISK中，其余副本保存在磁盘中。 12 All_SSD SSD:n 所有副本都保存在SSD中。 10 One_SSD SSD:1，DISK:n-1 一个副本保存在SSD中，其余副本保存在磁盘中。 7 Hot(default) DISK:n 所有副本保存在磁盘中，这也是默认的存储策略。 5 Warm DSIK:1，ARCHIVE:n-1 一个副本保存在磁盘上，其余副本保存在归档存储上。 2 Cold ARCHIVE:n 所有副本都保存在归档存储上。 1 Provided Provided:1,DISK:n-1 用于在HDFS之外存储数据 策略往往和存储介质相匹配，从Lazy_Persist到Cold，设备的访问速度从快到慢。
+1.3 异构存储 Shell 操作 （1）查看当前有哪些存储策略可以用,
+[admin@hadoop1 hadoop-3.1.3]$ hdfs storagepolicies -listPolicies Block Storage Policies: BlockStoragePolicy{PROVIDED:1, storageTypes=[PROVIDED, DISK], creationFallbacks=[PROVIDED, DISK], replicationFallbacks=[PROVIDED, DISK]} BlockStoragePolicy{COLD:2, storageTypes=[ARCHIVE], creationFallbacks=[], replicationFallbacks=[]} BlockStoragePolicy{WARM:5, storageTypes=[DISK, ARCHIVE], creationFallbacks=[DISK, ARCHIVE], replicationFallbacks=[DISK, ARCHIVE]} BlockStoragePolicy{HOT:7, storageTypes=[DISK], creationFallbacks=[], replicationFallbacks=[ARCHIVE]} BlockStoragePolicy{ONE_SSD:10, storageTypes=[SSD, DISK], creationFallbacks=[SSD, DISK], replicationFallbacks=[SSD, DISK]} BlockStoragePolicy{ALL_SSD:12, storageTypes=[SSD], creationFallbacks=[DISK], replicationFallbacks=[DISK]} BlockStoragePolicy{LAZY_PERSIST:15, storageTypes=[RAM_DISK, DISK], creationFallbacks=[DISK], replicationFallbacks=[DISK]} （2）为指定路径（数据存储目录）设置指定的存储策略</description>
+    </item>
+    
+    <item>
+      <title>（Hadoop19）HDFS 纠删码</title>
+      <link>https://garnettboy.gitee.io/p/hadoop19hdfs-%E7%BA%A0%E5%88%A0%E7%A0%81/</link>
+      <pubDate>Mon, 04 Sep 2023 10:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/hadoop19hdfs-%E7%BA%A0%E5%88%A0%E7%A0%81/</guid>
+      <description>一、纠删码 1.1 纠删码介绍 HDFS 默认情况下，一个文件有 3 个副本，这样提高了数据的可靠性，但也带来了 2 倍的冗余开销。Hadoop3.x 引入了纠删码，采用计算的方式，可以节省约 50％左右的存储空间。
+例如:一个300M的文件，一式三份，共计需要900M存储空间，如果使用纠偏码，以RS-3-2-1024k为例，代表该文件可以分为3个100M的数据单元，2个100M的校验单元（实际上大小并不是这么计算的，这里只是为了简化理解）分别部署在5个节点上，只要这 5 个单元中，只要有任意的 3 个单元存在（不管是数据单元还是校验单元，只要剩余总数大于3），就可以得到原始数据。每个单元的大小是 1024k=1024*1024=1048576。这样最终只需要500M空间，以实现节约存储空间的目的。
+image-202309051548074771.2 纠删码策略分类 查看当前支持的纠删码策略：
+[admin@hadoop1 hadoop-3.1.3]$ hdfs ec -listPolicies Erasure Coding Policies: ErasureCodingPolicy=[Name=RS-10-4-1024k, Schema=[ECSchema=[Codec=rs, numDataUnits=10, numParityUnits=4]], CellSize=1048576, Id=5], State=DISABLED ErasureCodingPolicy=[Name=RS-3-2-1024k, Schema=[ECSchema=[Codec=rs, numDataUnits=3, numParityUnits=2]], CellSize=1048576, Id=2], State=DISABLED ErasureCodingPolicy=[Name=RS-6-3-1024k, Schema=[ECSchema=[Codec=rs, numDataUnits=6, numParityUnits=3]], CellSize=1048576, Id=1], State=ENABLED ErasureCodingPolicy=[Name=RS-LEGACY-6-3-1024k, Schema=[ECSchema=[Codec=rs-legacy, numDataUnits=6, numParityUnits=3]], CellSize=1048576, Id=3], State=DISABLED ErasureCodingPolicy=[Name=XOR-2-1-1024k, Schema=[ECSchema=[Codec=xor, numDataUnits=2, numParityUnits=1]], CellSize=1048576, Id=4], State=DISABLED 可以看到默认开启（ENABLED）的纠偏码是 RS-6-3-1024k 。以下是各纠偏码的介绍：
+RS-3-2-1024k：使用 RS 编码，每 3 个数据单元，生成 2 个校验单元，共 5 个单元，也就是说：这 5 个单元中，只要有任意的 3 个单元存在（不管是数据单元还是校验单元，只要总数=3），就可以得到原始数据。每个单元的大小是 1024k=1024*1024=1048576。 RS-10-4-1024k：使用 RS 编码，每 10 个数据单元（cell），生成 4 个校验单元，共 14个单元，也就是说：这 14 个单元中，只要有任意的 10 个单元存在（不管是数据单元还是校验单元，只要总数=10），就可以得到原始数据。每个单元的大小是1024k=1024*1024=1048576。 RS-6-3-1024k：使用 RS 编码，每 6 个数据单元，生成 3 个校验单元，共 9 个单元，也就是说：这 9 个单元中，只要有任意的 6 个单元存在（不管是数据单元还是校验单元，只要总数=6），就可以得到原始数据。每个单元的大小是 1024k=1024*1024=1048576。 RS-LEGACY-6-3-1024k：策略和上面的 RS-6-3-1024k 一样，只是编码的算法用的是 rs-legacy。 XOR-2-1-1024k：使用 XOR 编码（速度比 RS 编码快），每 2 个数据单元，生成 1 个校验单元，共 3 个单元，也就是说：这 3 个单元中，只要有任意的 2 个单元存在（不管是数据单元还是校验单元，只要总数= 2），就可以得到原始数据。每个单元的大小是1024k=1024*1024=1048576。 我们服务器资源有限，只有5台，所以选择RS-3-2-1024k作为测试对象。</description>
+    </item>
+    
+    <item>
+      <title>（Hadoop18）HDFS 集群扩容及缩容、黑白名单配置</title>
+      <link>https://garnettboy.gitee.io/p/hadoop18hdfs-%E9%9B%86%E7%BE%A4%E6%89%A9%E5%AE%B9%E5%8F%8A%E7%BC%A9%E5%AE%B9%E9%BB%91%E7%99%BD%E5%90%8D%E5%8D%95%E9%85%8D%E7%BD%AE/</link>
+      <pubDate>Sun, 03 Sep 2023 11:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/hadoop18hdfs-%E9%9B%86%E7%BE%A4%E6%89%A9%E5%AE%B9%E5%8F%8A%E7%BC%A9%E5%AE%B9%E9%BB%91%E7%99%BD%E5%90%8D%E5%8D%95%E9%85%8D%E7%BD%AE/</guid>
+      <description>一、服务器扩容 如果原有的数据节点的容量已经不能满足存储数据的需求，需要在原有集群基础上动态添加新的数据节点。
+hadoop1 hadoop2 hadoop3 hadoop4 hadoop5 HDFS NameNode DataNode SecondaryNameNode DataNode DataNode DataNode DataNode YARN NodeManager ResourceManager NodeManager NodeManager NodeManager NodeManager 1.1 环境准备 新增hadoop4、hadoop5 两台数据节点，修改5台机器的hosts文件:
+集群信息： 8c 16g 300g
+192.168.2.169 hadoop1192.168.2.170 hadoop2192.168.2.171 hadoop3192.168.2.172 hadoop4192.168.2.173 hadoop5 将hadoop1的内容拷贝到hadoop4、hadoop5。
+[root@hadoop1 opt]# scp -r module/* admin@hadoop4:/opt/module/ [root@hadoop1 opt]# sudo scp /etc/profile.d/myjdk.sh root@hadoop4:/etc/profile.d/myjdk.sh [root@hadoop1 opt]# sudo scp /etc/profile.d/myhadoop.sh root@hadoop4:/etc/profile.d/myhadoop.sh [root@hadoop1 opt]# scp -r module/* admin@hadoop5:/opt/module/ [root@hadoop1 opt]# sudo scp /etc/profile.d/myjdk.sh root@hadoop5:/etc/profile.</description>
+    </item>
+    
+    <item>
+      <title>（Hadoop17）HDFS 数据均衡（Balancer和Disk Balancer）</title>
+      <link>https://garnettboy.gitee.io/p/hadoop17hdfs-%E6%95%B0%E6%8D%AE%E5%9D%87%E8%A1%A1balancer%E5%92%8Cdisk-balancer/</link>
+      <pubDate>Sun, 03 Sep 2023 10:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/hadoop17hdfs-%E6%95%B0%E6%8D%AE%E5%9D%87%E8%A1%A1balancer%E5%92%8Cdisk-balancer/</guid>
+      <description>一、HDFS 数据均衡 HDFS上的balance目前有两类：
+Balancer：多数据节点之间的balance，以解决不同DataNode节点之间数据量失衡问题。 Disk Balancer：单数据节点内磁盘之间的balance，以解决单DataNode节点不同存储目录数据之间数据量失衡问题。 1.1 Balancer(节点间平衡) ​	当一个新的数据节点加入hdfs集群时，它里面并没有数据。 因此分配给新机器的任何map任务很可能不会读取本地数据，从而增加了网络带宽的使用。 另一方面，当某些数据节点满了时，新的数据块只会被放置在非满的数据节点上，从而降低了它们的读取并行度。
+​	由于多种相互竞争的考虑因素，数据可能不会均匀地放置在 DataNode上。 HDFS 为管理员提供了一个工具，可以分析数据块的放置并重新平衡 DataNode 上的数据。Balancer 就是重新平衡的工具。
+image-202309041450376481.1.1 均衡命令 sbin/start-balancer.sh -threshold 10 对于参数10，代表的是集群中各个节点的磁盘空间利用率相差不超过10%，可根据实际情况进行调整。
+停止数据均衡命令：
+sbin/stop-balancer.sh 注意：由于HDFS需要启动单独的Rebalance Server来执行Rebalance操作，所以尽量不要在NameNode上执行start-balancer.sh，而是找一台比较空闲的机器。
+1.2 disk balancer(节点内平衡) 生成均衡计划 (如果只有一块磁盘，不会生成计划)：
+hdfs diskbalancer -plan hadoop2 执行均衡计划：
+hdfs diskbalancer -execute hadoop2.plan.json 查看当前均衡任务的执行情况：
+hdfs diskbalancer -query hadoop2 取消均衡任务：
+hdfs diskbalancer -cancel node102.plan.json </description>
+    </item>
+    
+    <item>
+      <title>（Hadoop16）Hadoop HDFS参数调优、多目录配置</title>
+      <link>https://garnettboy.gitee.io/p/hadoop16hadoop-hdfs%E5%8F%82%E6%95%B0%E8%B0%83%E4%BC%98%E5%A4%9A%E7%9B%AE%E5%BD%95%E9%85%8D%E7%BD%AE/</link>
+      <pubDate>Fri, 01 Sep 2023 10:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/hadoop16hadoop-hdfs%E5%8F%82%E6%95%B0%E8%B0%83%E4%BC%98%E5%A4%9A%E7%9B%AE%E5%BD%95%E9%85%8D%E7%BD%AE/</guid>
+      <description>一、Hadoop参数调优 1.1 NameNode、DataNode内存设置 [admin@hadoop1 hadoop]$ jps 18576 NodeManager 18132 NameNode 18745 JobHistoryServer 18266 DataNode 18878 Jps ##查看内存分配情况：MaxHeapSize [admin@hadoop1 hadoop]$ jmap -heap 18266 [admin@hadoop1 hadoop]$ jmap -heap 18132 image-20230901150454287结果：hadoop1节点NameNode 和 DataNode 占用内存相等，都是自动分配的。但是我们hadoop1节点全部内存16G，如果NameNode 和 DataNode实际占用8G内存，那服务器及其他软件将不能正常运行。
+那么NameNode 和 DataNode 占用内存应该怎么设置？
+参考：https://docs.cloudera.com/documentation/enterprise/6/release-notes/topics/rg_hardware_requirements.html#concept_fzz_dq4_gbb
+image-20230901152216405修改NameNode 和 DataNode 占用内存方法：
+【/opt/module/hadoop-3.1.3/etc/hadoop/hadoop-env.sh】 export HDFS_NAMENODE_OPTS=&amp;#34;-Dhadoop.security.logger=INFO,RFAS -Xmx2048m&amp;#34; export HDFS_DATANODE_OPTS=&amp;#34;-Dhadoop.security.logger=ERROR,RFAS -Xmx2048m&amp;#34; 1.2 NameNode心跳并发配置 image-20230901153657363【hdfs-site.xml】 &amp;lt;!--NameNode 有一个工作线程池，用来处理不同 DataNode 的并发心跳以及客户端并发的元数据操作。 对于大集群或者有大量客户端的集群来说，通常需要增大该参数。默认值是 10。--&amp;gt; &amp;lt;property&amp;gt; &amp;lt;name&amp;gt;dfs.namenode.handler.count&amp;lt;/name&amp;gt; &amp;lt;value&amp;gt;21&amp;lt;/value&amp;gt; &amp;lt;/property&amp;gt; 计算公司：image-20230901154002335即： print int(20*math.log(3))，比如集群规模（DataNode 台数）为 3 台时，此参数设置为 21。</description>
+    </item>
+    
+    <item>
+      <title>（Hadoop15）Hadoop-Yarn Tool接口</title>
+      <link>https://garnettboy.gitee.io/p/hadoop15hadoop-yarn-tool%E6%8E%A5%E5%8F%A3/</link>
+      <pubDate>Wed, 30 Aug 2023 10:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/hadoop15hadoop-yarn-tool%E6%8E%A5%E5%8F%A3/</guid>
+      <description>一、Yarn Tool接口 1.1 问题引出 我们在《Hadoop-MapReduce介绍及使用示例》中写了一个示例代码。
+image-20230809150808314我们直接在集群中运行
+[admin@hadoop1 software]$ hadoop jar mapreduce-flow.jar com.sxdx.hdfs.mapreduce.flow.FlowDriver /input/phone_data.txt /output 可以看到运行正常
+image-20230831102125004但是如果我们在参数中制定队列：
+[admin@hadoop1 software]$ hadoop jar mapreduce-flow.jar com.sxdx.hdfs.mapreduce.flow.FlowDriver -D mapreduce.job.queuename=root.hive /input/phone_data.txt /output1 image-20230831110438308执行后报错了，原因是我们代码进行参数接收时，将-D mapreduce.job.queuename=root.hive当成了输入参数，导致报错。
+image-20230831110837827而解决办法日志中也已经给出了：
+Hadoop command-line option parsing not performed. Implement the Tool interface and execute your application with ToolRunner to remedy this.翻译：Hadoop命令行选项解析未执行。实现Tool接口并使用ToolRunner执行应用程序以解决此问题。 1.2 Tool接口实例 我们的FlowMapper.java、FlowReducer.java、FlowBean.java类保持不变。
+新建一个FlowTool类实现Tool接口：
+package com.sxdx.hdfs.mapreduce.tool; import org.apache.hadoop.conf.Configuration; import org.apache.hadoop.fs.Path; import org.apache.hadoop.io.IntWritable; import org.apache.hadoop.io.Text; import org.apache.hadoop.mapreduce.Job; import org.</description>
+    </item>
+    
+    <item>
+      <title>（Hadoop14）Hadoop-Yarn 公平调度器</title>
+      <link>https://garnettboy.gitee.io/p/hadoop14hadoop-yarn-%E5%85%AC%E5%B9%B3%E8%B0%83%E5%BA%A6%E5%99%A8/</link>
+      <pubDate>Tue, 29 Aug 2023 10:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/hadoop14hadoop-yarn-%E5%85%AC%E5%B9%B3%E8%B0%83%E5%BA%A6%E5%99%A8/</guid>
+      <description>环境说明：原虚拟机配置太差，我们新搭建了集群，还是3台，配置为 8c 16g 300g，所以后续配置是在这个硬件配置的基础上进行的。
+192.168.2.169 hadoop1192.168.2.170 hadoop2192.168.2.171 hadoop3 一、公平调度器配置 1.1参考文件 （1）配置文件参考资料：
+https://hadoop.apache.org/docs/r3.1.3/hadoop-yarn/hadoop-yarn-site/FairScheduler.html （2）任务队列放置规则参考资料：
+https://blog.cloudera.com/untangling-apache-hadoop-yarn-part-4-fair-scheduler-queue-basics/ 1.2 需求 公平调度器默认有一个队列default,我们再创建2个队列，分别是 hive 和 admin（以用户所属组命名）。期望实现以下效果：若用户提交任务时指定队列，则任务提交到指定队列运行；若未指定队列，hive 用户提交的任务到 root.group.hive 队列运行，admin提交的任务到 root.group.admin队列运行（注：group 为用户所属组）。
+公平调度器的配置涉及到两个文件，一个是 yarn-site.xml，另一个是公平调度器队列分配文件 fair-scheduler.xml（文件名在yarn-site.xml文件中自定义）。
+二、配置多队列的公平调度器 2.1 创建用户 [root@hadoop1 ~]# useradd hive [root@hadoop1 ~]# passwd hive admin已经存在，不需要创建。
+2.2 修改 yarn-site.xml 文件 首先我们备份修改 yarn-site.xml 文件（避免后续想要换回容量调度器时还得修改文件）。
+[admin@hadoop1 hadoop]$ cp yarn-site.xml yarn-site.xml.Capacity 然后修改 yarn-site.xml 文件：
+&amp;lt;property&amp;gt; &amp;lt;description&amp;gt;配置使用公平调度器&amp;lt;/description&amp;gt; &amp;lt;name&amp;gt;yarn.resourcemanager.scheduler.class&amp;lt;/name&amp;gt; &amp;lt;value&amp;gt;org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.FairScheduler&amp;lt;/value&amp;gt; &amp;lt;/property&amp;gt; &amp;lt;property&amp;gt; &amp;lt;description&amp;gt;指定公平调度器队列分配配置文件&amp;lt;/description&amp;gt; &amp;lt;name&amp;gt;yarn.scheduler.fair.allocation.file&amp;lt;/name&amp;gt; &amp;lt;value&amp;gt;/opt/module/hadoop-3.1.3/etc/hadoop/fair-scheduler.xml&amp;lt;/value&amp;gt; &amp;lt;/property&amp;gt; &amp;lt;!--如果为false，队列间不会进行空闲资源共享--&amp;gt; &amp;lt;property&amp;gt; &amp;lt;name&amp;gt;yarn.scheduler.fair.preemption&amp;lt;/name&amp;gt; &amp;lt;value&amp;gt;true&amp;lt;/value&amp;gt; &amp;lt;description&amp;gt;允许队列间资源抢占&amp;lt;/description&amp;gt; &amp;lt;/property&amp;gt; 2.</description>
+    </item>
+    
+    <item>
+      <title>（Hadoop13）Hadoop-Yarn 常用命令、核心参数调优、及容量调度器多队列配置</title>
+      <link>https://garnettboy.gitee.io/p/hadoop13hadoop-yarn-%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E6%A0%B8%E5%BF%83%E5%8F%82%E6%95%B0%E8%B0%83%E4%BC%98%E5%8F%8A%E5%AE%B9%E9%87%8F%E8%B0%83%E5%BA%A6%E5%99%A8%E5%A4%9A%E9%98%9F%E5%88%97%E9%85%8D%E7%BD%AE/</link>
+      <pubDate>Mon, 21 Aug 2023 13:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/hadoop13hadoop-yarn-%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E6%A0%B8%E5%BF%83%E5%8F%82%E6%95%B0%E8%B0%83%E4%BC%98%E5%8F%8A%E5%AE%B9%E9%87%8F%E8%B0%83%E5%BA%A6%E5%99%A8%E5%A4%9A%E9%98%9F%E5%88%97%E9%85%8D%E7%BD%AE/</guid>
+      <description>一、Yarn 常用命令 # 1、查看所有 Application（任务） $ yarn application -list # 2、根据 Application 状态过滤,所有状态：ALL、NEW、NEW_SAVING、SUBMITTED、ACCEPTED、RUNNING、FINISHED、FAILED、KILLED $ yarn application -list -appStates FINISHED #3、Kill 掉 Application $ yarn application -kill &amp;lt;ApplicationId&amp;gt; #4、查询 Application 日志 $ yarn logs -applicationId &amp;lt;ApplicationId&amp;gt; #5、查询 Container 日志 $ yarn logs -applicationId &amp;lt;ApplicationId&amp;gt; -containerId &amp;lt;ContainerId&amp;gt; #6、查询正在运行的 Application $ yarn applicationattempt -list &amp;lt;ApplicationId&amp;gt; #7、打印 ApplicationAttemp 状态 yarn applicationattempt -status &amp;lt;ApplicationAttempt-Id&amp;gt; #8、列出所有 Container（注意：只有运行中的任务才能看到 container 的状态） $ yarn container -list &amp;lt;ApplicationAttempt-Id&amp;gt; #9、打印 Container 状态（注意：只有运行中的任务才能看到 container 的状态） $ yarn container -status &amp;lt;container-Id&amp;gt; #10、列出所有node节点 $ yarn node -list -all #11、更新加载队列配置（capacity-scheduler.</description>
+    </item>
+    
+    <item>
+      <title>（Hadoop12）Hadoop-Yarn 工作机制、调度器和调度算法</title>
+      <link>https://garnettboy.gitee.io/p/hadoop12hadoop-yarn-%E5%B7%A5%E4%BD%9C%E6%9C%BA%E5%88%B6%E8%B0%83%E5%BA%A6%E5%99%A8%E5%92%8C%E8%B0%83%E5%BA%A6%E7%AE%97%E6%B3%95/</link>
+      <pubDate>Mon, 21 Aug 2023 12:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/hadoop12hadoop-yarn-%E5%B7%A5%E4%BD%9C%E6%9C%BA%E5%88%B6%E8%B0%83%E5%BA%A6%E5%99%A8%E5%92%8C%E8%B0%83%E5%BA%A6%E7%AE%97%E6%B3%95/</guid>
+      <description>一、Yarn 基础架构 Yet Another Resource Negotiator 简称 YARN ，一种资源协调者，是 Hadoop 的资源管理器。主要管理CPU及内存。YARN 主要由 ResourceManager、NodeManager、ApplicationMaster 和 Container 等组件构成。
+image-20230824162312754二、Yarn 工作机制 image-20230824162536326（1）MR 程序提交到客户端所在的节点。 （2）YarnRunner 向 ResourceManager 申请一个 Application。 （3）RM 将该应用程序的资源路径返回给 YarnRunner。 （4）该程序将运行所需资源提交到 HDFS 上。 （5）程序资源提交完毕后，申请运行 mrAppMaster。 （6）RM 将用户的请求初始化成一个 Task。 （7）其中一个 NodeManager 领取到 Task 任务。 （8）该 NodeManager 创建容器 Container，并产生 MRAppmaster。 （9）Container 从 HDFS 上拷贝资源到本地。 （10）MRAppmaster 向 RM 申请运行 MapTask 资源。 （11）RM 将运行 MapTask 任务分配给另外两个 NodeManager，另两个 NodeManager 分别领取任务并创建容器。 （12）MR 向两个接收到任务的 NodeManager 发送程序启动脚本，这两个 NodeManager分别启动 MapTask，MapTask 对数据分区排序。 （13）MrAppMaster 等待所有 MapTask 运行完毕后，向 RM 申请容器，运行 ReduceTask。 （14）ReduceTask 向 MapTask 获取相应分区的数据。 （15）程序运行完毕后，MR 会向 RM 申请注销自己。 三、HDFS、YARN、MapReduce协作 HDFS、YARN、MapReduce三者协作完成一个Job过程如下：</description>
+    </item>
+    
+    <item>
+      <title>（Hadoop11）Hadoop-MapReduce压缩</title>
+      <link>https://garnettboy.gitee.io/p/hadoop11hadoop-mapreduce%E5%8E%8B%E7%BC%A9/</link>
+      <pubDate>Mon, 21 Aug 2023 11:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/hadoop11hadoop-mapreduce%E5%8E%8B%E7%BC%A9/</guid>
+      <description>一、MapReduce压缩 image-20230822141414966如上图所示 MapReduce 压缩分为以下3个位置：
+Map输入压缩 Map输出压缩、 Reducer输出压缩。 1.1 压缩的好处和坏处 压缩的优点：以减少磁盘 IO、减少磁盘存储空间 压缩的缺点：增加 CPU 开销 1.2 压缩原则 运算密集型的 Job，少用压缩 IO 密集型的 Job，多用压缩 二、MapReduce支持的压缩方式 压缩格式 是否Hadoop 自带 文件扩展名 是否支持切片 换成压缩格式后，原来的程序是否需要修改 备注 DEFLATE 是，直接使用 .deflate 否 和文本处理一样，不需要修改 Gzip 是，直接使用 .gz 否 和文本处理一样，不需要修改 bzip 是，直接使用 .bz2 是 和文本处理一样，不需要修改 LZO 否，需要安装 .lzo 是 需要建索引，还需要指定输入格式 Snappy 是，直接使用 .snappy 否 和文本处理一样，不需要修改 需要linux 6.5+、hadoop3 压缩性能的比较:
+image-20230822150520585三、压缩参数配置 3.1、压缩编码器 为了支持多种压缩/解压缩算法，Hadoop 引入了编码/解码器
+压缩格式 对应的编码/解码器 DEFLATE org.apache.hadoop.io.compress.DefaultCodec gzip org.apache.hadoop.io.compress.GzipCodec bzip org.</description>
+    </item>
+    
+    <item>
+      <title>（Hadoop10）Hadoop-MapReduce（MapJoin和ReduceJoin ）</title>
+      <link>https://garnettboy.gitee.io/p/hadoop10hadoop-mapreducemapjoin%E5%92%8Creducejoin/</link>
+      <pubDate>Mon, 21 Aug 2023 10:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/hadoop10hadoop-mapreducemapjoin%E5%92%8Creducejoin/</guid>
+      <description>我们前面的示例代码都是基于一个文件进行处理，如果我们需要同时处理多个相互关联的文件，并且通过关联信息进行计算输出怎么处理呢？2种方式：MapJoin和ReduceJoin 。我们下面分别用这2中方法实现这个需求。
+一、需求 以下2个文件：
+1、order.txt（订单文件）
+id pid amount1001	01	11002	02	21003	03	31004	01	41005	02	51006	03	6 2、pd.txt(产品文件)
+pid pname01	小米02	华为03	格力 将商品信息表中数据根据商品 pid 合并到订单数据表中。
+image-20230821162922672一、Reduce Join Reduce 端的主要工作是：在 Reduce 端以连接字段（pid）作为 key 的分组已经完成，我们只需要在每一个分组当中将那些来源于不同文件的记录分开，最后获取对应的字段进行合并。
+1.1 创建序列化Bean package com.sxdx.hdfs.mapreduce.reducejoin; import org.apache.hadoop.io.Writable; import java.io.DataInput; import java.io.DataOutput; import java.io.IOException; public class TableBean implements Writable { private String id; //订单 id private String pid; //产品 id private int amount; //产品数量 private String pname; //产品名称 private String flag; //判断是 order 表还是 pd 表的标志字段 @Override public void write(DataOutput dataOutput) throws IOException { dataOutput.</description>
+    </item>
+    
+    <item>
+      <title>（Hadoop9）Hadoop-MapReduce（ReduceTask过程分析）</title>
+      <link>https://garnettboy.gitee.io/p/hadoop9hadoop-mapreducereducetask%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/</link>
+      <pubDate>Fri, 18 Aug 2023 10:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/hadoop9hadoop-mapreducereducetask%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/</guid>
+      <description>一、MapReduce工作流程 image-20230811083233707ReduceTask：负责 Reduce 阶段的整个数据处理流程。
+二 ReduceTask过程分析 image-20230821092500669（1）Copy 阶段：ReduceTask 从各个 MapTask 上远程拷贝一片数据，并针对某一片数据，如果其大小超过一定阈值，则写到磁盘上，否则直接放到内存中。 （2）Sort 阶段：在远程拷贝数据的同时，ReduceTask 启动了两个后台线程对内存和磁盘上的文件进行合并，以防止内存使用过多或磁盘上文件过多。按照 MapReduce 语义，用户编写 reduce()函数输入数据是按 key 进行聚集的一组数据。为了将 key 相同的数据聚在一起，Hadoop 采用了基于排序的策略。由于各个 MapTask 已经实现对自己的处理结果进行了局部排序，因此，ReduceTask 只需对所有数据进行一次归并排序即可。 （3）Reduce 阶段：reduce()函数将计算结果写到 HDFS 上。 2.1 OutputFormat 数据输出 OutputFormat是MapReduce输出的基类，所有实现MapReduce输出都实现了 OutputFormat接口。
+image-20230818160217535默认输出格式为TextOutputFormat：按行输出到文件中。
+2.2 自定义OutputFormat方法 步骤一：编写 自定义RecordWriter 类
+package com.sxdx.hdfs.mapreduce.output; import org.apache.hadoop.fs.FSDataOutputStream; import org.apache.hadoop.fs.FileSystem; import org.apache.hadoop.fs.Path; import org.apache.hadoop.io.IOUtils; import org.apache.hadoop.io.Text; import org.apache.hadoop.mapreduce.RecordWriter; import org.apache.hadoop.mapreduce.TaskAttemptContext; import java.io.IOException; public class PhoneRecordWriter extends RecordWriter&amp;lt;Text, FlowBean&amp;gt; { @Override public void write(Text key, FlowBean value) throws IOException, InterruptedException { } @Override public void close(TaskAttemptContext context) throws IOException, InterruptedException { } } 步骤二：自定义 OutputFormat 类，直接继承FileOutputFormat类</description>
+    </item>
+    
+    <item>
+      <title>（Hadoop8）Hadoop-MapReduce（Shuffle过程分析）</title>
+      <link>https://garnettboy.gitee.io/p/hadoop8hadoop-mapreduceshuffle%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/</link>
+      <pubDate>Mon, 14 Aug 2023 10:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/hadoop8hadoop-mapreduceshuffle%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/</guid>
+      <description>一、Shuffle工作流程 Map 方法之后，Reduce 方法之前的数据处理过程称之为 Shuffle。
+image-20230811083233707Shuffle的处理流程示意图：
+image-20230815155957034（1）MapTask 收集我们的 map()方法输出的 kv 对，放到内存缓冲区中 （2）从内存缓冲区不断溢出本地磁盘文件，可能会溢出多个文件 （3）多个溢出文件会被合并成大的溢出文件 （4）在溢出过程及合并的过程中，都要调用 Partitioner 进行分区和针对 key 进行排序 （5）ReduceTask 根据自己的分区号，去各个 MapTask 机器上取相应的结果分区数据 （6）ReduceTask 会抓取到同一个分区的来自不同 MapTask 的结果文件，ReduceTask 会将这些文件再进行合并（归并排序） （7）合并成大文件后，Shuffle 的过程也就结束了，后面进入 ReduceTask 的逻辑运算过程（从文件中取出一个一个的键值对 Group，调用用户自定义的 reduce()方法） 注意：
+（1）Shuffle 中的缓冲区大小会影响到 MapReduce 程序的执行效率，原则上说，缓冲区越大，磁盘 io 的次数越少，执行速度就越快。 （2）缓冲区的大小可以通过参数调整，参数：mapreduce.task.io.sort.mb 默认 100M。 二、Partition分区 image-202308171009457392.1 分区的概念及默认分区 是在Map环节，将Map计算结果从内存输出到磁盘分区文件的过程。比如：
+image-20230816153524867然后ReduceTask 根据自己的分区号，去各个 MapTask 机器上取相应的结果分区数据。那么分区文件只能有一个吗？不是的，分区文件默认是一个，但是可以动态设置。
+我们来分析一下默认的分区是怎么生成的。
+如果我们设置了
+job.setNumReduceTasks(2); 则会使用默认分区处理方法：
+public class HashPartitioner&amp;lt;K, V&amp;gt; extends Partitioner&amp;lt;K, V&amp;gt; { public int getPartition(K key, V value, int numReduceTasks) { return (key.</description>
+    </item>
+    
+    <item>
+      <title>（Hadoop7）Hadoop-MapReduce（MapTask过程分析）</title>
+      <link>https://garnettboy.gitee.io/p/hadoop7hadoop-mapreducemaptask%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/</link>
+      <pubDate>Mon, 07 Aug 2023 11:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/hadoop7hadoop-mapreducemaptask%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/</guid>
+      <description>一、MapReduce工作流程 image-20230811083233707前面我们已经介绍过，一个完整的 MapReduce 程序在分布式运行时有三类实例进程：
+（1）MrAppMaster：负责整个程序的过程调度及状态协调。 （2）MapTask：负责 Map 阶段的整个数据处理流程。 （3）ReduceTask：负责 Reduce 阶段的整个数据处理流程。 我们开研究一下MapTask、ReduceTask、Shuffle阶段，Hadoop做了什么工作。
+二、MapTask过程分析 image-20230821091740637（1）Read 阶段：MapTask 通过 InputFormat 获得的 RecordReader，从输入 InputSplit 中解析出一个个 key/value。
+（2）Map 阶段：该节点主要是将解析出的 key/value 交给用户编写 map()函数处理，并产生一系列新的 key/value。
+（3）Collect 收集阶段：在用户编写 map()函数中，当数据处理完成后，一般会调用OutputCollector.collect()输出结果。在该函数内部，它会将生成的 key/value 分区（调用Partitioner），并写入一个环形内存缓冲区中。
+（4）Spill 阶段：即“溢写”，当环形缓冲区满后，MapReduce 会将数据写到本地磁盘上，生成一个临时文件。需要注意的是，将数据写入本地磁盘之前，先要对数据进行一次本地排序，并在必要时对数据进行合并、压缩等操作。
+（5）Merge 阶段：当所有数据处理完成后，MapTask 对所有临时文件进行一次合并，以确保最终只会生成一个数据文件。
+2.1 数据块和数据切片的区别 **数据块：**Block 是 HDFS 物理层面上把数据分成一块一块。数据块是 HDFS 存储数据单位，是物理层的分块。我们在学习HDFS是就知道Block 默认大小是128M。
+image-20230727094304459**数据切片：**数据切片只是在逻辑层面上对输入进行分片，并不会在磁盘上将其切分成片进行存储。数据切片是 MapReduce 程序计算输入数据的单位，一个切片会对应启动一个 MapTask。
+比如：一个文件200M，那么数据快会分为2分：数据块1（128M）、数据块2（72M）。但是数据切片却可以理解为把第一个数据块128M分为切片1（64M）、切片2(64M)、切片3（72M），但是实际上，切片1和切片2都属于数据块1。
+MapTask 的并行度决定 Map 阶段的任务处理并发度，进而影响到整个 Job 的处理速度。
+那么思考一个问题：1G 的数据，启动 8 个 MapTask，可以提高集群的并发处理能力。那么 1K 的数据，也启动 8 个 MapTask，会提高集群性能吗？MapTask 并行任务是否越多越好呢？当然不是。</description>
+    </item>
+    
+    <item>
+      <title>（Hadoop6）Hadoop-MapReduce介绍及使用示例</title>
+      <link>https://garnettboy.gitee.io/p/hadoop6hadoop-mapreduce%E4%BB%8B%E7%BB%8D%E5%8F%8A%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/</link>
+      <pubDate>Mon, 07 Aug 2023 10:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/hadoop6hadoop-mapreduce%E4%BB%8B%E7%BB%8D%E5%8F%8A%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/</guid>
+      <description>一、MapReduce概念 MapReduce 是一个分布式运算程序的编程框架，核心功能是将用户编写的业务逻辑代码和自带默认组件整合成一个完整的分布式运算程序，并运行在一个 Hadoop 集群上。它简单的实现一些接口，就可以完成一个分布式程序，这个分布式程序可以分布到大量廉价的 PC 机器上运行。
+二、MapReduce工作流程和编程规范 2.1 MapReduce 工作流程 一个完整的 MapReduce 程序在分布式运行时有三类实例进程：
+（1）MrAppMaster：负责整个程序的过程调度及状态协调。 （2）MapTask：负责 Map 阶段的整个数据处理流程。 （3）ReduceTask：负责 Reduce 阶段的整个数据处理流程。 2.2 MapReduce 编程规范 用户编写的程序分成三个部分：Mapper、Reducer 和 Driver。
+1．Mapper阶段
+（1）用户自定义的Mapper要继承自己的父类 （2）Mapper的输入数据是KV对的形式（KV的类型可自定义） （3）Mapper中的业务逻辑写在map()方法中 （4）Mapper的输出数据是KV对的形式（KV的类型可自定义） （5）map()方法（MapTask进程）对每一个&amp;lt;K,V&amp;gt;调用一次 2．Reducer阶段
+（1）用户自定义的Reducer要继承自己的父类 （2）Reducer的输入数据类型对应Mapper的输出数据类型，也是KV （3）Reducer的业务逻辑写在reduce()方法中 （4）ReduceTask进程对每一组相同k的&amp;lt;k,v&amp;gt;组调用一次reduce()方法 3．Driver阶段
+相当于YARN集群的客户端，用于提交我们整个程序到YARN集群，提交的是封装了MapReduce程序相关运行参数的job对象。
+三、Hadoop 序列化及序列化数据类型 3.1 Hadoop 序列化数据类型 image-202308091057259813.2 Hadoop 序列化 Hadoop 为什么要序列化？学习过java序列化就可以明白，由于Hadoop 在计算过程中涉及集群间数据的传输（内存对象&amp;ndash;&amp;gt;磁盘&amp;ndash;&amp;gt;内存对象），如果不是在同一个服务上，那么转化会失败。
+为什么不用 Java 的序列化？Java 的序列化是一个重量级序列化框架（Serializable），一个对象被序列化后，会附带很多额外的信息（各种校验信息，Header，继承体系等），不便于在网络中高效传输。所以，Hadoop 自己开发了一套序列化机制（Writable接口）。
+package org.apache.hadoop.io; import java.io.DataInput; import java.io.DataOutput; import java.io.IOException; import org.apache.hadoop.classification.InterfaceAudience.Public; import org.apache.hadoop.classification.InterfaceStability.Stable; @Public @Stable public interface Writable { void write(DataOutput var1) throws IOException; void readFields(DataInput var1) throws IOException; } Hadoop 中 bean 对象实现序列化接口需要以下7个步骤：</description>
+    </item>
+    
+    <item>
+      <title>（Hadoop5）Hadoop-Window环境配置</title>
+      <link>https://garnettboy.gitee.io/p/hadoop5hadoop-window%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/</link>
+      <pubDate>Wed, 02 Aug 2023 10:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/hadoop5hadoop-window%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/</guid>
+      <description>一、Window环境配置 我们前面操作HDFS都是直接使用命令，下面我们在windows环境搭建java工程来调用 linux 环境的Hadoop服务。首先我们需要在windows下搭建hadoop环境，并通过java工程调用HDFS服务。
+1.1 资料下载 Hadoop默认不支持windows环境，我们需要在windows下搭建hadoop环境，我们首先下载需要的客户端工具。
+Github下载：https://github.com/cdarlint/winutils
+网络不好可以使用如下连接：https://gitcode.net/mirrors/cdarlint/winutils
+image-20230804092618657我们使用和hadoop版本相近的hadoop-3.1.2来进行测试。
+1.2 配置环境变量 首先，我们将hadoop-3.1.2拷贝到非中文路径，我这里是D:\myinstall\hadoop-3.1.3\，然后编辑环境变量；
+image-20230804093032886image-20230804093107981二、创建java工程 源码：https://gitee.com/garnettboy/blog-demo-project.git
+2.1 pom.xml配置 &amp;lt;?xml version=&amp;#34;1.0&amp;#34; encoding=&amp;#34;UTF-8&amp;#34;?&amp;gt; &amp;lt;project xmlns=&amp;#34;http://maven.apache.org/POM/4.0.0&amp;#34; xmlns:xsi=&amp;#34;http://www.w3.org/2001/XMLSchema-instance&amp;#34; xsi:schemaLocation=&amp;#34;http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd&amp;#34;&amp;gt; &amp;lt;modelVersion&amp;gt;4.0.0&amp;lt;/modelVersion&amp;gt; &amp;lt;parent&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.boot&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-boot-starter-parent&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;2.7.12&amp;lt;/version&amp;gt; &amp;lt;relativePath/&amp;gt; &amp;lt;!-- lookup parent from repository --&amp;gt; &amp;lt;/parent&amp;gt; &amp;lt;groupId&amp;gt;com.sxdx&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;hdfs&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;0.0.1-SNAPSHOT&amp;lt;/version&amp;gt; &amp;lt;name&amp;gt;hadoop-hdfs&amp;lt;/name&amp;gt; &amp;lt;description&amp;gt;Demo project for Spring Boot&amp;lt;/description&amp;gt; &amp;lt;properties&amp;gt; &amp;lt;java.version&amp;gt;8&amp;lt;/java.version&amp;gt; &amp;lt;hadoop.version&amp;gt;3.1.3&amp;lt;/hadoop.version&amp;gt; &amp;lt;/properties&amp;gt; &amp;lt;dependencies&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.boot&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-boot-starter-web&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.springframework.boot&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;spring-boot-starter-test&amp;lt;/artifactId&amp;gt; &amp;lt;scope&amp;gt;test&amp;lt;/scope&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;!--Lombok简化代码--&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.projectlombok&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;lombok&amp;lt;/artifactId&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;!-- hadoop依赖 --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.</description>
+    </item>
+    
+    <item>
+      <title>（Hadoop4）Hadoop-HDFS介绍及使用</title>
+      <link>https://garnettboy.gitee.io/p/hadoop4hadoop-hdfs%E4%BB%8B%E7%BB%8D%E5%8F%8A%E4%BD%BF%E7%94%A8/</link>
+      <pubDate>Wed, 26 Jul 2023 10:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/hadoop4hadoop-hdfs%E4%BB%8B%E7%BB%8D%E5%8F%8A%E4%BD%BF%E7%94%A8/</guid>
+      <description>一、HDFS介绍 1.1 HDFS组成架构 Hadoop Distributed File System，简称 HDFS，是一个分布式文件系统。适合一次写入，多次读出的场景。HDFS中主要包含以下几个角色。
+image-202307270916395741）NameNode：就是Master，它是一个主管、管理者。
+（1）管理HDFS的名称空间； （2）配置副本策略（数据备份）； （3）管理数据块（Block）映射信息（大文件会分块存储）； （4）处理客户端读写请求。 2）DataNode：就是Slave。NameNode下达命令，DataNode执行实际的操作。
+（1）存储实际的数据块； （2）执行数据块的读/写操作。 3）Client：就是客户端。
+（1）文件切分。文件上传HDFS的时候，Client将文件切分成一个一个的Block，然后进行上传； （2）与NameNode交互，获取文件的位置信息； （3）与DataNode交互，读取或者写入数据； （4）Client提供一些命令来管理HDFS，比如NameNode格式化； （5）Client可以通过一些命令来访问HDFS，比如对HDFS增删查改操作； 4）Secondary NameNode：并非NameNode的热备。当NameNode挂掉的时候，它并不能马上替换NameNode并提供服务。
+（1）辅助NameNode，分担其工作量，比如定期合并Fsimage和Edits，并推送给NameNode ； （2）在紧急情况下，可辅助恢复NameNode。 1.2 HDFS优缺点 优点：
+1）高容错性：数据自动保存多个副本。它通过增加副本的形式，提高容错性，某一个副本丢失以后，它可以自动恢复。 2）适合处理大数据：能够处理数据规模达到GB、TB、甚至PB级别的数据、能够处理百万规模以上的文件数量。 缺点：
+1）不适合低延时数据访问。比如毫秒级的存储数据。 2）无法高效的对大量小文件进行存储。因为NameNode的内存总是有限的，存储大量小文件的话，它会占用NameNode大量的内存来存储文件目录和块信息。小文件存储的寻址时间会超过读取时间。 3）不支持并发写入、文件随机修改。一个文件只能有一个写，不允许多个线程同时写，仅支持数据append（追加），不支持文件的随机修改。 1.3 HDFS文件块 HDFS中的文件在物理上是分块存储（Block），块的大小可以通过配置参数( dfs.blocksize）来规定，默认大小在Hadoop2.x/3.x版本中是128M，1.x版本中是64M。
+image-20230727094304459这里为什么设置128M呢？经过研究寻址时间为传输时间的1%时，为最佳状态。
+（1）HDFS的块设置太小，一个文件可能被分为多个块进行存储，会增加寻址时间，程序一直在找块的开始位置； （2）如果块设置的太大，从磁盘传输数据的时间会明显大于定位这个块开始位置所需的时间。导致程序在处理这块数据时，会非常慢。 总结：HDFS块的大小设置主要取决于磁盘传输速率，一般设置为128M，如果是固态硬盘，可以设置为256M.
+二、HDFS常用命令 基本语法:hadoop fs .... 或者hdfs dfs ....,两个是完全相同的。
+2.1 ls 显示目录信息
+[admin@hadoop1 ~]$ hadoop fs -ls / Found 5 items drwxr-xr-x - admin supergroup 0 2023-07-31 10:50 /demo drwxr-xr-x - admin supergroup 0 2023-07-19 15:48 /input drwxr-xr-x - admin supergroup 0 2023-07-19 17:40 /output1 drwxr-xr-x - admin supergroup 0 2023-07-20 16:05 /output2 drwx------ - admin supergroup 0 2023-07-20 16:04 /tmp image-202307311719045612.</description>
+    </item>
+    
+    <item>
+      <title>（Hadoop3）Hadoop集群启停脚本及常用端口链接</title>
+      <link>https://garnettboy.gitee.io/p/hadoop3hadoop%E9%9B%86%E7%BE%A4%E5%90%AF%E5%81%9C%E8%84%9A%E6%9C%AC%E5%8F%8A%E5%B8%B8%E7%94%A8%E7%AB%AF%E5%8F%A3%E9%93%BE%E6%8E%A5/</link>
+      <pubDate>Fri, 21 Jul 2023 10:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/hadoop3hadoop%E9%9B%86%E7%BE%A4%E5%90%AF%E5%81%9C%E8%84%9A%E6%9C%AC%E5%8F%8A%E5%B8%B8%E7%94%A8%E7%AB%AF%E5%8F%A3%E9%93%BE%E6%8E%A5/</guid>
+      <description>一、Hadoop常用端口及链接 说明 端口 链接 NameNode 内部通信端口 8020 / 9000/9820 NameNode HTTP 端口 9870 http://hadoop1:9870/ MapReduce 查看执行任务端口 8080 http://hadoop2:8088/cluster 历史服务器通信端口 19888 http://hadoop1:19888/jobhistory 二、Hadoop集群常用脚本 前面我们搭建了hadoop集群，但是每次启停服务都需要分别登录不同的虚拟机，我们创建一个通用脚本，利用ssh实现统一管理集群服务启停。
+1.1 hadoop启停脚本 我们使用root用户在/bin目录下新建myhadoop
+[root@hadoop1 bin]# vim myhadoop #!/bin/bash if [ $# -lt 1 ] then echo &amp;#34;No Args Input...&amp;#34; exit ; fi case $1 in &amp;#34;start&amp;#34;) echo &amp;#34; =================== 启动 hadoop 集群 ===================&amp;#34; echo &amp;#34; --------------- 启动 hdfs ---------------&amp;#34; ssh hadoop1 &amp;#34;/opt/module/hadoop-3.1.3/sbin/start-dfs.sh&amp;#34; echo &amp;#34; --------------- 启动 yarn ---------------&amp;#34; ssh hadoop2 &amp;#34;/opt/module/hadoop-3.</description>
+    </item>
+    
+    <item>
+      <title>（Hadoop2）Hadoop集群环境搭建</title>
+      <link>https://garnettboy.gitee.io/p/hadoop2hadoop%E9%9B%86%E7%BE%A4%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/</link>
+      <pubDate>Fri, 14 Jul 2023 16:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/hadoop2hadoop%E9%9B%86%E7%BE%A4%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/</guid>
+      <description>一、环境介绍 centos7.5 jdk-8u212-linux-x64.tar.gz vmware15.5 hadoop-3.1.3 二、基础环境配置 先搭建一台模板机,后续通过克隆来创建其他虚拟机(同步创建root用户和普通用户admin)。模板机IP：
+192.168.40.128 vim /etc/hostname ##修改机器名称 hadoop0 2.1 模板机操作 1、配置admin用户具有 root 权限，方便后期加 sudo 执行 root 权限的命令
+vim /etc/sudoers ##修改/etc/sudoers 文件，在%wheel 这行下面添加一行 admin ALL=(ALL) NOPASSWD:ALL image-202307130915098842、在/opt目录下创建文件夹，并修改所属主和所属组
+mkdir /opt/module mkdir /opt/software chown admin:admin /opt/module chown admin:admin /opt/software 3、卸载虚拟机自带JDK
+rpm -qa | grep -i java | xargs -n1 rpm -e --nodeps 2.2 克隆3台虚拟机 关闭模板机，克隆3台虚拟，IP分别是：
+192.168.40.129 192.168.40.130 192.168.40.131 并修改对应的hostname分别为hadoop1、hadoop2、hadoop3，同时修改4台虚拟机的hosts文件：
+vim /etc/hosts ##插入以下内容 192.168.40.128 hadoop0 192.168.40.129 hadoop1 192.168.40.130 hadoop2 192.</description>
+    </item>
+    
+    <item>
+      <title>（Hadoop1）Hadoop简介</title>
+      <link>https://garnettboy.gitee.io/p/hadoop1hadoop%E7%AE%80%E4%BB%8B/</link>
+      <pubDate>Fri, 14 Jul 2023 15:36:40 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/hadoop1hadoop%E7%AE%80%E4%BB%8B/</guid>
+      <description>今天开始接触学习大数据相关的知识，先对Hadoop做一些简单了解。
+一、大数据岗位分类及生态体系 image-20230706152031121image-20230707111107163二、Hadoop三大发行版本 Apache 版本最原始（最基础）的版本，对于入门学习最好。2006
+官网地址：http://hadoop.apache.org
+Cloudera 内部集成了很多大数据框架，对应产品 CDH。2008
+官网地址：https://www.cloudera.com/downloads/cdh
+Hortonworks 文档较好，对应产品 HDP。2011
+Hortonworks 现在已经被 Cloudera 公司收购，推出新的品牌 CDP。
+三、Hadoop版本区别 image-20230706171311454四、Hadoop组件 4.1、HDFS Hadoop Distributed File System，简称 HDFS，是一个分布式文件系统。HDFS中主要包含以下几个角色。
+1）NameNode：存储文件的元数据，如文件名，文件目录结构，文件属性（生成时间、副本数、文件权限），以及每个文件的块列表和块所在的DataNode等。 2）DataNode：在本地文件系统存储文件块数据，存储实际的数据块；以及执行数据块的读/写操作。 3）Secondary NameNode：每隔一段时间对NameNode元数据备份。辅助NameNode，分担其工作量，比如定期合并Fsimage和Edits，并推送给NameNode 4.2、YARN Yet Another Resource Negotiator 简称 YARN ，另一种资源协调者，是 Hadoop 的资源管理器。主要管理CPU及内存。
+image-202307071057263204.3、MapReduce MapReduce 是hadoop中负责数据计算的组件。将计算过程分为两个阶段：Map 和 Reduce
+1）Map 阶段并行处理输入数据 2）Reduce 阶段对 Map 结果进行汇总 image-20230707110356490五、大数据常用软件说明 1）Sqoop：Sqoop 是一款开源的工具，主要用于在 Hadoop、Hive 与传统的数据库（MySQL）间进行数据的传递，可以将一个关系型数据库（例如 ：MySQL，Oracle 等）中的数据导进到 Hadoop 的 HDFS 中，也可以将 HDFS 的数据导进到关系型数据库中。
+2）Flume：Flume 是一个高可用的，高可靠的，分布式的海量日志采集、聚合和传输的系统，Flume 支持在日志系统中定制各类数据发送方，用于收集数据；</description>
+    </item>
+    
+  </channel>
+</rss>

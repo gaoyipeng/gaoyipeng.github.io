@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Hive函数（单行函数、聚合函数、UDTF 炸裂函数、窗口函数）'><title>（Hive-05）Hive函数</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/hive-05hive%E5%87%BD%E6%95%B0/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='（Hive-05）Hive函数'>
+<meta property='og:description' content='Hive函数（单行函数、聚合函数、UDTF 炸裂函数、窗口函数）'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/hive-05hive%E5%87%BD%E6%95%B0/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Hive' /><meta property='article:published_time' content='2023-09-25T10:36:40&#43;00:00'/><meta property='article:modified_time' content='2023-09-25T10:36:40&#43;00:00'/>
+<meta name="twitter:title" content="（Hive-05）Hive函数">
+<meta name="twitter:description" content="Hive函数（单行函数、聚合函数、UDTF 炸裂函数、窗口函数）">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/hive/" >
+                Hive
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/hive-05hive%E5%87%BD%E6%95%B0/">（Hive-05）Hive函数</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        Hive函数（单行函数、聚合函数、UDTF 炸裂函数、窗口函数）
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Sep 25, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 5 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <h2 id="一-hive函数"><strong>一</strong>、 Hive函数</h2>
+<p>Hive提供了大量的内置函数，按照其特点可大致分为如下几类：单行函数、聚合函数、炸裂函数、窗口函数。</p>
+<p>以下命令可用于查询所有内置函数的相关信息。</p>
+<p>1）查看系统内置函数</p>
+<pre tabindex="0"><code>hive&gt; show functions;
+</code></pre><p>2）查看内置函数用法</p>
+<pre tabindex="0"><code>hive&gt; desc function upper;
+</code></pre><p>3）查看内置函数详细信息</p>
+<pre tabindex="0"><code>hive&gt; desc function extended upper;
+</code></pre><h3 id="11-单行函数"><strong>1.1</strong> <strong>单行函数</strong></h3>
+<p>单行函数的特点是一进一出，即输入一行，输出一行。</p>
+<p>单行函数按照功能可分为如下几类: 日期函数、字符串函数、集合函数、数学函数、流程控制函数等。</p>
+<h4 id="111-算术运算函数">1.1.1 算术运算函数</h4>
+<table>
+<thead>
+<tr>
+<th>运算符</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A+B</td>
+<td>A和B 相加</td>
+</tr>
+<tr>
+<td>A-B</td>
+<td>A减去B</td>
+</tr>
+<tr>
+<td>A*B</td>
+<td>A和B 相乘</td>
+</tr>
+<tr>
+<td>A/B</td>
+<td>A除以B</td>
+</tr>
+<tr>
+<td>A%B</td>
+<td>A对B取余</td>
+</tr>
+<tr>
+<td>A&amp;B</td>
+<td>A和B按位取与</td>
+</tr>
+<tr>
+<td>A|B</td>
+<td>A和B按位取或</td>
+</tr>
+<tr>
+<td>A^B</td>
+<td>A和B按位取异或</td>
+</tr>
+<tr>
+<td>~A</td>
+<td>A按位取反</td>
+</tr>
+</tbody>
+</table>
+<p>案例实操：查询出所有员工的薪水后加1显示。</p>
+<pre tabindex="0"><code>hive (default)&gt; select sal + 1 from emp
+</code></pre><h4 id="112-数值函数">1.1.2 <strong>数值函数</strong></h4>
+<blockquote>
+<p>1）round：四舍五入</p>
+</blockquote>
+<pre tabindex="0"><code>hive&gt; select round(3.3);  3
+</code></pre><blockquote>
+<p>2）ceil：向上取整</p>
+</blockquote>
+<pre tabindex="0"><code>hive&gt; select ceil(3.1) ;  4
+</code></pre><blockquote>
+<p>3）floor：向下取整</p>
+</blockquote>
+<pre tabindex="0"><code>hive&gt; select floor(4.8);  4
+</code></pre><h4 id="113-字符串函数">1.1.3 字符串函数</h4>
+<p>1）substring：截取字符串</p>
+<blockquote>
+<p>语法一：substring(string A, int start) 
+返回值：string 
+说明：返回字符串A从start位置到结尾的字符串</p>
+<p>语法二：substring(string A, int start, int len) 
+返回值：string
+说明：返回字符串A从start位置开始，长度为len的字符串</p>
+</blockquote>
+<p>案例实操：</p>
+<p>​	（1）获取第二个字符以后的所有字符</p>
+<pre tabindex="0"><code>hive&gt; select substring(&#34;atguigu&#34;,2);
+</code></pre><p>输出：tguigu</p>
+<p>​	（2）获取倒数第三个字符以后的所有字符</p>
+<pre tabindex="0"><code>hive&gt; select substring(&#34;atguigu&#34;,-3);
+</code></pre><p>输出：igu</p>
+<p>​	（3）从第3个字符开始，向后获取2个字符</p>
+<pre tabindex="0"><code>hive&gt; select substring(&#34;atguigu&#34;,3,2);
+</code></pre><p>输出：gu</p>
+<p>2）replace：替换</p>
+<blockquote>
+<p>语法：replace(string A, string B, string C)</p>
+<p>返回值：string</p>
+<p>说明：将字符串A中的子字符串B替换为C。</p>
+</blockquote>
+<pre tabindex="0"><code>hive&gt; select replace(&#39;atguigu&#39;, &#39;a&#39;, &#39;A&#39;)
+</code></pre><p>输出：hive&gt; Atguigu</p>
+<p>3）regexp_replace：正则替换</p>
+<blockquote>
+<p>语法：regexp_replace(string A, string B, string C)</p>
+<p>返回值：string</p>
+<p>说明：将字符串A中的符合java正则表达式B的部分替换为C。注意，在有些情况下要使用转义字符。</p>
+</blockquote>
+<p>案例实操：</p>
+<pre tabindex="0"><code>hive&gt; select regexp_replace(&#39;100-200&#39;, &#39;(\\d+)&#39;, &#39;num&#39;) 
+</code></pre><p>输出：hive&gt; num-num</p>
+<p>4）regexp：正则匹配</p>
+<blockquote>
+<p>语法：字符串 regexp 正则表达式</p>
+<p>返回值：boolean</p>
+<p>说明：若字符串符合正则表达式，则返回true，否则返回false。</p>
+</blockquote>
+<p>​	（1）正则匹配成功，输出true</p>
+<pre tabindex="0"><code>hive&gt; select &#39;dfsaaaa&#39; regexp &#39;dfsa+&#39;
+</code></pre><p>输出：hive&gt; true</p>
+<p>​	（2）正则匹配失败，输出false</p>
+<pre tabindex="0"><code>hive&gt; select &#39;dfsaaaa&#39; regexp &#39;dfsb+&#39;;
+</code></pre><p>输出：hive&gt; false</p>
+<p>5）repeat：重复字符串</p>
+<blockquote>
+<p>语法：repeat(string A, int n)</p>
+<p>返回值：string</p>
+<p>说明：将字符串A重复n遍。</p>
+</blockquote>
+<pre tabindex="0"><code>hive&gt; select repeat(&#39;123&#39;, 3);
+</code></pre><p>输出：hive&gt; 123123123</p>
+<p>6）split：字符串切割</p>
+<blockquote>
+<p>语法：split(string str, string pat)</p>
+<p>返回值：array</p>
+<p>说明：按照正则表达式pat匹配到的内容分割str，分割后的字符串，以数组的形式返回。</p>
+</blockquote>
+<pre tabindex="0"><code>hive&gt; select split(&#39;a-b-c-d&#39;,&#39;-&#39;);
+</code></pre><p>输出：hive&gt; [&ldquo;a&rdquo;,&ldquo;b&rdquo;,&ldquo;c&rdquo;,&ldquo;d&rdquo;]</p>
+<p>7）nvl ：替换null值</p>
+<blockquote>
+<p>语法：nvl(A,B)</p>
+<p>说明：若A的值不为null，则返回A，否则返回B。</p>
+</blockquote>
+<p><code>hive&gt; select nvl(null,1);</code></p>
+<p>输出：hive&gt; 1</p>
+<p>8）concat ：拼接字符串</p>
+<blockquote>
+<p>语法：concat(string A, string B, string C, ……)</p>
+<p>返回：string</p>
+<p>说明：将A,B,C……等字符拼接为一个字符串</p>
+</blockquote>
+<p><code>hive&gt; select concat('beijing','-','shanghai','-','shenzhen');</code></p>
+<p>输出：hive&gt; beijing-shanghai-shenzhen</p>
+<p>9）concat_ws：以指定分隔符拼接字符串或者字符串数组</p>
+<blockquote>
+<p>语法：concat_ws(string A, string…| array(string))</p>
+<p>返回值：string</p>
+<p>说明：使用分隔符A拼接多个字符串，或者一个数组的所有元素。</p>
+</blockquote>
+<p><code>hive&gt;select concat_ws('-','beijing','shanghai','shenzhen');</code></p>
+<p>输出：hive&gt; beijing-shanghai-shenzhen</p>
+<p><code>hive&gt; select concat_ws('-',array('beijing','shenzhen','shanghai'));</code></p>
+<p>输出：hive&gt; beijing-shanghai-shenzhen</p>
+<p>10）get_json_object：解析json字符串</p>
+<blockquote>
+<p>语法：get_json_object(string json_string, string path)</p>
+<p>返回值：string</p>
+<p>说明：解析json的字符串json_string，返回path指定的内容。如果输入的json字符串无效，那么返回NULL。</p>
+</blockquote>
+<p>案例实操：</p>
+<p>​	（1）获取json数组里面的json具体数据</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">hive</span><span class="o">&gt;</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="n">get_json_object</span><span class="p">(</span><span class="s1">&#39;[{&#34;name&#34;:&#34;大海海&#34;,&#34;sex&#34;:&#34;男&#34;,&#34;age&#34;:&#34;25&#34;},{&#34;name&#34;:&#34;小宋宋&#34;,&#34;sex&#34;:&#34;男&#34;,&#34;age&#34;:&#34;47&#34;}]&#39;</span><span class="p">,</span><span class="s1">&#39;$.[0].name&#39;</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></div><p>输出：hive&gt; 大海海</p>
+<p>（2）获取json数组里面的数据</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">hive</span><span class="o">&gt;</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="n">get_json_object</span><span class="p">(</span><span class="s1">&#39;[{&#34;name&#34;:&#34;大海海&#34;,&#34;sex&#34;:&#34;男&#34;,&#34;age&#34;:&#34;25&#34;},{&#34;name&#34;:&#34;小宋宋&#34;,&#34;sex&#34;:&#34;男&#34;,&#34;age&#34;:&#34;47&#34;}]&#39;</span><span class="p">,</span><span class="s1">&#39;$.[0]&#39;</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></div><p>输出：hive&gt; {&ldquo;name&rdquo;:&ldquo;大海海&rdquo;,&ldquo;sex&rdquo;:&ldquo;男&rdquo;,&ldquo;age&rdquo;:&ldquo;25&rdquo;}sql</p>
+<h4 id="114-日期函数">1.1.4 <strong>日期函数</strong></h4>
+<p>1）unix_timestamp：返回当前或指定时间的时间戳</p>
+<blockquote>
+<p>语法：unix_timestamp()</p>
+<p>返回值：bigint</p>
+<p>说明：前面是日期后面是指，日期传进来的具体格式</p>
+</blockquote>
+<p>案例实操：</p>
+<p><code>hive&gt; select unix_timestamp('2022/08/08 08-08-08','yyyy/MM/dd HH-mm-ss');</code></p>
+<p>输出：1659946088</p>
+<p>2）from_unixtime：转化UNIX时间戳（从 1970-01-01 00:00:00 UTC 到指定时间的秒数）到当前时区的时间格式</p>
+<blockquote>
+<p>语法：from_unixtime(bigint unixtime[, string format])</p>
+<p>返回值：string</p>
+</blockquote>
+<p>案例实操：</p>
+<p><code>hive&gt; select from_unixtime(1659946088,'yyyy/MM/dd HH-mm-ss');</code></p>
+<p>输出：2022/08/08 08-08-08</p>
+<p>3）current_date：当前日期</p>
+<p><code>hive&gt; select current_date;</code></p>
+<p>4）current_timestamp：当前的日期加时间，并且精确的毫秒</p>
+<p><code>hive&gt; select current_timestamp;</code></p>
+<p>5）month：获取日期中的月</p>
+<blockquote>
+<p>语法：month (string date)</p>
+<p>返回值：int</p>
+</blockquote>
+<p>案例实操：</p>
+<p><code>hive&gt; select month('2022-08-08 08:08:08');</code></p>
+<p>输出：8</p>
+<p>6）day：获取日期中的日</p>
+<blockquote>
+<p>语法：day (string date)</p>
+<p>返回值：int</p>
+</blockquote>
+<p>案例实操：</p>
+<p><code>hive&gt; select day('2022-08-08 08:08:08')</code></p>
+<p>输出：8</p>
+<p>7）hour：获取日期中的小时</p>
+<p>语法：hour (string date)</p>
+<p>返回值：int</p>
+<p>案例实操：</p>
+<p><code>hive&gt; select hour('2022-08-08 08:08:08');</code></p>
+<p>输出：8</p>
+<p>8）datediff：两个日期相差的天数（结束日期减去开始日期的天数）</p>
+<blockquote>
+<p>语法：datediff(string enddate, string startdate)</p>
+<p>返回值：int</p>
+</blockquote>
+<p>案例实操：</p>
+<p><code>hive&gt; select datediff('2021-08-08','2022-10-09');</code></p>
+<p>输出：-427</p>
+<p>9）date_add：日期加天数</p>
+<blockquote>
+<p>语法：date_add(string startdate, int days)</p>
+<p>返回值：string</p>
+<p>说明：返回开始日期 startdate 增加 days 天后的日期</p>
+</blockquote>
+<p>案例实操：</p>
+<p><code>hive&gt; select date_add('2022-08-08',2);</code></p>
+<p>输出：2022-08-10</p>
+<p>10）date_sub：日期减天数</p>
+<blockquote>
+<p>语法：date_sub (string startdate, int days)</p>
+<p>返回值：string</p>
+<p>说明：返回开始日期startdate减少days天后的日期。</p>
+</blockquote>
+<p>案例实操：</p>
+<p><code>hive&gt; select date_sub('2022-08-08',2);</code></p>
+<p>输出：2022-08-06</p>
+<p>11）date_format:将标准日期解析成指定格式字符串</p>
+<p><code>hive&gt; select date_format('2022-08-08','yyyy年-MM月-dd日')</code></p>
+<p>输出：2022年-08月-08日</p>
+<h4 id="115-流程控制函数">1.1.5 流程控制函数</h4>
+<p>1）case when：条件判断函数</p>
+<blockquote>
+<p>语法一：case when a then b [when c then d]* [else e] end</p>
+<p>返回值：T</p>
+<p>说明：如果a为true，则返回b；如果c为true，则返回d；否则返回 e</p>
+</blockquote>
+<p><code>hive&gt; select case when 1=2 then 'tom' when 2=2 then 'mary' else 'tim' end from tabl eName;</code></p>
+<p>输出：mary</p>
+<blockquote>
+<p>语法二： case a when b then c [when d then e]* [else f] end</p>
+<p>返回值: T</p>
+<p>说明：如果a等于b，那么返回c；如果a等于d，那么返回e；否则返回f</p>
+</blockquote>
+<p><code>hive&gt; select case 100 when 50 then 'tom' when 100 then 'mary' else 'tim' end from t ableName;</code></p>
+<p>输出：mary</p>
+<p>2）if: 条件判断，类似于Java中三元运算符</p>
+<blockquote>
+<p>语法：if（boolean testCondition, T valueTrue, T valueFalseOrNull）</p>
+<p>返回值：T</p>
+<p>说明：当条件testCondition为true时，返回valueTrue；否则返回valueFalseOrNull</p>
+</blockquote>
+<p>（1）条件满足，输出正确</p>
+<p><code>hive&gt; select if(10 &gt; 5,'正确','错误');</code></p>
+<p>输出：正确</p>
+<p>（2）条件满足，输出错误</p>
+<p><code>hive&gt; select if(10 &lt; 5,'正确','错误');</code></p>
+<p>输出：错误</p>
+<h4 id="116-集合函数">1.1.6 集合函数</h4>
+<p>1）size：集合中元素的个数</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">hive</span><span class="o">&gt;</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="k">size</span><span class="p">(</span><span class="n">friends</span><span class="p">)</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">test</span><span class="p">;</span><span class="w">  </span><span class="c1">--  每一行数据中的friends集合里的个数
+</span></span></span></code></pre></div><p>2）map：创建map集合</p>
+<blockquote>
+<p>语法：map (key1, value1, key2, value2, …)</p>
+<p>说明：根据输入的key和value对构建map类型</p>
+</blockquote>
+<p>案例实操：</p>
+<p><code>hive&gt; select map('xiaohai',1,'dahai',2);</code></p>
+<p>输出：hive&gt; {&ldquo;xiaohai&rdquo;:1,&ldquo;dahai&rdquo;:2}</p>
+<p>3）map_keys： 返回map中的key</p>
+<p><code>hive&gt; select map_keys(map('xiaohai',1,'dahai',2));</code></p>
+<p>输出：hive&gt;[&ldquo;xiaohai&rdquo;,&ldquo;dahai&rdquo;]</p>
+<p>4）map_values: 返回map中的value</p>
+<p><code>hive&gt; select map_values(map('xiaohai',1,'dahai',2));</code></p>
+<p>输出：hive&gt;[1,2]</p>
+<p>5）array声明array集合</p>
+<blockquote>
+<p>语法：array(val1, val2, …)</p>
+<p>说明：根据输入的参数构建数组array类</p>
+</blockquote>
+<p><code>hive&gt; select array('1','2','3','4');</code></p>
+<p>输出：hive&gt;[&ldquo;1&rdquo;,&ldquo;2&rdquo;,&ldquo;3&rdquo;,&ldquo;4&rdquo;]</p>
+<p>6）array_contains: 判断array中是否包含某个元素</p>
+<p><code>hive&gt; select array_contains(array('a','b','c','d'),'a');</code></p>
+<p>输出：hive&gt; true</p>
+<p>7）sort_array：将array中的元素排序</p>
+<p><code>hive&gt; select sort_array(array('a','d','c'));</code></p>
+<p>输出：hive&gt; [&ldquo;a&rdquo;,&ldquo;c&rdquo;,&ldquo;d&rdquo;]</p>
+<p>8）struct声明struct中的各属性</p>
+<blockquote>
+<p>语法：struct(val1, val2, val3, …)</p>
+<p>说明：根据输入的参数构建结构体struct类</p>
+</blockquote>
+<p><code>hive&gt; select struct('name','age','weight');</code></p>
+<p>输出：hive&gt; {&ldquo;col1&rdquo;:&ldquo;name&rdquo;,&ldquo;col2&rdquo;:&ldquo;age&rdquo;,&ldquo;col3&rdquo;:&ldquo;weight&rdquo;}</p>
+<p>9）named_struct声明struct的属性和值</p>
+<p><code>hive&gt; select named_struct('name','xiaosong','age',18,'weight',80);</code></p>
+<p>输出：hive&gt; {&ldquo;name&rdquo;:&ldquo;xiaosong&rdquo;,&ldquo;age&rdquo;:18,&ldquo;weight&rdquo;:80}</p>
+<h3 id="12-聚合函数">1.2 聚合函数</h3>
+<p>多进一出 （多行传入，一个行输出）。</p>
+<p>测试表数据:</p>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>sex</th>
+<th>birthday</th>
+<th>hiredate</th>
+<th>job</th>
+<th>salary</th>
+<th>bonus</th>
+<th>friends</th>
+<th>children</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>张无忌</td>
+<td>男</td>
+<td>1980/02/12</td>
+<td>2022/08/09</td>
+<td>销售</td>
+<td>3000</td>
+<td>12000</td>
+<td>[阿朱，小昭]</td>
+<td>{张小无:8,张小忌:9}</td>
+</tr>
+<tr>
+<td>赵敏</td>
+<td>女</td>
+<td>1982/05/18</td>
+<td>2022/09/10</td>
+<td>行政</td>
+<td>9000</td>
+<td>2000</td>
+<td>[阿三，阿四]</td>
+<td>{赵小敏:8}</td>
+</tr>
+<tr>
+<td>黄蓉</td>
+<td>女</td>
+<td>1982/04/13</td>
+<td>2022/06/11</td>
+<td>行政</td>
+<td>12000</td>
+<td>Null</td>
+<td>[东邪，西毒]</td>
+<td>{郭芙:5,郭襄:4}</td>
+</tr>
+</tbody>
+</table>
+<p>1）普通聚合</p>
+<pre tabindex="0"><code>count(*)，表示统计所有行数，包含null值；
+count(某列)，表示该列一共有多少行，不包含null值；
+max()，求最大值，不包含null，除非所有值都是null；
+min()，求最小值，不包含null，除非所有值都是null；
+sum()，求和，不包含null。
+avg()，求平均值，不包含null。
+</code></pre><p>2）<strong>collect_list</strong> 收集并形成list集合，<strong>结果不去重</strong></p>
+<pre tabindex="0"><code>hive&gt;select sex,collect_list(job) from employee group by sex;
+</code></pre><p>结果：</p>
+<p>女	[&ldquo;行政&rdquo;,&ldquo;研发&rdquo;,&ldquo;行政&rdquo;,&ldquo;前台&rdquo;]</p>
+<p>男	[&ldquo;销售&rdquo;,&ldquo;研发&rdquo;,&ldquo;销售&rdquo;,&ldquo;前台&rdquo;]</p>
+<p>3）<strong>collect_set</strong> 收集并形成set集合，<strong>结果去重</strong></p>
+<pre tabindex="0"><code>hive&gt;select sex,collect_set(job) from employee group by  sex;
+</code></pre><p>结果：</p>
+<p>女	[&ldquo;行政&rdquo;,&ldquo;研发&rdquo;,&ldquo;前台&rdquo;]</p>
+<p>男	[&ldquo;销售&rdquo;,&ldquo;研发&rdquo;,&ldquo;前台&rdquo;]</p>
+<h3 id="13-udtf-炸裂函数">1.3 UDTF 炸裂函数</h3>
+<p>UDTF：接收一行数据，输出一行或者多行数据。</p>
+<h4 id="131-explode">1.3.1 explode</h4>
+<blockquote>
+<p>语法： explode(array a)、explode(MAP)</p>
+<p>返回值： Array Type、N rows</p>
+<p>说明：对于a中的每个元素，将生成一行且包含该元素；每行对应每个map键-值，其中一个字段是map的键，另一个字段是map的值</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">select</span><span class="w"> </span><span class="n">explode</span><span class="p">(</span><span class="nb">array</span><span class="p">(</span><span class="s2">&#34;a&#34;</span><span class="p">,</span><span class="s2">&#34;b&#34;</span><span class="p">,</span><span class="s2">&#34;c&#34;</span><span class="p">))</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">itsm</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">select</span><span class="w"> </span><span class="n">explode</span><span class="p">(</span><span class="k">map</span><span class="p">(</span><span class="s2">&#34;a&#34;</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="s2">&#34;b&#34;</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="s2">&#34;c&#34;</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="p">(</span><span class="n">ke</span><span class="p">,</span><span class="n">vu</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/05-hive-05/image-20230925150318600.png" >
+		<img src="/../../images/05-hive-05/image-20230925150318600.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230925150318600">
+	</a>
+	
+	<figcaption>image-20230925150318600</figcaption>
+	
+</figure><figure 
+	>
+	<a href="/../../images/05-hive-05/image-20230925150340270.png" >
+		<img src="/../../images/05-hive-05/image-20230925150340270.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230925150340270">
+	</a>
+	
+	<figcaption>image-20230925150340270</figcaption>
+	
+</figure></p>
+<h4 id="132-posexplode">1.3.2 posexplode</h4>
+<blockquote>
+<p>语法： posexplode(ARRAY)</p>
+<p>返回值：N rows</p>
+<p>说明：与explode类似，不同的是还返回各元素在数组中的位置</p>
+</blockquote>
+<p><figure 
+	>
+	<a href="/../../images/05-hive-05/image-20231007163045718.png" >
+		<img src="/../../images/05-hive-05/image-20231007163045718.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231007163045718">
+	</a>
+	
+	<figcaption>image-20231007163045718</figcaption>
+	
+</figure></p>
+<h4 id="133-inline">1.3.3 inline</h4>
+<blockquote>
+<p>语法： inline(ARRAY&laquo;struct<a class="link" href="f1:T1,.....fn:Tn" >f1:T1,.....fn:Tn</a>&gt;)</p>
+<p>返回值：N rows</p>
+</blockquote>
+<p><figure 
+	>
+	<a href="/../../images/05-hive-05/image-20230925150917087.png" >
+		<img src="/../../images/05-hive-05/image-20230925150917087.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230925150917087">
+	</a>
+	
+	<figcaption>image-20230925150917087</figcaption>
+	
+</figure></p>
+<h4 id="134-lateral-view">1.3.4 lateral view</h4>
+<p>通常和 UDTF 函数配合使用，<strong>lateral view</strong>可以将UDTF应用到原表的每行数据，将每行数据转换为一行或者多行，并将源表中每行输出结果和该行连接起来，形成一个虚拟表。</p>
+<p><figure 
+	>
+	<a href="/../../images/05-hive-05/image-20230925151808542.png" >
+		<img src="/../../images/05-hive-05/image-20230925151808542.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230925151808542">
+	</a>
+	
+	<figcaption>image-20230925151808542</figcaption>
+	
+</figure></p>
+<p>实例：</p>
+<p>1）测试表数据:</p>
+<table>
+<thead>
+<tr>
+<th>movie</th>
+<th>category</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>《疑犯追踪》</td>
+<td>悬疑，动作，科幻，剧情</td>
+</tr>
+<tr>
+<td>《Lie to me》</td>
+<td>悬疑，警匪，动作，心理，剧情</td>
+</tr>
+<tr>
+<td>《战狼2》</td>
+<td>战争，动作，灾难</td>
+</tr>
+</tbody>
+</table>
+<p>2）建表语句</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">create</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">movie_info</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">movie</span><span class="w"> </span><span class="n">string</span><span class="p">,</span><span class="w">   </span><span class="c1">--电影名称
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">  </span><span class="n">category</span><span class="w"> </span><span class="n">string</span><span class="w">  </span><span class="c1">--电影分类
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">)</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">row</span><span class="w"> </span><span class="n">format</span><span class="w"> </span><span class="n">delimited</span><span class="w"> </span><span class="n">fields</span><span class="w"> </span><span class="n">terminated</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="s2">&#34;\t&#34;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">insert</span><span class="w"> </span><span class="n">overwrite</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">movie_info</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">values</span><span class="w"> </span><span class="p">(</span><span class="s2">&#34;《疑犯追踪》&#34;</span><span class="p">,</span><span class="w"> </span><span class="s2">&#34;悬疑,动作,科幻,剧情&#34;</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">(</span><span class="s2">&#34;《Lie to me》&#34;</span><span class="p">,</span><span class="w"> </span><span class="s2">&#34;悬疑,警匪,动作,心理,剧情&#34;</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">(</span><span class="s2">&#34;《战狼2》&#34;</span><span class="p">,</span><span class="w"> </span><span class="s2">&#34;战争,动作,灾难&#34;</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></div><p>根据上述电影信息表，统计各分类的电影数量，期望结果如下：</p>
+<table>
+<thead>
+<tr>
+<th>剧情</th>
+<th>2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>动作</td>
+<td>3</td>
+</tr>
+<tr>
+<td>心理</td>
+<td>1</td>
+</tr>
+<tr>
+<td>悬疑</td>
+<td>2</td>
+</tr>
+<tr>
+<td>战争</td>
+<td>1</td>
+</tr>
+<tr>
+<td>灾难</td>
+<td>1</td>
+</tr>
+<tr>
+<td>科幻</td>
+<td>1</td>
+</tr>
+<tr>
+<td>警匪</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">select</span><span class="w"> </span><span class="n">cate</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">from</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">select</span><span class="w"> </span><span class="n">movie</span><span class="p">,</span><span class="w"> </span><span class="n">cate</span><span class="w"> </span><span class="k">from</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">select</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="n">movie</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="n">split</span><span class="p">(</span><span class="n">category</span><span class="p">,</span><span class="s1">&#39;,&#39;</span><span class="p">)</span><span class="w"> </span><span class="n">cates</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">from</span><span class="w"> </span><span class="n">movie_info</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="p">)</span><span class="n">t1</span><span class="w"> </span><span class="k">lateral</span><span class="w"> </span><span class="k">view</span><span class="w"> </span><span class="n">explode</span><span class="p">(</span><span class="n">cates</span><span class="p">)</span><span class="w"> </span><span class="n">tmp</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">cate</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="n">t2</span><span class="w"> </span><span class="k">group</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">cate</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><h3 id="14-窗口函数over">1.4 窗口函数（over）</h3>
+<p>窗口函数能为每行数据划分一个窗口，然后对窗口内的数据进行计算，最后将结果返回给该行数据。</p>
+<h4 id="141-窗口函数语法">1.4.1 窗口函数语法</h4>
+<p><strong>基本语法：</strong></p>
+<p><figure 
+	>
+	<a href="/../../images/05-hive-05/image-20230926091226756.png" >
+		<img src="/../../images/05-hive-05/image-20230926091226756.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230926091226756">
+	</a>
+	
+	<figcaption>image-20230926091226756</figcaption>
+	
+</figure></p>
+<blockquote>
+<p><strong>窗口范围的定义分为两种：基于行的、基于值的。</strong></p>
+</blockquote>
+<p><strong>（1）基于行的</strong>：选择某些行的数据作为窗口范围。</p>
+<p><figure 
+	>
+	<a href="/../../images/05-hive-05/image-20230926090810558.png" >
+		<img src="/../../images/05-hive-05/image-20230926090810558.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230926090810558">
+	</a>
+	
+	<figcaption>image-20230926090810558</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/05-hive-05/image-20230926144239466.png" >
+		<img src="/../../images/05-hive-05/image-20230926144239466.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230926144239466">
+	</a>
+	
+	<figcaption>image-20230926144239466</figcaption>
+	
+</figure></p>
+<p><strong>上面示例的计算逻辑</strong>：order_date升序排列，获取当前记录前的所有记录（包含当前记录），order_date小于等于当前记录的所有记录的amount字段并取和。</p>
+<p><strong>（2）基于值的</strong></p>
+<p><figure 
+	>
+	<a href="/../../images/05-hive-05/image-20230926144100446.png" >
+		<img src="/../../images/05-hive-05/image-20230926144100446.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230926144100446">
+	</a>
+	
+	<figcaption>image-20230926144100446</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/05-hive-05/image-20230926150439869.png" >
+		<img src="/../../images/05-hive-05/image-20230926150439869.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230926150439869">
+	</a>
+	
+	<figcaption>image-20230926150439869</figcaption>
+	
+</figure></p>
+<p><strong>上面示例的计算逻辑</strong>：order_date升序排列，获取所有记录，order_date小于等于当前记录的所有记录的amount字段并取和。</p>
+<h4 id="142-窗口分区partition-by">1.4.2 窗口分区（partition by）</h4>
+<p>我们上面不管<strong>基于行的</strong>还是<strong>基于值的</strong>窗口，都是基于全表的。而在定义窗口范围时，可以指定分区字段，每个分区单独划分窗口。</p>
+<p><figure 
+	>
+	<a href="/../../images/05-hive-05/image-20230926152137057.png" >
+		<img src="/../../images/05-hive-05/image-20230926152137057.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230926152137057">
+	</a>
+	
+	<figcaption>image-20230926152137057</figcaption>
+	
+</figure></p>
+<p><strong>上面示例的计算逻辑</strong>：获取每个用户（userid区分）所有记录，获取当前记录前的所有记录（包含当前记录），order_date小于等于当前记录的所有记录的amount字段并取和。</p>
+<h4 id="143-窗口函数缺省值说明">1.4.3 窗口函数缺省值说明</h4>
+<p><figure 
+	>
+	<a href="/../../images/05-hive-05/image-20230926153735757.png" >
+		<img src="/../../images/05-hive-05/image-20230926153735757.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230926153735757">
+	</a>
+	
+	<figcaption>image-20230926153735757</figcaption>
+	
+</figure></p>
+<p><strong>常用于窗口的函数有以下几类：聚合函数、跨行取值函数、排名函数。</strong></p>
+<h4 id="144-窗口使用的聚合函数">1.4.4 窗口使用的聚合函数</h4>
+<pre tabindex="0"><code>max()：最大值。
+min()：最小值。
+sum()：求和。
+avg()：平均值。
+count()：计数。
+</code></pre><h4 id="145-跨行取值函数leadlagfirst_valuelast_value">1.4.5 跨行取值函数（lead、lag、first_value、last_value）</h4>
+<p>（1）lead和lag：获取当前行的上（lag）下（lead）边某行，某个字段的值。</p>
+<p><figure 
+	>
+	<a href="/../../images/05-hive-05/image-20231007171929905.png" >
+		<img src="/../../images/05-hive-05/image-20231007171929905.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231007171929905">
+	</a>
+	
+	<figcaption>image-20231007171929905</figcaption>
+	
+</figure></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">create</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">order_info</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">order_id</span><span class="w"> </span><span class="nb">int</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">user_id</span><span class="w"> </span><span class="nb">int</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">order_date</span><span class="w"> </span><span class="n">string</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">amount</span><span class="w"> </span><span class="nb">int</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">insert</span><span class="w"> </span><span class="n">overwrite</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">order_info</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">values</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">       </span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1001</span><span class="p">,</span><span class="s1">&#39;2022-01-01&#39;</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1001</span><span class="p">,</span><span class="s1">&#39;2022-01-02&#39;</span><span class="p">,</span><span class="mi">20</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">1001</span><span class="p">,</span><span class="s1">&#39;2022-01-03&#39;</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">1002</span><span class="p">,</span><span class="s1">&#39;2022-01-04&#39;</span><span class="p">,</span><span class="mi">30</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">1002</span><span class="p">,</span><span class="s1">&#39;2022-01-05&#39;</span><span class="p">,</span><span class="mi">40</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">1002</span><span class="p">,</span><span class="s1">&#39;2022-01-06&#39;</span><span class="p">,</span><span class="mi">20</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">select</span><span class="w"> </span><span class="n">order_id</span><span class="w"> </span><span class="p">,</span><span class="n">user_id</span><span class="p">,</span><span class="n">order_date</span><span class="p">,</span><span class="n">amount</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">lag</span><span class="p">(</span><span class="n">order_date</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;1997-01-01&#39;</span><span class="p">)</span><span class="w"> </span><span class="n">over</span><span class="w"> </span><span class="p">(</span><span class="n">partition</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">user_id</span><span class="w"> </span><span class="k">order</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="n">last_data</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="n">lead</span><span class="p">(</span><span class="n">order_date</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;9999-12-31&#39;</span><span class="p">)</span><span class="w"> </span><span class="n">over</span><span class="w"> </span><span class="p">(</span><span class="n">partition</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">user_id</span><span class="w"> </span><span class="k">order</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="n">nest_data</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">from</span><span class="w"> </span><span class="n">order_info</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>查询结果为：<figure 
+	>
+	<a href="/../../images/05-hive-05/image-20231007172016650.png" >
+		<img src="/../../images/05-hive-05/image-20231007172016650.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231007172016650">
+	</a>
+	
+	<figcaption>image-20231007172016650</figcaption>
+	
+</figure></p>
+<p><strong>注：lag和lead函数不支持自定义窗口,即不可以使用 range/rows  between &hellip;and &hellip;</strong></p>
+<p>（2）first_value和last_value:获取窗口内某一列的第一个值/最后一个值。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">select</span><span class="w"> </span><span class="n">order_id</span><span class="w"> </span><span class="p">,</span><span class="n">user_id</span><span class="p">,</span><span class="n">order_date</span><span class="p">,</span><span class="n">amount</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">first_value</span><span class="p">(</span><span class="n">order_date</span><span class="p">,</span><span class="k">false</span><span class="p">)</span><span class="w"> </span><span class="n">over</span><span class="w"> </span><span class="p">(</span><span class="n">partition</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">user_id</span><span class="w"> </span><span class="k">order</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="n">first_data</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">last_value</span><span class="p">(</span><span class="n">order_date</span><span class="p">,</span><span class="k">false</span><span class="p">)</span><span class="w"> </span><span class="n">over</span><span class="w"> </span><span class="p">(</span><span class="n">partition</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">user_id</span><span class="w"> </span><span class="k">order</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="n">last_data</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">from</span><span class="w"> </span><span class="n">order_info</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/05-hive-05/image-20230926161910950.png" >
+		<img src="/../../images/05-hive-05/image-20230926161910950.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230926161910950">
+	</a>
+	
+	<figcaption>image-20230926161910950</figcaption>
+	
+</figure></p>
+<h4 id="146-排名函数rank-dense_rankrow_number">1.4.6 排名函数（rank 、dense_rank、row_number）</h4>
+<p><figure 
+	>
+	<a href="/../../images/05-hive-05/image-20230926162859960.png" >
+		<img src="/../../images/05-hive-05/image-20230926162859960.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230926162859960">
+	</a>
+	
+	<figcaption>image-20230926162859960</figcaption>
+	
+</figure></p>
+<p>三者区别：主要体现在对并列数据的处理。假设有3个人成绩排行，1,2名成绩相同，那么三种函数排序结果分别为：</p>
+<pre tabindex="0"><code>rank ：1 1 3（前2名并列第一，最后一个第3名）
+dense_rank：1 1 2 （前2名并列第一，最后一个第2名）
+row_number: 1 2 3 （按顺序排名）
+</code></pre><p><strong>注：rank 、dense_rank、row_number不支持自定义窗口</strong></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/hive/">Hive</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/hive-11hive%E8%B0%83%E4%BC%98-%E4%BB%BB%E5%8A%A1%E5%B9%B6%E8%A1%8C%E5%BA%A6%E4%BC%98%E5%8C%96%E5%B0%8F%E6%96%87%E4%BB%B6%E5%90%88%E5%B9%B6%E4%BC%98%E5%8C%96%E6%9C%AC%E5%9C%B0%E6%A8%A1%E5%BC%8Fstage%E5%B9%B6%E8%A1%8C%E6%89%A7%E8%A1%8C%E4%B8%A5%E6%A0%BC%E6%A8%A1%E5%BC%8Fcbo%E4%BC%98%E5%8C%96/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hive-11）Hive调优-任务并行度优化、小文件合并优化、本地模式、Stage并行执行、严格模式、CBO优化</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hive-10hive%E8%B0%83%E4%BC%98-%E6%95%B0%E6%8D%AE%E5%80%BE%E6%96%9C%E8%B0%83%E4%BC%98/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hive-10）Hive调优-数据倾斜调优</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hive-09hive-explain%E6%89%A7%E8%A1%8C%E8%AE%A1%E5%88%92%E5%88%86%E6%9E%90%E5%8F%8Asql%E8%B0%83%E4%BC%98/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hive-09）Hive Explain执行计划分析及SQL调优</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hive-08hive%E9%85%8D%E7%BD%AE%E8%B0%83%E4%BC%98/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hive-08）Hive配置调优</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hive-07hive%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F%E6%96%87%E4%BB%B6%E5%8E%8B%E7%BC%A9/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hive-07）Hive文件格式、文件压缩</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#一-hive函数"><strong>一</strong>、 Hive函数</a>
+      <ol>
+        <li><a href="#11-单行函数"><strong>1.1</strong> <strong>单行函数</strong></a>
+          <ol>
+            <li><a href="#111-算术运算函数">1.1.1 算术运算函数</a></li>
+            <li><a href="#112-数值函数">1.1.2 <strong>数值函数</strong></a></li>
+            <li><a href="#113-字符串函数">1.1.3 字符串函数</a></li>
+            <li><a href="#114-日期函数">1.1.4 <strong>日期函数</strong></a></li>
+            <li><a href="#115-流程控制函数">1.1.5 流程控制函数</a></li>
+            <li><a href="#116-集合函数">1.1.6 集合函数</a></li>
+          </ol>
+        </li>
+        <li><a href="#12-聚合函数">1.2 聚合函数</a></li>
+        <li><a href="#13-udtf-炸裂函数">1.3 UDTF 炸裂函数</a>
+          <ol>
+            <li><a href="#131-explode">1.3.1 explode</a></li>
+            <li><a href="#132-posexplode">1.3.2 posexplode</a></li>
+            <li><a href="#133-inline">1.3.3 inline</a></li>
+            <li><a href="#134-lateral-view">1.3.4 lateral view</a></li>
+          </ol>
+        </li>
+        <li><a href="#14-窗口函数over">1.4 窗口函数（over）</a>
+          <ol>
+            <li><a href="#141-窗口函数语法">1.4.1 窗口函数语法</a></li>
+            <li><a href="#142-窗口分区partition-by">1.4.2 窗口分区（partition by）</a></li>
+            <li><a href="#143-窗口函数缺省值说明">1.4.3 窗口函数缺省值说明</a></li>
+            <li><a href="#144-窗口使用的聚合函数">1.4.4 窗口使用的聚合函数</a></li>
+            <li><a href="#145-跨行取值函数leadlagfirst_valuelast_value">1.4.5 跨行取值函数（lead、lag、first_value、last_value）</a></li>
+            <li><a href="#146-排名函数rank-dense_rankrow_number">1.4.6 排名函数（rank 、dense_rank、row_number）</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

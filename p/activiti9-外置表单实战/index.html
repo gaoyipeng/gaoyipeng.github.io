@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Activiti（9） 外置表单实战'><title>Activiti（9） 外置表单实战</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/activiti9-%E5%A4%96%E7%BD%AE%E8%A1%A8%E5%8D%95%E5%AE%9E%E6%88%98/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Activiti（9） 外置表单实战'>
+<meta property='og:description' content='Activiti（9） 外置表单实战'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/activiti9-%E5%A4%96%E7%BD%AE%E8%A1%A8%E5%8D%95%E5%AE%9E%E6%88%98/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Activiti' /><meta property='article:published_time' content='2020-06-16T15:55:02&#43;00:00'/><meta property='article:modified_time' content='2020-06-16T15:55:02&#43;00:00'/>
+<meta name="twitter:title" content="Activiti（9） 外置表单实战">
+<meta name="twitter:description" content="Activiti（9） 外置表单实战">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/activiti/" >
+                Activiti
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/activiti9-%E5%A4%96%E7%BD%AE%E8%A1%A8%E5%8D%95%E5%AE%9E%E6%88%98/">Activiti（9） 外置表单实战</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        Activiti（9） 外置表单实战
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jun 16, 2020</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 5 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <blockquote>
+<p>这节我们继续学习外置表单。这种方式常用于基于工作流平台开发的方式，代码写的很少，开发人员只要把表单内容写好保存到**.form**文件中即可，然后配置每个节点需要的表单名称（form key），实际运行时通过引擎提供的API读取Task对应的form内容输出到页面。</p>
+<p>此种方式对于在经常添加新流程的需求比较适用，可以快速发布新流程，把流程设计出来之后再设计表单之后两者关联就可以使用了。</p>
+</blockquote>
+<p>动态表单有一个弊端，就是每个节点的表单信息需要我们动态的构建。而且每个表单包含的字段不尽相同，这样就需要我们的开发人员针对每个节点的表单信息生成对应的页面。这样是不合理的。我们来看看相同流程情况下，外置表单如何实现。</p>
+<h1 id="1流程定义">1、流程定义</h1>
+<p><strong>leave-formkey.bpmn：</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="cp">&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;definitions</span> <span class="na">xmlns=</span><span class="s">&#34;http://www.omg.org/spec/BPMN/20100524/MODEL&#34;</span> <span class="na">xmlns:xsi=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span> <span class="na">xmlns:xsd=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema&#34;</span> <span class="na">xmlns:activiti=</span><span class="s">&#34;http://activiti.org/bpmn&#34;</span> <span class="na">xmlns:bpmndi=</span><span class="s">&#34;http://www.omg.org/spec/BPMN/20100524/DI&#34;</span> <span class="na">xmlns:omgdc=</span><span class="s">&#34;http://www.omg.org/spec/DD/20100524/DC&#34;</span> <span class="na">xmlns:omgdi=</span><span class="s">&#34;http://www.omg.org/spec/DD/20100524/DI&#34;</span> <span class="na">typeLanguage=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema&#34;</span> <span class="na">expressionLanguage=</span><span class="s">&#34;http://www.w3.org/1999/XPath&#34;</span> <span class="na">targetNamespace=</span><span class="s">&#34;http://www.kafeitu.me/activiti&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;process</span> <span class="na">id=</span><span class="s">&#34;leave-formkey&#34;</span> <span class="na">name=</span><span class="s">&#34;请假流程-外置表单&#34;</span> <span class="na">isExecutable=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;documentation&gt;</span>外置表单<span class="nt">&lt;/documentation&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;startEvent</span> <span class="na">id=</span><span class="s">&#34;startevent1&#34;</span> <span class="na">name=</span><span class="s">&#34;Start&#34;</span> <span class="na">activiti:initiator=</span><span class="s">&#34;applyUserId&#34;</span> <span class="na">activiti:formKey=</span><span class="s">&#34;leave-formkey/leave-start.form&#34;</span><span class="nt">&gt;&lt;/startEvent&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;userTask</span> <span class="na">id=</span><span class="s">&#34;deptLeaderVerify&#34;</span> <span class="na">name=</span><span class="s">&#34;部门经理审批&#34;</span> <span class="na">activiti:candidateGroups=</span><span class="s">&#34;deptLeader&#34;</span> <span class="na">activiti:formKey=</span><span class="s">&#34;leave-formkey/approve-deptLeader.form&#34;</span><span class="nt">&gt;&lt;/userTask&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;exclusiveGateway</span> <span class="na">id=</span><span class="s">&#34;exclusivegateway1&#34;</span> <span class="na">name=</span><span class="s">&#34;Exclusive Gateway&#34;</span><span class="nt">&gt;&lt;/exclusiveGateway&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;userTask</span> <span class="na">id=</span><span class="s">&#34;hrVerify&#34;</span> <span class="na">name=</span><span class="s">&#34;人事经理审批&#34;</span> <span class="na">activiti:candidateGroups=</span><span class="s">&#34;hr&#34;</span> <span class="na">activiti:formKey=</span><span class="s">&#34;leave-formkey/approve-hr.form&#34;</span><span class="nt">&gt;&lt;/userTask&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;exclusiveGateway</span> <span class="na">id=</span><span class="s">&#34;exclusivegateway2&#34;</span> <span class="na">name=</span><span class="s">&#34;Exclusive Gateway&#34;</span><span class="nt">&gt;&lt;/exclusiveGateway&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;userTask</span> <span class="na">id=</span><span class="s">&#34;reportBack&#34;</span> <span class="na">name=</span><span class="s">&#34;销假&#34;</span> <span class="na">activiti:assignee=</span><span class="s">&#34;${applyUserId}&#34;</span> <span class="na">activiti:formKey=</span><span class="s">&#34;leave-formkey/report-back.form&#34;</span><span class="nt">&gt;&lt;/userTask&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;endEvent</span> <span class="na">id=</span><span class="s">&#34;endevent1&#34;</span> <span class="na">name=</span><span class="s">&#34;End&#34;</span><span class="nt">&gt;&lt;/endEvent&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;userTask</span> <span class="na">id=</span><span class="s">&#34;modifyApply&#34;</span> <span class="na">name=</span><span class="s">&#34;调整申请内容&#34;</span> <span class="na">activiti:assignee=</span><span class="s">&#34;${applyUserId}&#34;</span> <span class="na">activiti:formKey=</span><span class="s">&#34;leave-formkey/modify-apply.form&#34;</span><span class="nt">&gt;&lt;/userTask&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;exclusiveGateway</span> <span class="na">id=</span><span class="s">&#34;exclusivegateway3&#34;</span> <span class="na">name=</span><span class="s">&#34;Exclusive Gateway&#34;</span><span class="nt">&gt;&lt;/exclusiveGateway&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow1&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;startevent1&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;deptLeaderVerify&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow2&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;deptLeaderVerify&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;exclusivegateway1&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow3&#34;</span> <span class="na">name=</span><span class="s">&#34;同意&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;exclusivegateway1&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;hrVerify&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;conditionExpression</span> <span class="na">xsi:type=</span><span class="s">&#34;tFormalExpression&#34;</span><span class="nt">&gt;</span><span class="cp">&lt;![CDATA[${deptLeaderApproved == &#39;true&#39;}]]&gt;</span><span class="nt">&lt;/conditionExpression&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow4&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;hrVerify&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;exclusivegateway2&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow5&#34;</span> <span class="na">name=</span><span class="s">&#34;同意&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;exclusivegateway2&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;reportBack&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;conditionExpression</span> <span class="na">xsi:type=</span><span class="s">&#34;tFormalExpression&#34;</span><span class="nt">&gt;</span><span class="cp">&lt;![CDATA[${hrApproved == &#39;true&#39;}]]&gt;</span><span class="nt">&lt;/conditionExpression&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow6&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;reportBack&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;endevent1&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:executionListener</span> <span class="na">event=</span><span class="s">&#34;take&#34;</span> <span class="na">expression=</span><span class="s">&#34;${execution.setVariable(&#39;result&#39;, &#39;ok&#39;)}&#34;</span><span class="nt">&gt;&lt;/activiti:executionListener&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow7&#34;</span> <span class="na">name=</span><span class="s">&#34;不同意&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;exclusivegateway2&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;modifyApply&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;conditionExpression</span> <span class="na">xsi:type=</span><span class="s">&#34;tFormalExpression&#34;</span><span class="nt">&gt;</span><span class="cp">&lt;![CDATA[${hrApproved == &#39;false&#39;}]]&gt;</span><span class="nt">&lt;/conditionExpression&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow8&#34;</span> <span class="na">name=</span><span class="s">&#34;不同意&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;exclusivegateway1&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;modifyApply&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;conditionExpression</span> <span class="na">xsi:type=</span><span class="s">&#34;tFormalExpression&#34;</span><span class="nt">&gt;</span><span class="cp">&lt;![CDATA[${deptLeaderApproved == &#39;true&#39;}]]&gt;</span><span class="nt">&lt;/conditionExpression&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow9&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;modifyApply&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;exclusivegateway3&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow10&#34;</span> <span class="na">name=</span><span class="s">&#34;调整后继续申请&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;exclusivegateway3&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;deptLeaderVerify&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;conditionExpression</span> <span class="na">xsi:type=</span><span class="s">&#34;tFormalExpression&#34;</span><span class="nt">&gt;</span><span class="cp">&lt;![CDATA[${reApply == &#39;true&#39;}]]&gt;</span><span class="nt">&lt;/conditionExpression&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow11&#34;</span> <span class="na">name=</span><span class="s">&#34;取消申请，并设置取消标志&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;exclusivegateway3&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;endevent1&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:executionListener</span> <span class="na">event=</span><span class="s">&#34;take&#34;</span> <span class="na">expression=</span><span class="s">&#34;${execution.setVariable(&#39;result&#39;, &#39;canceled&#39;)}&#34;</span><span class="nt">&gt;&lt;/activiti:executionListener&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;conditionExpression</span> <span class="na">xsi:type=</span><span class="s">&#34;tFormalExpression&#34;</span><span class="nt">&gt;</span><span class="cp">&lt;![CDATA[${reApply == &#39;false&#39;}]]&gt;</span><span class="nt">&lt;/conditionExpression&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;textAnnotation</span> <span class="na">id=</span><span class="s">&#34;textannotation1&#34;</span> <span class="na">textFormat=</span><span class="s">&#34;text/plain&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;text&gt;</span>请求被驳回后员工可以选择继续申请，或者取消本次申请<span class="nt">&lt;/text&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/textAnnotation&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;association</span> <span class="na">id=</span><span class="s">&#34;association1&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;modifyApply&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;textannotation1&#34;</span><span class="nt">&gt;&lt;/association&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;/process&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;bpmndi:BPMNDiagram</span> <span class="na">id=</span><span class="s">&#34;BPMNDiagram_leave-formkey&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;bpmndi:BPMNPlane</span> <span class="na">bpmnElement=</span><span class="s">&#34;leave-formkey&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNPlane_leave-formkey&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;startevent1&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_startevent1&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;35.0&#34;</span> <span class="na">width=</span><span class="s">&#34;35.0&#34;</span> <span class="na">x=</span><span class="s">&#34;10.0&#34;</span> <span class="na">y=</span><span class="s">&#34;50.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;deptLeaderVerify&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_deptLeaderVerify&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;55.0&#34;</span> <span class="na">width=</span><span class="s">&#34;105.0&#34;</span> <span class="na">x=</span><span class="s">&#34;90.0&#34;</span> <span class="na">y=</span><span class="s">&#34;40.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;exclusivegateway1&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_exclusivegateway1&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;40.0&#34;</span> <span class="na">width=</span><span class="s">&#34;40.0&#34;</span> <span class="na">x=</span><span class="s">&#34;230.0&#34;</span> <span class="na">y=</span><span class="s">&#34;47.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;hrVerify&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_hrVerify&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;55.0&#34;</span> <span class="na">width=</span><span class="s">&#34;105.0&#34;</span> <span class="na">x=</span><span class="s">&#34;310.0&#34;</span> <span class="na">y=</span><span class="s">&#34;40.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;exclusivegateway2&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_exclusivegateway2&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;40.0&#34;</span> <span class="na">width=</span><span class="s">&#34;40.0&#34;</span> <span class="na">x=</span><span class="s">&#34;470.0&#34;</span> <span class="na">y=</span><span class="s">&#34;47.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;reportBack&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_reportBack&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;55.0&#34;</span> <span class="na">width=</span><span class="s">&#34;105.0&#34;</span> <span class="na">x=</span><span class="s">&#34;580.0&#34;</span> <span class="na">y=</span><span class="s">&#34;40.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;endevent1&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_endevent1&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;35.0&#34;</span> <span class="na">width=</span><span class="s">&#34;35.0&#34;</span> <span class="na">x=</span><span class="s">&#34;615.0&#34;</span> <span class="na">y=</span><span class="s">&#34;213.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;modifyApply&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_modifyApply&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;55.0&#34;</span> <span class="na">width=</span><span class="s">&#34;105.0&#34;</span> <span class="na">x=</span><span class="s">&#34;198.0&#34;</span> <span class="na">y=</span><span class="s">&#34;120.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;exclusivegateway3&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_exclusivegateway3&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;40.0&#34;</span> <span class="na">width=</span><span class="s">&#34;40.0&#34;</span> <span class="na">x=</span><span class="s">&#34;230.0&#34;</span> <span class="na">y=</span><span class="s">&#34;210.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;textannotation1&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_textannotation1&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;57.0&#34;</span> <span class="na">width=</span><span class="s">&#34;112.0&#34;</span> <span class="na">x=</span><span class="s">&#34;340.0&#34;</span> <span class="na">y=</span><span class="s">&#34;168.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;flow1&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_flow1&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;45.0&#34;</span> <span class="na">y=</span><span class="s">&#34;67.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;90.0&#34;</span> <span class="na">y=</span><span class="s">&#34;67.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;flow2&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_flow2&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;195.0&#34;</span> <span class="na">y=</span><span class="s">&#34;67.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;230.0&#34;</span> <span class="na">y=</span><span class="s">&#34;67.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;flow3&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_flow3&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;270.0&#34;</span> <span class="na">y=</span><span class="s">&#34;67.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;310.0&#34;</span> <span class="na">y=</span><span class="s">&#34;67.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;bpmndi:BPMNLabel&gt;</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;11.0&#34;</span> <span class="na">width=</span><span class="s">&#34;22.0&#34;</span> <span class="na">x=</span><span class="s">&#34;269.0&#34;</span> <span class="na">y=</span><span class="s">&#34;50.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/bpmndi:BPMNLabel&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;flow4&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_flow4&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;415.0&#34;</span> <span class="na">y=</span><span class="s">&#34;67.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;470.0&#34;</span> <span class="na">y=</span><span class="s">&#34;67.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;flow5&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_flow5&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;510.0&#34;</span> <span class="na">y=</span><span class="s">&#34;67.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;580.0&#34;</span> <span class="na">y=</span><span class="s">&#34;67.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;bpmndi:BPMNLabel&gt;</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;11.0&#34;</span> <span class="na">width=</span><span class="s">&#34;22.0&#34;</span> <span class="na">x=</span><span class="s">&#34;529.0&#34;</span> <span class="na">y=</span><span class="s">&#34;50.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/bpmndi:BPMNLabel&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;flow6&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_flow6&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;632.0&#34;</span> <span class="na">y=</span><span class="s">&#34;95.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;632.0&#34;</span> <span class="na">y=</span><span class="s">&#34;213.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;flow7&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_flow7&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;490.0&#34;</span> <span class="na">y=</span><span class="s">&#34;87.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;490.0&#34;</span> <span class="na">y=</span><span class="s">&#34;147.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;303.0&#34;</span> <span class="na">y=</span><span class="s">&#34;147.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;bpmndi:BPMNLabel&gt;</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;11.0&#34;</span> <span class="na">width=</span><span class="s">&#34;33.0&#34;</span> <span class="na">x=</span><span class="s">&#34;438.0&#34;</span> <span class="na">y=</span><span class="s">&#34;119.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/bpmndi:BPMNLabel&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;flow8&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_flow8&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;250.0&#34;</span> <span class="na">y=</span><span class="s">&#34;87.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;250.0&#34;</span> <span class="na">y=</span><span class="s">&#34;120.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;bpmndi:BPMNLabel&gt;</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;11.0&#34;</span> <span class="na">width=</span><span class="s">&#34;33.0&#34;</span> <span class="na">x=</span><span class="s">&#34;260.0&#34;</span> <span class="na">y=</span><span class="s">&#34;87.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/bpmndi:BPMNLabel&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;flow9&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_flow9&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;250.0&#34;</span> <span class="na">y=</span><span class="s">&#34;175.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;250.0&#34;</span> <span class="na">y=</span><span class="s">&#34;210.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;flow10&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_flow10&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;230.0&#34;</span> <span class="na">y=</span><span class="s">&#34;230.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;142.0&#34;</span> <span class="na">y=</span><span class="s">&#34;230.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;142.0&#34;</span> <span class="na">y=</span><span class="s">&#34;95.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;bpmndi:BPMNLabel&gt;</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;11.0&#34;</span> <span class="na">width=</span><span class="s">&#34;77.0&#34;</span> <span class="na">x=</span><span class="s">&#34;159.0&#34;</span> <span class="na">y=</span><span class="s">&#34;210.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/bpmndi:BPMNLabel&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;flow11&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_flow11&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;270.0&#34;</span> <span class="na">y=</span><span class="s">&#34;230.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;615.0&#34;</span> <span class="na">y=</span><span class="s">&#34;230.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;bpmndi:BPMNLabel&gt;</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;33.0&#34;</span> <span class="na">width=</span><span class="s">&#34;100.0&#34;</span> <span class="na">x=</span><span class="s">&#34;58.0&#34;</span> <span class="na">y=</span><span class="s">&#34;-37.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/bpmndi:BPMNLabel&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;association1&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_association1&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;303.0&#34;</span> <span class="na">y=</span><span class="s">&#34;147.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;396.0&#34;</span> <span class="na">y=</span><span class="s">&#34;168.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/bpmndi:BPMNPlane&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;/bpmndi:BPMNDiagram&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/definitions&gt;</span>
+</span></span></code></pre></div><p>可以看到没有了<code>&lt;activiti:formProperty/&gt;</code> ，换成 <code>activiti:formKey=</code>  设置外置表单，我们以start节点的表单为例，其他节点我们稍后挨个贴出：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-html" data-lang="html"><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-group&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">label</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-label&#34;</span> <span class="na">for</span><span class="o">=</span><span class="s">&#34;startDate&#34;</span><span class="p">&gt;</span>开始时间：<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;controls&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&#34;text&#34;</span> <span class="na">id</span><span class="o">=</span><span class="s">&#34;startDate&#34;</span> <span class="na">name</span><span class="o">=</span><span class="s">&#34;startDate&#34;</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;datepicker&#34;</span> <span class="na">data-date-format</span><span class="o">=</span><span class="s">&#34;yyyy-mm-dd&#34;</span> <span class="na">required</span> <span class="p">/&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-group&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">label</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-label&#34;</span> <span class="na">for</span><span class="o">=</span><span class="s">&#34;endDate&#34;</span><span class="p">&gt;</span>结束时间：<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;controls&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&#34;text&#34;</span> <span class="na">id</span><span class="o">=</span><span class="s">&#34;endDate&#34;</span> <span class="na">name</span><span class="o">=</span><span class="s">&#34;endDate&#34;</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;datepicker&#34;</span> <span class="na">data-date-format</span><span class="o">=</span><span class="s">&#34;yyyy-mm-dd&#34;</span> <span class="na">required</span> <span class="p">/&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-group&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">label</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-label&#34;</span> <span class="na">for</span><span class="o">=</span><span class="s">&#34;reason&#34;</span><span class="p">&gt;</span>请假原因：<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;controls&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="p">&lt;</span><span class="nt">textarea</span> <span class="na">id</span><span class="o">=</span><span class="s">&#34;reason&#34;</span> <span class="na">name</span><span class="o">=</span><span class="s">&#34;reason&#34;</span> <span class="na">required</span><span class="p">&gt;&lt;/</span><span class="nt">textarea</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span></code></pre></div><h2 id="11-初始化流程审批人员">1.1 初始化流程审批人员</h2>
+<p>审批人员和上一篇文章一样，不做修改。</p>
+<h2 id="12--部署流程定义">1.2  部署流程定义</h2>
+<p>把流程定义文件和节点表单一起打包，然后部署。</p>
+<p><strong>注意，这里可以看到压缩包中是有一个文件夹（leave-formkey）的，对应bpmn文件的<code>activiti:formKey=&quot;leave-formkey/leave-start.form&quot;</code>路径，否则会报找不到form表单。</strong></p>
+<p><figure 
+	>
+	<a href="/../../../../../workspace/blog/gaoyipeng.github.io/source/images/activiti6-09/image-20200617145244947.png" >
+		<img src="/../../../../../workspace/blog/gaoyipeng.github.io/source/images/activiti6-09/image-20200617145244947.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200617145244947">
+	</a>
+	
+	<figcaption>image-20200617145244947</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-09/image-20200617145316486.png" >
+		<img src="/images/activiti6-09/image-20200617145316486.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200617145316486">
+	</a>
+	
+	<figcaption>image-20200617145316486</figcaption>
+	
+</figure></p>
+<p>部署成功后可以看到数据库中对应的记录。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-09/image-20200617150312307.png" >
+		<img src="/images/activiti6-09/image-20200617150312307.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200617150312307">
+	</a>
+	
+	<figcaption>image-20200617150312307</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-09/image-20200617145354040.png" >
+		<img src="/images/activiti6-09/image-20200617145354040.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200617145354040">
+	</a>
+	
+	<figcaption>image-20200617145354040</figcaption>
+	
+</figure></p>
+<h2 id="13--获取流程启动节点表单信息">1.3  获取流程启动节点表单信息</h2>
+<p>我们针对外置表单，新建一个<code>FormKeyController.java</code>文件，外置表单专有的方法写这里：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.workflow.activiti.rest.controller</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">io.swagger.annotations.Api</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">io.swagger.annotations.ApiOperation</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">io.swagger.annotations.ApiParam</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">lombok.extern.slf4j.Slf4j</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.activiti.engine.FormService</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.beans.factory.annotation.Autowired</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.web.bind.annotation.*</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nd">@Api</span><span class="o">(</span><span class="n">value</span><span class="o">=</span><span class="s">&#34;外置表单模块&#34;</span><span class="o">,</span> <span class="n">description</span><span class="o">=</span><span class="s">&#34;外置表单模块&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@RestController</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@Slf4j</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@RequestMapping</span><span class="o">(</span><span class="s">&#34;/formKey&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">FormKeyController</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Autowired</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">FormService</span> <span class="n">formService</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@GetMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;get-form/start/{processDefinitionId}&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@ApiOperation</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;获取外置表单-开始表单的内容&#34;</span><span class="o">,</span><span class="n">notes</span> <span class="o">=</span> <span class="s">&#34;获取外置表单-开始表单的内容&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">Object</span> <span class="nf">findStartForm</span><span class="o">(</span><span class="nd">@PathVariable</span><span class="o">(</span><span class="s">&#34;processDefinitionId&#34;</span><span class="o">)</span> <span class="nd">@ApiParam</span><span class="o">(</span><span class="s">&#34;流程定义id&#34;</span><span class="o">)</span> <span class="n">String</span> <span class="n">processDefinitionId</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 根据流程定义ID读取外置表单
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">Object</span> <span class="n">startForm</span> <span class="o">=</span> <span class="n">formService</span><span class="o">.</span><span class="na">getRenderedStartForm</span><span class="o">(</span><span class="n">processDefinitionId</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">startForm</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>下面是测试结果，可以看到返回了HTML片段，前端只需把这些返回片段直接显示在页面即可。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-09/image-20200618095447986.png" >
+		<img src="/images/activiti6-09/image-20200618095447986.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200618095447986">
+	</a>
+	
+	<figcaption>image-20200618095447986</figcaption>
+	
+</figure></p>
+<h2 id="14--发起流程">1.4  发起流程</h2>
+<p><strong>这里我们优化一下</strong>，外置表单发起流程的接口是和动态表单一样的，为了后期好维护。这里我们把DynamicFromController<code>类中</code>/start-process/{processDefinitionId}<code>请求对应的代码迁移到</code>ProcessController`中。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 提交启动流程
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@PostMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;/start-process/{processDefinitionId}&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@ApiOperation</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;提交启动流程&#34;</span><span class="o">,</span><span class="n">notes</span> <span class="o">=</span> <span class="s">&#34;提交启动流程，key需要以fp_开头&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">CommonResponse</span> <span class="nf">submitStartFormAndStartProcessInstance</span><span class="o">(</span><span class="nd">@PathVariable</span><span class="o">(</span><span class="s">&#34;processDefinitionId&#34;</span><span class="o">)</span> <span class="n">String</span> <span class="n">processDefinitionId</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">                                                                 <span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">CommonException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ProcessInstance</span> <span class="n">processInstance</span> <span class="o">=</span> <span class="n">processService</span><span class="o">.</span><span class="na">submitStartFormAndStartProcessInstance</span><span class="o">(</span><span class="n">processDefinitionId</span><span class="o">,</span><span class="n">request</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="k">new</span> <span class="n">CommonResponse</span><span class="o">().</span><span class="na">code</span><span class="o">(</span><span class="n">CodeEnum</span><span class="o">.</span><span class="na">SUCCESS</span><span class="o">.</span><span class="na">getCode</span><span class="o">()).</span><span class="na">message</span><span class="o">(</span><span class="s">&#34;流程启动成功，流程ID：&#34;</span> <span class="o">+</span> <span class="n">processInstance</span><span class="o">.</span><span class="na">getId</span><span class="o">()).</span><span class="na">data</span><span class="o">(</span><span class="n">processInstance</span><span class="o">.</span><span class="na">getId</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"> <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 获取动态表单提交的数据，并发起流程，表单数据 key-value结构，key需要以fp_开头
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param processDefinitionId
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param request
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @return
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Transactional</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">ProcessInstance</span> <span class="nf">submitStartFormAndStartProcessInstance</span><span class="o">(</span><span class="n">String</span> <span class="n">processDefinitionId</span><span class="o">,</span><span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">CommonException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">formProperties</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;();</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 从request中读取参数然后转换
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">[]&gt;</span> <span class="n">parameterMap</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="na">getParameterMap</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="o">(</span><span class="n">parameterMap</span><span class="o">.</span><span class="na">size</span><span class="o">()&gt;</span><span class="n">0</span><span class="o">){</span>
+</span></span><span class="line"><span class="cl">            <span class="n">Set</span><span class="o">&lt;</span><span class="n">Map</span><span class="o">.</span><span class="na">Entry</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">[]&gt;&gt;</span> <span class="n">entrySet</span> <span class="o">=</span> <span class="n">parameterMap</span><span class="o">.</span><span class="na">entrySet</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">            <span class="k">for</span> <span class="o">(</span><span class="n">Map</span><span class="o">.</span><span class="na">Entry</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">[]&gt;</span> <span class="n">entry</span> <span class="o">:</span> <span class="n">entrySet</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">String</span> <span class="n">key</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="na">getKey</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">                <span class="c1">// fp_的意思是form paremeter
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="k">if</span> <span class="o">(</span><span class="n">StringUtils</span><span class="o">.</span><span class="na">defaultString</span><span class="o">(</span><span class="n">key</span><span class="o">).</span><span class="na">startsWith</span><span class="o">(</span><span class="s">&#34;fp_&#34;</span><span class="o">))</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">formProperties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">key</span><span class="o">.</span><span class="na">split</span><span class="o">(</span><span class="s">&#34;_&#34;</span><span class="o">)[</span><span class="n">1</span><span class="o">],</span> <span class="n">entry</span><span class="o">.</span><span class="na">getValue</span><span class="o">()[</span><span class="n">0</span><span class="o">]);</span>
+</span></span><span class="line"><span class="cl">                <span class="o">}</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span><span class="k">else</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">throw</span> <span class="k">new</span> <span class="n">CommonException</span><span class="o">(</span><span class="s">&#34;表单数据为空&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">log</span><span class="o">.</span><span class="na">debug</span><span class="o">(</span><span class="s">&#34;start form parameters: {}&#34;</span><span class="o">,</span> <span class="n">formProperties</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">//TODO 此处应该添加获取当前操作人的代码,先写死用kafeitu发起流程。用户未登录不能操作，实际应用使用权限框架实现，例如Spring Security、Shiro等
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">UserQueryImpl</span> <span class="n">user</span> <span class="o">=</span> <span class="k">new</span> <span class="n">UserQueryImpl</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">user</span> <span class="o">=</span> <span class="o">(</span><span class="n">UserQueryImpl</span><span class="o">)</span><span class="n">identityService</span><span class="o">.</span><span class="na">createUserQuery</span><span class="o">().</span><span class="na">userId</span><span class="o">(</span><span class="s">&#34;kafeitu&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">ProcessInstance</span> <span class="n">processInstance</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">try</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">identityService</span><span class="o">.</span><span class="na">setAuthenticatedUserId</span><span class="o">(</span><span class="n">user</span><span class="o">.</span><span class="na">getId</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">            <span class="n">processInstance</span> <span class="o">=</span> <span class="n">formService</span><span class="o">.</span><span class="na">submitStartFormData</span><span class="o">(</span><span class="n">processDefinitionId</span><span class="o">,</span> <span class="n">formProperties</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">log</span><span class="o">.</span><span class="na">debug</span><span class="o">(</span><span class="s">&#34;start a processinstance: {}&#34;</span><span class="o">,</span> <span class="n">processInstance</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">identityService</span><span class="o">.</span><span class="na">setAuthenticatedUserId</span><span class="o">(</span><span class="kc">null</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">processInstance</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span></code></pre></div><p>测试：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-09/image-20200617183656129.png" >
+		<img src="/images/activiti6-09/image-20200617183656129.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200617183656129">
+	</a>
+	
+	<figcaption>image-20200617183656129</figcaption>
+	
+</figure></p>
+<h2 id="15-获取待办流程列表">1.5 获取待办流程列表</h2>
+<p>流程启动后，下一步是部门经理审批，我们获取<strong>部门经理待办列表</strong>。这个和动态表单是一样的，直接使用公用接口就行。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-09/image-20200618150336920.png" >
+		<img src="/images/activiti6-09/image-20200618150336920.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200618150336920">
+	</a>
+	
+	<figcaption>image-20200618150336920</figcaption>
+	
+</figure></p>
+<h2 id="16-签收任务">1.6 签收任务</h2>
+<p>上面我们已经获取了部门负责人的待办任务，taskId :22。接下来签收任务。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-09/image-20200618150937763.png" >
+		<img src="/images/activiti6-09/image-20200618150937763.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200618150937763">
+	</a>
+	
+	<figcaption>image-20200618150937763</figcaption>
+	
+</figure></p>
+<p>签收后再次查看待办任务，就会发现<code>assignee</code>变为了<code>leaderuser</code>,其他的部门负责人就不会收到这个任务了。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-09/image-20200618151022138.png" >
+		<img src="/images/activiti6-09/image-20200618151022138.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200618151022138">
+	</a>
+	
+	<figcaption>image-20200618151022138</figcaption>
+	
+</figure></p>
+<h2 id="17--leaderuser-读取task的表单信息">1.7  <code>leaderuser</code> 读取task的表单信息</h2>
+<p>这里我们也优化一下，现在发现动态表单和外置表单读取task表单信息是不一样的。动态表单时获取表单信息是<code>/process/get-form/task/{taskid}</code>，写在了ProcessController类中。我们把它迁移到<code>DynamicFromController</code>类中。并在<code>FormKeyController</code>中添加如下代码：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"> <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 读取Task的表单
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@GetMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;/get-form/task/{taskId}&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@ApiOperation</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;获取外置表单-读取Task的表单&#34;</span><span class="o">,</span><span class="n">notes</span> <span class="o">=</span> <span class="s">&#34;获取外置表单-读取Task的表单&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">Object</span> <span class="nf">findTaskForm</span><span class="o">(</span><span class="nd">@PathVariable</span><span class="o">(</span><span class="s">&#34;taskId&#34;</span><span class="o">)</span> <span class="nd">@ApiParam</span><span class="o">(</span><span class="s">&#34;任务id&#34;</span><span class="o">)</span><span class="n">String</span> <span class="n">taskId</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">Object</span> <span class="n">renderedTaskForm</span> <span class="o">=</span> <span class="n">formService</span><span class="o">.</span><span class="na">getRenderedTaskForm</span><span class="o">(</span><span class="n">taskId</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">renderedTaskForm</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span></code></pre></div><p>我们这里贴出<code>approve-deptLeader.form</code>的内容</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-html" data-lang="html"><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-group&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">label</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-label&#34;</span> <span class="na">for</span><span class="o">=</span><span class="s">&#34;startDate&#34;</span><span class="p">&gt;</span>申请人：<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;controls&#34;</span><span class="p">&gt;</span>${applyUserId}<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-group&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">label</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-label&#34;</span> <span class="na">for</span><span class="o">=</span><span class="s">&#34;startDate&#34;</span><span class="p">&gt;</span>开始时间：<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;controls&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&#34;text&#34;</span> <span class="na">id</span><span class="o">=</span><span class="s">&#34;startDate&#34;</span> <span class="na">name</span><span class="o">=</span><span class="s">&#34;startDate&#34;</span> <span class="na">value</span><span class="o">=</span><span class="s">&#34;${startDate}&#34;</span> <span class="na">readonly</span> <span class="p">/&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-group&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">label</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-label&#34;</span> <span class="na">for</span><span class="o">=</span><span class="s">&#34;endDate&#34;</span><span class="p">&gt;</span>结束时间：<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;controls&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&#34;text&#34;</span> <span class="na">id</span><span class="o">=</span><span class="s">&#34;endDate&#34;</span> <span class="na">name</span><span class="o">=</span><span class="s">&#34;endDate&#34;</span> <span class="na">value</span><span class="o">=</span><span class="s">&#34;${endDate}&#34;</span> <span class="na">readonly</span> <span class="p">/&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-group&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">label</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-label&#34;</span> <span class="na">for</span><span class="o">=</span><span class="s">&#34;reason&#34;</span><span class="p">&gt;</span>请假原因：<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;controls&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="p">&lt;</span><span class="nt">textarea</span> <span class="na">id</span><span class="o">=</span><span class="s">&#34;reason&#34;</span> <span class="na">name</span><span class="o">=</span><span class="s">&#34;reason&#34;</span> <span class="na">readonly</span><span class="p">&gt;</span>${reason}<span class="p">&lt;/</span><span class="nt">textarea</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-group&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">label</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-label&#34;</span> <span class="na">for</span><span class="o">=</span><span class="s">&#34;deptLeaderApproved&#34;</span><span class="p">&gt;</span>审批意见：<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;controls&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="p">&lt;</span><span class="nt">select</span> <span class="na">name</span><span class="o">=</span><span class="s">&#34;fp_deptLeaderApproved&#34;</span> <span class="na">id</span><span class="o">=</span><span class="s">&#34;deptLeaderApproved&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="p">&lt;</span><span class="nt">option</span> <span class="na">value</span><span class="o">=</span><span class="s">&#34;true&#34;</span><span class="p">&gt;</span>同意<span class="p">&lt;/</span><span class="nt">option</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="p">&lt;</span><span class="nt">option</span> <span class="na">value</span><span class="o">=</span><span class="s">&#34;false&#34;</span><span class="p">&gt;</span>拒绝<span class="p">&lt;/</span><span class="nt">option</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="p">&lt;/</span><span class="nt">select</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/images/activiti6-09/image-20200618155131970.png" >
+		<img src="/images/activiti6-09/image-20200618155131970.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200618155131970">
+	</a>
+	
+	<figcaption>image-20200618155131970</figcaption>
+	
+</figure></p>
+<p>返回信息如下，可以看到使用<code>${}</code>的方式即可获取流程表单里的字段信息。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-html" data-lang="html"><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-group&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">label</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-label&#34;</span> <span class="na">for</span><span class="o">=</span><span class="s">&#34;startDate&#34;</span><span class="p">&gt;</span>申请人：<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;controls&#34;</span><span class="p">&gt;</span>kafeitu<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-group&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">label</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-label&#34;</span> <span class="na">for</span><span class="o">=</span><span class="s">&#34;startDate&#34;</span><span class="p">&gt;</span>开始时间：<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;controls&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&#34;text&#34;</span> <span class="na">id</span><span class="o">=</span><span class="s">&#34;startDate&#34;</span> <span class="na">name</span><span class="o">=</span><span class="s">&#34;startDate&#34;</span> <span class="na">value</span><span class="o">=</span><span class="s">&#34;2020-02-03&#34;</span> <span class="na">readonly</span> <span class="p">/&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-group&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">label</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-label&#34;</span> <span class="na">for</span><span class="o">=</span><span class="s">&#34;endDate&#34;</span><span class="p">&gt;</span>结束时间：<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;controls&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&#34;text&#34;</span> <span class="na">id</span><span class="o">=</span><span class="s">&#34;endDate&#34;</span> <span class="na">name</span><span class="o">=</span><span class="s">&#34;endDate&#34;</span> <span class="na">value</span><span class="o">=</span><span class="s">&#34;2020-02-04&#34;</span> <span class="na">readonly</span> <span class="p">/&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-group&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">label</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-label&#34;</span> <span class="na">for</span><span class="o">=</span><span class="s">&#34;reason&#34;</span><span class="p">&gt;</span>请假原因：<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;controls&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="p">&lt;</span><span class="nt">textarea</span> <span class="na">id</span><span class="o">=</span><span class="s">&#34;reason&#34;</span> <span class="na">name</span><span class="o">=</span><span class="s">&#34;reason&#34;</span> <span class="na">readonly</span><span class="p">&gt;</span>兜里没有钱，哪都去不了<span class="p">&lt;/</span><span class="nt">textarea</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-group&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">label</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-label&#34;</span> <span class="na">for</span><span class="o">=</span><span class="s">&#34;deptLeaderApproved&#34;</span><span class="p">&gt;</span>审批意见：<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;controls&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="p">&lt;</span><span class="nt">select</span> <span class="na">name</span><span class="o">=</span><span class="s">&#34;fp_deptLeaderApproved&#34;</span> <span class="na">id</span><span class="o">=</span><span class="s">&#34;deptLeaderApproved&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="p">&lt;</span><span class="nt">option</span> <span class="na">value</span><span class="o">=</span><span class="s">&#34;true&#34;</span><span class="p">&gt;</span>同意<span class="p">&lt;/</span><span class="nt">option</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="p">&lt;</span><span class="nt">option</span> <span class="na">value</span><span class="o">=</span><span class="s">&#34;false&#34;</span><span class="p">&gt;</span>拒绝<span class="p">&lt;/</span><span class="nt">option</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="p">&lt;/</span><span class="nt">select</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span></code></pre></div><h2 id="18-办理任务">1.8 办理任务</h2>
+<p>这个和动态表单办理任务是一样的。<strong>注意修改代码中的当前操作人</strong></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-09/image-20200618160259938.png" >
+		<img src="/images/activiti6-09/image-20200618160259938.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200618160259938">
+	</a>
+	
+	<figcaption>image-20200618160259938</figcaption>
+	
+</figure></p>
+<p>到这步了，我们来看下流程图走向是否正确</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-09/image-20200618160446001.png" >
+		<img src="/images/activiti6-09/image-20200618160446001.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200618160446001">
+	</a>
+	
+	<figcaption>image-20200618160446001</figcaption>
+	
+</figure></p>
+<p>好的，没有问题。</p>
+<h2 id="19-人事签收及办理任务">1.9 人事签收及办理任务</h2>
+<p>这个过程和部门经理审批类似，不再详细介绍，注意每个节点表单信息是不一样的。</p>
+<p><strong>步骤：获取待办列表（taskId)—签收任务—完成任务</strong></p>
+<p>人事节点表单信息：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-html" data-lang="html"><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-group&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">label</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-label&#34;</span> <span class="na">for</span><span class="o">=</span><span class="s">&#34;startDate&#34;</span><span class="p">&gt;</span>申请人：<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;controls&#34;</span><span class="p">&gt;</span>${applyUserId}<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-group&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">label</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-label&#34;</span> <span class="na">for</span><span class="o">=</span><span class="s">&#34;startDate&#34;</span><span class="p">&gt;</span>开始时间：<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;controls&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&#34;text&#34;</span> <span class="na">id</span><span class="o">=</span><span class="s">&#34;startDate&#34;</span> <span class="na">name</span><span class="o">=</span><span class="s">&#34;startDate&#34;</span> <span class="na">value</span><span class="o">=</span><span class="s">&#34;${startDate}&#34;</span> <span class="na">readonly</span> <span class="p">/&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-group&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">label</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-label&#34;</span> <span class="na">for</span><span class="o">=</span><span class="s">&#34;endDate&#34;</span><span class="p">&gt;</span>结束时间：<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;controls&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&#34;text&#34;</span> <span class="na">id</span><span class="o">=</span><span class="s">&#34;endDate&#34;</span> <span class="na">name</span><span class="o">=</span><span class="s">&#34;endDate&#34;</span> <span class="na">value</span><span class="o">=</span><span class="s">&#34;${endDate}&#34;</span> <span class="na">readonly</span> <span class="p">/&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-group&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">label</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-label&#34;</span> <span class="na">for</span><span class="o">=</span><span class="s">&#34;reason&#34;</span><span class="p">&gt;</span>请假原因：<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;controls&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="p">&lt;</span><span class="nt">textarea</span> <span class="na">id</span><span class="o">=</span><span class="s">&#34;reason&#34;</span> <span class="na">name</span><span class="o">=</span><span class="s">&#34;reason&#34;</span> <span class="na">readonly</span><span class="p">&gt;</span>${reason}<span class="p">&lt;/</span><span class="nt">textarea</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-group&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">label</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-label&#34;</span> <span class="na">for</span><span class="o">=</span><span class="s">&#34;hrApproved&#34;</span><span class="p">&gt;</span>审批意见：<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;controls&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="p">&lt;</span><span class="nt">select</span> <span class="na">name</span><span class="o">=</span><span class="s">&#34;fp_hrApproved&#34;</span> <span class="na">id</span><span class="o">=</span><span class="s">&#34;hrApproved&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="p">&lt;</span><span class="nt">option</span> <span class="na">value</span><span class="o">=</span><span class="s">&#34;true&#34;</span><span class="p">&gt;</span>同意<span class="p">&lt;/</span><span class="nt">option</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="p">&lt;</span><span class="nt">option</span> <span class="na">value</span><span class="o">=</span><span class="s">&#34;false&#34;</span><span class="p">&gt;</span>拒绝<span class="p">&lt;/</span><span class="nt">option</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="p">&lt;/</span><span class="nt">select</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span></code></pre></div><p>办理任务：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-09/image-20200618162237748.png" >
+		<img src="/images/activiti6-09/image-20200618162237748.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200618162237748">
+	</a>
+	
+	<figcaption>image-20200618162237748</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-09/image-20200618162304259.png" >
+		<img src="/images/activiti6-09/image-20200618162304259.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200618162304259">
+	</a>
+	
+	<figcaption>image-20200618162304259</figcaption>
+	
+</figure></p>
+<h2 id="110-销假">1.10 销假</h2>
+<p>销假环节，和前2步大同小异，需要注意的是，销假环节的审批用户是<code>kafeitu</code>，且不需要签收。</p>
+<p>销假节点form表单信息：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-html" data-lang="html"><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-group&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">label</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-label&#34;</span> <span class="na">for</span><span class="o">=</span><span class="s">&#34;startDate&#34;</span><span class="p">&gt;</span>申请人：<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;controls&#34;</span><span class="p">&gt;</span>${applyUserId}<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-group&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">label</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-label&#34;</span> <span class="na">for</span><span class="o">=</span><span class="s">&#34;startDate&#34;</span><span class="p">&gt;</span>开始时间：<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;controls&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&#34;text&#34;</span> <span class="na">id</span><span class="o">=</span><span class="s">&#34;startDate&#34;</span> <span class="na">name</span><span class="o">=</span><span class="s">&#34;startDate&#34;</span> <span class="na">value</span><span class="o">=</span><span class="s">&#34;${startDate}&#34;</span> <span class="na">readonly</span> <span class="p">/&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-group&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">label</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-label&#34;</span> <span class="na">for</span><span class="o">=</span><span class="s">&#34;endDate&#34;</span><span class="p">&gt;</span>结束时间：<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;controls&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&#34;text&#34;</span> <span class="na">id</span><span class="o">=</span><span class="s">&#34;endDate&#34;</span> <span class="na">name</span><span class="o">=</span><span class="s">&#34;endDate&#34;</span> <span class="na">value</span><span class="o">=</span><span class="s">&#34;${endDate}&#34;</span> <span class="na">readonly</span> <span class="p">/&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-group&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">label</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-label&#34;</span> <span class="na">for</span><span class="o">=</span><span class="s">&#34;reason&#34;</span><span class="p">&gt;</span>请假原因：<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;controls&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="p">&lt;</span><span class="nt">textarea</span> <span class="na">id</span><span class="o">=</span><span class="s">&#34;reason&#34;</span> <span class="na">name</span><span class="o">=</span><span class="s">&#34;reason&#34;</span> <span class="na">readonly</span><span class="p">&gt;</span>${reason}<span class="p">&lt;/</span><span class="nt">textarea</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-group&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">label</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-label&#34;</span> <span class="na">for</span><span class="o">=</span><span class="s">&#34;reportBackDate&#34;</span><span class="p">&gt;</span>销假日期：<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;controls&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&#34;text&#34;</span> <span class="na">id</span><span class="o">=</span><span class="s">&#34;reportBackDate&#34;</span> <span class="na">name</span><span class="o">=</span><span class="s">&#34;fp_reportBackDate&#34;</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;datepicker&#34;</span> <span class="na">data-date-format</span><span class="o">=</span><span class="s">&#34;yyyy-mm-dd&#34;</span> <span class="na">required</span> <span class="p">/&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span></code></pre></div><p>获取待办，任务id为5006：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-09/image-20200618162708058.png" >
+		<img src="/images/activiti6-09/image-20200618162708058.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200618162708058">
+	</a>
+	
+	<figcaption>image-20200618162708058</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-09/image-20200618163043806.png" >
+		<img src="/images/activiti6-09/image-20200618163043806.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200618163043806">
+	</a>
+	
+	<figcaption>image-20200618163043806</figcaption>
+	
+</figure></p>
+<h2 id="111-结束流程">1.11 结束流程</h2>
+<p><figure 
+	>
+	<a href="/images/activiti6-09/image-20200618163144369.png" >
+		<img src="/images/activiti6-09/image-20200618163144369.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200618163144369">
+	</a>
+	
+	<figcaption>image-20200618163144369</figcaption>
+	
+</figure></p>
+<h1 id="2总结">2、总结</h1>
+<p>我们完整的走了一遍外置表单流程。</p>
+<p>优点：解决了动态表单需要代码生成页面的弊端。</p>
+<p>弊端：和动态表单一样，流程业务数据全部保存在Activiti的表（act_hi_detail）中，不利于我们后期的数据处理。初步想法是，企业级应用中，新建一张业务表，保存业务信息，只需要和流程实例关联即可。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/activiti/">Activiti</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/activiti6%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%B3%BB%E7%BB%9F%E6%90%AD%E5%BB%BA%E6%95%99%E7%A8%8B/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti6工作流系统搭建教程</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti33-spring-security%E8%8E%B7%E5%8F%96%E5%BD%93%E5%89%8D%E6%93%8D%E4%BD%9C%E4%BA%BA%E4%BF%A1%E6%81%AF/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（33） Spring-Security获取当前操作人信息</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti34-%E4%BD%BF%E7%94%A8swagger%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（34） 使用Swagger生成静态接口文档</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti35-%E4%BD%BF%E7%94%A8swagger%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（35） 使用Swagger生成静态接口文档</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti32-%E6%9B%BF%E6%8D%A2activiti%E7%94%A8%E6%88%B7%E5%92%8C%E7%94%A8%E6%88%B7%E7%BB%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（32） 替换Activiti用户和用户组</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#11-初始化流程审批人员">1.1 初始化流程审批人员</a></li>
+    <li><a href="#12--部署流程定义">1.2  部署流程定义</a></li>
+    <li><a href="#13--获取流程启动节点表单信息">1.3  获取流程启动节点表单信息</a></li>
+    <li><a href="#14--发起流程">1.4  发起流程</a></li>
+    <li><a href="#15-获取待办流程列表">1.5 获取待办流程列表</a></li>
+    <li><a href="#16-签收任务">1.6 签收任务</a></li>
+    <li><a href="#17--leaderuser-读取task的表单信息">1.7  <code>leaderuser</code> 读取task的表单信息</a></li>
+    <li><a href="#18-办理任务">1.8 办理任务</a></li>
+    <li><a href="#19-人事签收及办理任务">1.9 人事签收及办理任务</a></li>
+    <li><a href="#110-销假">1.10 销假</a></li>
+    <li><a href="#111-结束流程">1.11 结束流程</a></li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

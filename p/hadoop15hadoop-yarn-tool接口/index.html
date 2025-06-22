@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Hadoop-Yarn Tool接口'><title>（Hadoop15）Hadoop-Yarn Tool接口</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/hadoop15hadoop-yarn-tool%E6%8E%A5%E5%8F%A3/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='（Hadoop15）Hadoop-Yarn Tool接口'>
+<meta property='og:description' content='Hadoop-Yarn Tool接口'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/hadoop15hadoop-yarn-tool%E6%8E%A5%E5%8F%A3/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Hadoop' /><meta property='article:tag' content='Yarn' /><meta property='article:published_time' content='2023-08-30T10:36:40&#43;00:00'/><meta property='article:modified_time' content='2023-08-30T10:36:40&#43;00:00'/>
+<meta name="twitter:title" content="（Hadoop15）Hadoop-Yarn Tool接口">
+<meta name="twitter:description" content="Hadoop-Yarn Tool接口">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/hadoop/" >
+                Hadoop
+            </a>
+        
+            <a href="/categories/yarn/" >
+                Yarn
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/hadoop15hadoop-yarn-tool%E6%8E%A5%E5%8F%A3/">（Hadoop15）Hadoop-Yarn Tool接口</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        Hadoop-Yarn Tool接口
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Aug 30, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 3 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <h2 id="一yarn-tool接口">一、Yarn Tool接口</h2>
+<h3 id="11-问题引出">1.1 问题引出</h3>
+<p>我们在《Hadoop-MapReduce介绍及使用示例》中写了一个示例代码。</p>
+<p><figure 
+	>
+	<a href="/../../images/yarn-04/image-20230809150808314.png" >
+		<img src="/../../images/yarn-04/image-20230809150808314.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230809150808314">
+	</a>
+	
+	<figcaption>image-20230809150808314</figcaption>
+	
+</figure></p>
+<p>我们直接在集群中运行</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 software<span class="o">]</span>$ hadoop jar mapreduce-flow.jar  com.sxdx.hdfs.mapreduce.flow.FlowDriver /input/phone_data.txt  /output
+</span></span></code></pre></div><p>可以看到运行正常</p>
+<p><figure 
+	>
+	<a href="/../../images/yarn-04/image-20230831102125004.png" >
+		<img src="/../../images/yarn-04/image-20230831102125004.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230831102125004">
+	</a>
+	
+	<figcaption>image-20230831102125004</figcaption>
+	
+</figure></p>
+<p>但是如果我们在参数中制定队列：</p>
+<pre tabindex="0"><code>[admin@hadoop1 software]$ hadoop jar mapreduce-flow.jar  com.sxdx.hdfs.mapreduce.flow.FlowDriver -D mapreduce.job.queuename=root.hive /input/phone_data.txt  /output1
+</code></pre><p><figure 
+	>
+	<a href="/../../images/yarn-04/image-20230831110438308.png" >
+		<img src="/../../images/yarn-04/image-20230831110438308.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230831110438308">
+	</a>
+	
+	<figcaption>image-20230831110438308</figcaption>
+	
+</figure></p>
+<p>执行后报错了，原因是我们代码进行参数接收时，将<code>-D mapreduce.job.queuename=root.hive</code>当成了输入参数，导致报错。</p>
+<p><figure 
+	>
+	<a href="/../../images/yarn-04/image-20230831110837827.png" >
+		<img src="/../../images/yarn-04/image-20230831110837827.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230831110837827">
+	</a>
+	
+	<figcaption>image-20230831110837827</figcaption>
+	
+</figure></p>
+<p>而解决办法日志中也已经给出了：</p>
+<pre tabindex="0"><code>Hadoop command-line option parsing not performed. Implement the Tool interface and execute your application with ToolRunner to remedy this.
+翻译：Hadoop命令行选项解析未执行。实现Tool接口并使用ToolRunner执行应用程序以解决此问题。
+</code></pre><h3 id="12-tool接口实例">1.2 Tool接口实例</h3>
+<p>我们的FlowMapper.java、FlowReducer.java、FlowBean.java类保持不变。</p>
+<p>新建一个FlowTool类实现Tool接口：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.hdfs.mapreduce.tool</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.conf.Configuration</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.fs.Path</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.io.IntWritable</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.io.Text</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.mapreduce.Job</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.mapreduce.lib.input.FileInputFormat</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.mapreduce.lib.output.FileOutputFormat</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.util.Tool</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">FlowTool</span> <span class="kd">implements</span> <span class="n">Tool</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">Configuration</span> <span class="n">conf</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">run</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">Job</span> <span class="n">job</span> <span class="o">=</span> <span class="n">Job</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="n">conf</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">job</span><span class="o">.</span><span class="na">setJarByClass</span><span class="o">(</span><span class="n">FlowDriver</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">job</span><span class="o">.</span><span class="na">setMapperClass</span><span class="o">(</span><span class="n">FlowMapper</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">job</span><span class="o">.</span><span class="na">setReducerClass</span><span class="o">(</span><span class="n">FlowReducer</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">//4 设置 Map 端输出 KV 类型
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">job</span><span class="o">.</span><span class="na">setMapOutputKeyClass</span><span class="o">(</span><span class="n">Text</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">job</span><span class="o">.</span><span class="na">setMapOutputValueClass</span><span class="o">(</span><span class="n">FlowBean</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">//5 设置程序最终输出的 KV 类型
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">job</span><span class="o">.</span><span class="na">setOutputKeyClass</span><span class="o">(</span><span class="n">Text</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">job</span><span class="o">.</span><span class="na">setOutputValueClass</span><span class="o">(</span><span class="n">FlowBean</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">FileInputFormat</span><span class="o">.</span><span class="na">setInputPaths</span><span class="o">(</span><span class="n">job</span><span class="o">,</span> <span class="k">new</span> <span class="n">Path</span><span class="o">(</span><span class="n">args</span><span class="o">[</span><span class="n">0</span><span class="o">]));</span>
+</span></span><span class="line"><span class="cl">        <span class="n">FileOutputFormat</span><span class="o">.</span><span class="na">setOutputPath</span><span class="o">(</span><span class="n">job</span><span class="o">,</span> <span class="k">new</span> <span class="n">Path</span><span class="o">(</span><span class="n">args</span><span class="o">[</span><span class="n">1</span><span class="o">]));</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">job</span><span class="o">.</span><span class="na">waitForCompletion</span><span class="o">(</span><span class="kc">true</span><span class="o">)</span> <span class="o">?</span> <span class="n">0</span> <span class="o">:</span> <span class="n">1</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setConf</span><span class="o">(</span><span class="n">Configuration</span> <span class="n">conf</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">conf</span> <span class="o">=</span> <span class="n">conf</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">Configuration</span> <span class="nf">getConf</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">conf</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>然后修改Drivers类：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.hdfs.mapreduce.tool</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.conf.Configuration</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.util.Tool</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.util.ToolRunner</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.util.Arrays</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">FlowDriver</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kd">static</span> <span class="n">Tool</span> <span class="n">tool</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//1 创建配置文件
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">Configuration</span> <span class="n">conf</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Configuration</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 2. 判断是否有 tool 接口
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">switch</span> <span class="o">(</span><span class="n">args</span><span class="o">[</span><span class="n">0</span><span class="o">]){</span>
+</span></span><span class="line"><span class="cl">            <span class="k">case</span> <span class="s">&#34;flow&#34;</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">                <span class="n">tool</span> <span class="o">=</span> <span class="k">new</span> <span class="n">FlowTool</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">                <span class="k">break</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">            <span class="k">default</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">                <span class="k">throw</span> <span class="k">new</span> <span class="n">RuntimeException</span><span class="o">(</span><span class="s">&#34; No such tool: &#34;</span><span class="o">+</span> <span class="n">args</span><span class="o">[</span><span class="n">0</span><span class="o">]</span> <span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 3. 用 Tool 执行程序
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="c1">// Arrays.copyOfRange 将老数组的元素放到新数组里面(排除掉)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="kt">int</span> <span class="n">run</span> <span class="o">=</span> <span class="n">ToolRunner</span><span class="o">.</span><span class="na">run</span><span class="o">(</span><span class="n">conf</span><span class="o">,</span> <span class="n">tool</span><span class="o">,</span> <span class="n">Arrays</span><span class="o">.</span><span class="na">copyOfRange</span><span class="o">(</span><span class="n">args</span><span class="o">,</span> <span class="n">1</span><span class="o">,</span> <span class="n">args</span><span class="o">.</span><span class="na">length</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">exit</span><span class="o">(</span><span class="n">run</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><h3 id="13-测试">1.3 测试</h3>
+<p>将程序打包，并上传集群。</p>
+<p><figure 
+	>
+	<a href="/../../images/yarn-04/image-20230831135703221.png" >
+		<img src="/../../images/yarn-04/image-20230831135703221.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230831135703221">
+	</a>
+	
+	<figcaption>image-20230831135703221</figcaption>
+	
+</figure></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 software<span class="o">]</span>$ hadoop jar mapreduce-tool.jar  com.sxdx.hdfs.mapreduce.tool.FlowDriver flow -D mapreduce.job.queuename<span class="o">=</span>root.hive /input/phone_data.txt /output1
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/yarn-04/image-20230831135648757.png" >
+		<img src="/../../images/yarn-04/image-20230831135648757.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230831135648757">
+	</a>
+	
+	<figcaption>image-20230831135648757</figcaption>
+	
+</figure></p>
+<p>可以看到，本次可以正常执行，没有受到<code>-D mapreduce.job.queuename=root.hive</code>参数影响。</p>
+<h2 id="二为什么tool可以过滤自定义参数">二、为什么Tool可以过滤自定义参数</h2>
+<p>我们看执行命令：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 software<span class="o">]</span>$ hadoop jar mapreduce-tool.jar  com.sxdx.hdfs.mapreduce.tool.FlowDriver flow -D mapreduce.job.queuename<span class="o">=</span>root.hive /input/phone_data.txt /output1
+</span></span></code></pre></div><p>注意此时提交的 3 个参数，第一个参数：flow ，用于生成特定的 Tool，第二个和第三个为输入输出目录。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">//这个是tool的第一个入口，main函数，通过ToolRunner运行。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span><span class="kd">throws</span> <span class="n">Exception</span><span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">res</span> <span class="o">=</span> <span class="n">ToolRunner</span><span class="o">.</span><span class="na">run</span><span class="o">(</span><span class="n">Configuration</span> <span class="n">conf</span><span class="o">,</span> <span class="n">Tool</span> <span class="n">tool</span><span class="o">,</span> <span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">System</span><span class="o">.</span><span class="na">exit</span><span class="o">(</span><span class="n">res</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="c1">//之后会运行tool的这个方法，tool会在这个run方法中完成功能逻辑（FlowTool.java）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">public</span> <span class="kt">int</span> <span class="nf">run</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span><span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//tool的主要功能实现
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">}</span>
+</span></span></code></pre></div><p>我们看下<code>ToolRunner</code>类：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span>  <span class="kd">class</span> <span class="nc">ToolRunner</span>  <span class="o">{</span>
+</span></span><span class="line"><span class="cl">   <span class="kd">public</span>  <span class="kd">static</span>  <span class="kt">int</span> <span class="nf">run</span> <span class="o">(</span><span class="n">Configuration</span> <span class="n">conf</span><span class="o">,</span> <span class="n">Tool</span> <span class="n">tool</span><span class="o">,</span>  <span class="n">String</span> <span class="o">[</span> <span class="o">]</span> <span class="n">args</span> <span class="o">)</span> <span class="kd">throws</span>  <span class="n">Exception</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">     <span class="k">if</span> <span class="o">(</span><span class="n">conf</span>  <span class="o">==</span>  <span class="kc">null</span> <span class="o">)</span>  <span class="o">{</span>
+</span></span><span class="line"><span class="cl">     	<span class="n">conf</span>  <span class="o">=</span>  <span class="k">new</span> <span class="n">Configuration</span> <span class="o">(</span> <span class="o">)</span> <span class="o">;</span>
+</span></span><span class="line"><span class="cl">     <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">GenericOptionsParser</span> <span class="n">parser</span>  <span class="o">=</span>  <span class="k">new</span> <span class="n">GenericOptionsParser</span> <span class="o">(</span><span class="n">conf</span><span class="o">,</span> <span class="n">args</span> <span class="o">)</span> <span class="o">;</span>
+</span></span><span class="line"><span class="cl">     <span class="c1">//set the configuration back, so that Tool can configure itself
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">tool</span><span class="o">.</span><span class="na">setConf</span> <span class="o">(</span><span class="n">conf</span> <span class="o">)</span> <span class="o">;</span>
+</span></span><span class="line"><span class="cl">     <span class="c1">//get the args w/o generic hadoop args
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>     <span class="n">String</span> <span class="o">[</span> <span class="o">]</span> <span class="n">toolArgs</span>  <span class="o">=</span> <span class="n">parser</span><span class="o">.</span> <span class="nf">getRemainingArgs</span> <span class="o">(</span> <span class="o">)</span> <span class="o">;</span>
+</span></span><span class="line"><span class="cl">     <span class="k">return</span> <span class="n">tool</span><span class="o">.</span><span class="na">run</span><span class="o">(</span><span class="n">toolArgs</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>从ToolRunner的静态方法run()可以看到，其通过<code>GenericOptionsParser</code> 来读取传递给run的job的conf和命令行参数args，处理hadoop的通用命令行参数：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">【GenericOptionsParser.java】
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">protected Options buildGeneralOptions<span class="o">(</span>Options opts<span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        Class <span class="nv">var2</span> <span class="o">=</span> OptionBuilder.class<span class="p">;</span>
+</span></span><span class="line"><span class="cl">        synchronized<span class="o">(</span>OptionBuilder.class<span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            OptionBuilder.withArgName<span class="o">(</span><span class="s2">&#34;file:///|hdfs://namenode:port&#34;</span><span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            OptionBuilder.hasArg<span class="o">()</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            OptionBuilder.withDescription<span class="o">(</span><span class="s2">&#34;specify default filesystem URL to use, overrides &#39;fs.defaultFS&#39; property from configurations.&#34;</span><span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            Option <span class="nv">fs</span> <span class="o">=</span> OptionBuilder.create<span class="o">(</span><span class="s2">&#34;fs&#34;</span><span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            OptionBuilder.withArgName<span class="o">(</span><span class="s2">&#34;local|resourcemanager:port&#34;</span><span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            OptionBuilder.hasArg<span class="o">()</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            OptionBuilder.withDescription<span class="o">(</span><span class="s2">&#34;specify a ResourceManager&#34;</span><span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            Option <span class="nv">jt</span> <span class="o">=</span> OptionBuilder.create<span class="o">(</span><span class="s2">&#34;jt&#34;</span><span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            OptionBuilder.withArgName<span class="o">(</span><span class="s2">&#34;configuration file&#34;</span><span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            OptionBuilder.hasArg<span class="o">()</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            OptionBuilder.withDescription<span class="o">(</span><span class="s2">&#34;specify an application configuration file&#34;</span><span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            Option <span class="nv">oconf</span> <span class="o">=</span> OptionBuilder.create<span class="o">(</span><span class="s2">&#34;conf&#34;</span><span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            OptionBuilder.withArgName<span class="o">(</span><span class="s2">&#34;property=value&#34;</span><span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            OptionBuilder.hasArg<span class="o">()</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            OptionBuilder.withDescription<span class="o">(</span><span class="s2">&#34;use value for given property&#34;</span><span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            Option <span class="nv">property</span> <span class="o">=</span> OptionBuilder.create<span class="o">(</span><span class="s1">&#39;D&#39;</span><span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            OptionBuilder.withArgName<span class="o">(</span><span class="s2">&#34;paths&#34;</span><span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            OptionBuilder.hasArg<span class="o">()</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            OptionBuilder.withDescription<span class="o">(</span><span class="s2">&#34;comma separated jar files to include in the classpath.&#34;</span><span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            Option <span class="nv">libjars</span> <span class="o">=</span> OptionBuilder.create<span class="o">(</span><span class="s2">&#34;libjars&#34;</span><span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            OptionBuilder.withArgName<span class="o">(</span><span class="s2">&#34;paths&#34;</span><span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            OptionBuilder.hasArg<span class="o">()</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            OptionBuilder.withDescription<span class="o">(</span><span class="s2">&#34;comma separated files to be copied to the map reduce cluster&#34;</span><span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            Option <span class="nv">files</span> <span class="o">=</span> OptionBuilder.create<span class="o">(</span><span class="s2">&#34;files&#34;</span><span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            OptionBuilder.withArgName<span class="o">(</span><span class="s2">&#34;paths&#34;</span><span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            OptionBuilder.hasArg<span class="o">()</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            OptionBuilder.withDescription<span class="o">(</span><span class="s2">&#34;comma separated archives to be unarchived on the compute machines.&#34;</span><span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            Option <span class="nv">archives</span> <span class="o">=</span> OptionBuilder.create<span class="o">(</span><span class="s2">&#34;archives&#34;</span><span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            OptionBuilder.withArgName<span class="o">(</span><span class="s2">&#34;tokensFile&#34;</span><span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            OptionBuilder.hasArg<span class="o">()</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            OptionBuilder.withDescription<span class="o">(</span><span class="s2">&#34;name of the file with the tokens&#34;</span><span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            Option <span class="nv">tokensFile</span> <span class="o">=</span> OptionBuilder.create<span class="o">(</span><span class="s2">&#34;tokenCacheFile&#34;</span><span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            opts.addOption<span class="o">(</span>fs<span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            opts.addOption<span class="o">(</span>jt<span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            opts.addOption<span class="o">(</span>oconf<span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            opts.addOption<span class="o">(</span>property<span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            opts.addOption<span class="o">(</span>libjars<span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            opts.addOption<span class="o">(</span>files<span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            opts.addOption<span class="o">(</span>archives<span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            opts.addOption<span class="o">(</span>tokensFile<span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> opts<span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span></code></pre></div><p>即以下这些通用命令：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">-conf &lt; configuration file &gt;     specify a configuration file
+</span></span><span class="line"><span class="cl">-D &lt; <span class="nv">property</span><span class="o">=</span>value &gt;            use value <span class="k">for</span> given property
+</span></span><span class="line"><span class="cl">-fs &lt; local<span class="p">|</span>namenode:port &gt;      specify a namenode
+</span></span><span class="line"><span class="cl">-jt &lt; local<span class="p">|</span>jobtracker:port &gt;    specify a job tracker
+</span></span><span class="line"><span class="cl">-files &lt; comma separated list of files &gt;    specify comma separated files to be copied to the map reduce cluster
+</span></span><span class="line"><span class="cl">-libjars &lt; comma separated list of jars &gt;   specify comma separated jar files to include in the classpath.
+</span></span><span class="line"><span class="cl">-archives &lt; comma separated list of archives &gt;    specify comma separated archives to be unarchived on the compute machines.
+</span></span></code></pre></div><p>除了以上这些参数，将剩下的job自己定义的参数<code>toolArgs = parser.getRemainingArgs()</code>交给tool来处理，再由tool来运行自己的run方法。</p>
+<p>这样就将通用和自定义参数分割开了。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/hadoop/">Hadoop</a>
+        
+            <a href="/tags/yarn/">Yarn</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/hadoop14hadoop-yarn-%E5%85%AC%E5%B9%B3%E8%B0%83%E5%BA%A6%E5%99%A8/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hadoop14）Hadoop-Yarn 公平调度器</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hadoop13hadoop-yarn-%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E6%A0%B8%E5%BF%83%E5%8F%82%E6%95%B0%E8%B0%83%E4%BC%98%E5%8F%8A%E5%AE%B9%E9%87%8F%E8%B0%83%E5%BA%A6%E5%99%A8%E5%A4%9A%E9%98%9F%E5%88%97%E9%85%8D%E7%BD%AE/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hadoop13）Hadoop-Yarn 常用命令、核心参数调优、及容量调度器多队列配置</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hadoop12hadoop-yarn-%E5%B7%A5%E4%BD%9C%E6%9C%BA%E5%88%B6%E8%B0%83%E5%BA%A6%E5%99%A8%E5%92%8C%E8%B0%83%E5%BA%A6%E7%AE%97%E6%B3%95/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hadoop12）Hadoop-Yarn 工作机制、调度器和调度算法</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hadoop23hadoop-ha-%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A4/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hadoop23）Hadoop HA 高可用集群</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hadoop22hadoop-mapreduce-%E5%8F%82%E6%95%B0%E8%B0%83%E4%BC%98/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hadoop22）Hadoop MapReduce 参数调优</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#一yarn-tool接口">一、Yarn Tool接口</a>
+      <ol>
+        <li><a href="#11-问题引出">1.1 问题引出</a></li>
+        <li><a href="#12-tool接口实例">1.2 Tool接口实例</a></li>
+        <li><a href="#13-测试">1.3 测试</a></li>
+      </ol>
+    </li>
+    <li><a href="#二为什么tool可以过滤自定义参数">二、为什么Tool可以过滤自定义参数</a></li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Hive Explain执行计划分析及SQL调优（分组聚合优化、Join语法优化）'><title>（Hive-09）Hive Explain执行计划分析及SQL调优</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/hive-09hive-explain%E6%89%A7%E8%A1%8C%E8%AE%A1%E5%88%92%E5%88%86%E6%9E%90%E5%8F%8Asql%E8%B0%83%E4%BC%98/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='（Hive-09）Hive Explain执行计划分析及SQL调优'>
+<meta property='og:description' content='Hive Explain执行计划分析及SQL调优（分组聚合优化、Join语法优化）'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/hive-09hive-explain%E6%89%A7%E8%A1%8C%E8%AE%A1%E5%88%92%E5%88%86%E6%9E%90%E5%8F%8Asql%E8%B0%83%E4%BC%98/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Hive' /><meta property='article:published_time' content='2023-10-08T16:36:40&#43;00:00'/><meta property='article:modified_time' content='2023-10-08T16:36:40&#43;00:00'/>
+<meta name="twitter:title" content="（Hive-09）Hive Explain执行计划分析及SQL调优">
+<meta name="twitter:description" content="Hive Explain执行计划分析及SQL调优（分组聚合优化、Join语法优化）">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/hive/" >
+                Hive
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/hive-09hive-explain%E6%89%A7%E8%A1%8C%E8%AE%A1%E5%88%92%E5%88%86%E6%9E%90%E5%8F%8Asql%E8%B0%83%E4%BC%98/">（Hive-09）Hive Explain执行计划分析及SQL调优</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        Hive Explain执行计划分析及SQL调优（分组聚合优化、Join语法优化）
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Oct 08, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 6 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <h2 id="一-explain执行计划">一、 Explain执行计划</h2>
+<p>Explain执行计划，可以查看hive sql执行过程,对于后期优化SQL很有帮助。</p>
+<h3 id="11-执行计划语法">1.1 执行计划语法</h3>
+<pre tabindex="0"><code>EXPLAIN [FORMATTED | EXTENDED | DEPENDENCY] query-sql
+</code></pre><p>只需要在待分析的SQL前加 EXPLAIN即可。</p>
+<p>注：<strong>FORMATTED、EXTENDED、DEPENDENCY</strong>关键字为可选项，各自作用如下。</p>
+<ul>
+<li>FORMATTED：将执行计划以JSON字符串的形式输出</li>
+<li>EXTENDED：输出执行计划中的额外信息，通常是读写的文件名等信息</li>
+<li>DEPENDENCY：输出执行计划读取的表及分区</li>
+</ul>
+<h3 id="12-执行计划说明">1.2 执行计划说明</h3>
+<p>Explain执行计划，由一系列<strong>Stage</strong>组成，这一系列<strong>Stage</strong>具有依赖关系，每个<strong>Stage</strong>对应一个<strong>MapReduce Job</strong>，或者一个文件系统操作等。</p>
+<p>每个<strong>Stage</strong>对应的一个Yarn 中的<strong>MapReduce Job</strong>，其Map端和Reduce端的计算逻辑分别由<strong>Map Operator Tree</strong>和<strong>Reduce Operator Tree</strong>进行描述。</p>
+<p><strong>Operator Tree</strong>由一系列的<strong>Operator</strong>组成，一个<strong>Operator</strong>代表在<strong>Map</strong>或<strong>Reduce</strong>阶段的一个单一的逻辑操作，例如TableScan Operator，Select Operator，Join Operator等。</p>
+<p>常见的<strong>Operator</strong>及其作用如下：</p>
+<ul>
+<li><strong>TableScan</strong>：表扫描操作，通常map端第一个操作肯定是表扫描操作</li>
+<li><strong>Select Operator</strong>：选取操作</li>
+<li><strong>Group By Operator</strong>：分组聚合操作</li>
+<li><strong>Reduce Output Operator</strong>：输出到 reduce 操作</li>
+<li><strong>Filter Operator</strong>：过滤操作</li>
+<li><strong>Join Operator</strong>：join 操作</li>
+<li><strong>File Output Operator</strong>：文件输出操作</li>
+<li><strong>Fetch Operator</strong>： 客户端获取数据操作</li>
+</ul>
+<h3 id="13-执行计划实例">1.3 执行计划实例</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">explain</span><span class="w">    </span><span class="k">select</span><span class="w"> </span><span class="n">order_id</span><span class="w"> </span><span class="p">,</span><span class="n">user_id</span><span class="p">,</span><span class="n">order_date</span><span class="p">,</span><span class="n">amount</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">lag</span><span class="p">(</span><span class="n">order_date</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;1997-01-01&#39;</span><span class="p">)</span><span class="w"> </span><span class="n">over</span><span class="w"> </span><span class="p">(</span><span class="n">partition</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">user_id</span><span class="w"> </span><span class="k">order</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="n">last_data</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="n">lead</span><span class="p">(</span><span class="n">order_date</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;9999-12-31&#39;</span><span class="p">)</span><span class="w"> </span><span class="n">over</span><span class="w"> </span><span class="p">(</span><span class="n">partition</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">user_id</span><span class="w"> </span><span class="k">order</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="n">nest_data</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">from</span><span class="w"> </span><span class="n">order_info</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/09-hive-09/image-20231010110059063.png" >
+		<img src="/../../images/09-hive-09/image-20231010110059063.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231010110059063">
+	</a>
+	
+	<figcaption>image-20231010110059063</figcaption>
+	
+</figure></p>
+<h3 id="14-执行计划可视化开源项目">1.4 执行计划可视化（开源项目）</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="c1">##下载代码：https://gitee.com/itlbo/hive-query-plan-viz?_from=gitee_search</span>
+</span></span><span class="line"><span class="cl">$ git clone https://gitee.com/itlbo/hive-query-plan-viz.git
+</span></span><span class="line"><span class="cl"><span class="c1">##下载依赖</span>
+</span></span><span class="line"><span class="cl">$ cnpm install
+</span></span><span class="line"><span class="cl"><span class="c1">##运行服务</span>
+</span></span><span class="line"><span class="cl">$ npm run serve
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/09-hive-09/image-20231010111952022.png" >
+		<img src="/../../images/09-hive-09/image-20231010111952022.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231010111952022">
+	</a>
+	
+	<figcaption>image-20231010111952022</figcaption>
+	
+</figure></p>
+<p>试用FORMATTED 关键字来 获取JOSN格式的执行计划：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">explain</span><span class="w">   </span><span class="n">FORMATTED</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="n">order_id</span><span class="w"> </span><span class="p">,</span><span class="n">user_id</span><span class="p">,</span><span class="n">order_date</span><span class="p">,</span><span class="n">amount</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">lag</span><span class="p">(</span><span class="n">order_date</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;1997-01-01&#39;</span><span class="p">)</span><span class="w"> </span><span class="n">over</span><span class="w"> </span><span class="p">(</span><span class="n">partition</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">user_id</span><span class="w"> </span><span class="k">order</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="n">last_data</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="n">lead</span><span class="p">(</span><span class="n">order_date</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;9999-12-31&#39;</span><span class="p">)</span><span class="w"> </span><span class="n">over</span><span class="w"> </span><span class="p">(</span><span class="n">partition</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">user_id</span><span class="w"> </span><span class="k">order</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="n">nest_data</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">from</span><span class="w"> </span><span class="n">order_info</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>这样就可以查看图表执行计划了：</p>
+<p><figure 
+	>
+	<a href="/../../images/09-hive-09/image-20231010111903978.png" >
+		<img src="/../../images/09-hive-09/image-20231010111903978.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231010111903978">
+	</a>
+	
+	<figcaption>image-20231010111903978</figcaption>
+	
+</figure></p>
+<p>由于以上步骤需要本地搭建nodejs环境，为了后续方便，我们将该开源项目部署在hadoop 集群上面。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="c1">##打包</span>
+</span></span><span class="line"><span class="cl">$ npm run build
+</span></span></code></pre></div><p>上传打包文件dist到hadoop1上面。简单的使用 python -m SimpleHTTPServer 快速搭建一个http服务。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 dist<span class="o">]</span>$ <span class="nb">pwd</span>
+</span></span><span class="line"><span class="cl">/opt/module/hive-explain/dist
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 dist<span class="o">]</span>$ ll
+</span></span><span class="line"><span class="cl">total <span class="m">12</span>
+</span></span><span class="line"><span class="cl">drwxrwxr-x. <span class="m">2</span> admin admin   <span class="m">64</span> Oct <span class="m">10</span> 16:47 css
+</span></span><span class="line"><span class="cl">-rw-rw-r--. <span class="m">1</span> admin admin <span class="m">4286</span> Oct <span class="m">10</span> 16:47 favicon.ico
+</span></span><span class="line"><span class="cl">drwxrwxr-x. <span class="m">2</span> admin admin   <span class="m">75</span> Oct <span class="m">10</span> 16:47 fonts
+</span></span><span class="line"><span class="cl">-rw-rw-r--. <span class="m">1</span> admin admin  <span class="m">916</span> Oct <span class="m">10</span> 16:47 index.html
+</span></span><span class="line"><span class="cl">drwxrwxr-x. <span class="m">2</span> admin admin  <span class="m">126</span> Oct <span class="m">10</span> 16:47 js
+</span></span><span class="line"><span class="cl"><span class="c1">##启动</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 dist<span class="o">]</span>$ nohup python -m SimpleHTTPServer <span class="m">8000</span> <span class="p">&amp;</span>
+</span></span></code></pre></div><p>访问：http://hadoop1:8000/</p>
+<p><figure 
+	>
+	<a href="/../../images/09-hive-09/image-20231010165239639.png" >
+		<img src="/../../images/09-hive-09/image-20231010165239639.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231010165239639">
+	</a>
+	
+	<figcaption>image-20231010165239639</figcaption>
+	
+</figure></p>
+<h2 id="二测试数据准备">二、测试数据准备</h2>
+<p>准备4张测试数据，并导入到到HDFS中。</p>
+<pre tabindex="0"><code>[admin@hadoop1 testdata]$ du -sh *
+1.1G    order_detail.txt
+319M    payment_detail.txt
+25M     product_info.txt
+4.0K    province_info.txt
+</code></pre><p>4张表信息如下：</p>
+<ul>
+<li>
+<p><strong>order_detail（订单表 2000w条数据）</strong></p>
+<p><figure 
+	>
+	<a href="/../../images/09-hive-09/image-20231011105747127.png" >
+		<img src="/../../images/09-hive-09/image-20231011105747127.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231011105747127">
+	</a>
+	
+	<figcaption>image-20231011105747127</figcaption>
+	
+</figure></p>
+</li>
+</ul>
+<p>建表及装载语句：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">-- 建表语句
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">create</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">order_detail</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">id</span><span class="w">      </span><span class="n">string</span><span class="w"> </span><span class="k">comment</span><span class="w"> </span><span class="s1">&#39;订单id&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">user_id</span><span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="k">comment</span><span class="w"> </span><span class="s1">&#39;用户id&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">product_id</span><span class="w">  </span><span class="n">string</span><span class="w"> </span><span class="k">comment</span><span class="w"> </span><span class="s1">&#39;商品id&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">province_id</span><span class="w">  </span><span class="n">string</span><span class="w"> </span><span class="k">comment</span><span class="w"> </span><span class="s1">&#39;省份id&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">create_time</span><span class="w">  </span><span class="n">string</span><span class="w"> </span><span class="k">comment</span><span class="w"> </span><span class="s1">&#39;下单时间&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">product_num</span><span class="w">  </span><span class="nb">int</span><span class="w"> </span><span class="k">comment</span><span class="w"> </span><span class="s1">&#39;商品件数&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">total_amount</span><span class="w"> </span><span class="nb">decimal</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">comment</span><span class="w"> </span><span class="s1">&#39;下单金额&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">partitioned</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="p">(</span><span class="n">dt</span><span class="w"> </span><span class="n">string</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">row</span><span class="w"> </span><span class="n">format</span><span class="w"> </span><span class="n">delimited</span><span class="w"> </span><span class="n">fields</span><span class="w"> </span><span class="n">terminated</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="s1">&#39;\t&#39;</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">-- 装载语句
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">load</span><span class="w"> </span><span class="k">data</span><span class="w"> </span><span class="k">local</span><span class="w"> </span><span class="n">inpath</span><span class="w"> </span><span class="s1">&#39;/opt/software/testdata/order_detail.txt&#39;</span><span class="w"> </span><span class="n">overwrite</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">order_detail</span><span class="w"> </span><span class="n">partition</span><span class="p">(</span><span class="n">dt</span><span class="o">=</span><span class="s1">&#39;2020-06-14&#39;</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></div><ul>
+<li><strong>payment_detail(支付表 600w条数据)</strong></li>
+</ul>
+<p><figure 
+	>
+	<a href="/../../images/09-hive-09/image-20231011105844246.png" >
+		<img src="/../../images/09-hive-09/image-20231011105844246.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231011105844246">
+	</a>
+	
+	<figcaption>image-20231011105844246</figcaption>
+	
+</figure></p>
+<p>建表及装载语句：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">-- 建表语句
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">hive</span><span class="w"> </span><span class="p">(</span><span class="k">default</span><span class="p">)</span><span class="o">&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">create</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">payment_detail</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">id</span><span class="w">              </span><span class="n">string</span><span class="w"> </span><span class="k">comment</span><span class="w"> </span><span class="s1">&#39;支付id&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">order_detail_id</span><span class="w"> </span><span class="n">string</span><span class="w"> </span><span class="k">comment</span><span class="w"> </span><span class="s1">&#39;订单明细id&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">user_id</span><span class="w">         </span><span class="n">string</span><span class="w"> </span><span class="k">comment</span><span class="w"> </span><span class="s1">&#39;用户id&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">payment_time</span><span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="k">comment</span><span class="w"> </span><span class="s1">&#39;支付时间&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">total_amount</span><span class="w">    </span><span class="nb">decimal</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">comment</span><span class="w"> </span><span class="s1">&#39;支付金额&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">partitioned</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="p">(</span><span class="n">dt</span><span class="w"> </span><span class="n">string</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">row</span><span class="w"> </span><span class="n">format</span><span class="w"> </span><span class="n">delimited</span><span class="w"> </span><span class="n">fields</span><span class="w"> </span><span class="n">terminated</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="s1">&#39;\t&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- 装载语句
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">hive</span><span class="w"> </span><span class="p">(</span><span class="k">default</span><span class="p">)</span><span class="o">&gt;</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">load</span><span class="w"> </span><span class="k">data</span><span class="w"> </span><span class="k">local</span><span class="w"> </span><span class="n">inpath</span><span class="w"> </span><span class="s1">&#39;/opt/software/testdata/payment_detail.txt&#39;</span><span class="w"> </span><span class="n">overwrite</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">payment_detail</span><span class="w"> </span><span class="n">partition</span><span class="p">(</span><span class="n">dt</span><span class="o">=</span><span class="s1">&#39;2020-06-14&#39;</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></div><ul>
+<li><strong>product_info:商品信息表(100w条数据)</strong></li>
+</ul>
+<p><figure 
+	>
+	<a href="/../../images/09-hive-09/image-20231011110008374.png" >
+		<img src="/../../images/09-hive-09/image-20231011110008374.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231011110008374">
+	</a>
+	
+	<figcaption>image-20231011110008374</figcaption>
+	
+</figure></p>
+<p>建表及装载语句：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">-- 建表语句
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">create</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">product_info</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">id</span><span class="w">           </span><span class="n">string</span><span class="w"> </span><span class="k">comment</span><span class="w"> </span><span class="s1">&#39;商品id&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">product_name</span><span class="w"> </span><span class="n">string</span><span class="w"> </span><span class="k">comment</span><span class="w"> </span><span class="s1">&#39;商品名称&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">price</span><span class="w">        </span><span class="nb">decimal</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">comment</span><span class="w"> </span><span class="s1">&#39;价格&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">category_id</span><span class="w">  </span><span class="n">string</span><span class="w"> </span><span class="k">comment</span><span class="w"> </span><span class="s1">&#39;分类id&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">row</span><span class="w"> </span><span class="n">format</span><span class="w"> </span><span class="n">delimited</span><span class="w"> </span><span class="n">fields</span><span class="w"> </span><span class="n">terminated</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="s1">&#39;\t&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- 装载语句
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">hive</span><span class="w"> </span><span class="p">(</span><span class="k">default</span><span class="p">)</span><span class="o">&gt;</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">load</span><span class="w"> </span><span class="k">data</span><span class="w"> </span><span class="k">local</span><span class="w"> </span><span class="n">inpath</span><span class="w"> </span><span class="s1">&#39;/opt/software/testdata/product_info.txt&#39;</span><span class="w"> </span><span class="n">overwrite</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">product_info</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><ul>
+<li><strong>province_info省份信息表(34条数据)</strong></li>
+</ul>
+<p><figure 
+	>
+	<a href="/../../images/09-hive-09/image-20231011110134950.png" >
+		<img src="/../../images/09-hive-09/image-20231011110134950.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231011110134950">
+	</a>
+	
+	<figcaption>image-20231011110134950</figcaption>
+	
+</figure></p>
+<p>建表及装载语句：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">-- 建表语句
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">create</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">province_info</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">id</span><span class="w">            </span><span class="n">string</span><span class="w"> </span><span class="k">comment</span><span class="w"> </span><span class="s1">&#39;省份id&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">province_name</span><span class="w"> </span><span class="n">string</span><span class="w"> </span><span class="k">comment</span><span class="w"> </span><span class="s1">&#39;省份名称&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">row</span><span class="w"> </span><span class="n">format</span><span class="w"> </span><span class="n">delimited</span><span class="w"> </span><span class="n">fields</span><span class="w"> </span><span class="n">terminated</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="s1">&#39;\t&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- 装载语句
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">hive</span><span class="w"> </span><span class="p">(</span><span class="k">default</span><span class="p">)</span><span class="o">&gt;</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">load</span><span class="w"> </span><span class="k">data</span><span class="w"> </span><span class="k">local</span><span class="w"> </span><span class="n">inpath</span><span class="w"> </span><span class="s1">&#39;/opt/software/testdata/province_info.txt&#39;</span><span class="w"> </span><span class="n">overwrite</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">province_info</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/09-hive-09/image-20231011111729538.png" >
+		<img src="/../../images/09-hive-09/image-20231011111729538.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231011111729538">
+	</a>
+	
+	<figcaption>image-20231011111729538</figcaption>
+	
+</figure></p>
+<h2 id="三hive分组聚合的优化group-by">三、Hive分组聚合的优化（group by）</h2>
+<p>​	  <strong>Hive对分组聚合的优化主要围绕着减少Shuffle数据量进行</strong>。Hive中未经优化的分组聚合，是通过一个MapReduce Job实现的。Map端负责读取数据，并按照分组字段分区，通过Shuffle，将数据发往Reduce端，各组数据在Reduce端完成最终的聚合运算。</p>
+<p>​		<strong>优化具体做法是map-side聚合</strong>。所谓map-side聚合，就是在map端维护一个hash table，利用其完成部分的聚合，然后将部分聚合的结果，按照分组字段分区，发送至reduce端，完成最终的聚合。map-side聚合能有效减少shuffle的数据量，提高分组聚合运算的效率。</p>
+<p>​		map-side 聚合相关的参数如下(以下数值均为默认值)：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">--启用map-side聚合
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="k">map</span><span class="p">.</span><span class="n">aggr</span><span class="o">=</span><span class="k">true</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--用于检测源表数据是否适合进行map-side聚合。
+</span></span></span><span class="line"><span class="cl"><span class="c1">--检测的方法是：先对若干条数据进行map-side聚合（hive.groupby.mapaggr.checkinterval来决定要取的值），若聚合后的条数和聚合前的条数比值小于该值，则认为该表适合进行map-side聚合；否则，认为该表数据不适合进行map-side聚合，后续数据便不再进行map-side聚合。
+</span></span></span><span class="line"><span class="cl"><span class="c1">--注意：数据分布情况会影响监测结果，想要强制使用map-side聚合，可以将该值设置为1
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="k">map</span><span class="p">.</span><span class="n">aggr</span><span class="p">.</span><span class="n">hash</span><span class="p">.</span><span class="k">min</span><span class="p">.</span><span class="n">reduction</span><span class="o">=</span><span class="mi">0</span><span class="p">.</span><span class="mi">5</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--用于检测源表是否适合map-side聚合的条数。（即从头取100000条数据进行监测，）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="n">groupby</span><span class="p">.</span><span class="n">mapaggr</span><span class="p">.</span><span class="n">checkinterval</span><span class="o">=</span><span class="mi">100000</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--map-side聚合所用的hash table，占用map task堆内存的最大比例，若超出该值，则会对hash table进行一次flush。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="k">map</span><span class="p">.</span><span class="n">aggr</span><span class="p">.</span><span class="n">hash</span><span class="p">.</span><span class="k">force</span><span class="p">.</span><span class="n">flush</span><span class="p">.</span><span class="n">memory</span><span class="p">.</span><span class="n">threshold</span><span class="o">=</span><span class="mi">0</span><span class="p">.</span><span class="mi">9</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>示例：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">--不使用聚合优化，查询耗时：1 m 55 s
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="k">map</span><span class="p">.</span><span class="n">aggr</span><span class="o">=</span><span class="k">false</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">select</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">product_id</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">from</span><span class="w"> </span><span class="n">order_detail</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">group</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">product_id</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--使用优化，查询耗时1 m 27 s
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="k">map</span><span class="p">.</span><span class="n">aggr</span><span class="o">=</span><span class="k">true</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="k">map</span><span class="p">.</span><span class="n">aggr</span><span class="p">.</span><span class="n">hash</span><span class="p">.</span><span class="k">min</span><span class="p">.</span><span class="n">reduction</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">select</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">product_id</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">from</span><span class="w"> </span><span class="n">order_detail</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">group</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">product_id</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><h2 id="四hive-join语法优化">四、Hive Join语法优化</h2>
+<p>Hive拥有多种join算法，包括</p>
+<ul>
+<li>Common Join</li>
+<li>Map Join</li>
+<li>Bucket Map Join</li>
+<li>Sort Merge Buckt Map Join等</li>
+</ul>
+<p>下面对每种join算法做简要说明。</p>
+<h3 id="41-common-join">4.1 Common Join</h3>
+<p>​		Common Join是Hive中最稳定的join算法，其通过一个MapReduce Job完成一个join操作。Map端负责读取join操作所需表的数据，并按照关联字段进行分区，通过Shuffle，将其发送到Reduce端，相同key的数据在Reduce端完成最终的Join操作。如下图所示：</p>
+<p><figure 
+	>
+	<a href="/../../images/09-hive-09/image-20231012151431262.png" >
+		<img src="/../../images/09-hive-09/image-20231012151431262.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231012151431262">
+	</a>
+	
+	<figcaption>image-20231012151431262</figcaption>
+	
+</figure></p>
+<p><strong>注意</strong>，sql语句中的join操作和执行计划中的Common Join任务并非一对一的关系，一个sql语句中的<strong>相邻的且关联字段相同的</strong>多个join操作可以合并为一个Common Join任务。</p>
+<ul>
+<li>示例1：</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">--以下sql语句中两个join操作的关联字段均为b表的key1字段，则该语句中的两个join操作可由一个Common Join任务实现，也就是可通过一个Map Reduce任务实现。 
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">select</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">a</span><span class="p">.</span><span class="n">val</span><span class="p">,</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">b</span><span class="p">.</span><span class="n">val</span><span class="p">,</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">c</span><span class="p">.</span><span class="n">val</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">from</span><span class="w"> </span><span class="n">a</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">join</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="k">on</span><span class="w"> </span><span class="p">(</span><span class="n">a</span><span class="p">.</span><span class="k">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">key1</span><span class="p">)</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">join</span><span class="w"> </span><span class="k">c</span><span class="w"> </span><span class="k">on</span><span class="w"> </span><span class="p">(</span><span class="k">c</span><span class="p">.</span><span class="k">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">key1</span><span class="p">)</span><span class="w">
+</span></span></span></code></pre></div><p>​		上述sql语句中两个join操作的关联字段均为b表的key1字段，则该语句中的两个join操作可由一个Common Join任务实现，也就是可通过一个Map Reduce任务实现。</p>
+<ul>
+<li>示例2：</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">select</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">a</span><span class="p">.</span><span class="n">val</span><span class="p">,</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">b</span><span class="p">.</span><span class="n">val</span><span class="p">,</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">c</span><span class="p">.</span><span class="n">val</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">from</span><span class="w"> </span><span class="n">a</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">join</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="k">on</span><span class="w"> </span><span class="p">(</span><span class="n">a</span><span class="p">.</span><span class="k">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">key1</span><span class="p">)</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">join</span><span class="w"> </span><span class="k">c</span><span class="w"> </span><span class="k">on</span><span class="w"> </span><span class="p">(</span><span class="k">c</span><span class="p">.</span><span class="k">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">key2</span><span class="p">)</span><span class="w">
+</span></span></span></code></pre></div><p>​	上述sql语句中的两个join操作关联字段各不相同（b表的key1和key2字段），则该语句的两个join操作需要各自通过一个Common Join任务实现，也就是通过两个Map Reduce任务实现。</p>
+<h3 id="42-map-join">4.2 Map Join</h3>
+<p>​		我们在《（Hadoop10）Hadoop-MapReduce（MapJoin和ReduceJoin ）》章节中已经了解过Hadoop的MapJoin过程，hive的Map Join计算和它的原理是相同的。</p>
+<p>​		Map Join算法可以通过两个只有map阶段的Job完成一个join操作。<strong>其适用场景为大表join小表</strong>。若某join操作满足要求，则第一个Job会读取小表数据，将其制作为<strong>hash table</strong>，并上传至Hadoop分布式缓存（本质上是上传至HDFS）。第二个Job会先从分布式缓存中读取小表数据，并缓存在Map Task的内存中，然后扫描大表数据，这样在map端即可完成关联操作。如下图所示：</p>
+<p><figure 
+	>
+	<a href="/../../images/09-hive-09/image-20231012152728418.png" >
+		<img src="/../../images/09-hive-09/image-20231012152728418.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231012152728418">
+	</a>
+	
+	<figcaption>image-20231012152728418</figcaption>
+	
+</figure></p>
+<p>Map Join有两种触发方式，一种是用户在SQL语句中增加hint提示，另外一种是Hive优化器根据参与join表的数据量大小，自动触发。</p>
+<ul>
+<li>1）Hint提示(不推荐)</li>
+</ul>
+<p>用户可通过如下方式，指定通过map join算法，并且ta将作为map join中的小表。这种方式已经过时，不推荐使用。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">--以下sql语句中的ta：table_a为小表，将其制作为hash table
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">select</span><span class="w"> </span><span class="cm">/*+ mapjoin(ta) */</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">ta</span><span class="p">.</span><span class="n">id</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">tb</span><span class="p">.</span><span class="n">id</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">from</span><span class="w"> </span><span class="n">table_a</span><span class="w"> </span><span class="n">ta</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">join</span><span class="w"> </span><span class="n">table_b</span><span class="w"> </span><span class="n">tb</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">on</span><span class="w"> </span><span class="n">ta</span><span class="p">.</span><span class="n">id</span><span class="o">=</span><span class="n">tb</span><span class="p">.</span><span class="n">id</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><ul>
+<li>2）自动触发</li>
+</ul>
+<p>​		Hive在编译SQL语句阶段，<strong>起初所有的join操作均采用Common Join算法实现</strong>。之后在物理优化阶段，Hive会根据每个Common Join任务所需表的大小判断该Common Join任务是否能够转换为Map Join任务，若满足要求，便将Common Join任务自动转换为Map Join任务。</p>
+<p>​		但有些Common Join任务所需的表大小，在SQL的编译阶段是未知的（例如对子查询进行join操作），所以这种Common Join任务是否能转换成Map Join任务在编译阶是无法确定的。针对这种情况，Hive会在编译阶段生成一个条件任务（Conditional Task），其下会包含一个计划列表，<strong>计划列表中包含转换后的Map Join任务以及原有的Common Join任务</strong>。最终具体采用哪个计划，是在运行时决定的。大致思路如下图所示：</p>
+<p><figure 
+	>
+	<a href="/../../images/09-hive-09/image-20231012154843080.png" >
+		<img src="/../../images/09-hive-09/image-20231012154843080.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231012154843080">
+	</a>
+	
+	<figcaption>image-20231012154843080</figcaption>
+	
+</figure></p>
+<p>Map join自动转换的具体判断逻辑如下图所示：</p>
+<p><figure 
+	>
+	<a href="/../../images/09-hive-09/image-20231012160321028.png" >
+		<img src="/../../images/09-hive-09/image-20231012160321028.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231012160321028">
+	</a>
+	
+	<figcaption>image-20231012160321028</figcaption>
+	
+</figure></p>
+<h4 id="421-map-join参数">4.2.1 Map Join参数</h4>
+<p>图中涉及到的参数如下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">--(1)启动Map Join自动转换(默认true)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="n">auto</span><span class="p">.</span><span class="k">convert</span><span class="p">.</span><span class="k">join</span><span class="o">=</span><span class="k">true</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--(2)一个Common Join operator转为Map Join operator的判断条件（文件大小）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="n">mapjoin</span><span class="p">.</span><span class="n">smalltable</span><span class="p">.</span><span class="n">filesize</span><span class="o">=</span><span class="mi">250000</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--(3)开启无条件转Map Join(默认true)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="n">auto</span><span class="p">.</span><span class="k">convert</span><span class="p">.</span><span class="k">join</span><span class="p">.</span><span class="n">noconditionaltask</span><span class="o">=</span><span class="k">true</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--(4)无条件转Map Join时的小表之和阈值（文件大小）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="n">auto</span><span class="p">.</span><span class="k">convert</span><span class="p">.</span><span class="k">join</span><span class="p">.</span><span class="n">noconditionaltask</span><span class="p">.</span><span class="k">size</span><span class="o">=</span><span class="mi">10000000</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><h4 id="422-map-join实例">4.2.2 Map Join实例</h4>
+<table>
+<thead>
+<tr>
+<th>表名</th>
+<th>大小</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>order_detail</td>
+<td>1176009934（约1122M）</td>
+</tr>
+<tr>
+<td>product_info</td>
+<td>25285707（约24M）</td>
+</tr>
+<tr>
+<td>province_info</td>
+<td>369（约0.36K）</td>
+</tr>
+</tbody>
+</table>
+<p>可使用如下语句获取表/分区的大小信息：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">desc</span><span class="w"> </span><span class="n">formatted</span><span class="w"> </span><span class="k">table_name</span><span class="w"> </span><span class="n">partition</span><span class="p">(</span><span class="n">partition_col</span><span class="o">=</span><span class="s1">&#39;partition&#39;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">eg</span><span class="p">:</span><span class="k">desc</span><span class="w"> </span><span class="n">formatted</span><span class="w"> </span><span class="n">order_detail</span><span class="w"> </span><span class="n">partition</span><span class="p">(</span><span class="n">dt</span><span class="o">=</span><span class="s1">&#39;2020-06-14&#39;</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></div><p><strong>优化前</strong>：以下SQL语句共有三张表进行两次join操作，且两次join操作的关联字段不同。故优化前的执行计划应该包含两个Common Join operator，也就是由两个MapReduce任务实现。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="n">auto</span><span class="p">.</span><span class="k">convert</span><span class="p">.</span><span class="k">join</span><span class="o">=</span><span class="k">false</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">explain</span><span class="w"> </span><span class="n">formatted</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">order_detail</span><span class="w"> </span><span class="n">od</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">join</span><span class="w"> </span><span class="n">product_info</span><span class="w"> </span><span class="n">product</span><span class="w"> </span><span class="k">on</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">product_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">product</span><span class="p">.</span><span class="n">id</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">join</span><span class="w"> </span><span class="n">province_info</span><span class="w"> </span><span class="n">province</span><span class="w"> </span><span class="k">on</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">province_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">province</span><span class="p">.</span><span class="n">id</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>测试耗时 6 m 34s，执行计划如下图所示：</p>
+<p><figure 
+	>
+	<a href="/../../images/09-hive-09/graph.png" >
+		<img src="/../../images/09-hive-09/graph.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-graph">
+	</a>
+	
+	<figcaption>image-graph</figcaption>
+	
+</figure></p>
+<h5 id="4221-优化方案一">4.2.2.1 优化方案一</h5>
+<p><figure 
+	>
+	<a href="/../../images/09-hive-09/image-20231013140801905.png" >
+		<img src="/../../images/09-hive-09/image-20231013140801905.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231013140801905">
+	</a>
+	
+	<figcaption>image-20231013140801905</figcaption>
+	
+</figure></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">--启用Map Join自动转换。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="n">auto</span><span class="p">.</span><span class="k">convert</span><span class="p">.</span><span class="k">join</span><span class="o">=</span><span class="k">true</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--不使用无条件转Map Join。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="n">auto</span><span class="p">.</span><span class="k">convert</span><span class="p">.</span><span class="k">join</span><span class="p">.</span><span class="n">noconditionaltask</span><span class="o">=</span><span class="k">false</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--调整hive.mapjoin.smalltable.filesize参数，使其大于等于product_info。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="n">mapjoin</span><span class="p">.</span><span class="n">smalltable</span><span class="p">.</span><span class="n">filesize</span><span class="o">=</span><span class="mi">25285707</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">explain</span><span class="w"> </span><span class="n">formatted</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">order_detail</span><span class="w"> </span><span class="n">od</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">join</span><span class="w"> </span><span class="n">product_info</span><span class="w"> </span><span class="n">product</span><span class="w"> </span><span class="k">on</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">product_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">product</span><span class="p">.</span><span class="n">id</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">join</span><span class="w"> </span><span class="n">province_info</span><span class="w"> </span><span class="n">province</span><span class="w"> </span><span class="k">on</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">province_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">province</span><span class="p">.</span><span class="n">id</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>这样可保证将两个Common Join operator均可转为Map Join operator，并保留Common Join作为后备计划，保证计算任务的稳定。测试耗时 4 m 31s，执行计划如下：</p>
+<p><figure 
+	>
+	<a href="/../../images/09-hive-09/graph-2.png" >
+		<img src="/../../images/09-hive-09/graph-2.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-graph">
+	</a>
+	
+	<figcaption>image-graph</figcaption>
+	
+</figure></p>
+<p><strong>实际执行路径</strong>：Stage-9、Stage-12、 Stage-8 、Stage-7、 Stage-10、Stage-5、Stage-0（除 Stage-8、Stage-5需要mapreudce操作，其余均为本地操作或者判断）</p>
+<p><figure 
+	>
+	<a href="/../../images/09-hive-09/image-20231013144125727.png" >
+		<img src="/../../images/09-hive-09/image-20231013144125727.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231013144125727">
+	</a>
+	
+	<figcaption>image-20231013144125727</figcaption>
+	
+</figure></p>
+<h5 id="4221-优化方案二">4.2.2.1 优化方案二</h5>
+<p><figure 
+	>
+	<a href="/../../images/09-hive-09/image-20231013145238524.png" >
+		<img src="/../../images/09-hive-09/image-20231013145238524.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231013145238524">
+	</a>
+	
+	<figcaption>image-20231013145238524</figcaption>
+	
+</figure></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">--启用Map Join自动转换。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="n">auto</span><span class="p">.</span><span class="k">convert</span><span class="p">.</span><span class="k">join</span><span class="o">=</span><span class="k">true</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--使用无条件转Map Join。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="n">auto</span><span class="p">.</span><span class="k">convert</span><span class="p">.</span><span class="k">join</span><span class="p">.</span><span class="n">noconditionaltask</span><span class="o">=</span><span class="k">true</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--调整hive.auto.convert.join.noconditionaltask.size参数，使其大于等于product_info和province_info之和。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="n">auto</span><span class="p">.</span><span class="k">convert</span><span class="p">.</span><span class="k">join</span><span class="p">.</span><span class="n">noconditionaltask</span><span class="p">.</span><span class="k">size</span><span class="o">=</span><span class="mi">25286076</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>这样可直接将两个Common Join operator转为两个Map Join operator，并且由于两个Map Join operator的小表大小之和小于等于hive.auto.convert.join.noconditionaltask.size，故两个Map Join operator任务可合并为同一个。这个方案计算效率最高，但需要的内存也是最多的。</p>
+<p>测试耗时 2 m 25s。执行计划如下：</p>
+<p><figure 
+	>
+	<a href="/../../images/09-hive-09/graph-3.png" >
+		<img src="/../../images/09-hive-09/graph-3.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-graph">
+	</a>
+	
+	<figcaption>image-graph</figcaption>
+	
+</figure></p>
+<p><strong>实际执行路径</strong>：</p>
+<p><figure 
+	>
+	<a href="/../../images/09-hive-09/image-20231013150621146.png" >
+		<img src="/../../images/09-hive-09/image-20231013150621146.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231013150621146">
+	</a>
+	
+	<figcaption>image-20231013150621146</figcaption>
+	
+</figure></p>
+<h5 id="4221-优化方案三">4.2.2.1 优化方案三</h5>
+<p><figure 
+	>
+	<a href="/../../images/09-hive-09/image-20231013150835752.png" >
+		<img src="/../../images/09-hive-09/image-20231013150835752.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231013150835752">
+	</a>
+	
+	<figcaption>image-20231013150835752</figcaption>
+	
+</figure></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">--启用Map Join自动转换。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="n">auto</span><span class="p">.</span><span class="k">convert</span><span class="p">.</span><span class="k">join</span><span class="o">=</span><span class="k">true</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--使用无条件转Map Join。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="n">auto</span><span class="p">.</span><span class="k">convert</span><span class="p">.</span><span class="k">join</span><span class="p">.</span><span class="n">noconditionaltask</span><span class="o">=</span><span class="k">true</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--调整hive.auto.convert.join.noconditionaltask.size参数，使其等于product_info。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="n">auto</span><span class="p">.</span><span class="k">convert</span><span class="p">.</span><span class="k">join</span><span class="p">.</span><span class="n">noconditionaltask</span><span class="p">.</span><span class="k">size</span><span class="o">=</span><span class="mi">25285707</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>这样可直接将两个Common Join operator转为Map Join operator，但不会将两个Map Join的任务合并。该方案计算效率比方案二低，但需要的内存也更少。</p>
+<p>测试耗时 4 m 21s。执行计划如下：</p>
+<p><figure 
+	>
+	<a href="/../../images/09-hive-09/graph-4.png" >
+		<img src="/../../images/09-hive-09/graph-4.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-graph">
+	</a>
+	
+	<figcaption>image-graph</figcaption>
+	
+</figure></p>
+<p><strong>实际执行路径</strong>：</p>
+<p><figure 
+	>
+	<a href="/../../images/09-hive-09/image-20231013151708994.png" >
+		<img src="/../../images/09-hive-09/image-20231013151708994.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231013151708994">
+	</a>
+	
+	<figcaption>image-20231013151708994</figcaption>
+	
+</figure></p>
+<h3 id="43-bucket-map-join">4.3 Bucket Map Join</h3>
+<p>​		Bucket Map Join是对Map Join算法的改进，其打破了Map Join只适用于大表join小表的限制，<strong>可用于大表join大表的场景</strong>。</p>
+<p>​		Bucket Map Join的前提是：保证参与join的表均为分桶表，且关联字段为分桶字段，<strong>且其中一张表的分桶数量是另外一张表分桶数量的整数倍</strong>，由于分桶的原理：<strong>指定一个分桶数，最后将取模运算结果相同的行，写入同一个文件中</strong>。就能保证参与join的两张表的分桶之间具有明确的关联关系，所以就可以在两表的分桶间进行Map Join操作了。这样一来，第二个Job的Map端就无需再缓存小表的全表数据了，而只需缓存其所需的分桶即可。其原理如图所示：</p>
+<p><figure 
+	>
+	<a href="/../../images/09-hive-09/bb.gif" >
+		<img src="/../../images/09-hive-09/bb.gif"
+			
+			
+			
+			loading="lazy"
+			alt="bb">
+	</a>
+	
+	<figcaption>bb</figcaption>
+	
+</figure></p>
+<p><strong>Bucket Map Join不支持自动转换</strong>，必须通过用户在SQL语句中提供如下Hint提示，并配置相关参数：<code>/*+ mapjoin(ta) */</code>，方可使用。</p>
+<p>1）Hint提示</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">select</span><span class="w"> </span><span class="cm">/*+ mapjoin(ta) */</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">ta</span><span class="p">.</span><span class="n">id</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">tb</span><span class="p">.</span><span class="n">id</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">from</span><span class="w"> </span><span class="n">table_a</span><span class="w"> </span><span class="n">ta</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">join</span><span class="w"> </span><span class="n">table_b</span><span class="w"> </span><span class="n">tb</span><span class="w"> </span><span class="k">on</span><span class="w"> </span><span class="n">ta</span><span class="p">.</span><span class="n">id</span><span class="o">=</span><span class="n">tb</span><span class="p">.</span><span class="n">id</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>2）相关参数</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">--关闭cbo优化，cbo会导致hint信息被忽略
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="n">cbo</span><span class="p">.</span><span class="n">enable</span><span class="o">=</span><span class="k">false</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--map join hint默认会被忽略(因为已经过时)，需将如下参数设置为false
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="k">ignore</span><span class="p">.</span><span class="n">mapjoin</span><span class="p">.</span><span class="n">hint</span><span class="o">=</span><span class="k">false</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--启用bucket map join优化功能
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="n">optimize</span><span class="p">.</span><span class="n">bucketmapjoin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><h4 id="431-bucket-map-join实例">4.3.1 Bucket Map Join实例</h4>
+<p>数据量如下：</p>
+<table>
+<thead>
+<tr>
+<th>表名</th>
+<th>大小</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>order_detail</td>
+<td>1176009934（约1122M）</td>
+</tr>
+<tr>
+<td>payment_detail</td>
+<td>334198480（约319M）</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">select</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="o">*</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">from</span><span class="w"> </span><span class="n">order_detail</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">where</span><span class="w"> </span><span class="n">dt</span><span class="o">=</span><span class="s1">&#39;2020-06-14&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="n">od</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">join</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">select</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="o">*</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">from</span><span class="w"> </span><span class="n">payment_detail</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">where</span><span class="w"> </span><span class="n">dt</span><span class="o">=</span><span class="s1">&#39;2020-06-14&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="n">pd</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">on</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">id</span><span class="o">=</span><span class="n">pd</span><span class="p">.</span><span class="n">order_detail_id</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>上述SQL语句共有两张表一次join操作，故优化前的执行计划应包含一个Common Join任务，通过一个MapReduce Job实现。执行计划如下图所示：</p>
+<p><figure 
+	>
+	<a href="/../../images/09-hive-09/image-20231016154148026.png" >
+		<img src="/../../images/09-hive-09/image-20231016154148026.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231016154148026">
+	</a>
+	
+	<figcaption>image-20231016154148026</figcaption>
+	
+</figure></p>
+<p>两张表都相对较大，若采用普通的Map Join算法，则Map端需要较多的内存来缓存数据，当然可以选择为Map段分配更多的内存，来保证任务运行成功。但是，Map端的内存不可能无上限的分配，所以当参与Join的表数据量均过大时，就可以考虑采用Bucket Map Join算法。下面演示如何使用Bucket Map Join。</p>
+<p>首先需要依据源表创建两个分桶表，order_detail建议分16个bucket，payment_detail建议分8个bucket,<strong>注意分桶个数的倍数关系以及分桶字段。</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">--订单表
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">create</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">order_detail_bucketed</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">id</span><span class="w">           </span><span class="n">string</span><span class="w"> </span><span class="k">comment</span><span class="w"> </span><span class="s1">&#39;订单id&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">user_id</span><span class="w">      </span><span class="n">string</span><span class="w"> </span><span class="k">comment</span><span class="w"> </span><span class="s1">&#39;用户id&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">product_id</span><span class="w">   </span><span class="n">string</span><span class="w"> </span><span class="k">comment</span><span class="w"> </span><span class="s1">&#39;商品id&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">province_id</span><span class="w">  </span><span class="n">string</span><span class="w"> </span><span class="k">comment</span><span class="w"> </span><span class="s1">&#39;省份id&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">create_time</span><span class="w">  </span><span class="n">string</span><span class="w"> </span><span class="k">comment</span><span class="w"> </span><span class="s1">&#39;下单时间&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">product_num</span><span class="w">  </span><span class="nb">int</span><span class="w"> </span><span class="k">comment</span><span class="w"> </span><span class="s1">&#39;商品件数&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">total_amount</span><span class="w"> </span><span class="nb">decimal</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">comment</span><span class="w"> </span><span class="s1">&#39;下单金额&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">clustered</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="mi">16</span><span class="w"> </span><span class="n">buckets</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">row</span><span class="w"> </span><span class="n">format</span><span class="w"> </span><span class="n">delimited</span><span class="w"> </span><span class="n">fields</span><span class="w"> </span><span class="n">terminated</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="s1">&#39;\t&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--支付表
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">create</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">payment_detail_bucketed</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">id</span><span class="w">              </span><span class="n">string</span><span class="w"> </span><span class="k">comment</span><span class="w"> </span><span class="s1">&#39;支付id&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">order_detail_id</span><span class="w"> </span><span class="n">string</span><span class="w"> </span><span class="k">comment</span><span class="w"> </span><span class="s1">&#39;订单明细id&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">user_id</span><span class="w">         </span><span class="n">string</span><span class="w"> </span><span class="k">comment</span><span class="w"> </span><span class="s1">&#39;用户id&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">payment_time</span><span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="k">comment</span><span class="w"> </span><span class="s1">&#39;支付时间&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">total_amount</span><span class="w">    </span><span class="nb">decimal</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">comment</span><span class="w"> </span><span class="s1">&#39;支付金额&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">clustered</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="p">(</span><span class="n">order_detail_id</span><span class="p">)</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="mi">8</span><span class="w"> </span><span class="n">buckets</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">row</span><span class="w"> </span><span class="n">format</span><span class="w"> </span><span class="n">delimited</span><span class="w"> </span><span class="n">fields</span><span class="w"> </span><span class="n">terminated</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="s1">&#39;\t&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">---然后向两个分桶表导入数据。
+</span></span></span><span class="line"><span class="cl"><span class="c1">--订单表
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">insert</span><span class="w"> </span><span class="n">overwrite</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">order_detail_bucketed</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">select</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">id</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">user_id</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">product_id</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">province_id</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">create_time</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">product_num</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">total_amount</span><span class="w">   
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">from</span><span class="w"> </span><span class="n">order_detail</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">where</span><span class="w"> </span><span class="n">dt</span><span class="o">=</span><span class="s1">&#39;2020-06-14&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--分桶表
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">insert</span><span class="w"> </span><span class="n">overwrite</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">payment_detail_bucketed</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">select</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">id</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">order_detail_id</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">user_id</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">payment_time</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">total_amount</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">from</span><span class="w"> </span><span class="n">payment_detail</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">where</span><span class="w"> </span><span class="n">dt</span><span class="o">=</span><span class="s1">&#39;2020-06-14&#39;</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>然后设置以下参数：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">--关闭cbo优化，cbo会导致hint信息被忽略，需将如下参数修改为false
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="n">cbo</span><span class="p">.</span><span class="n">enable</span><span class="o">=</span><span class="k">false</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--map join hint默认会被忽略(因为已经过时)，需将如下参数修改为false
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="k">ignore</span><span class="p">.</span><span class="n">mapjoin</span><span class="p">.</span><span class="n">hint</span><span class="o">=</span><span class="k">false</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--启用bucket map join优化功能,默认不启用，需将如下参数修改为true
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="n">optimize</span><span class="p">.</span><span class="n">bucketmapjoin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>最后在重写SQL语句，如下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">explain</span><span class="w">  </span><span class="n">FORMATTED</span><span class="w">  </span><span class="n">extended</span><span class="w">  </span><span class="k">select</span><span class="w"> </span><span class="cm">/*+ mapjoin(pd) */</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">*</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">from</span><span class="w"> </span><span class="n">order_detail_bucketed</span><span class="w"> </span><span class="n">od</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">join</span><span class="w"> </span><span class="n">payment_detail_bucketed</span><span class="w"> </span><span class="n">pd</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">on</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pd</span><span class="p">.</span><span class="n">order_detail_id</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>执行计划如下图所示：</p>
+<p><figure 
+	>
+	<a href="/../../images/09-hive-09/image-20231020165527930.png" >
+		<img src="/../../images/09-hive-09/image-20231020165527930.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231020165527930">
+	</a>
+	
+	<figcaption>image-20231020165527930</figcaption>
+	
+</figure></p>
+<h3 id="44-sort-merge-bucket-map-join">4.4 Sort Merge Bucket Map Join</h3>
+<p>Sort Merge Bucket Map Join（简称SMB Map Join）基于Bucket Map Join。<strong>SMB Map Join要求，参与join的表均为分桶表，且需保证分桶内的数据是有序的，且分桶字段、排序字段和关联字段为相同字段，且其中一张表的分桶数量是另外一张表分桶数量的整数倍。</strong></p>
+<p>SMB Map Join同Bucket Join一样，同样是利用两表各分桶之间的关联关系，在分桶之间进行join操作，不同的是，分桶之间的join操作的实现原理。Bucket Map Join，两个分桶之间的join实现原理为Hash Join算法；而SMB Map Join，两个分桶之间的join实现原理为Sort Merge Join算法。</p>
+<p>Hash Join和Sort Merge Join均为关系型数据库中常见的Join实现算法。Hash Join的原理相对简单，就是对参与join的一张表构建hash table，然后扫描另外一张表，然后进行逐行匹配。Sort Merge Join需要在两张按照关联字段<strong>排好序的表</strong>中进行。</p>
+<p><figure 
+	>
+	<a href="/../../images/09-hive-09/aa.gif" >
+		<img src="/../../images/09-hive-09/aa.gif"
+			
+			
+			
+			loading="lazy"
+			alt="aa">
+	</a>
+	
+	<figcaption>aa</figcaption>
+	
+</figure></p>
+<p>SMB Map Join与Bucket Map Join相比，在进行Join操作时，<strong>Map端是无需对整个Bucket构建hash table</strong>，也无需在Map端缓存整个Bucket数据的，每个Mapper只需按顺序逐个key读取两个分桶的数据进行join即可。</p>
+<p>Sort Merge Bucket Map Join有两种触发方式，包括Hint提示和自动转换。Hint提示已过时，不推荐使用。下面是自动转换的相关参数：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">--启动Sort Merge Bucket Map Join优化
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="n">optimize</span><span class="p">.</span><span class="n">bucketmapjoin</span><span class="p">.</span><span class="n">sortedmerge</span><span class="o">=</span><span class="k">true</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--使用自动转换SMB Join
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="n">auto</span><span class="p">.</span><span class="k">convert</span><span class="p">.</span><span class="n">sortmerge</span><span class="p">.</span><span class="k">join</span><span class="o">=</span><span class="k">true</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><h4 id="441-smb-map-join实例">4.4.1 SMB Map Join实例</h4>
+<p>实例与Bucket Map Join相同，优化方案如下：</p>
+<p>首先需要依据源表创建两个的有序的分桶表，order_detail建议分16个bucket，payment_detail建议分8个bucket,注意分桶排序字段。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">--订单表
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">create</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">order_detail_sorted_bucketed</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">id</span><span class="w">      </span><span class="n">string</span><span class="w"> </span><span class="k">comment</span><span class="w"> </span><span class="s1">&#39;订单id&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">user_id</span><span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="k">comment</span><span class="w"> </span><span class="s1">&#39;用户id&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">product_id</span><span class="w">  </span><span class="n">string</span><span class="w"> </span><span class="k">comment</span><span class="w"> </span><span class="s1">&#39;商品id&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">province_id</span><span class="w">  </span><span class="n">string</span><span class="w"> </span><span class="k">comment</span><span class="w"> </span><span class="s1">&#39;省份id&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">create_time</span><span class="w">  </span><span class="n">string</span><span class="w"> </span><span class="k">comment</span><span class="w"> </span><span class="s1">&#39;下单时间&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">product_num</span><span class="w">  </span><span class="nb">int</span><span class="w"> </span><span class="k">comment</span><span class="w"> </span><span class="s1">&#39;商品件数&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">total_amount</span><span class="w"> </span><span class="nb">decimal</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">comment</span><span class="w"> </span><span class="s1">&#39;下单金额&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">clustered</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="n">sorted</span><span class="w"> </span><span class="k">by</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="mi">16</span><span class="w"> </span><span class="n">buckets</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">row</span><span class="w"> </span><span class="n">format</span><span class="w"> </span><span class="n">delimited</span><span class="w"> </span><span class="n">fields</span><span class="w"> </span><span class="n">terminated</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="s1">&#39;\t&#39;</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">--支付表
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">create</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">payment_detail_sorted_bucketed</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">id</span><span class="w">        </span><span class="n">string</span><span class="w"> </span><span class="k">comment</span><span class="w"> </span><span class="s1">&#39;支付id&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">order_detail_id</span><span class="w"> </span><span class="n">string</span><span class="w"> </span><span class="k">comment</span><span class="w"> </span><span class="s1">&#39;订单明细id&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">user_id</span><span class="w">     </span><span class="n">string</span><span class="w"> </span><span class="k">comment</span><span class="w"> </span><span class="s1">&#39;用户id&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">payment_time</span><span class="w">   </span><span class="n">string</span><span class="w"> </span><span class="k">comment</span><span class="w"> </span><span class="s1">&#39;支付时间&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">total_amount</span><span class="w">   </span><span class="nb">decimal</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">comment</span><span class="w"> </span><span class="s1">&#39;支付金额&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">clustered</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="p">(</span><span class="n">order_detail_id</span><span class="p">)</span><span class="w"> </span><span class="n">sorted</span><span class="w"> </span><span class="k">by</span><span class="p">(</span><span class="n">order_detail_id</span><span class="p">)</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="mi">8</span><span class="w"> </span><span class="n">buckets</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">row</span><span class="w"> </span><span class="n">format</span><span class="w"> </span><span class="n">delimited</span><span class="w"> </span><span class="n">fields</span><span class="w"> </span><span class="n">terminated</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="s1">&#39;\t&#39;</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>然后向两个分桶表导入数据。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">insert</span><span class="w"> </span><span class="n">overwrite</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">order_detail_sorted_bucketed</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">select</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">id</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">user_id</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">product_id</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">province_id</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">create_time</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">product_num</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">total_amount</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">from</span><span class="w"> </span><span class="n">order_detail</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">insert</span><span class="w"> </span><span class="n">overwrite</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">payment_detail_sorted_bucketed</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">select</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">id</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">order_detail_id</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">user_id</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">payment_time</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">total_amount</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">from</span><span class="w"> </span><span class="n">payment_detail</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>然后设置以下参数，并执行SQL：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">--启动Sort Merge Bucket Map Join优化
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="n">optimize</span><span class="p">.</span><span class="n">bucketmapjoin</span><span class="p">.</span><span class="n">sortedmerge</span><span class="o">=</span><span class="k">true</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--使用自动转换SMB Join
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="n">auto</span><span class="p">.</span><span class="k">convert</span><span class="p">.</span><span class="n">sortmerge</span><span class="p">.</span><span class="k">join</span><span class="o">=</span><span class="k">true</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">explain</span><span class="w">  </span><span class="n">FORMATTED</span><span class="w">  </span><span class="n">extended</span><span class="w">  </span><span class="k">select</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">*</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">from</span><span class="w"> </span><span class="n">order_detail_sorted_bucketed</span><span class="w"> </span><span class="n">od</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">join</span><span class="w"> </span><span class="n">payment_detail_sorted_bucketed</span><span class="w"> </span><span class="n">pd</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">on</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pd</span><span class="p">.</span><span class="n">order_detail_id</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>执行计划如下图所示：</p>
+<p><figure 
+	>
+	<a href="/../../images/09-hive-09/image-20231023135303963.png" >
+		<img src="/../../images/09-hive-09/image-20231023135303963.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231023135303963">
+	</a>
+	
+	<figcaption>image-20231023135303963</figcaption>
+	
+</figure></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/hive/">Hive</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/hive-11hive%E8%B0%83%E4%BC%98-%E4%BB%BB%E5%8A%A1%E5%B9%B6%E8%A1%8C%E5%BA%A6%E4%BC%98%E5%8C%96%E5%B0%8F%E6%96%87%E4%BB%B6%E5%90%88%E5%B9%B6%E4%BC%98%E5%8C%96%E6%9C%AC%E5%9C%B0%E6%A8%A1%E5%BC%8Fstage%E5%B9%B6%E8%A1%8C%E6%89%A7%E8%A1%8C%E4%B8%A5%E6%A0%BC%E6%A8%A1%E5%BC%8Fcbo%E4%BC%98%E5%8C%96/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hive-11）Hive调优-任务并行度优化、小文件合并优化、本地模式、Stage并行执行、严格模式、CBO优化</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hive-10hive%E8%B0%83%E4%BC%98-%E6%95%B0%E6%8D%AE%E5%80%BE%E6%96%9C%E8%B0%83%E4%BC%98/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hive-10）Hive调优-数据倾斜调优</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hive-08hive%E9%85%8D%E7%BD%AE%E8%B0%83%E4%BC%98/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hive-08）Hive配置调优</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hive-07hive%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F%E6%96%87%E4%BB%B6%E5%8E%8B%E7%BC%A9/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hive-07）Hive文件格式、文件压缩</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hive-06hive%E5%88%86%E5%8C%BA%E8%A1%A8%E5%92%8C%E5%88%86%E6%A1%B6%E8%A1%A8/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hive-06）Hive分区表和分桶表</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#一-explain执行计划">一、 Explain执行计划</a>
+      <ol>
+        <li><a href="#11-执行计划语法">1.1 执行计划语法</a></li>
+        <li><a href="#12-执行计划说明">1.2 执行计划说明</a></li>
+        <li><a href="#13-执行计划实例">1.3 执行计划实例</a></li>
+        <li><a href="#14-执行计划可视化开源项目">1.4 执行计划可视化（开源项目）</a></li>
+      </ol>
+    </li>
+    <li><a href="#二测试数据准备">二、测试数据准备</a></li>
+    <li><a href="#三hive分组聚合的优化group-by">三、Hive分组聚合的优化（group by）</a></li>
+    <li><a href="#四hive-join语法优化">四、Hive Join语法优化</a>
+      <ol>
+        <li><a href="#41-common-join">4.1 Common Join</a></li>
+        <li><a href="#42-map-join">4.2 Map Join</a>
+          <ol>
+            <li><a href="#421-map-join参数">4.2.1 Map Join参数</a></li>
+            <li><a href="#422-map-join实例">4.2.2 Map Join实例</a></li>
+          </ol>
+        </li>
+        <li><a href="#43-bucket-map-join">4.3 Bucket Map Join</a>
+          <ol>
+            <li><a href="#431-bucket-map-join实例">4.3.1 Bucket Map Join实例</a></li>
+          </ol>
+        </li>
+        <li><a href="#44-sort-merge-bucket-map-join">4.4 Sort Merge Bucket Map Join</a>
+          <ol>
+            <li><a href="#441-smb-map-join实例">4.4.1 SMB Map Join实例</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

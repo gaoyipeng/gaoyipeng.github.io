@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='SpringBoot 生命周期事件和监听器'><title>SpringBoot 生命周期事件和监听器</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/springboot-%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E4%BA%8B%E4%BB%B6%E5%92%8C%E7%9B%91%E5%90%AC%E5%99%A8/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='SpringBoot 生命周期事件和监听器'>
+<meta property='og:description' content='SpringBoot 生命周期事件和监听器'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/springboot-%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E4%BA%8B%E4%BB%B6%E5%92%8C%E7%9B%91%E5%90%AC%E5%99%A8/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='SpringBoot' /><meta property='article:published_time' content='2024-07-01T10:00:40&#43;00:00'/><meta property='article:modified_time' content='2024-07-01T10:00:40&#43;00:00'/>
+<meta name="twitter:title" content="SpringBoot 生命周期事件和监听器">
+<meta name="twitter:description" content="SpringBoot 生命周期事件和监听器">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/springboot/" >
+                SpringBoot
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/springboot-%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E4%BA%8B%E4%BB%B6%E5%92%8C%E7%9B%91%E5%90%AC%E5%99%A8/">SpringBoot 生命周期事件和监听器</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        SpringBoot 生命周期事件和监听器
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jul 01, 2024</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 5 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <h2 id="一-生命周期监听">一、 生命周期监听</h2>
+<h3 id="11-监听器分类">1.1 监听器分类</h3>
+<p><code>SpringBoot</code>生命周期监听器有以下几种：</p>
+<ul>
+<li><code>BootstrapRegistryInitializer</code>： <em><em>感知特定阶段：感知引导初始化阶段</em>，引导上下文<code>bootstrapContext</code>的时候触发</em>*
+<ul>
+<li>定义位置：<code>META-INF/spring.factories</code></li>
+<li>application.<code>addBootstrapRegistryInitializer</code>();</li>
+<li>场景：<code>进行密钥校对授权。</code></li>
+</ul>
+</li>
+<li><code>ApplicationContextInitializer</code>： <strong>感知特定阶段： 感知IOC容器初始化</strong>
+<ul>
+<li>定义位置：<code>META-INF/spring.factories</code></li>
+<li>也可以通过<code>application.addInitializers()</code>定义</li>
+</ul>
+</li>
+<li><code>ApplicationListener</code>：<strong>感知全阶段：基于事件机制，感知事件。 一旦到了哪个阶段可以做别的事</strong>
+<ul>
+<li>定义位置：<code>META-INF/spring.factories</code></li>
+<li>也可以通过<code>@Bean</code>或<code>@EventListener</code>： 事件驱动定义。</li>
+<li>也可以通过<code>SpringApplication.addListeners(…)</code>或 <code>SpringApplicationBuilder.listeners(…)</code>定义</li>
+</ul>
+</li>
+<li><code>SpringApplicationRunListener</code>：<strong>感知全阶段生命周期 + 各种阶段都能自定义操作； 功能更完善。</strong>
+<ul>
+<li>定义位置：<code>META-INF/spring.factories</code></li>
+</ul>
+</li>
+<li><code>ApplicationRunner</code>:  <strong>感知特定阶段：感知应用就绪Ready。</strong></li>
+<li><code>CommandLineRunner</code>：<strong>感知特定阶段：感知应用就绪Ready。</strong></li>
+</ul>
+<h3 id="12-使用场景">1.2 使用场景</h3>
+<ul>
+<li>如果项目启动前做事： <code>BootstrapRegistryInitializer</code> 、 <code>ApplicationContextInitializer</code></li>
+<li>如果想要在项目启动完成后做事：<code>ApplicationRunner</code>、 <code>CommandLineRunner</code></li>
+<li>如果要干涉生命周期做事：<code>SpringApplicationRunListener</code></li>
+<li>如果想要用事件机制：<code>ApplicationListener</code></li>
+</ul>
+<h2 id="二springapplicationrunlistener监听器">二、SpringApplicationRunListener监听器</h2>
+<h3 id="21-基本概念">2.1 基本概念</h3>
+<p>​      SpringApplicationRunListener是最全面的生命周期监听器，Springboot 在<code>spring-boot.jar</code>中配置了默认的 Listener：</p>
+<p><figure 
+	>
+	<a href="/../../images/springboot-03md/image-20240802172153094.png" >
+		<img src="/../../images/springboot-03md/image-20240802172153094.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20240802172153094">
+	</a>
+	
+	<figcaption>image-20240802172153094</figcaption>
+	
+</figure></p>
+<p>​     自定义SpringApplicationRunListener，需要实现SpringApplicationRunListener接口。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">org.springframework.boot</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.time.Duration</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.context.ConfigurableApplicationContext</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.core.env.ConfigurableEnvironment</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">SpringApplicationRunListener</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">default</span> <span class="kt">void</span> <span class="nf">starting</span><span class="o">(</span><span class="n">ConfigurableBootstrapContext</span> <span class="n">bootstrapContext</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">default</span> <span class="kt">void</span> <span class="nf">environmentPrepared</span><span class="o">(</span><span class="n">ConfigurableBootstrapContext</span> <span class="n">bootstrapContext</span><span class="o">,</span> <span class="n">ConfigurableEnvironment</span> <span class="n">environment</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">default</span> <span class="kt">void</span> <span class="nf">contextPrepared</span><span class="o">(</span><span class="n">ConfigurableApplicationContext</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">default</span> <span class="kt">void</span> <span class="nf">contextLoaded</span><span class="o">(</span><span class="n">ConfigurableApplicationContext</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">default</span> <span class="kt">void</span> <span class="nf">started</span><span class="o">(</span><span class="n">ConfigurableApplicationContext</span> <span class="n">context</span><span class="o">,</span> <span class="n">Duration</span> <span class="n">timeTaken</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">started</span><span class="o">(</span><span class="n">context</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/** @deprecated */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Deprecated</span>
+</span></span><span class="line"><span class="cl">    <span class="k">default</span> <span class="kt">void</span> <span class="nf">started</span><span class="o">(</span><span class="n">ConfigurableApplicationContext</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">default</span> <span class="kt">void</span> <span class="nf">ready</span><span class="o">(</span><span class="n">ConfigurableApplicationContext</span> <span class="n">context</span><span class="o">,</span> <span class="n">Duration</span> <span class="n">timeTaken</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">running</span><span class="o">(</span><span class="n">context</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/** @deprecated */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Deprecated</span>
+</span></span><span class="line"><span class="cl">    <span class="k">default</span> <span class="kt">void</span> <span class="nf">running</span><span class="o">(</span><span class="n">ConfigurableApplicationContext</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">default</span> <span class="kt">void</span> <span class="nf">failed</span><span class="o">(</span><span class="n">ConfigurableApplicationContext</span> <span class="n">context</span><span class="o">,</span> <span class="n">Throwable</span> <span class="n">exception</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>其中的方法对应生命周期的各个阶段：</p>
+<p><figure 
+	>
+	<a href="/../../images/springboot-03/image-20240805091823440.png" >
+		<img src="/../../images/springboot-03/image-20240805091823440.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20240805091823440">
+	</a>
+	
+	<figcaption>image-20240805091823440</figcaption>
+	
+</figure></p>
+<p>1、引导： 利用 BootstrapContext 引导整个项目启动</p>
+<pre tabindex="0"><code>starting：              应用开始，SpringApplication的run方法一调用，只要有了 BootstrapContext 就执行
+environmentPrepared：   环境准备好（把启动参数等绑定到环境变量中），但是ioc还没有创建；【调一次】
+</code></pre><p>2、启动</p>
+<pre tabindex="0"><code>contextPrepared：       ioc容器创建并准备好，但是sources（主配置类）没加载，组件都没创建。 【调一次】
+contextLoaded：         ioc容器加载。主配置类加载进去了，加载了Bean定义信息，但是ioc容器还没刷新。
+started：               ioc容器刷新了（所有bean造好了），但是 runner（生命周期感知回调） 没调用。
+ready:                  ioc容器刷新了（所有bean造好了），所有 runner（生命周期感知回调） 调用完了。
+</code></pre><p>3、异常：</p>
+<pre tabindex="0"><code>failed：                starting之后的步骤有任何异常，都会调用failed
+</code></pre><p>我们可以通过springboot 的启动类，查看应用启动过程中SpringApplicationRunListener 调用的过程：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">//启动类
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">SpringApplication</span><span class="o">.</span><span class="na">run</span><span class="o">(</span><span class="n">DemoApplication</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">args</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">//对应的调用方法
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">public</span> <span class="n">ConfigurableApplicationContext</span> <span class="nf">run</span><span class="o">(</span><span class="n">String</span><span class="o">...</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kt">long</span> <span class="n">startTime</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="na">nanoTime</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">DefaultBootstrapContext</span> <span class="n">bootstrapContext</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">createBootstrapContext</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ConfigurableApplicationContext</span> <span class="n">context</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">configureHeadlessProperty</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">SpringApplicationRunListeners</span> <span class="n">listeners</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">getRunListeners</span><span class="o">(</span><span class="n">args</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    	<span class="c1">//对应starting 应用开始，SpringApplication的run方法一调用，只要有了 BootstrapContext 就执行
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">listeners</span><span class="o">.</span><span class="na">starting</span><span class="o">(</span><span class="n">bootstrapContext</span><span class="o">,</span> <span class="k">this</span><span class="o">.</span><span class="na">mainApplicationClass</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">try</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">ApplicationArguments</span> <span class="n">applicationArguments</span> <span class="o">=</span> <span class="k">new</span> <span class="n">DefaultApplicationArguments</span><span class="o">(</span><span class="n">args</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">//对应environmentPrepared 环境准备好（把启动参数等绑定到环境变量中），但是ioc还没有创建；【调一次】
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">ConfigurableEnvironment</span> <span class="n">environment</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">prepareEnvironment</span><span class="o">(</span><span class="n">listeners</span><span class="o">,</span> <span class="n">bootstrapContext</span><span class="o">,</span> <span class="n">applicationArguments</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="k">this</span><span class="o">.</span><span class="na">configureIgnoreBeanInfo</span><span class="o">(</span><span class="n">environment</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">Banner</span> <span class="n">printedBanner</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">printBanner</span><span class="o">(</span><span class="n">environment</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">//创建IOC容器
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">context</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">createApplicationContext</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">            <span class="n">context</span><span class="o">.</span><span class="na">setApplicationStartup</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">applicationStartup</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">//对应contextPrepared ioc容器创建并准备好，但是sources（主配置类）没加载。并关闭引导上下文；组件都没创建  【调一次】
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="k">this</span><span class="o">.</span><span class="na">prepareContext</span><span class="o">(</span><span class="n">bootstrapContext</span><span class="o">,</span> <span class="n">context</span><span class="o">,</span> <span class="n">environment</span><span class="o">,</span> <span class="n">listeners</span><span class="o">,</span> <span class="n">applicationArguments</span><span class="o">,</span> <span class="n">printedBanner</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">//对应contextLoaded ioc容器加载。主配置类加载进去了。但是ioc容器还没刷新（我们的bean没创建）。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="k">this</span><span class="o">.</span><span class="na">refreshContext</span><span class="o">(</span><span class="n">context</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="k">this</span><span class="o">.</span><span class="na">afterRefresh</span><span class="o">(</span><span class="n">context</span><span class="o">,</span> <span class="n">applicationArguments</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">Duration</span> <span class="n">timeTakenToStartup</span> <span class="o">=</span> <span class="n">Duration</span><span class="o">.</span><span class="na">ofNanos</span><span class="o">(</span><span class="n">System</span><span class="o">.</span><span class="na">nanoTime</span><span class="o">()</span> <span class="o">-</span> <span class="n">startTime</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">logStartupInfo</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="o">(</span><span class="k">new</span> <span class="n">StartupInfoLogger</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">mainApplicationClass</span><span class="o">)).</span><span class="na">logStarted</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">getApplicationLog</span><span class="o">(),</span> <span class="n">timeTakenToStartup</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">			<span class="c1">//对应started ioc容器刷新了（所有bean造好了），但是 runner 没调用。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">listeners</span><span class="o">.</span><span class="na">started</span><span class="o">(</span><span class="n">context</span><span class="o">,</span> <span class="n">timeTakenToStartup</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="k">this</span><span class="o">.</span><span class="na">callRunners</span><span class="o">(</span><span class="n">context</span><span class="o">,</span> <span class="n">applicationArguments</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Throwable</span> <span class="n">var12</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">this</span><span class="o">.</span><span class="na">handleRunFailure</span><span class="o">(</span><span class="n">context</span><span class="o">,</span> <span class="n">var12</span><span class="o">,</span> <span class="n">listeners</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalStateException</span><span class="o">(</span><span class="n">var12</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">try</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">Duration</span> <span class="n">timeTakenToReady</span> <span class="o">=</span> <span class="n">Duration</span><span class="o">.</span><span class="na">ofNanos</span><span class="o">(</span><span class="n">System</span><span class="o">.</span><span class="na">nanoTime</span><span class="o">()</span> <span class="o">-</span> <span class="n">startTime</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">//对应ready ioc容器刷新了（所有bean造好了），所有 runner 调用完了。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">listeners</span><span class="o">.</span><span class="na">ready</span><span class="o">(</span><span class="n">context</span><span class="o">,</span> <span class="n">timeTakenToReady</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="n">context</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Throwable</span> <span class="n">var11</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">this</span><span class="o">.</span><span class="na">handleRunFailure</span><span class="o">(</span><span class="n">context</span><span class="o">,</span> <span class="n">var11</span><span class="o">,</span> <span class="o">(</span><span class="n">SpringApplicationRunListeners</span><span class="o">)</span><span class="kc">null</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalStateException</span><span class="o">(</span><span class="n">var11</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span></code></pre></div><h3 id="22-代码实践">2.2 代码实践</h3>
+<p>1、新建一个监听类</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.demo.listener</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.boot.ConfigurableBootstrapContext</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.boot.SpringApplication</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.boot.SpringApplicationRunListener</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.context.ConfigurableApplicationContext</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.core.env.ConfigurableEnvironment</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.time.Duration</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyAppRunListener</span> <span class="kd">implements</span> <span class="n">SpringApplicationRunListener</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kd">final</span> <span class="n">SpringApplication</span> <span class="n">application</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kd">final</span> <span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="nf">MyAppRunListener</span><span class="o">(</span><span class="n">SpringApplication</span> <span class="n">application</span><span class="o">,</span> <span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">application</span> <span class="o">=</span> <span class="n">application</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">args</span> <span class="o">=</span> <span class="n">args</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">starting</span><span class="o">(</span><span class="n">ConfigurableBootstrapContext</span> <span class="n">bootstrapContext</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;=========starting==========&#34;</span><span class="o">+</span><span class="n">bootstrapContext</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">environmentPrepared</span><span class="o">(</span><span class="n">ConfigurableBootstrapContext</span> <span class="n">bootstrapContext</span><span class="o">,</span> <span class="n">ConfigurableEnvironment</span> <span class="n">environment</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;=========environmentPrepared==========&#34;</span><span class="o">+</span><span class="n">bootstrapContext</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">contextPrepared</span><span class="o">(</span><span class="n">ConfigurableApplicationContext</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;=========contextPrepared==========&#34;</span><span class="o">+</span><span class="n">context</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">contextLoaded</span><span class="o">(</span><span class="n">ConfigurableApplicationContext</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;=========contextLoaded==========&#34;</span><span class="o">+</span><span class="n">context</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">started</span><span class="o">(</span><span class="n">ConfigurableApplicationContext</span> <span class="n">context</span><span class="o">,</span> <span class="n">Duration</span> <span class="n">timeTaken</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;=========started==========&#34;</span><span class="o">+</span><span class="n">context</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">ready</span><span class="o">(</span><span class="n">ConfigurableApplicationContext</span> <span class="n">context</span><span class="o">,</span> <span class="n">Duration</span> <span class="n">timeTaken</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;=========ready==========&#34;</span><span class="o">+</span><span class="n">context</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">failed</span><span class="o">(</span><span class="n">ConfigurableApplicationContext</span> <span class="n">context</span><span class="o">,</span> <span class="n">Throwable</span> <span class="n">exception</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;=========failed==========&#34;</span><span class="o">+</span><span class="n">context</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>在META-INF/spring.factories文件中定义该监听器：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="err">##</span><span class="nx">生命周期监听器</span>
+</span></span><span class="line"><span class="cl"><span class="nx">org</span><span class="p">.</span><span class="nx">springframework</span><span class="p">.</span><span class="nx">boot</span><span class="p">.</span><span class="nx">SpringApplicationRunListener</span><span class="o">=\</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">com</span><span class="p">.</span><span class="nx">sxdx</span><span class="p">.</span><span class="nx">demo</span><span class="p">.</span><span class="nx">listener</span><span class="p">.</span><span class="nx">MyAppRunListener</span>
+</span></span></code></pre></div><p>重启该SpringBoot应用，查看启日志,就可以看到日志打印顺序和我们分析情况是一致的：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-verilog" data-lang="verilog"><span class="line"><span class="cl"><span class="n">Connected</span> <span class="n">to</span> <span class="n">the</span> <span class="n">target</span> <span class="n">VM</span><span class="p">,</span> <span class="nl">address:</span> <span class="m">&#39;1</span><span class="mf">27.0.0.1</span><span class="o">:</span><span class="mh">20238</span><span class="p">&#39;,</span> <span class="nl">transport:</span> <span class="p">&#39;</span><span class="n">socket</span><span class="p">&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="o">=========</span><span class="n">starting</span><span class="o">==========</span><span class="n">org</span><span class="p">.</span><span class="n">springframework</span><span class="p">.</span><span class="n">boot</span><span class="p">.</span><span class="n">DefaultBootstrapContext</span><span class="p">@</span><span class="mf">3246f</span><span class="n">b96</span>
+</span></span><span class="line"><span class="cl"><span class="o">=========</span><span class="n">environmentPrepared</span><span class="o">==========</span><span class="n">org</span><span class="p">.</span><span class="n">springframework</span><span class="p">.</span><span class="n">boot</span><span class="p">.</span><span class="n">DefaultBootstrapContext</span><span class="p">@</span><span class="mf">3246f</span><span class="n">b96</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="p">.</span>   <span class="n">____</span>          <span class="n">_</span>            <span class="n">__</span> <span class="n">_</span> <span class="n">_</span>
+</span></span><span class="line"><span class="cl"> <span class="o">/</span><span class="err">\\</span> <span class="o">/</span> <span class="n">___</span><span class="p">&#39;</span><span class="n">_</span> <span class="n">__</span> <span class="n">_</span> <span class="n">_</span><span class="p">(</span><span class="n">_</span><span class="p">)</span><span class="n">_</span> <span class="n">__</span>  <span class="n">__</span> <span class="n">_</span> <span class="err">\</span> <span class="err">\</span> <span class="err">\</span> \
+</span></span><span class="line"><span class="cl"><span class="p">(</span> <span class="p">(</span> <span class="p">)</span><span class="err">\</span><span class="n">___</span> <span class="o">|</span> <span class="p">&#39;</span><span class="n">_</span> <span class="o">|</span> <span class="p">&#39;</span><span class="n">_</span><span class="o">|</span> <span class="o">|</span> <span class="p">&#39;</span><span class="n">_</span> <span class="err">\</span><span class="o">/</span> <span class="n">_</span><span class="err">`</span> <span class="o">|</span> <span class="err">\</span> <span class="err">\</span> <span class="err">\</span> \
+</span></span><span class="line"><span class="cl"> <span class="err">\\</span><span class="o">/</span>  <span class="n">___</span><span class="p">)</span><span class="o">|</span> <span class="o">|</span><span class="n">_</span><span class="p">)</span><span class="o">|</span> <span class="o">|</span> <span class="o">|</span> <span class="o">|</span> <span class="o">|</span> <span class="o">||</span> <span class="p">(</span><span class="n">_</span><span class="o">|</span> <span class="o">|</span>  <span class="p">)</span> <span class="p">)</span> <span class="p">)</span> <span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="p">&#39;</span>  <span class="o">|</span><span class="n">____</span><span class="o">|</span> <span class="p">.</span><span class="n">__</span><span class="o">|</span><span class="n">_</span><span class="o">|</span> <span class="o">|</span><span class="n">_</span><span class="o">|</span><span class="n">_</span><span class="o">|</span> <span class="o">|</span><span class="n">_</span><span class="err">\</span><span class="n">__</span><span class="p">,</span> <span class="o">|</span> <span class="o">/</span> <span class="o">/</span> <span class="o">/</span> <span class="o">/</span>
+</span></span><span class="line"><span class="cl"> <span class="o">=========|</span><span class="n">_</span><span class="o">|==============|</span><span class="n">___</span><span class="o">/=/</span><span class="n">_</span><span class="o">/</span><span class="n">_</span><span class="o">/</span><span class="n">_</span><span class="o">/</span>
+</span></span><span class="line"><span class="cl"> <span class="o">::</span> <span class="n">Spring</span> <span class="n">Boot</span> <span class="o">::</span>               <span class="p">(</span><span class="n">v2</span><span class="mf">.7.12</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">=========</span><span class="n">contextPrepared</span><span class="o">==========</span><span class="n">org</span><span class="p">.</span><span class="n">springframework</span><span class="p">.</span><span class="n">boot</span><span class="p">.</span><span class="n">web</span><span class="p">.</span><span class="n">servlet</span><span class="p">.</span><span class="n">context</span><span class="p">.</span><span class="n">AnnotationConfigServletWebServerApplicationContext</span><span class="p">@</span><span class="mh">517</span><span class="n">d4a0d</span><span class="p">,</span> <span class="n">started</span> <span class="n">on</span> <span class="n">Thu</span> <span class="n">Jan</span> <span class="mh">01</span> <span class="mh">08</span><span class="o">:</span><span class="mh">00</span><span class="o">:</span><span class="mh">00</span> <span class="n">CST</span> <span class="mh">1970</span>
+</span></span><span class="line"><span class="cl"><span class="mh">2024</span><span class="o">-</span><span class="mh">08</span><span class="o">-</span><span class="mh">05</span> <span class="mh">17</span><span class="o">:</span><span class="mh">16</span><span class="o">:</span><span class="mf">24.771</span>  <span class="n">INFO</span> <span class="mh">15440</span> <span class="o">---</span> <span class="p">[</span>           <span class="n">main</span><span class="p">]</span> <span class="n">com</span><span class="p">.</span><span class="n">sxdx</span><span class="p">.</span><span class="n">demo</span><span class="p">.</span><span class="n">DemoApplication</span>            <span class="o">:</span> <span class="n">Starting</span> <span class="n">DemoApplication</span> <span class="n">using</span> <span class="n">Java</span> <span class="mf">1.8.0</span><span class="n">_171</span> <span class="n">on</span> <span class="n">ypgao</span> <span class="n">with</span> <span class="n">PID</span> <span class="mh">15440</span> <span class="p">(</span><span class="nl">D:</span><span class="err">\</span><span class="n">workspace</span><span class="err">\</span><span class="n">blog</span><span class="o">-</span><span class="n">demo</span><span class="o">-</span><span class="n">project</span><span class="err">\</span><span class="n">demo</span><span class="err">\</span><span class="n">target</span><span class="err">\</span><span class="n">classes</span> <span class="n">started</span> <span class="n">by</span> <span class="n">CFAE</span> <span class="n">in</span> <span class="nl">D:</span><span class="err">\</span><span class="n">workspace</span><span class="err">\</span><span class="n">blog</span><span class="o">-</span><span class="n">demo</span><span class="o">-</span><span class="n">project</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="mh">2024</span><span class="o">-</span><span class="mh">08</span><span class="o">-</span><span class="mh">05</span> <span class="mh">17</span><span class="o">:</span><span class="mh">16</span><span class="o">:</span><span class="mf">24.777</span>  <span class="n">INFO</span> <span class="mh">15440</span> <span class="o">---</span> <span class="p">[</span>           <span class="n">main</span><span class="p">]</span> <span class="n">com</span><span class="p">.</span><span class="n">sxdx</span><span class="p">.</span><span class="n">demo</span><span class="p">.</span><span class="n">DemoApplication</span>            <span class="o">:</span> <span class="n">No</span> <span class="n">active</span> <span class="n">profile</span> <span class="n">set</span><span class="p">,</span> <span class="n">falling</span> <span class="n">back</span> <span class="n">to</span> <span class="mh">1</span> <span class="k">default</span> <span class="nl">profile:</span> <span class="s">&#34;default&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">=========</span><span class="n">contextLoaded</span><span class="o">==========</span><span class="n">org</span><span class="p">.</span><span class="n">springframework</span><span class="p">.</span><span class="n">boot</span><span class="p">.</span><span class="n">web</span><span class="p">.</span><span class="n">servlet</span><span class="p">.</span><span class="n">context</span><span class="p">.</span><span class="n">AnnotationConfigServletWebServerApplicationContext</span><span class="p">@</span><span class="mh">517</span><span class="n">d4a0d</span><span class="p">,</span> <span class="n">started</span> <span class="n">on</span> <span class="n">Thu</span> <span class="n">Jan</span> <span class="mh">01</span> <span class="mh">08</span><span class="o">:</span><span class="mh">00</span><span class="o">:</span><span class="mh">00</span> <span class="n">CST</span> <span class="mh">1970</span>
+</span></span><span class="line"><span class="cl"><span class="mh">2024</span><span class="o">-</span><span class="mh">08</span><span class="o">-</span><span class="mh">05</span> <span class="mh">17</span><span class="o">:</span><span class="mh">16</span><span class="o">:</span><span class="mf">26.299</span>  <span class="n">INFO</span> <span class="mh">15440</span> <span class="o">---</span> <span class="p">[</span>           <span class="n">main</span><span class="p">]</span> <span class="n">o</span><span class="p">.</span><span class="n">s</span><span class="p">.</span><span class="n">b</span><span class="p">.</span><span class="n">w</span><span class="p">.</span><span class="n">embedded</span><span class="p">.</span><span class="n">tomcat</span><span class="p">.</span><span class="n">TomcatWebServer</span>  <span class="o">:</span> <span class="n">Tomcat</span> <span class="n">initialized</span> <span class="n">with</span> <span class="n">port</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="o">:</span> <span class="mh">8080</span> <span class="p">(</span><span class="n">http</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="mh">2024</span><span class="o">-</span><span class="mh">08</span><span class="o">-</span><span class="mh">05</span> <span class="mh">17</span><span class="o">:</span><span class="mh">16</span><span class="o">:</span><span class="mf">26.310</span>  <span class="n">INFO</span> <span class="mh">15440</span> <span class="o">---</span> <span class="p">[</span>           <span class="n">main</span><span class="p">]</span> <span class="n">o</span><span class="p">.</span><span class="n">apache</span><span class="p">.</span><span class="n">catalina</span><span class="p">.</span><span class="n">core</span><span class="p">.</span><span class="n">StandardService</span>   <span class="o">:</span> <span class="n">Starting</span> <span class="n">service</span> <span class="p">[</span><span class="n">Tomcat</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="mh">2024</span><span class="o">-</span><span class="mh">08</span><span class="o">-</span><span class="mh">05</span> <span class="mh">17</span><span class="o">:</span><span class="mh">16</span><span class="o">:</span><span class="mf">26.311</span>  <span class="n">INFO</span> <span class="mh">15440</span> <span class="o">---</span> <span class="p">[</span>           <span class="n">main</span><span class="p">]</span> <span class="n">org</span><span class="p">.</span><span class="n">apache</span><span class="p">.</span><span class="n">catalina</span><span class="p">.</span><span class="n">core</span><span class="p">.</span><span class="n">StandardEngine</span>  <span class="o">:</span> <span class="n">Starting</span> <span class="n">Servlet</span> <span class="nl">engine:</span> <span class="p">[</span><span class="n">Apache</span> <span class="n">Tomcat</span><span class="o">/</span><span class="mf">9.0.75</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="mh">2024</span><span class="o">-</span><span class="mh">08</span><span class="o">-</span><span class="mh">05</span> <span class="mh">17</span><span class="o">:</span><span class="mh">16</span><span class="o">:</span><span class="mf">26.595</span>  <span class="n">INFO</span> <span class="mh">15440</span> <span class="o">---</span> <span class="p">[</span>           <span class="n">main</span><span class="p">]</span> <span class="n">o</span><span class="p">.</span><span class="n">a</span><span class="p">.</span><span class="n">c</span><span class="p">.</span><span class="n">c</span><span class="p">.</span><span class="n">C</span><span class="p">.[</span><span class="n">Tomcat</span><span class="p">].[</span><span class="n">localhost</span><span class="p">].[</span><span class="o">/</span><span class="p">]</span>       <span class="o">:</span> <span class="n">Initializing</span> <span class="n">Spring</span> <span class="n">embedded</span> <span class="n">WebApplicationContext</span>
+</span></span><span class="line"><span class="cl"><span class="mh">2024</span><span class="o">-</span><span class="mh">08</span><span class="o">-</span><span class="mh">05</span> <span class="mh">17</span><span class="o">:</span><span class="mh">16</span><span class="o">:</span><span class="mf">26.595</span>  <span class="n">INFO</span> <span class="mh">15440</span> <span class="o">---</span> <span class="p">[</span>           <span class="n">main</span><span class="p">]</span> <span class="n">w</span><span class="p">.</span><span class="n">s</span><span class="p">.</span><span class="n">c</span><span class="p">.</span><span class="n">ServletWebServerApplicationContext</span> <span class="o">:</span> <span class="n">Root</span> <span class="nl">WebApplicationContext:</span> <span class="n">initialization</span> <span class="n">completed</span> <span class="n">in</span> <span class="mh">1736</span> <span class="n">ms</span>
+</span></span><span class="line"><span class="cl"><span class="o">-------</span><span class="err">初始化操作</span><span class="o">----------</span>
+</span></span><span class="line"><span class="cl"><span class="mh">2024</span><span class="o">-</span><span class="mh">08</span><span class="o">-</span><span class="mh">05</span> <span class="mh">17</span><span class="o">:</span><span class="mh">16</span><span class="o">:</span><span class="mf">27.087</span>  <span class="n">INFO</span> <span class="mh">15440</span> <span class="o">---</span> <span class="p">[</span>           <span class="n">main</span><span class="p">]</span> <span class="n">o</span><span class="p">.</span><span class="n">s</span><span class="p">.</span><span class="n">b</span><span class="p">.</span><span class="n">w</span><span class="p">.</span><span class="n">embedded</span><span class="p">.</span><span class="n">tomcat</span><span class="p">.</span><span class="n">TomcatWebServer</span>  <span class="o">:</span> <span class="n">Tomcat</span> <span class="n">started</span> <span class="n">on</span> <span class="n">port</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="o">:</span> <span class="mh">8080</span> <span class="p">(</span><span class="n">http</span><span class="p">)</span> <span class="n">with</span> <span class="n">context</span> <span class="n">path</span> <span class="p">&#39;&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="mh">2024</span><span class="o">-</span><span class="mh">08</span><span class="o">-</span><span class="mh">05</span> <span class="mh">17</span><span class="o">:</span><span class="mh">16</span><span class="o">:</span><span class="mf">27.099</span>  <span class="n">INFO</span> <span class="mh">15440</span> <span class="o">---</span> <span class="p">[</span>           <span class="n">main</span><span class="p">]</span> <span class="n">com</span><span class="p">.</span><span class="n">sxdx</span><span class="p">.</span><span class="n">demo</span><span class="p">.</span><span class="n">DemoApplication</span>            <span class="o">:</span> <span class="n">Started</span> <span class="n">DemoApplication</span> <span class="n">in</span> <span class="mf">3.076</span> <span class="n">seconds</span> <span class="p">(</span><span class="n">JVM</span> <span class="n">running</span> <span class="k">for</span> <span class="mf">6.548</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">=========</span><span class="n">started</span><span class="o">==========</span><span class="n">org</span><span class="p">.</span><span class="n">springframework</span><span class="p">.</span><span class="n">boot</span><span class="p">.</span><span class="n">web</span><span class="p">.</span><span class="n">servlet</span><span class="p">.</span><span class="n">context</span><span class="p">.</span><span class="n">AnnotationConfigServletWebServerApplicationContext</span><span class="p">@</span><span class="mh">517</span><span class="n">d4a0d</span><span class="p">,</span> <span class="n">started</span> <span class="n">on</span> <span class="n">Mon</span> <span class="n">Aug</span> <span class="mh">05</span> <span class="mh">17</span><span class="o">:</span><span class="mh">16</span><span class="o">:</span><span class="mh">24</span> <span class="n">CST</span> <span class="mh">2024</span>
+</span></span><span class="line"><span class="cl"><span class="o">=========</span><span class="n">ready</span><span class="o">==========</span><span class="n">org</span><span class="p">.</span><span class="n">springframework</span><span class="p">.</span><span class="n">boot</span><span class="p">.</span><span class="n">web</span><span class="p">.</span><span class="n">servlet</span><span class="p">.</span><span class="n">context</span><span class="p">.</span><span class="n">AnnotationConfigServletWebServerApplicationContext</span><span class="p">@</span><span class="mh">517</span><span class="n">d4a0d</span><span class="p">,</span> <span class="n">started</span> <span class="n">on</span> <span class="n">Mon</span> <span class="n">Aug</span> <span class="mh">05</span> <span class="mh">17</span><span class="o">:</span><span class="mh">16</span><span class="o">:</span><span class="mh">24</span> <span class="n">CST</span> <span class="mh">2024</span>
+</span></span></code></pre></div><h2 id="三applicationlistener事件驱动监听器">三、ApplicationListener事件驱动监听器</h2>
+<h3 id="31-基本概念">3.1 基本概念</h3>
+<p>​        与SpringApplicationRunListener不同的是，ApplicationListener是基于事件机制（九大触发事件）来感知应用启动过程生命周期的。九大触发事件与生产周期的对应关系如下（每个周期均对应一个事件，另外新增2个探针事件）：</p>
+<p><figure 
+	>
+	<a href="/../../images/springboot-03/image-20240805172846428.png" >
+		<img src="/../../images/springboot-03/image-20240805172846428.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20240805172846428">
+	</a>
+	
+	<figcaption>image-20240805172846428</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/springboot-03/image-20240806085801271.png" >
+		<img src="/../../images/springboot-03/image-20240806085801271.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20240806085801271">
+	</a>
+	
+	<figcaption>image-20240806085801271</figcaption>
+	
+</figure></p>
+<p><strong>9大事件触发顺序&amp;时机</strong></p>
+<ol>
+<li><code>ApplicationStartingEvent</code>：应用启动但未做任何事情, 除过注册listeners and initializers.</li>
+<li><code>ApplicationEnvironmentPreparedEvent</code>：  Environment 准备好，但context 未创建.</li>
+<li><code>ApplicationContextInitializedEvent</code>: ApplicationContext 准备好，ApplicationContextInitializers 调用，但是任何bean未加载</li>
+<li><code>ApplicationPreparedEvent</code>： 容器刷新之前，bean定义信息加载</li>
+<li><code>ApplicationStartedEvent</code>： 容器刷新完成， runner未调用</li>
+<li><code>AvailabilityChangeEvent</code>： <code>LivenessState.CORRECT</code>应用存活； <strong>存活探针</strong></li>
+<li><code>ApplicationReadyEvent</code>: 任何runner被调用</li>
+<li><code>AvailabilityChangeEvent</code>：<code>ReadinessState.ACCEPTING_TRAFFIC</code><strong>就绪探针</strong>，可以接请求</li>
+<li><code>ApplicationFailedEvent </code>：启动出错</li>
+</ol>
+<p>探针主要是为云服务提供帮助，比如K8S，需要关联探针来监控服务状态。</p>
+<p>除此之外，我们在打印日志中还发现了另外2个触发事件（代码实践环节）：</p>
+<ol>
+<li><strong>ServletWebServerInitializedEvent</strong></li>
+<li><strong>ContextRefreshedEvent</strong></li>
+</ol>
+<p>所以，严格来说，应用启动过程默认是有11个触发事件。</p>
+<h3 id="32-代码实践">3.2 代码实践</h3>
+<p>1、新建一个监听类</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Java" data-lang="Java"><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * 生命周期事件驱动监听器
+</span></span></span><span class="line"><span class="cl"><span class="cm"> */</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyAppListener</span> <span class="kd">implements</span> <span class="n">ApplicationListener</span><span class="o">&lt;</span><span class="n">ApplicationEvent</span><span class="o">&gt;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onApplicationEvent</span><span class="o">(</span><span class="n">ApplicationEvent</span> <span class="n">event</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">Object</span> <span class="n">source</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="na">getSource</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;------事件监听------&#34;</span><span class="o">+</span><span class="n">event</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>2、在META-INF/spring.factories文件中定义该监听器：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="err">##</span><span class="nx">生命周期事件驱动监听器</span>
+</span></span><span class="line"><span class="cl"><span class="nx">org</span><span class="p">.</span><span class="nx">springframework</span><span class="p">.</span><span class="nx">context</span><span class="p">.</span><span class="nx">ApplicationListener</span><span class="o">=\</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">com</span><span class="p">.</span><span class="nx">sxdx</span><span class="p">.</span><span class="nx">demo</span><span class="p">.</span><span class="nx">listener</span><span class="p">.</span><span class="nx">MyAppListener</span>
+</span></span></code></pre></div><p>重启该SpringBoot应用，查看启日志,就可以看到日志打印顺序和我们分析情况是一致的（ApplicationFailedEvent只有错误情况才会打印）：</p>
+<p><figure 
+	>
+	<a href="/../../images/springboot-03/image-20240807142222894.png" >
+		<img src="/../../images/springboot-03/image-20240807142222894.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20240807142222894">
+	</a>
+	
+	<figcaption>image-20240807142222894</figcaption>
+	
+</figure></p>
+<p>如果我们停止应用，也会有事件监听：</p>
+<p><figure 
+	>
+	<a href="/../../images/springboot-03/image-20240807151004713.png" >
+		<img src="/../../images/springboot-03/image-20240807151004713.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20240807151004713">
+	</a>
+	
+	<figcaption>image-20240807151004713</figcaption>
+	
+</figure></p>
+<h3 id="33-事件驱动开发应用场景">3.3 事件驱动开发应用场景</h3>
+<p>​		上一个章节，我们定义了MyAppListener类，用于监听ApplicationEvent类型的事件，所有的事件均属于ApplicationEvent，所以该类是可以监控所有的事件的。</p>
+<p><strong>SpringBoot应用启动过程生命周期事件感知主要包含9大事件，但是我们可以自定义无数个应用运行过程中的感知事件来处理实际问题</strong>。其实就是发布-订阅模式。</p>
+<ul>
+<li><strong>事件发布</strong>：实现<code>ApplicationEventPublisherAware</code>接口或注入：<code>ApplicationEventMulticaster</code></li>
+<li><strong>事件监听</strong>：ApplicationListener组件 或 <code>@EventListener</code></li>
+</ul>
+<h4 id="331-创建自定义事件">3.3.1 创建自定义事件</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.demo.event</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">com.sxdx.demo.bean.MyBean</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.context.ApplicationEvent</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.time.Clock</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * 自定义事件
+</span></span></span><span class="line"><span class="cl"><span class="cm"> */</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyCustomEvents</span> <span class="kd">extends</span> <span class="n">ApplicationEvent</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="nf">MyCustomEvents</span><span class="o">(</span><span class="n">MyBean</span> <span class="n">source</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">super</span><span class="o">(</span><span class="n">source</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="nf">MyCustomEvents</span><span class="o">(</span><span class="n">MyBean</span> <span class="n">source</span><span class="o">,</span> <span class="n">Clock</span> <span class="n">clock</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">super</span><span class="o">(</span><span class="n">source</span><span class="o">,</span> <span class="n">clock</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><h4 id="332-创建事件监听器">3.3.2 创建事件监听器</h4>
+<p>分别使用接口和注解的方式创建2个事件监听器，并使用<code>@Order</code>确定优先级（数字越小，优先级越高）。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.demo.service</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">com.sxdx.demo.bean.MyBean</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">com.sxdx.demo.event.MyCustomEvents</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.context.ApplicationListener</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.core.annotation.Order</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.stereotype.Service</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nd">@Service</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@Order</span><span class="o">(</span><span class="n">2</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">AppListenerTest1</span> <span class="kd">implements</span> <span class="n">ApplicationListener</span><span class="o">&lt;</span><span class="n">MyCustomEvents</span><span class="o">&gt;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onApplicationEvent</span><span class="o">(</span><span class="n">MyCustomEvents</span> <span class="n">event</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">MyBean</span> <span class="n">source</span> <span class="o">=</span> <span class="o">(</span><span class="n">MyBean</span><span class="o">)</span> <span class="n">event</span><span class="o">.</span><span class="na">getSource</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;AppListenerTest1 收到事件&#34;</span><span class="o">+</span> <span class="n">source</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.demo.service</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">com.sxdx.demo.bean.MyBean</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">com.sxdx.demo.event.MyCustomEvents</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.context.ApplicationListener</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.context.event.EventListener</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.core.annotation.Order</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.stereotype.Service</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nd">@Service</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">AppListenerTest2</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@EventListener</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Order</span><span class="o">(</span><span class="n">1</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onApplicationEvent</span><span class="o">(</span><span class="n">MyCustomEvents</span> <span class="n">event</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">MyBean</span> <span class="n">source</span> <span class="o">=</span> <span class="o">(</span><span class="n">MyBean</span><span class="o">)</span> <span class="n">event</span><span class="o">.</span><span class="na">getSource</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;AppListenerTest2 收到事件&#34;</span><span class="o">+</span> <span class="n">source</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><h4 id="333-发布事件">3.3.3 发布事件</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.demo.event</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.context.ApplicationEvent</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.context.ApplicationEventPublisher</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.context.ApplicationEventPublisherAware</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.context.annotation.Bean</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.context.event.ApplicationEventMulticaster</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.stereotype.Service</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * 通用事件发布器
+</span></span></span><span class="line"><span class="cl"><span class="cm"> */</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@Service</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">EventPublisher</span> <span class="kd">implements</span> <span class="n">ApplicationEventPublisherAware</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">ApplicationEventPublisher</span> <span class="n">applicationEventPublisher</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">sendEvent</span><span class="o">(</span><span class="n">ApplicationEvent</span> <span class="n">event</span><span class="o">){</span>
+</span></span><span class="line"><span class="cl">        <span class="n">applicationEventPublisher</span><span class="o">.</span><span class="na">publishEvent</span><span class="o">(</span><span class="n">event</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 实现ApplicationEventPublisherAware，注入ApplicationEventPublisher
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param applicationEventPublisher
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setApplicationEventPublisher</span><span class="o">(</span><span class="n">ApplicationEventPublisher</span> <span class="n">applicationEventPublisher</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">applicationEventPublisher</span> <span class="o">=</span> <span class="n">applicationEventPublisher</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><h4 id="334-使用事件发布器">3.3.4 使用事件发布器</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.demo.controller</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">com.sxdx.demo.bean.MyBean</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">com.sxdx.demo.event.EventPublisher</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">com.sxdx.demo.event.MyCustomEvents</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.beans.factory.annotation.Autowired</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.stereotype.Controller</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.web.bind.annotation.GetMapping</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.web.bind.annotation.RequestMapping</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.web.bind.annotation.RestController</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * 事件驱动开发应用场景测试类
+</span></span></span><span class="line"><span class="cl"><span class="cm"> */</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@RestController</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@RequestMapping</span><span class="o">(</span><span class="s">&#34;appListener&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">TestAppListener</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@Autowired</span>
+</span></span><span class="line"><span class="cl">    <span class="n">EventPublisher</span> <span class="n">eventPublisher</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@RequestMapping</span><span class="o">(</span><span class="s">&#34;/test&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">test</span><span class="o">(){</span>
+</span></span><span class="line"><span class="cl">        <span class="n">MyBean</span> <span class="n">myBean</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MyBean</span><span class="o">(</span><span class="s">&#34;myBean的Name&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//发布事件
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">eventPublisher</span><span class="o">.</span><span class="na">sendEvent</span><span class="o">(</span><span class="k">new</span> <span class="n">MyCustomEvents</span><span class="o">(</span><span class="n">myBean</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>访问<code>http://localhost:8080/appListener/test</code>：</p>
+<p><figure 
+	>
+	<a href="/../../images/springboot-03/image-20240807150638609.png" >
+		<img src="/../../images/springboot-03/image-20240807150638609.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20240807150638609">
+	</a>
+	
+	<figcaption>image-20240807150638609</figcaption>
+	
+</figure></p>
+<p>可以看到事件监听器均有打印。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/springboot/">SpringBoot</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/springboot-%E5%B8%B8%E7%94%A8%E4%BB%A3%E7%A0%81%E6%97%B6%E9%97%B4%E6%A0%BC%E5%BC%8F%E8%BF%94%E5%9B%9E%E5%80%BC%E6%9E%9A%E4%B8%BE%E7%B1%BB%E8%BF%94%E5%9B%9E%E5%AF%B9%E8%B1%A1%E7%B1%BB%E5%85%A8%E5%B1%80%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">SpringBoot 常用代码（时间格式、返回值枚举类、返回对象类、全局异常处理）</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/springboot-%E8%87%AA%E5%8A%A8%E5%8C%96%E9%85%8D%E7%BD%AE%E7%9A%84%E6%B3%A8%E8%A7%A3%E5%BC%80%E5%85%B3enable%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">SpringBoot 自动化配置的注解开关(Enable模式)</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/springboot-%E8%87%AA%E5%8A%A8%E9%85%8D%E7%BD%AE%E5%8E%9F%E7%90%86/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">SpringBoot 自动配置原理</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/spring-boot%E6%95%B4%E5%90%88webservice/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Spring Boot整合WebService</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#一-生命周期监听">一、 生命周期监听</a>
+      <ol>
+        <li><a href="#11-监听器分类">1.1 监听器分类</a></li>
+        <li><a href="#12-使用场景">1.2 使用场景</a></li>
+      </ol>
+    </li>
+    <li><a href="#二springapplicationrunlistener监听器">二、SpringApplicationRunListener监听器</a>
+      <ol>
+        <li><a href="#21-基本概念">2.1 基本概念</a></li>
+        <li><a href="#22-代码实践">2.2 代码实践</a></li>
+      </ol>
+    </li>
+    <li><a href="#三applicationlistener事件驱动监听器">三、ApplicationListener事件驱动监听器</a>
+      <ol>
+        <li><a href="#31-基本概念">3.1 基本概念</a></li>
+        <li><a href="#32-代码实践">3.2 代码实践</a></li>
+        <li><a href="#33-事件驱动开发应用场景">3.3 事件驱动开发应用场景</a>
+          <ol>
+            <li><a href="#331-创建自定义事件">3.3.1 创建自定义事件</a></li>
+            <li><a href="#332-创建事件监听器">3.3.2 创建事件监听器</a></li>
+            <li><a href="#333-发布事件">3.3.3 发布事件</a></li>
+            <li><a href="#334-使用事件发布器">3.3.4 使用事件发布器</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

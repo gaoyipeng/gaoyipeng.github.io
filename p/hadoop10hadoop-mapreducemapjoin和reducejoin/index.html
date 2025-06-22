@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='MapReduce的 MapJoin和ReduceJoin'><title>（Hadoop10）Hadoop-MapReduce（MapJoin和ReduceJoin ）</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/hadoop10hadoop-mapreducemapjoin%E5%92%8Creducejoin/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='（Hadoop10）Hadoop-MapReduce（MapJoin和ReduceJoin ）'>
+<meta property='og:description' content='MapReduce的 MapJoin和ReduceJoin'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/hadoop10hadoop-mapreducemapjoin%E5%92%8Creducejoin/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Hadoop' /><meta property='article:tag' content='MapReduce' /><meta property='article:published_time' content='2023-08-21T10:36:40&#43;00:00'/><meta property='article:modified_time' content='2023-08-21T10:36:40&#43;00:00'/>
+<meta name="twitter:title" content="（Hadoop10）Hadoop-MapReduce（MapJoin和ReduceJoin ）">
+<meta name="twitter:description" content="MapReduce的 MapJoin和ReduceJoin">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/hadoop/" >
+                Hadoop
+            </a>
+        
+            <a href="/categories/mapreduce/" >
+                MapReduce
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/hadoop10hadoop-mapreducemapjoin%E5%92%8Creducejoin/">（Hadoop10）Hadoop-MapReduce（MapJoin和ReduceJoin ）</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        MapReduce的 MapJoin和ReduceJoin
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Aug 21, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 5 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <p>我们前面的示例代码都是基于一个文件进行处理，如果我们需要同时处理<strong>多个相互关联</strong>的文件，并且通过关联信息进行计算输出怎么处理呢？2种方式：<code>MapJoin</code>和<code>ReduceJoin</code> 。我们下面分别用这2中方法实现这个需求。</p>
+<h2 id="一需求">一、需求</h2>
+<p>以下2个文件：</p>
+<p>1、order.txt（订单文件）</p>
+<pre tabindex="0"><code>id    pid amount
+1001	01	1
+1002	02	2
+1003	03	3
+1004	01	4
+1005	02	5
+1006	03	6
+</code></pre><p>2、pd.txt(产品文件)</p>
+<pre tabindex="0"><code>pid pname
+01	小米
+02	华为
+03	格力
+</code></pre><p>将商品信息表中数据根据商品 pid 合并到订单数据表中。</p>
+<p><figure 
+	>
+	<a href="/../../images/mapreduce-05/image-20230821162922672.png" >
+		<img src="/../../images/mapreduce-05/image-20230821162922672.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230821162922672">
+	</a>
+	
+	<figcaption>image-20230821162922672</figcaption>
+	
+</figure></p>
+<h2 id="一reduce-join">一、Reduce Join</h2>
+<p>Reduce 端的主要工作是：在 Reduce 端以连接字段（pid）作为 key 的分组已经完成，我们只需要在每一个分组当中将那些来源于不同文件的记录分开，最后获取对应的字段进行合并。</p>
+<h3 id="11--创建序列化bean">1.1  创建序列化Bean</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.hdfs.mapreduce.reducejoin</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.io.Writable</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.io.DataInput</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.io.DataOutput</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.io.IOException</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">TableBean</span> <span class="kd">implements</span> <span class="n">Writable</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">String</span> <span class="n">id</span><span class="o">;</span> <span class="c1">//订单 id
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kd">private</span> <span class="n">String</span> <span class="n">pid</span><span class="o">;</span> <span class="c1">//产品 id
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kd">private</span> <span class="kt">int</span> <span class="n">amount</span><span class="o">;</span> <span class="c1">//产品数量
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kd">private</span> <span class="n">String</span> <span class="n">pname</span><span class="o">;</span> <span class="c1">//产品名称
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kd">private</span> <span class="n">String</span> <span class="n">flag</span><span class="o">;</span> <span class="c1">//判断是 order 表还是 pd 表的标志字段
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">write</span><span class="o">(</span><span class="n">DataOutput</span> <span class="n">dataOutput</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">dataOutput</span><span class="o">.</span><span class="na">writeUTF</span><span class="o">(</span><span class="n">id</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">dataOutput</span><span class="o">.</span><span class="na">writeUTF</span><span class="o">(</span><span class="n">pid</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">dataOutput</span><span class="o">.</span><span class="na">writeInt</span><span class="o">(</span><span class="n">amount</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">dataOutput</span><span class="o">.</span><span class="na">writeUTF</span><span class="o">(</span><span class="n">pname</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">dataOutput</span><span class="o">.</span><span class="na">writeUTF</span><span class="o">(</span><span class="n">flag</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">readFields</span><span class="o">(</span><span class="n">DataInput</span> <span class="n">dataInput</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">id</span> <span class="o">=</span> <span class="n">dataInput</span><span class="o">.</span><span class="na">readUTF</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">pid</span> <span class="o">=</span> <span class="n">dataInput</span><span class="o">.</span><span class="na">readUTF</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">amount</span> <span class="o">=</span> <span class="n">dataInput</span><span class="o">.</span><span class="na">readInt</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">pname</span> <span class="o">=</span> <span class="n">dataInput</span><span class="o">.</span><span class="na">readUTF</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">flag</span> <span class="o">=</span> <span class="n">dataInput</span><span class="o">.</span><span class="na">readUTF</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">String</span> <span class="nf">toString</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">id</span> <span class="o">+</span> <span class="s">&#34;\t&#34;</span> <span class="o">+</span> <span class="n">pname</span> <span class="o">+</span> <span class="s">&#34;\t&#34;</span> <span class="o">+</span> <span class="n">amount</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getId</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">id</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setId</span><span class="o">(</span><span class="n">String</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">id</span> <span class="o">=</span> <span class="n">id</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getPid</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">pid</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setPid</span><span class="o">(</span><span class="n">String</span> <span class="n">pid</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">pid</span> <span class="o">=</span> <span class="n">pid</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">getAmount</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">amount</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setAmount</span><span class="o">(</span><span class="kt">int</span> <span class="n">amount</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">amount</span> <span class="o">=</span> <span class="n">amount</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getPname</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">pname</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setPname</span><span class="o">(</span><span class="n">String</span> <span class="n">pname</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">pname</span> <span class="o">=</span> <span class="n">pname</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getFlag</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">flag</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setFlag</span><span class="o">(</span><span class="n">String</span> <span class="n">flag</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">flag</span> <span class="o">=</span> <span class="n">flag</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><h3 id="12-创建map类">1.2 创建Map类</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.hdfs.mapreduce.reducejoin</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.io.LongWritable</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.io.Text</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.mapreduce.InputSplit</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.mapreduce.Mapper</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.mapreduce.lib.input.FileSplit</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.io.IOException</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">TableMapper</span> <span class="kd">extends</span> <span class="n">Mapper</span><span class="o">&lt;</span><span class="n">LongWritable</span><span class="o">,</span> <span class="n">Text</span><span class="o">,</span><span class="n">Text</span><span class="o">,</span><span class="n">TableBean</span><span class="o">&gt;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">String</span> <span class="n">filename</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">Text</span> <span class="n">outK</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Text</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">TableBean</span> <span class="n">outV</span> <span class="o">=</span> <span class="k">new</span> <span class="n">TableBean</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 用于获取文件名称
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param context
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @throws IOException
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @throws InterruptedException
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">setup</span><span class="o">(</span><span class="n">Context</span> <span class="n">context</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span><span class="o">,</span> <span class="n">InterruptedException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//获取对应文件名称
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">InputSplit</span> <span class="n">split</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">getInputSplit</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">FileSplit</span> <span class="n">fileSplit</span> <span class="o">=</span> <span class="o">(</span><span class="n">FileSplit</span><span class="o">)</span> <span class="n">split</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">filename</span> <span class="o">=</span> <span class="n">fileSplit</span><span class="o">.</span><span class="na">getPath</span><span class="o">().</span><span class="na">getName</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">map</span><span class="o">(</span><span class="n">LongWritable</span> <span class="n">key</span><span class="o">,</span> <span class="n">Text</span> <span class="n">value</span><span class="o">,</span> <span class="n">Context</span> <span class="n">context</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">            <span class="kd">throws</span> <span class="n">IOException</span><span class="o">,</span> <span class="n">InterruptedException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//获取一行
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">String</span> <span class="n">line</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="na">toString</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//判断是哪个文件,然后针对文件进行不同的操作
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">if</span><span class="o">(</span><span class="n">filename</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="s">&#34;order&#34;</span><span class="o">)){</span> <span class="c1">//订单表的处理
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">String</span><span class="o">[]</span> <span class="n">split</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="na">split</span><span class="o">(</span><span class="s">&#34;\t&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">//封装 outK
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">outK</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="n">split</span><span class="o">[</span><span class="n">1</span><span class="o">]);</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">//封装 outV
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">outV</span><span class="o">.</span><span class="na">setId</span><span class="o">(</span><span class="n">split</span><span class="o">[</span><span class="n">0</span><span class="o">]);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">outV</span><span class="o">.</span><span class="na">setPid</span><span class="o">(</span><span class="n">split</span><span class="o">[</span><span class="n">1</span><span class="o">]);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">outV</span><span class="o">.</span><span class="na">setAmount</span><span class="o">(</span><span class="n">Integer</span><span class="o">.</span><span class="na">parseInt</span><span class="o">(</span><span class="n">split</span><span class="o">[</span><span class="n">2</span><span class="o">]));</span>
+</span></span><span class="line"><span class="cl">            <span class="n">outV</span><span class="o">.</span><span class="na">setPname</span><span class="o">(</span><span class="s">&#34;&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">outV</span><span class="o">.</span><span class="na">setFlag</span><span class="o">(</span><span class="s">&#34;order&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span><span class="k">else</span> <span class="o">{</span> <span class="c1">//商品表的处理
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">String</span><span class="o">[]</span> <span class="n">split</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="na">split</span><span class="o">(</span><span class="s">&#34;\t&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">//封装 outK
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">outK</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="n">split</span><span class="o">[</span><span class="n">0</span><span class="o">]);</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">//封装 outV
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">outV</span><span class="o">.</span><span class="na">setId</span><span class="o">(</span><span class="s">&#34;&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">outV</span><span class="o">.</span><span class="na">setPid</span><span class="o">(</span><span class="n">split</span><span class="o">[</span><span class="n">0</span><span class="o">]);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">outV</span><span class="o">.</span><span class="na">setAmount</span><span class="o">(</span><span class="n">0</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">outV</span><span class="o">.</span><span class="na">setPname</span><span class="o">(</span><span class="n">split</span><span class="o">[</span><span class="n">1</span><span class="o">]);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">outV</span><span class="o">.</span><span class="na">setFlag</span><span class="o">(</span><span class="s">&#34;pd&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//写出 KV
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">context</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">outK</span><span class="o">,</span><span class="n">outV</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><h3 id="13-创建reduce类">1.3 创建reduce类</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.hdfs.mapreduce.reducejoin</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.commons.beanutils.BeanUtils</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.io.NullWritable</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.io.Text</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.mapreduce.Reducer</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.io.IOException</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.lang.reflect.InvocationTargetException</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.util.ArrayList</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">TableReducer</span> <span class="kd">extends</span> <span class="n">Reducer</span><span class="o">&lt;</span><span class="n">Text</span><span class="o">,</span><span class="n">TableBean</span><span class="o">,</span><span class="n">TableBean</span><span class="o">,</span> <span class="n">NullWritable</span><span class="o">&gt;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">reduce</span><span class="o">(</span><span class="n">Text</span> <span class="n">key</span><span class="o">,</span> <span class="n">Iterable</span><span class="o">&lt;</span><span class="n">TableBean</span><span class="o">&gt;</span> <span class="n">values</span><span class="o">,</span> <span class="n">Context</span>
+</span></span><span class="line"><span class="cl">            <span class="n">context</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span><span class="o">,</span> <span class="n">InterruptedException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">TableBean</span><span class="o">&gt;</span> <span class="n">orderBeans</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;&gt;();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">TableBean</span> <span class="n">pdBean</span> <span class="o">=</span> <span class="k">new</span> <span class="n">TableBean</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="o">(</span><span class="n">TableBean</span> <span class="n">value</span> <span class="o">:</span> <span class="n">values</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">//判断数据来自哪个表
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="k">if</span><span class="o">(</span><span class="s">&#34;order&#34;</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">value</span><span class="o">.</span><span class="na">getFlag</span><span class="o">())){</span> <span class="c1">//订单表
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="c1">//创建一个临时 TableBean 对象接收 value
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="n">TableBean</span> <span class="n">tmpOrderBean</span> <span class="o">=</span> <span class="k">new</span> <span class="n">TableBean</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">                <span class="k">try</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">BeanUtils</span><span class="o">.</span><span class="na">copyProperties</span><span class="o">(</span><span class="n">tmpOrderBean</span><span class="o">,</span><span class="n">value</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">                <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">IllegalAccessException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">                <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">InvocationTargetException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">                <span class="o">}</span>
+</span></span><span class="line"><span class="cl">                <span class="c1">//将临时 TableBean 对象添加到集合 orderBeans
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="n">orderBeans</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">tmpOrderBean</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span><span class="k">else</span> <span class="o">{</span> <span class="c1">//商品表
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="k">try</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">BeanUtils</span><span class="o">.</span><span class="na">copyProperties</span><span class="o">(</span><span class="n">pdBean</span><span class="o">,</span><span class="n">value</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">                <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">IllegalAccessException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">                <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">InvocationTargetException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">                <span class="o">}</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//遍历集合 orderBeans,替换掉每个 orderBean 的 pid 为 pname,然后写出
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">for</span> <span class="o">(</span><span class="n">TableBean</span> <span class="n">orderBean</span> <span class="o">:</span> <span class="n">orderBeans</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">orderBean</span><span class="o">.</span><span class="na">setPname</span><span class="o">(</span><span class="n">pdBean</span><span class="o">.</span><span class="na">getPname</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">//写出修改后的 orderBean 对象
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">context</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">orderBean</span><span class="o">,</span><span class="n">NullWritable</span><span class="o">.</span><span class="na">get</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><h3 id="14-创建drivers类">1.4 创建Drivers类</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.hdfs.mapreduce.reducejoin</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.conf.Configuration</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.fs.Path</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.io.NullWritable</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.io.Text</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.mapreduce.Job</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.mapreduce.lib.input.FileInputFormat</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.mapreduce.lib.output.FileOutputFormat</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.io.IOException</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">TableDriver</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span><span class="o">,</span> <span class="n">ClassNotFoundException</span><span class="o">,</span> <span class="n">InterruptedException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">Job</span> <span class="n">job</span> <span class="o">=</span> <span class="n">Job</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="k">new</span> <span class="n">Configuration</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="n">job</span><span class="o">.</span><span class="na">setJarByClass</span><span class="o">(</span><span class="n">TableDriver</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">job</span><span class="o">.</span><span class="na">setMapperClass</span><span class="o">(</span><span class="n">TableMapper</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">job</span><span class="o">.</span><span class="na">setReducerClass</span><span class="o">(</span><span class="n">TableReducer</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">job</span><span class="o">.</span><span class="na">setMapOutputKeyClass</span><span class="o">(</span><span class="n">Text</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">job</span><span class="o">.</span><span class="na">setMapOutputValueClass</span><span class="o">(</span><span class="n">TableBean</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">job</span><span class="o">.</span><span class="na">setOutputKeyClass</span><span class="o">(</span><span class="n">TableBean</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">job</span><span class="o">.</span><span class="na">setOutputValueClass</span><span class="o">(</span><span class="n">NullWritable</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">FileInputFormat</span><span class="o">.</span><span class="na">setInputPaths</span><span class="o">(</span><span class="n">job</span><span class="o">,</span> <span class="k">new</span> <span class="n">Path</span><span class="o">(</span><span class="s">&#34;D:\\inputflow\\inputtable&#34;</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">        <span class="n">FileOutputFormat</span><span class="o">.</span><span class="na">setOutputPath</span><span class="o">(</span><span class="n">job</span><span class="o">,</span> <span class="k">new</span> <span class="n">Path</span><span class="o">(</span><span class="s">&#34;D:\\flowoutput&#34;</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">        <span class="kt">boolean</span> <span class="n">b</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="na">waitForCompletion</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">exit</span><span class="o">(</span><span class="n">b</span> <span class="o">?</span> <span class="n">0</span> <span class="o">:</span> <span class="n">1</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><h3 id="15-总结">1.5 总结</h3>
+<p>测试结果如下：</p>
+<p><figure 
+	>
+	<a href="/../../images/mapreduce-05/image-20230822091837166.png" >
+		<img src="/../../images/mapreduce-05/image-20230822091837166.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230822091837166">
+	</a>
+	
+	<figcaption>image-20230822091837166</figcaption>
+	
+</figure></p>
+<p>Reduce Join缺点：这种方式中，合并的操作是在 Reduce 阶段完成，如果数据量很大，Reduce 端的处理压力太大，Map节点的运算负载则很低，资源利用率不高，且在 Reduce 阶段极易产生数据倾斜。解决方案：Map 端实现数据合并（MapJoin）。</p>
+<h2 id="二map-join">二、Map Join</h2>
+<p>Map 端的主要工作：为来自不同表或文件的 key/value 对，打标签以区别不同来源的记录。然后用连接字段作为 key，其余部分和新加的标志作为 value，最后进行输出。</p>
+<p>那么Map Join如何解决Reduce Join容易产生数据倾斜的问题呢？可以在 Map 端缓存多张表，提前处理业务逻辑，这样增加 Map 端业务，减少 Reduce 端数据的压力，尽可能的减少数据倾斜。</p>
+<h3 id="21-map-join使用场景">2.1 Map Join使用场景</h3>
+<p>Map Join 适用于一张表十分小、一张表很大的场景。</p>
+<h3 id="22--distributedcache缓存">2.2  <code>DistributedCache</code>缓存</h3>
+<p>如何在map对多文件进行读取处理呢？具体办法是采用<code>DistributedCache</code>缓存：</p>
+<p>（1）在 Mapper 的 setup 阶段，将小文件读取到缓存集合中。</p>
+<p>（2）在 Driver 驱动类中加载缓存。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">//缓存普通文件到 Task 运行节点。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">job</span><span class="o">.</span><span class="na">addCacheFile</span><span class="o">(</span><span class="k">new</span> <span class="n">URI</span><span class="o">(</span><span class="s">&#34;file:///e:/cache/pd.txt&#34;</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">//如果是集群运行,需要设置 HDFS 路径
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">job</span><span class="o">.</span><span class="na">addCacheFile</span><span class="o">(</span><span class="k">new</span> <span class="n">URI</span><span class="o">(</span><span class="s">&#34;hdfs://hadoop1:8020/cache/pd.txt&#34;</span><span class="o">));</span>
+</span></span></code></pre></div><h3 id="23-创建drivers类">2.3 创建Drivers类</h3>
+<p>我们在Drivers中设置好缓存文件。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.hdfs.mapreduce.mapjoin</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">com.sxdx.hdfs.mapreduce.reducejoin.TableBean</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">com.sxdx.hdfs.mapreduce.reducejoin.TableMapper</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">com.sxdx.hdfs.mapreduce.reducejoin.TableReducer</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.conf.Configuration</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.fs.Path</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.io.NullWritable</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.io.Text</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.mapreduce.Job</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.mapreduce.lib.input.FileInputFormat</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.mapreduce.lib.output.FileOutputFormat</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.io.IOException</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.net.URI</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.net.URISyntaxException</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MapJoinDriver</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span><span class="o">,</span> <span class="n">ClassNotFoundException</span><span class="o">,</span> <span class="n">InterruptedException</span><span class="o">,</span> <span class="n">URISyntaxException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">// 1 获取 job 信息
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">Configuration</span> <span class="n">conf</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Configuration</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">Job</span> <span class="n">job</span> <span class="o">=</span> <span class="n">Job</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="n">conf</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 2 设置加载 jar 包路径
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">job</span><span class="o">.</span><span class="na">setJarByClass</span><span class="o">(</span><span class="n">MapJoinDriver</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 3 关联 mapper
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">job</span><span class="o">.</span><span class="na">setMapperClass</span><span class="o">(</span><span class="n">MapJoinMapper</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 4 设置 Map 输出 KV 类型
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">job</span><span class="o">.</span><span class="na">setMapOutputKeyClass</span><span class="o">(</span><span class="n">Text</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">job</span><span class="o">.</span><span class="na">setMapOutputValueClass</span><span class="o">(</span><span class="n">NullWritable</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 5 设置最终输出 KV 类型
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">job</span><span class="o">.</span><span class="na">setOutputKeyClass</span><span class="o">(</span><span class="n">Text</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">job</span><span class="o">.</span><span class="na">setOutputValueClass</span><span class="o">(</span><span class="n">NullWritable</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">// 加载缓存数据
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">job</span><span class="o">.</span><span class="na">addCacheFile</span><span class="o">(</span><span class="k">new</span> <span class="n">URI</span><span class="o">(</span><span class="s">&#34;file:///D:/inputflow/inputtablecache/pd.txt&#34;</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// Map 端 Join 的逻辑不需要 Reduce 阶段，设置 reduceTask 数量为 0
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">job</span><span class="o">.</span><span class="na">setNumReduceTasks</span><span class="o">(</span><span class="n">0</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">FileInputFormat</span><span class="o">.</span><span class="na">setInputPaths</span><span class="o">(</span><span class="n">job</span><span class="o">,</span> <span class="k">new</span> <span class="n">Path</span><span class="o">(</span><span class="s">&#34;D:\\inputflow\\inputtable&#34;</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">        <span class="n">FileOutputFormat</span><span class="o">.</span><span class="na">setOutputPath</span><span class="o">(</span><span class="n">job</span><span class="o">,</span> <span class="k">new</span> <span class="n">Path</span><span class="o">(</span><span class="s">&#34;D:\\flowoutput&#34;</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">        <span class="kt">boolean</span> <span class="n">b</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="na">waitForCompletion</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">exit</span><span class="o">(</span><span class="n">b</span> <span class="o">?</span> <span class="n">0</span> <span class="o">:</span> <span class="n">1</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><h3 id="24-创建map类">2.4 创建Map类</h3>
+<p>读取缓存文件，并与order进行join操作。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.hdfs.mapreduce.mapjoin</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">com.sxdx.hdfs.mapreduce.reducejoin.TableBean</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.commons.lang.StringUtils</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.fs.FSDataInputStream</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.fs.FileSystem</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.fs.Path</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.io.IOUtils</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.io.LongWritable</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.io.NullWritable</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.io.Text</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.mapreduce.InputSplit</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.mapreduce.Mapper</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.mapreduce.lib.input.FileSplit</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.io.BufferedReader</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.io.IOException</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.io.InputStreamReader</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.net.URI</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.util.HashMap</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.util.Map</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MapJoinMapper</span> <span class="kd">extends</span> <span class="n">Mapper</span><span class="o">&lt;</span><span class="n">LongWritable</span><span class="o">,</span> <span class="n">Text</span><span class="o">,</span><span class="n">Text</span><span class="o">,</span><span class="n">NullWritable</span><span class="o">&gt;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">pdMap</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;&gt;();</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">Text</span> <span class="n">text</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Text</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 用于获取文件名称,任务开始前将 pd 数据缓存进 pdMap
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param context
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @throws IOException
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @throws InterruptedException
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">setup</span><span class="o">(</span><span class="n">Context</span> <span class="n">context</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span><span class="o">,</span> <span class="n">InterruptedException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//通过缓存文件得到小表数据 pd.txt
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">URI</span><span class="o">[]</span> <span class="n">cacheFiles</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">getCacheFiles</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">Path</span> <span class="n">path</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Path</span><span class="o">(</span><span class="n">cacheFiles</span><span class="o">[</span><span class="n">0</span><span class="o">]);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//获取文件系统对象,并开流
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">FileSystem</span> <span class="n">fs</span> <span class="o">=</span> <span class="n">FileSystem</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">context</span><span class="o">.</span><span class="na">getConfiguration</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="n">FSDataInputStream</span> <span class="n">fis</span> <span class="o">=</span> <span class="n">fs</span><span class="o">.</span><span class="na">open</span><span class="o">(</span><span class="n">path</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//通过包装流转换为 reader,方便按行读取
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">BufferedReader</span> <span class="n">reader</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BufferedReader</span><span class="o">(</span><span class="k">new</span> <span class="n">InputStreamReader</span><span class="o">(</span><span class="n">fis</span><span class="o">,</span> <span class="s">&#34;UTF-8&#34;</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//逐行读取，按行处理
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">String</span> <span class="n">line</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">while</span> <span class="o">(</span><span class="n">StringUtils</span><span class="o">.</span><span class="na">isNotEmpty</span><span class="o">(</span><span class="n">line</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="na">readLine</span><span class="o">()))</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">//切割一行
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="c1">//01 小米
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">String</span><span class="o">[]</span> <span class="n">split</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="na">split</span><span class="o">(</span><span class="s">&#34;\t&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">pdMap</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">split</span><span class="o">[</span><span class="n">0</span><span class="o">],</span> <span class="n">split</span><span class="o">[</span><span class="n">1</span><span class="o">]);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//关流
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">IOUtils</span><span class="o">.</span><span class="na">closeStream</span><span class="o">(</span><span class="n">reader</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">map</span><span class="o">(</span><span class="n">LongWritable</span> <span class="n">key</span><span class="o">,</span> <span class="n">Text</span> <span class="n">value</span><span class="o">,</span> <span class="n">Context</span> <span class="n">context</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">            <span class="kd">throws</span> <span class="n">IOException</span><span class="o">,</span> <span class="n">InterruptedException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//读取大表数据
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="c1">//1001 01 1
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">String</span><span class="o">[]</span> <span class="n">fields</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="na">toString</span><span class="o">().</span><span class="na">split</span><span class="o">(</span><span class="s">&#34;\t&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//通过大表每行数据的 pid,去 pdMap 里面取出 pname
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">String</span> <span class="n">pname</span> <span class="o">=</span> <span class="n">pdMap</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">fields</span><span class="o">[</span><span class="n">1</span><span class="o">]);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//将大表每行数据的 pid 替换为 pname
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">text</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="n">fields</span><span class="o">[</span><span class="n">0</span><span class="o">]</span> <span class="o">+</span> <span class="s">&#34;\t&#34;</span> <span class="o">+</span> <span class="n">pname</span> <span class="o">+</span> <span class="s">&#34;\t&#34;</span> <span class="o">+</span> <span class="n">fields</span><span class="o">[</span><span class="n">2</span><span class="o">]);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//写出
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">context</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">text</span><span class="o">,</span> <span class="n">NullWritable</span><span class="o">.</span><span class="na">get</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>2.5 测试</p>
+<p><figure 
+	>
+	<a href="/../../images/mapreduce-05/image-20230822102022951.png" >
+		<img src="/../../images/mapreduce-05/image-20230822102022951.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230822102022951">
+	</a>
+	
+	<figcaption>image-20230822102022951</figcaption>
+	
+</figure></p>
+<p>可以看到也正常的输出了内容。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/hadoop/">Hadoop</a>
+        
+            <a href="/tags/mapreduce/">MapReduce</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/hadoop22hadoop-mapreduce-%E5%8F%82%E6%95%B0%E8%B0%83%E4%BC%98/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hadoop22）Hadoop MapReduce 参数调优</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hadoop11hadoop-mapreduce%E5%8E%8B%E7%BC%A9/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hadoop11）Hadoop-MapReduce压缩</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hadoop9hadoop-mapreducereducetask%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hadoop9）Hadoop-MapReduce（ReduceTask过程分析）</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hadoop8hadoop-mapreduceshuffle%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hadoop8）Hadoop-MapReduce（Shuffle过程分析）</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hadoop7hadoop-mapreducemaptask%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hadoop7）Hadoop-MapReduce（MapTask过程分析）</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#一需求">一、需求</a></li>
+    <li><a href="#一reduce-join">一、Reduce Join</a>
+      <ol>
+        <li><a href="#11--创建序列化bean">1.1  创建序列化Bean</a></li>
+        <li><a href="#12-创建map类">1.2 创建Map类</a></li>
+        <li><a href="#13-创建reduce类">1.3 创建reduce类</a></li>
+        <li><a href="#14-创建drivers类">1.4 创建Drivers类</a></li>
+        <li><a href="#15-总结">1.5 总结</a></li>
+      </ol>
+    </li>
+    <li><a href="#二map-join">二、Map Join</a>
+      <ol>
+        <li><a href="#21-map-join使用场景">2.1 Map Join使用场景</a></li>
+        <li><a href="#22--distributedcache缓存">2.2  <code>DistributedCache</code>缓存</a></li>
+        <li><a href="#23-创建drivers类">2.3 创建Drivers类</a></li>
+        <li><a href="#24-创建map类">2.4 创建Map类</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

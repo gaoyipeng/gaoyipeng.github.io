@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Activiti结束事件'><title>Activiti（17）Activiti结束事件</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/activiti17activiti%E7%BB%93%E6%9D%9F%E4%BA%8B%E4%BB%B6/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Activiti（17）Activiti结束事件'>
+<meta property='og:description' content='Activiti结束事件'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/activiti17activiti%E7%BB%93%E6%9D%9F%E4%BA%8B%E4%BB%B6/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Activiti' /><meta property='article:published_time' content='2020-08-21T15:38:58&#43;00:00'/><meta property='article:modified_time' content='2020-08-21T15:38:58&#43;00:00'/>
+<meta name="twitter:title" content="Activiti（17）Activiti结束事件">
+<meta name="twitter:description" content="Activiti结束事件">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/activiti/" >
+                Activiti
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/activiti17activiti%E7%BB%93%E6%9D%9F%E4%BA%8B%E4%BB%B6/">Activiti（17）Activiti结束事件</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        Activiti结束事件
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Aug 21, 2020</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 2 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <p>本节我们介绍Activiti的结束事件类型。</p>
+<h1 id="1结束事件">1、结束事件</h1>
+<p>结束事件标志着（子）流程的（分支的）结束。结束事件<strong>总是抛出（型）事件</strong>。这意味着当流程执行到达结束事件时，会抛出一个<em>结果</em>。结束事件一共有以下几种：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-17/image-20200821155350294.png" >
+		<img src="/images/activiti6-17/image-20200821155350294.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200821155350294">
+	</a>
+	
+	<figcaption>image-20200821155350294</figcaption>
+	
+</figure></p>
+<h2 id="11-空结束事件">1.1 空结束事件</h2>
+<p>“空”结束事件，意味着当到达这个事件时，抛出的<em>结果</em>没有特别指定。因此，引擎除了结束当前执行分支之外，不会多做任何事情。这个大家很好理解，不做演示了。</p>
+<p>XML表示：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;endEvent</span> <span class="na">id=</span><span class="s">&#34;end&#34;</span> <span class="na">name=</span><span class="s">&#34;endEvent&#34;</span> <span class="nt">/&gt;</span>
+</span></span></code></pre></div><h2 id="12-错误结束事件">1.2 错误结束事件</h2>
+<p>当流程执行到达<strong>错误结束事件</strong>时，结束执行的当前分支，并抛出错误。</p>
+<p>XML表示：</p>
+<p>错误结束事件，表示为结束事件，加上<em>errorEventDefinition</em>子元素：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;endEvent</span> <span class="na">id=</span><span class="s">&#34;myErrorEndEvent&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;errorEventDefinition</span> <span class="na">errorRef=</span><span class="s">&#34;myError&#34;</span> <span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/endEvent&gt;</span>
+</span></span></code></pre></div><p><strong>错误结束事件</strong>，往往和<strong>错误开始事件</strong>一起出现。<strong>错误结束事件</strong>抛出一个异常编码，只要和<strong>错误启动事件</strong>设置的异常编码匹配，即可开启事件子流程。在前面的事件子流程章节，我们已经见过了，这里就不再赘述：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-17/image-20200820104351195.png" >
+		<img src="/images/activiti6-17/image-20200820104351195.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200820104351195">
+	</a>
+	
+	<figcaption>image-20200820104351195</figcaption>
+	
+</figure></p>
+<p>除此之外<strong>错误结束事件</strong>抛出的错误编码还可以被<strong>错误边界事件</strong>捕获。这个在前面的子流程章节已经见到过，流程图如下：</p>
+<p><figure 
+	>
+	<a href="/../../../../../workspace/blog/gaoyipeng.github.io/source/images/activiti6-17/image-20200825094750481.png" >
+		<img src="/../../../../../workspace/blog/gaoyipeng.github.io/source/images/activiti6-17/image-20200825094750481.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200825094750481">
+	</a>
+	
+	<figcaption>image-20200825094750481</figcaption>
+	
+</figure></p>
+<p>介绍子流程时我们我们没有演示<strong>错误边界事件</strong>捕获，此处实际操作一遍。前面的步骤就不一一演示了，直接演示财务审批（不同意）。</p>
+<p>这里贴出异常结束事件的XML:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;endEvent</span> <span class="na">id=</span><span class="s">&#34;errorendevent2&#34;</span> <span class="na">name=</span><span class="s">&#34;End&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;errorEventDefinition</span> <span class="na">errorRef=</span><span class="s">&#34;PAYMENT_REJECT&#34;</span><span class="nt">&gt;&lt;/errorEventDefinition&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/endEvent&gt;</span>
+</span></span></code></pre></div><p>错误边界事件XML：</p>
+<p>*attachedToRef=&ldquo;subprocessPay&rdquo;*表示这个错误边界事件的监听对象是这个id为subprocessPay的子流程。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;boundaryEvent</span> <span class="na">id=</span><span class="s">&#34;boundaryerror1&#34;</span> <span class="na">name=</span><span class="s">&#34;Error&#34;</span> <span class="na">attachedToRef=</span><span class="s">&#34;subprocessPay&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;errorEventDefinition</span> <span class="na">errorRef=</span><span class="s">&#34;PAYMENT_REJECT&#34;</span><span class="nt">&gt;&lt;/errorEventDefinition&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/boundaryEvent&gt;</span>
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/images/activiti6-17/image-20200825142333297.png" >
+		<img src="/images/activiti6-17/image-20200825142333297.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200825142333297">
+	</a>
+	
+	<figcaption>image-20200825142333297</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-17/image-20200825143225996.png" >
+		<img src="/images/activiti6-17/image-20200825143225996.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200825143225996">
+	</a>
+	
+	<figcaption>image-20200825143225996</figcaption>
+	
+</figure></p>
+<p>此时我们再次查看流程图，可以看到异常结束事件抛出异常后，被<strong>错误边界事件</strong>捕获，流程流转至跳转申请节点：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-17/image-20200825143341686.png" >
+		<img src="/images/activiti6-17/image-20200825143341686.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200825143341686">
+	</a>
+	
+	<figcaption>image-20200825143341686</figcaption>
+	
+</figure></p>
+<h2 id="13-终止结束事件">1.3 终止结束事件</h2>
+<p>当流程执行到终止结束事件，当前的流程将会被终结，终止结束事件可以使用在嵌入子流程、调用子流程、事件子流程或者事务子流程中。</p>
+<p>一般情况下，当存在多实例的调用过程或嵌入式子流程时，只会终止一个实例，其他的实例与流程实例不会受影响。例如我们前面的子流程实例，如果子流程结束，主流程是不会一起结束的。</p>
+<p>终止结束事件使用terminateEventDefinition元素作为事件定义，如果将该元素的activiti:terminateAll属性设置为true，那么当终止结束事件被触发事时，流程实例的全部执行流均会被终结。</p>
+<p>XML表示：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;endEvent</span> <span class="na">id=</span><span class="s">&#34;myEndEvent &gt;
+</span></span></span><span class="line"><span class="cl"><span class="s">  &lt;terminateEventDefinition activiti:terminateAll=&#34;</span><span class="err">true&#34;</span><span class="nt">&gt;&lt;/terminateEventDefinition&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/endEvent&gt;</span>
+</span></span></code></pre></div><p>我们画一个简单流程来验证一下。流程启动后有一个并行网关，分别是一个<code>子流程</code>、一个<code>人事审批</code>节点。终止结束事件勾选了终止全部。我们先走完子流程，看看人事这条线是否会随之结束。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-17/image-20200826112351885.png" >
+		<img src="/images/activiti6-17/image-20200826112351885.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200826112351885">
+	</a>
+	
+	<figcaption>image-20200826112351885</figcaption>
+	
+</figure></p>
+<p>流程定义如下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="cp">&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;definitions</span> <span class="na">xmlns=</span><span class="s">&#34;http://www.omg.org/spec/BPMN/20100524/MODEL&#34;</span> <span class="na">xmlns:xsi=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span> <span class="na">xmlns:xsd=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema&#34;</span> <span class="na">xmlns:activiti=</span><span class="s">&#34;http://activiti.org/bpmn&#34;</span> <span class="na">xmlns:bpmndi=</span><span class="s">&#34;http://www.omg.org/spec/BPMN/20100524/DI&#34;</span> <span class="na">xmlns:omgdc=</span><span class="s">&#34;http://www.omg.org/spec/DD/20100524/DC&#34;</span> <span class="na">xmlns:omgdi=</span><span class="s">&#34;http://www.omg.org/spec/DD/20100524/DI&#34;</span> <span class="na">typeLanguage=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema&#34;</span> <span class="na">expressionLanguage=</span><span class="s">&#34;http://www.w3.org/1999/XPath&#34;</span> <span class="na">targetNamespace=</span><span class="s">&#34;http://www.activiti.org/processdef&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;process</span> <span class="na">id=</span><span class="s">&#34;terminateEndEvent&#34;</span> <span class="na">name=</span><span class="s">&#34;终止结束事件&#34;</span> <span class="na">isExecutable=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;startEvent</span> <span class="na">id=</span><span class="s">&#34;startevent1&#34;</span> <span class="na">activiti:initiator=</span><span class="s">&#34;applyUserId&#34;</span><span class="nt">&gt;&lt;/startEvent&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;subProcess</span> <span class="na">id=</span><span class="s">&#34;sid-050C0CDB-2A9B-4C97-993B-6E5A194537D0&#34;</span> <span class="na">name=</span><span class="s">&#34;subProcess&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;startEvent</span> <span class="na">id=</span><span class="s">&#34;sid-3EFEFC9A-02C4-447F-8359-42D132E8CB5A&#34;</span><span class="nt">&gt;&lt;/startEvent&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;userTask</span> <span class="na">id=</span><span class="s">&#34;manageApprove&#34;</span> <span class="na">name=</span><span class="s">&#34;部门领导审批&#34;</span> <span class="na">activiti:candidateUsers=</span><span class="s">&#34;leaderuser&#34;</span><span class="nt">&gt;&lt;/userTask&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;endEvent</span> <span class="na">id=</span><span class="s">&#34;hruser&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;terminateEventDefinition</span> <span class="na">activiti:terminateAll=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;&lt;/terminateEventDefinition&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/endEvent&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;sid-DE7A6A1E-0C9D-45D3-849E-D38DA6AEE574&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;sid-3EFEFC9A-02C4-447F-8359-42D132E8CB5A&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;manageApprove&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;sid-B0BD8E26-9C66-46D8-9468-234AFBB8CCE0&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;manageApprove&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;hruser&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/subProcess&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;userTask</span> <span class="na">id=</span><span class="s">&#34;hrApprove&#34;</span> <span class="na">name=</span><span class="s">&#34;人事审批&#34;</span> <span class="na">activiti:candidateUsers=</span><span class="s">&#34;hruser&#34;</span><span class="nt">&gt;&lt;/userTask&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;endEvent</span> <span class="na">id=</span><span class="s">&#34;sid-C6D99B13-C7EF-4D71-8A93-7B086ECAD8CA&#34;</span><span class="nt">&gt;&lt;/endEvent&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;sid-C5FC93E8-D838-4F4E-B076-EDC38353FDE5&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;hrApprove&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;sid-C6D99B13-C7EF-4D71-8A93-7B086ECAD8CA&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;parallelGateway</span> <span class="na">id=</span><span class="s">&#34;sid-485D8B29-FC51-479A-B33D-4182C26B1BB6&#34;</span><span class="nt">&gt;&lt;/parallelGateway&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;sid-44C4A09F-4671-47BA-88A4-14D516FFCD71&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;startevent1&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;sid-485D8B29-FC51-479A-B33D-4182C26B1BB6&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;sid-572C0962-598F-45C4-9363-B5A00E276C42&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;sid-485D8B29-FC51-479A-B33D-4182C26B1BB6&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;hrApprove&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;sid-67524AB4-99E0-4A10-8ACB-6D69C279A6F2&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;sid-485D8B29-FC51-479A-B33D-4182C26B1BB6&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;sid-050C0CDB-2A9B-4C97-993B-6E5A194537D0&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;/process&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;bpmndi:BPMNDiagram</span> <span class="na">id=</span><span class="s">&#34;BPMNDiagram_terminateEndEvent&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;bpmndi:BPMNPlane</span> <span class="na">bpmnElement=</span><span class="s">&#34;terminateEndEvent&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNPlane_terminateEndEvent&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;startevent1&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_startevent1&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;30.0&#34;</span> <span class="na">width=</span><span class="s">&#34;30.0&#34;</span> <span class="na">x=</span><span class="s">&#34;105.0&#34;</span> <span class="na">y=</span><span class="s">&#34;270.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-050C0CDB-2A9B-4C97-993B-6E5A194537D0&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_sid-050C0CDB-2A9B-4C97-993B-6E5A194537D0&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;146.0&#34;</span> <span class="na">width=</span><span class="s">&#34;307.0&#34;</span> <span class="na">x=</span><span class="s">&#34;360.0&#34;</span> <span class="na">y=</span><span class="s">&#34;120.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-3EFEFC9A-02C4-447F-8359-42D132E8CB5A&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_sid-3EFEFC9A-02C4-447F-8359-42D132E8CB5A&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;30.0&#34;</span> <span class="na">width=</span><span class="s">&#34;30.0&#34;</span> <span class="na">x=</span><span class="s">&#34;390.0&#34;</span> <span class="na">y=</span><span class="s">&#34;180.5&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;manageApprove&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_manageApprove&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;80.0&#34;</span> <span class="na">width=</span><span class="s">&#34;100.0&#34;</span> <span class="na">x=</span><span class="s">&#34;463.5&#34;</span> <span class="na">y=</span><span class="s">&#34;155.5&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;hruser&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_hruser&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;28.0&#34;</span> <span class="na">width=</span><span class="s">&#34;28.0&#34;</span> <span class="na">x=</span><span class="s">&#34;615.0&#34;</span> <span class="na">y=</span><span class="s">&#34;181.5&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;hrApprove&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_hrApprove&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;80.0&#34;</span> <span class="na">width=</span><span class="s">&#34;100.0&#34;</span> <span class="na">x=</span><span class="s">&#34;420.0&#34;</span> <span class="na">y=</span><span class="s">&#34;330.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-C6D99B13-C7EF-4D71-8A93-7B086ECAD8CA&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_sid-C6D99B13-C7EF-4D71-8A93-7B086ECAD8CA&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;28.0&#34;</span> <span class="na">width=</span><span class="s">&#34;28.0&#34;</span> <span class="na">x=</span><span class="s">&#34;600.0&#34;</span> <span class="na">y=</span><span class="s">&#34;356.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-485D8B29-FC51-479A-B33D-4182C26B1BB6&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_sid-485D8B29-FC51-479A-B33D-4182C26B1BB6&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;40.0&#34;</span> <span class="na">width=</span><span class="s">&#34;40.0&#34;</span> <span class="na">x=</span><span class="s">&#34;255.0&#34;</span> <span class="na">y=</span><span class="s">&#34;265.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-572C0962-598F-45C4-9363-B5A00E276C42&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_sid-572C0962-598F-45C4-9363-B5A00E276C42&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;275.5&#34;</span> <span class="na">y=</span><span class="s">&#34;304.5&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;275.5&#34;</span> <span class="na">y=</span><span class="s">&#34;370.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;420.0&#34;</span> <span class="na">y=</span><span class="s">&#34;370.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-B0BD8E26-9C66-46D8-9468-234AFBB8CCE0&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_sid-B0BD8E26-9C66-46D8-9468-234AFBB8CCE0&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;563.5&#34;</span> <span class="na">y=</span><span class="s">&#34;195.5&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;615.0&#34;</span> <span class="na">y=</span><span class="s">&#34;195.5&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-DE7A6A1E-0C9D-45D3-849E-D38DA6AEE574&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_sid-DE7A6A1E-0C9D-45D3-849E-D38DA6AEE574&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;420.0&#34;</span> <span class="na">y=</span><span class="s">&#34;195.5&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;463.5&#34;</span> <span class="na">y=</span><span class="s">&#34;195.5&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-67524AB4-99E0-4A10-8ACB-6D69C279A6F2&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_sid-67524AB4-99E0-4A10-8ACB-6D69C279A6F2&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;275.5&#34;</span> <span class="na">y=</span><span class="s">&#34;265.5&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;275.5&#34;</span> <span class="na">y=</span><span class="s">&#34;193.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;360.0&#34;</span> <span class="na">y=</span><span class="s">&#34;193.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-C5FC93E8-D838-4F4E-B076-EDC38353FDE5&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_sid-C5FC93E8-D838-4F4E-B076-EDC38353FDE5&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;520.0&#34;</span> <span class="na">y=</span><span class="s">&#34;370.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;600.0&#34;</span> <span class="na">y=</span><span class="s">&#34;370.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-44C4A09F-4671-47BA-88A4-14D516FFCD71&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_sid-44C4A09F-4671-47BA-88A4-14D516FFCD71&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;135.0&#34;</span> <span class="na">y=</span><span class="s">&#34;285.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;255.0&#34;</span> <span class="na">y=</span><span class="s">&#34;285.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/bpmndi:BPMNPlane&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;/bpmndi:BPMNDiagram&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/definitions&gt;</span>
+</span></span></code></pre></div><p>启动流程：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-17/image-20200826112714350.png" >
+		<img src="/images/activiti6-17/image-20200826112714350.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200826112714350">
+	</a>
+	
+	<figcaption>image-20200826112714350</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-17/image-20200826112730272.png" >
+		<img src="/images/activiti6-17/image-20200826112730272.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200826112730272">
+	</a>
+	
+	<figcaption>image-20200826112730272</figcaption>
+	
+</figure></p>
+<p>我们在部门领导审批节点、人事审批节点分别指定了审批人：<code>leaderuser</code>，<code>hruser</code>。我们先来查看一下他们的待办：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-17/image-20200826113449516.png" >
+		<img src="/images/activiti6-17/image-20200826113449516.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200826113449516">
+	</a>
+	
+	<figcaption>image-20200826113449516</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-17/image-20200826113528952.png" >
+		<img src="/images/activiti6-17/image-20200826113528952.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200826113528952">
+	</a>
+	
+	<figcaption>image-20200826113528952</figcaption>
+	
+</figure></p>
+<p>接下来部门领导审批通过：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-17/image-20200826113930104.png" >
+		<img src="/images/activiti6-17/image-20200826113930104.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200826113930104">
+	</a>
+	
+	<figcaption>image-20200826113930104</figcaption>
+	
+</figure></p>
+<p>再次查看流程图，发现整个流程都已关闭：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-17/image-20200826114038834.png" >
+		<img src="/images/activiti6-17/image-20200826114038834.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200826114038834">
+	</a>
+	
+	<figcaption>image-20200826114038834</figcaption>
+	
+</figure></p>
+<p>而且<code>hruser</code>已经没有对应的待办了，符合我们的预期。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-17/image-20200826114159645.png" >
+		<img src="/images/activiti6-17/image-20200826114159645.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200826114159645">
+	</a>
+	
+	<figcaption>image-20200826114159645</figcaption>
+	
+</figure></p>
+<h2 id="14-取消结束事件">1.4 取消结束事件</h2>
+<p>取消结束事件只能与BPMN<strong>事务子流程</strong>结合使用。 当到达取消结束事件时，会抛出取消事件，它必须被取消边界事件捕获。 取消边界事件会取消事务，并触发补偿机制。</p>
+<p>XML :</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;endEvent</span> <span class="na">id=</span><span class="s">&#34;myCancelEndEvent&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;cancelEventDefinition</span> <span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/endEvent&gt;</span>
+</span></span></code></pre></div><p>这个我们后面学习事务子流程时再介绍。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/activiti/">Activiti</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/activiti6%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%B3%BB%E7%BB%9F%E6%90%AD%E5%BB%BA%E6%95%99%E7%A8%8B/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti6工作流系统搭建教程</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti33-spring-security%E8%8E%B7%E5%8F%96%E5%BD%93%E5%89%8D%E6%93%8D%E4%BD%9C%E4%BA%BA%E4%BF%A1%E6%81%AF/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（33） Spring-Security获取当前操作人信息</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti34-%E4%BD%BF%E7%94%A8swagger%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（34） 使用Swagger生成静态接口文档</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti35-%E4%BD%BF%E7%94%A8swagger%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（35） 使用Swagger生成静态接口文档</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti32-%E6%9B%BF%E6%8D%A2activiti%E7%94%A8%E6%88%B7%E5%92%8C%E7%94%A8%E6%88%B7%E7%BB%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（32） 替换Activiti用户和用户组</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#11-空结束事件">1.1 空结束事件</a></li>
+    <li><a href="#12-错误结束事件">1.2 错误结束事件</a></li>
+    <li><a href="#13-终止结束事件">1.3 终止结束事件</a></li>
+    <li><a href="#14-取消结束事件">1.4 取消结束事件</a></li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

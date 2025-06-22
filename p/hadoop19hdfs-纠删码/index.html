@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='HDFS 纠删码'><title>（Hadoop19）HDFS 纠删码</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/hadoop19hdfs-%E7%BA%A0%E5%88%A0%E7%A0%81/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='（Hadoop19）HDFS 纠删码'>
+<meta property='og:description' content='HDFS 纠删码'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/hadoop19hdfs-%E7%BA%A0%E5%88%A0%E7%A0%81/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Hadoop' /><meta property='article:tag' content='HDFS' /><meta property='article:published_time' content='2023-09-04T10:36:40&#43;00:00'/><meta property='article:modified_time' content='2023-09-04T10:36:40&#43;00:00'/>
+<meta name="twitter:title" content="（Hadoop19）HDFS 纠删码">
+<meta name="twitter:description" content="HDFS 纠删码">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/hadoop/" >
+                Hadoop
+            </a>
+        
+            <a href="/categories/hdfs/" >
+                HDFS
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/hadoop19hdfs-%E7%BA%A0%E5%88%A0%E7%A0%81/">（Hadoop19）HDFS 纠删码</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        HDFS 纠删码
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Sep 04, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 2 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <h2 id="一纠删码">一、纠删码</h2>
+<h3 id="11-纠删码介绍">1.1 纠删码介绍</h3>
+<p>HDFS 默认情况下，一个文件有 3 个副本，这样提高了数据的可靠性，但也带来了 2 倍的冗余开销。Hadoop3.x 引入了纠删码，采用计算的方式，可以节省约 50％左右的存储空间。</p>
+<p>例如:一个300M的文件，一式三份，共计需要900M存储空间，如果使用纠偏码，以RS-3-2-1024k为例，代表该文件可以分为3个100M的数据单元，2个100M的校验单元（实际上大小并不是这么计算的，这里只是为了简化理解）分别部署在5个节点上，只要这 5 个单元中，只要有任意的 3 个单元存在（不管是数据单元还是校验单元，只要剩余总数大于3），就可以得到原始数据。每个单元的大小是 1024k=1024*1024=1048576。这样最终只需要500M空间，以实现节约存储空间的目的。</p>
+<p><figure 
+	>
+	<a href="/../../images/19-hadoop-07/image-20230905154807477.png" >
+		<img src="/../../images/19-hadoop-07/image-20230905154807477.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230905154807477">
+	</a>
+	
+	<figcaption>image-20230905154807477</figcaption>
+	
+</figure></p>
+<h3 id="12-纠删码策略分类">1.2 纠删码策略分类</h3>
+<p>查看当前支持的纠删码策略：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 hadoop-3.1.3<span class="o">]</span>$ hdfs ec -listPolicies
+</span></span><span class="line"><span class="cl">Erasure Coding Policies:
+</span></span><span class="line"><span class="cl"><span class="nv">ErasureCodingPolicy</span><span class="o">=[</span><span class="nv">Name</span><span class="o">=</span>RS-10-4-1024k, <span class="nv">Schema</span><span class="o">=[</span><span class="nv">ECSchema</span><span class="o">=[</span><span class="nv">Codec</span><span class="o">=</span>rs, <span class="nv">numDataUnits</span><span class="o">=</span>10, <span class="nv">numParityUnits</span><span class="o">=</span>4<span class="o">]]</span>, <span class="nv">CellSize</span><span class="o">=</span>1048576, <span class="nv">Id</span><span class="o">=</span>5<span class="o">]</span>, <span class="nv">State</span><span class="o">=</span>DISABLED
+</span></span><span class="line"><span class="cl"><span class="nv">ErasureCodingPolicy</span><span class="o">=[</span><span class="nv">Name</span><span class="o">=</span>RS-3-2-1024k, <span class="nv">Schema</span><span class="o">=[</span><span class="nv">ECSchema</span><span class="o">=[</span><span class="nv">Codec</span><span class="o">=</span>rs, <span class="nv">numDataUnits</span><span class="o">=</span>3, <span class="nv">numParityUnits</span><span class="o">=</span>2<span class="o">]]</span>, <span class="nv">CellSize</span><span class="o">=</span>1048576, <span class="nv">Id</span><span class="o">=</span>2<span class="o">]</span>, <span class="nv">State</span><span class="o">=</span>DISABLED
+</span></span><span class="line"><span class="cl"><span class="nv">ErasureCodingPolicy</span><span class="o">=[</span><span class="nv">Name</span><span class="o">=</span>RS-6-3-1024k, <span class="nv">Schema</span><span class="o">=[</span><span class="nv">ECSchema</span><span class="o">=[</span><span class="nv">Codec</span><span class="o">=</span>rs, <span class="nv">numDataUnits</span><span class="o">=</span>6, <span class="nv">numParityUnits</span><span class="o">=</span>3<span class="o">]]</span>, <span class="nv">CellSize</span><span class="o">=</span>1048576, <span class="nv">Id</span><span class="o">=</span>1<span class="o">]</span>, <span class="nv">State</span><span class="o">=</span>ENABLED
+</span></span><span class="line"><span class="cl"><span class="nv">ErasureCodingPolicy</span><span class="o">=[</span><span class="nv">Name</span><span class="o">=</span>RS-LEGACY-6-3-1024k, <span class="nv">Schema</span><span class="o">=[</span><span class="nv">ECSchema</span><span class="o">=[</span><span class="nv">Codec</span><span class="o">=</span>rs-legacy, <span class="nv">numDataUnits</span><span class="o">=</span>6, <span class="nv">numParityUnits</span><span class="o">=</span>3<span class="o">]]</span>, <span class="nv">CellSize</span><span class="o">=</span>1048576, <span class="nv">Id</span><span class="o">=</span>3<span class="o">]</span>, <span class="nv">State</span><span class="o">=</span>DISABLED
+</span></span><span class="line"><span class="cl"><span class="nv">ErasureCodingPolicy</span><span class="o">=[</span><span class="nv">Name</span><span class="o">=</span>XOR-2-1-1024k, <span class="nv">Schema</span><span class="o">=[</span><span class="nv">ECSchema</span><span class="o">=[</span><span class="nv">Codec</span><span class="o">=</span>xor, <span class="nv">numDataUnits</span><span class="o">=</span>2, <span class="nv">numParityUnits</span><span class="o">=</span>1<span class="o">]]</span>, <span class="nv">CellSize</span><span class="o">=</span>1048576, <span class="nv">Id</span><span class="o">=</span>4<span class="o">]</span>, <span class="nv">State</span><span class="o">=</span>DISABLED
+</span></span></code></pre></div><p>可以看到默认开启（ENABLED）的纠偏码是 RS-6-3-1024k 。以下是各纠偏码的介绍：</p>
+<ul>
+<li><strong>RS-3-2-1024k：使用 RS 编码，每 3 个数据单元，生成 2 个校验单元，共 5 个单元，也就是说：这 5 个单元中，只要有任意的 3 个单元存在（不管是数据单元还是校验单元，只要总数=3），就可以得到原始数据。每个单元的大小是 1024k=1024*1024=1048576。</strong></li>
+<li>RS-10-4-1024k：使用 RS 编码，每 10 个数据单元（cell），生成 4 个校验单元，共 14个单元，也就是说：这 14 个单元中，只要有任意的 10 个单元存在（不管是数据单元还是校验单元，只要总数=10），就可以得到原始数据。每个单元的大小是1024k=1024*1024=1048576。</li>
+<li>RS-6-3-1024k：使用 RS 编码，每 6 个数据单元，生成 3 个校验单元，共 9 个单元，也就是说：这 9 个单元中，只要有任意的 6 个单元存在（不管是数据单元还是校验单元，只要总数=6），就可以得到原始数据。每个单元的大小是 1024k=1024*1024=1048576。</li>
+<li>RS-LEGACY-6-3-1024k：策略和上面的 RS-6-3-1024k 一样，只是编码的算法用的是 rs-legacy。</li>
+<li>XOR-2-1-1024k：使用 XOR 编码（速度比 RS 编码快），每 2 个数据单元，生成 1 个校验单元，共 3 个单元，也就是说：这 3 个单元中，只要有任意的 2 个单元存在（不管是数据单元还是校验单元，只要总数= 2），就可以得到原始数据。每个单元的大小是1024k=1024*1024=1048576。</li>
+</ul>
+<p>我们服务器资源有限，只有5台，所以选择<strong>RS-3-2-1024k</strong>作为测试对象。</p>
+<h3 id="13-纠偏码验证">1.3 纠偏码验证</h3>
+<p>纠删码策略是给具体一个路径设置。所有往此路径下存储的文件，都会执行此策略。默认只开启对 RS-6-3-1024k 策略的支持，如要使用别的策略需要提前启用。</p>
+<p><strong>纠删码操作相关的命令</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 hadoop-3.1.3<span class="o">]</span>$ hdfs ec
+</span></span><span class="line"><span class="cl">Usage: bin/hdfs ec <span class="o">[</span>COMMAND<span class="o">]</span>
+</span></span><span class="line"><span class="cl">          <span class="o">[</span>-listPolicies<span class="o">]</span>
+</span></span><span class="line"><span class="cl">          <span class="o">[</span>-addPolicies -policyFile &lt;file&gt;<span class="o">]</span>
+</span></span><span class="line"><span class="cl">          <span class="o">[</span>-getPolicy -path &lt;path&gt;<span class="o">]</span>
+</span></span><span class="line"><span class="cl">          <span class="o">[</span>-removePolicy -policy &lt;policy&gt;<span class="o">]</span>
+</span></span><span class="line"><span class="cl">          <span class="o">[</span>-setPolicy -path &lt;path&gt; <span class="o">[</span>-policy &lt;policy&gt;<span class="o">]</span> <span class="o">[</span>-replicate<span class="o">]]</span>
+</span></span><span class="line"><span class="cl">          <span class="o">[</span>-unsetPolicy -path &lt;path&gt;<span class="o">]</span>
+</span></span><span class="line"><span class="cl">          <span class="o">[</span>-listCodecs<span class="o">]</span>
+</span></span><span class="line"><span class="cl">          <span class="o">[</span>-enablePolicy -policy &lt;policy&gt;<span class="o">]</span>
+</span></span><span class="line"><span class="cl">          <span class="o">[</span>-disablePolicy -policy &lt;policy&gt;<span class="o">]</span>
+</span></span><span class="line"><span class="cl">          <span class="o">[</span>-help &lt;command-name&gt;<span class="o">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Generic options supported are:
+</span></span><span class="line"><span class="cl">-conf &lt;configuration file&gt;        specify an application configuration file
+</span></span><span class="line"><span class="cl">-D &lt;<span class="nv">property</span><span class="o">=</span>value&gt;               define a value <span class="k">for</span> a given property
+</span></span><span class="line"><span class="cl">-fs &lt;file:///<span class="p">|</span>hdfs://namenode:port&gt; specify default filesystem URL to use, overrides <span class="s1">&#39;fs.defaultFS&#39;</span> property from configurations.
+</span></span><span class="line"><span class="cl">-jt &lt;local<span class="p">|</span>resourcemanager:port&gt;  specify a ResourceManager
+</span></span><span class="line"><span class="cl">-files &lt;file1,...&gt;                specify a comma-separated list of files to be copied to the map reduce cluster
+</span></span><span class="line"><span class="cl">-libjars &lt;jar1,...&gt;               specify a comma-separated list of jar files to be included in the classpath
+</span></span><span class="line"><span class="cl">-archives &lt;archive1,...&gt;          specify a comma-separated list of archives to be unarchived on the compute machines
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">The general <span class="nb">command</span> line syntax is:
+</span></span><span class="line"><span class="cl"><span class="nb">command</span> <span class="o">[</span>genericOptions<span class="o">]</span> <span class="o">[</span>commandOptions<span class="o">]</span>
+</span></span></code></pre></div><p>1、开启对 RS-3-2-1024k 策略的支持</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 hadoop-3.1.3<span class="o">]</span>$ hdfs ec -enablePolicy -policy RS-3-2-1024k
+</span></span><span class="line"><span class="cl">Erasure coding policy RS-3-2-1024k is enabled
+</span></span></code></pre></div><p>2、在 HDFS 创建目录，并设置 RS-3-2-1024k 策略</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 hadoop-3.1.3<span class="o">]</span>$ hdfs dfs -mkdir /input1
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 hadoop-3.1.3<span class="o">]</span>$ hdfs ec -setPolicy -path /input1 -policy RS-3-2-1024k
+</span></span><span class="line"><span class="cl">Set RS-3-2-1024k erasure coding policy on /input1
+</span></span></code></pre></div><p>3、上传文件到对应目录下面</p>
+<p>注：上传的文件需要大于 2M 才能看出效果。（低于 2M，只有一个数据单元和两个校验单元）</p>
+<p><figure 
+	>
+	<a href="/../../images/19-hadoop-07/image-20230905162642300.png" >
+		<img src="/../../images/19-hadoop-07/image-20230905162642300.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230905162642300">
+	</a>
+	
+	<figcaption>image-20230905162642300</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/19-hadoop-07/image-20230905162656616.png" >
+		<img src="/../../images/19-hadoop-07/image-20230905162656616.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230905162656616">
+	</a>
+	
+	<figcaption>image-20230905162656616</figcaption>
+	
+</figure></p>
+<p>可以看到这个文件，只有1个副本，但是却有5个存储节点（3 个数据单元， 2 个校验单元）。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/hadoop/">Hadoop</a>
+        
+            <a href="/tags/hdfs/">HDFS</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/hadoop21hdfs-%E5%AE%89%E5%85%A8%E6%A8%A1%E5%BC%8F%E6%85%A2%E7%A3%81%E7%9B%98%E7%9B%91%E6%8E%A7%E5%B0%8F%E6%96%87%E4%BB%B6%E5%BD%92%E6%A1%A3%E8%A7%A3%E5%BD%92%E6%A1%A3%E9%9B%86%E7%BE%A4%E6%95%B0%E6%8D%AE%E8%BF%81%E7%A7%BB/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hadoop21）HDFS 安全模式、慢磁盘监控、小文件归档、解归档、集群数据迁移</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hadoop20hdfs-%E5%86%B7%E7%83%AD%E6%95%B0%E6%8D%AE%E5%88%86%E7%A6%BB%E5%BC%82%E6%9E%84%E5%AD%98%E5%82%A8/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hadoop20）HDFS 冷热数据分离（异构存储）</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hadoop18hdfs-%E9%9B%86%E7%BE%A4%E6%89%A9%E5%AE%B9%E5%8F%8A%E7%BC%A9%E5%AE%B9%E9%BB%91%E7%99%BD%E5%90%8D%E5%8D%95%E9%85%8D%E7%BD%AE/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hadoop18）HDFS 集群扩容及缩容、黑白名单配置</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hadoop17hdfs-%E6%95%B0%E6%8D%AE%E5%9D%87%E8%A1%A1balancer%E5%92%8Cdisk-balancer/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hadoop17）HDFS 数据均衡（Balancer和Disk Balancer）</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hadoop16hadoop-hdfs%E5%8F%82%E6%95%B0%E8%B0%83%E4%BC%98%E5%A4%9A%E7%9B%AE%E5%BD%95%E9%85%8D%E7%BD%AE/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hadoop16）Hadoop HDFS参数调优、多目录配置</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#一纠删码">一、纠删码</a>
+      <ol>
+        <li><a href="#11-纠删码介绍">1.1 纠删码介绍</a></li>
+        <li><a href="#12-纠删码策略分类">1.2 纠删码策略分类</a></li>
+        <li><a href="#13-纠偏码验证">1.3 纠偏码验证</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

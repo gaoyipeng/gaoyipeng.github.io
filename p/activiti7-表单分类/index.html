@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Activiti（7） Activiti表单分类：动态表单、外置表单、普通表单'><title>Activiti（7） 表单分类</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/activiti7-%E8%A1%A8%E5%8D%95%E5%88%86%E7%B1%BB/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Activiti（7） 表单分类'>
+<meta property='og:description' content='Activiti（7） Activiti表单分类：动态表单、外置表单、普通表单'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/activiti7-%E8%A1%A8%E5%8D%95%E5%88%86%E7%B1%BB/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Activiti' /><meta property='article:published_time' content='2020-06-04T15:54:31&#43;00:00'/><meta property='article:modified_time' content='2020-06-04T15:54:31&#43;00:00'/>
+<meta name="twitter:title" content="Activiti（7） 表单分类">
+<meta name="twitter:description" content="Activiti（7） Activiti表单分类：动态表单、外置表单、普通表单">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/activiti/" >
+                Activiti
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/activiti7-%E8%A1%A8%E5%8D%95%E5%88%86%E7%B1%BB/">Activiti（7） 表单分类</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        Activiti（7） Activiti表单分类：动态表单、外置表单、普通表单
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jun 04, 2020</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 1 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <blockquote>
+<p>前面几个章节，算是Activiti的入门阶段，让我们知道Activiti的大概工作模式。很多细节并没有介绍，并不足以应对工作中实际的业务。接下来学习表单，从实用的角度学习activiti。</p>
+</blockquote>
+<p>表单：用来显示流程中业务数据的页面和数据。(我是这么理解的~~)</p>
+<h1 id="1表单分类">1、表单分类</h1>
+<ul>
+<li>动态表单</li>
+<li>外置表单（FormKey）</li>
+<li>普通表单</li>
+</ul>
+<p>三种表单都有其优缺点，可根据具体场景灵活选用。需要说明的是，三种表单方式只是在任务节点上用户的表单定义方式上面有差别，而流程的运转机制则完全相同。</p>
+<h2 id="11-动态表单">1.1 动态表单</h2>
+<p><figure 
+	>
+	<a href="/images/activiti6-07/image-20200608105904854-1655020202257.png" >
+		<img src="/images/activiti6-07/image-20200608105904854-1655020202257.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200608105904854">
+	</a>
+	
+	<figcaption>image-20200608105904854</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-07/image-20200608110121083-1655020202257.png" >
+		<img src="/images/activiti6-07/image-20200608110121083-1655020202257.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200608110121083">
+	</a>
+	
+	<figcaption>image-20200608110121083</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-07/image-20200608110133758-1655020202257.png" >
+		<img src="/images/activiti6-07/image-20200608110133758-1655020202257.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200608110133758">
+	</a>
+	
+	<figcaption>image-20200608110133758</figcaption>
+	
+</figure></p>
+<p>如图所示，区别于普通表单和外置表单，动态表单是直接将工作流节点处的表单嵌入流程定义文件BPMN中，系统利用JS或者模板引擎根据流程定义中表单定义的各个子控件及其属性动态渲染出表单加载出来。</p>
+<h2 id="12-外置表单formkey">1.2 外置表单（FormKey）</h2>
+<p>这种方式常用于基于工作流平台开发的方式，代码写的很少，开发人员只要把表单内容写好保存到**.form**文件中即可，然后配置每个节点需要的表单名称（form key），实际运行时通过引擎提供的API读取Task对应的form内容输出到页面。</p>
+<p>此种方式对于在经常添加新流程的需求比较适用，可以快速发布新流程，把流程设计出来之后再设计表单之后两者关联就可以使用了。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-07/image-20200608111813077-1655020202257.png" >
+		<img src="/images/activiti6-07/image-20200608111813077-1655020202257.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200608111813077">
+	</a>
+	
+	<figcaption>image-20200608111813077</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-07/image-20200608111650312-1655020202258.png" >
+		<img src="/images/activiti6-07/image-20200608111650312-1655020202258.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200608111650312">
+	</a>
+	
+	<figcaption>image-20200608111650312</figcaption>
+	
+</figure></p>
+<p>leave-start.form表单内容：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-html" data-lang="html"><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-group&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">label</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-label&#34;</span> <span class="na">for</span><span class="o">=</span><span class="s">&#34;startDate&#34;</span><span class="p">&gt;</span>开始时间：<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;controls&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&#34;text&#34;</span> <span class="na">id</span><span class="o">=</span><span class="s">&#34;startDate&#34;</span> <span class="na">name</span><span class="o">=</span><span class="s">&#34;startDate&#34;</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;datepicker&#34;</span> <span class="na">data-date-format</span><span class="o">=</span><span class="s">&#34;yyyy-mm-dd&#34;</span> <span class="na">required</span> <span class="p">/&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-group&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">label</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-label&#34;</span> <span class="na">for</span><span class="o">=</span><span class="s">&#34;endDate&#34;</span><span class="p">&gt;</span>结束时间：<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;controls&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&#34;text&#34;</span> <span class="na">id</span><span class="o">=</span><span class="s">&#34;endDate&#34;</span> <span class="na">name</span><span class="o">=</span><span class="s">&#34;endDate&#34;</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;datepicker&#34;</span> <span class="na">data-date-format</span><span class="o">=</span><span class="s">&#34;yyyy-mm-dd&#34;</span> <span class="na">required</span> <span class="p">/&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-group&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">label</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;control-label&#34;</span> <span class="na">for</span><span class="o">=</span><span class="s">&#34;reason&#34;</span><span class="p">&gt;</span>请假原因：<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;controls&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="p">&lt;</span><span class="nt">textarea</span> <span class="na">id</span><span class="o">=</span><span class="s">&#34;reason&#34;</span> <span class="na">name</span><span class="o">=</span><span class="s">&#34;reason&#34;</span> <span class="na">required</span><span class="p">&gt;&lt;/</span><span class="nt">textarea</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span></code></pre></div><h2 id="13-普通表单">1.3 普通表单</h2>
+<p>这个是最灵活的一种方式（但是也最繁琐），常用于业务比较复杂的系统中，或者业务比较固定不变的需求中。</p>
+<p>普通表单的特点是把表单的内容存放在一个页面（jsp、jsf、html等）文件中。表单提供流程所需的各种字段，提交到后台后，流程引擎利用这些字段推动流程。</p>
+<p>普通表单和和以上两种方式比较有两点区别：</p>
+<ol>
+<li>
+<p><strong>表单</strong>：和第二种外置表单类似，但是表单的显示、表单字段值填充均由开发人员写代码实现。而不是直接读取<code>.form</code>的内容。</p>
+</li>
+<li>
+<p><strong>数据表</strong>：数据表单独设计。而不是和前两种一样把数据以key、value形式保存在引擎表中。（就是说，流程表单的数据不在activit提供的表中存储，我们需要自己设计表来保存）</p>
+</li>
+</ol>
+<p><strong>这节主要就是介绍下表单的分类和基本概念。下一节我们分别介绍这几种表单的具体用法。</strong></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/activiti/">Activiti</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/activiti6%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%B3%BB%E7%BB%9F%E6%90%AD%E5%BB%BA%E6%95%99%E7%A8%8B/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti6工作流系统搭建教程</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti33-spring-security%E8%8E%B7%E5%8F%96%E5%BD%93%E5%89%8D%E6%93%8D%E4%BD%9C%E4%BA%BA%E4%BF%A1%E6%81%AF/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（33） Spring-Security获取当前操作人信息</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti34-%E4%BD%BF%E7%94%A8swagger%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（34） 使用Swagger生成静态接口文档</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti35-%E4%BD%BF%E7%94%A8swagger%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（35） 使用Swagger生成静态接口文档</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti32-%E6%9B%BF%E6%8D%A2activiti%E7%94%A8%E6%88%B7%E5%92%8C%E7%94%A8%E6%88%B7%E7%BB%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（32） 替换Activiti用户和用户组</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#11-动态表单">1.1 动态表单</a></li>
+    <li><a href="#12-外置表单formkey">1.2 外置表单（FormKey）</a></li>
+    <li><a href="#13-普通表单">1.3 普通表单</a></li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

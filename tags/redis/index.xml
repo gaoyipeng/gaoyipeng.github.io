@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Redis on 十一爸爸的博客</title>
+    <link>https://garnettboy.gitee.io/tags/redis/</link>
+    <description>Recent content in Redis on 十一爸爸的博客</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Tue, 11 Feb 2020 11:27:51 +0000</lastBuildDate><atom:link href="https://garnettboy.gitee.io/tags/redis/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>使用docker安装redis哨兵(sentinel)</title>
+      <link>https://garnettboy.gitee.io/p/%E4%BD%BF%E7%94%A8docker%E5%AE%89%E8%A3%85redis%E5%93%A8%E5%85%B5sentinel/</link>
+      <pubDate>Tue, 11 Feb 2020 11:27:51 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/%E4%BD%BF%E7%94%A8docker%E5%AE%89%E8%A3%85redis%E5%93%A8%E5%85%B5sentinel/</guid>
+      <description>上一节我们搭建了redis主从模式，实现了redis的主从复制，读写分离。主从模式保证了数据备份，但是发生故障依然需要运维人员施工。为了解决主从模式的弊端，本节我们搭建redis哨兵模式。
+本节我们搭建一主二从三哨兵。
+redis哨兵模式 sentinel 通常翻译成哨兵，用来监控主从节点的健康情况。客户端连接redis主从的时候，先连接 sentinel，sentinel告诉客户端主redis的地址是多少，然后客户端连接上redis并进行后续的操作。
+当主节点挂掉的时候，客户端就得不到连接了因而报错了，客户端重新向sentinel询问主master的地址，然后客户端得到了新选举出来的主redis。当原来的主机恢复后，会将其作为新主的从机。
+我们直接在上一节的已经搭建好的主从基础上搭建redis哨兵模式，上一节的主从模式节点信息如下：
+角色 端口 密码 容器名称 master 6380 123456 redis-6380 slaver 6381 123456 redis-6381 slaver 6382 123456 redis-6382 各容器network信心如下：
+&amp;#34;Containers&amp;#34;: {&amp;#34;3729ea952faade7c3bf37467f00f8a8c6676b9a98e27a897582272f1edce2087&amp;#34;: {&amp;#34;Name&amp;#34;: &amp;#34;redis-6382&amp;#34;,&amp;#34;EndpointID&amp;#34;: &amp;#34;95f9a05d2b6d10c13eb3d8df706a2700f33a6704ddda290bc6840676eebc6676&amp;#34;,&amp;#34;MacAddress&amp;#34;: &amp;#34;02:42:ac:14:00:04&amp;#34;,&amp;#34;IPv4Address&amp;#34;: &amp;#34;172.20.0.4/16&amp;#34;,&amp;#34;IPv6Address&amp;#34;: &amp;#34;&amp;#34;},&amp;#34;a7f4ccfa8e8aa87efb697f3ee5fef686e5138ebb0ad5faac282e7850d8cb176f&amp;#34;: {&amp;#34;Name&amp;#34;: &amp;#34;redis-6380&amp;#34;,&amp;#34;EndpointID&amp;#34;: &amp;#34;71af5cda52f5026aba9b4040890629d5ca560c2a7208b2bc7f0682a97a19d9bf&amp;#34;,&amp;#34;MacAddress&amp;#34;: &amp;#34;02:42:ac:14:00:02&amp;#34;,&amp;#34;IPv4Address&amp;#34;: &amp;#34;172.20.0.2/16&amp;#34;,&amp;#34;IPv6Address&amp;#34;: &amp;#34;&amp;#34;},&amp;#34;ff3d51f269c40912a21b2a8686078d963f292b32d32bce6dad089d9008377a36&amp;#34;: {&amp;#34;Name&amp;#34;: &amp;#34;redis-6381&amp;#34;,&amp;#34;EndpointID&amp;#34;: &amp;#34;405a1e61ea2afae2fca8b0ce31f6ac83b7c03440668b3f7ec42072a0ebff18e3&amp;#34;,&amp;#34;MacAddress&amp;#34;: &amp;#34;02:42:ac:14:00:03&amp;#34;,&amp;#34;IPv4Address&amp;#34;: &amp;#34;172.20.0.3/16&amp;#34;,&amp;#34;IPv6Address&amp;#34;: &amp;#34;&amp;#34;}} 现在我们约定sentinel哨兵节点信息：
+名称 端口 sentinel-26379 26379 sentinel-26380 26380 sentinel-26381 26381 创建工作目录 mkdir -p /usr/local/redis/sentinel/sentinel-26379/confmkdir -p /usr/local/redis/sentinel/sentinel-26379/datamkdir -p /usr/local/redis/sentinel/sentinel-26380/confmkdir -p /usr/local/redis/sentinel/sentinel-26380/datamkdir -p /usr/local/redis/sentinel/sentinel-26381/confmkdir -p /usr/local/redis/sentinel/sentinel-26381/data 用来存放3个哨兵的配置文件及日志文件。</description>
+    </item>
+    
+    <item>
+      <title>使用docker安装redis主从模式</title>
+      <link>https://garnettboy.gitee.io/p/%E4%BD%BF%E7%94%A8docker%E5%AE%89%E8%A3%85redis%E4%B8%BB%E4%BB%8E%E6%A8%A1%E5%BC%8F/</link>
+      <pubDate>Sun, 09 Feb 2020 16:26:11 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/%E4%BD%BF%E7%94%A8docker%E5%AE%89%E8%A3%85redis%E4%B8%BB%E4%BB%8E%E6%A8%A1%E5%BC%8F/</guid>
+      <description>redis主从复制 前一节我们搭建了单体redis应用，假设我们生产环境使用了一台redis，redis挂了怎么办？ redis主从复制：是备份关系，我们操作主库，数据会同步到从库。
+那么redis主从复制有什么作用呢？
+数据冗余：主从复制实现了数据的热备份，是持久化之外的一种数据冗余方式。 读写分离：可以用于实现读写分离，主库写、从库读，读写分离不仅可以提高服务器的负载能力，同时可根据需求的变化，改变从库的数量； 负载均衡：可以在主从复制的基础上，配合读写分离，由主节点负责写，从节点负责读取数据，从而分担服务器的负载压力，大大提高redis的并发量。 高可用基石：除了上述作用以外，主从复制还是哨兵和集群能够实施的基础，因此说主从复制是Redis高可用的基础。 本节我们搭建redis 一主二从，读写分离。redis主从是实现redis集群和redis哨兵高可用的基础.
+创建工作目录 mkdir -p /usr/local/redis/master-slaver/master/confmkdir -p /usr/local/redis/master-slaver/master/datamkdir -p /usr/local/redis/master-slaver/slaver/confmkdir -p /usr/local/redis/master-slaver/slaver/datamkdir -p /usr/local/redis/master-slaver/slaver1/confmkdir -p /usr/local/redis/master-slaver/slaver1/data 端口约定 角色 端口 密码 容器名称 master 6380 123456 redis-6380 slaver 6381 123456 redis-6381 slaver 6382 123456 redis-6382 准备redis.conf 准备一份redis.conf文件 https://redis.io/download。复制3份，分别存放到： /usr/local/redis/master-slave/master/conf /usr/local/redis/master-slave/slaver/conf /usr/local/redis/master-slave/slaver/conf 2.创建自定义网桥
+docker network inspect redis-master-slaver 这样我们容器间就可以使用容器名来通信了，避免出现ip变化后主从容器无法通信问题。
+分别修改这3份redis.conf的以下内容 master: requirepass 123456 #给redis设置密码bind 0.0.0.0 # 表示任意ip可连appendonly yes #开启redis aof持久化 slaver:</description>
+    </item>
+    
+    <item>
+      <title>使用docker安装单点redis</title>
+      <link>https://garnettboy.gitee.io/p/%E4%BD%BF%E7%94%A8docker%E5%AE%89%E8%A3%85%E5%8D%95%E7%82%B9redis/</link>
+      <pubDate>Sat, 08 Feb 2020 16:58:42 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/%E4%BD%BF%E7%94%A8docker%E5%AE%89%E8%A3%85%E5%8D%95%E7%82%B9redis/</guid>
+      <description>安装单个redis 拉取镜像,我使用的是5.0.7版本。https://hub.docker.com/_/redis/?tab=tags docker pull redis:5.0.7 准备一份redis.conf文件 https://redis.io/download，使用 xftp 上传到 /usr/local/redis/conf下。 注意：默认docker运行的redis是不存在配置文件的，即无配置启动. 另外还可以通过wget下载redis.conf：
+wget http://download.redis.io/redis-stable/redis.conf mkdir /usr/local/redis/datamkdir /usr/local/redis/conf 上传时发现一直报错，因为我是使用admin登录的，传输到虚拟机（服务器）的文件夹（目的地的文件夹）的权限不够。
+chmod 777 /usr/local/redis/conf 再次上传,然后把权限改回来，777权限很危险，尽量不要这么设置。
+修改redis.conf中的以下内容
+requirepass 123456 #给redis设置密码 bind 127.0.0.1 # 注释掉这部分，表示任意ip可连 appendonly yes #开启redis aof持久化 创建redis容器 docker run -d -p 6379:6379 --name redis-6379 -v /usr/local/redis/conf/redis.conf:/etc/redis/redis.conf -v /usr/local/redis/data:/data redis:5.0.7 redis-server /etc/redis/redis.conf docker-redis-single-p 6379:6379:把容器内的6379端口映射到宿主机6379端口 -v /usr/local/redis/conf/redis.conf:/etc/redis/redis.conf:把宿主机配置好的redis.conf放到容器内的这个位置中 -v /usr/local/redis/data:/data:把redis持久化的数据在宿主机内显示，做数据备份 redis-server /etc/redis/redis.conf：这个是关键配置，让redis不是无配置启动，而是按照这个redis.conf的配置启动 –appendonly yes：redis启动后数据持久化 使用redis-Desktop连接 redis-Desktop-single.png我们使用命令向redis中插入几个String类型的值，再次查看/usr/local/redis/data目录,发现已经生成了持久化文件。
+single-data.png单体redis较为简单，完工！</description>
+    </item>
+    
+  </channel>
+</rss>

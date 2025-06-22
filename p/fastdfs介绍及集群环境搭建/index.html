@@ -1,0 +1,1359 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='FastDFS介绍及集群环境搭建'><title>FastDFS介绍及集群环境搭建</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/fastdfs%E4%BB%8B%E7%BB%8D%E5%8F%8A%E9%9B%86%E7%BE%A4%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='FastDFS介绍及集群环境搭建'>
+<meta property='og:description' content='FastDFS介绍及集群环境搭建'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/fastdfs%E4%BB%8B%E7%BB%8D%E5%8F%8A%E9%9B%86%E7%BE%A4%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='FastDFS' /><meta property='article:published_time' content='2023-06-09T15:36:40&#43;00:00'/><meta property='article:modified_time' content='2023-06-09T15:36:40&#43;00:00'/>
+<meta name="twitter:title" content="FastDFS介绍及集群环境搭建">
+<meta name="twitter:description" content="FastDFS介绍及集群环境搭建">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/fastdfs/" >
+                FastDFS
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/fastdfs%E4%BB%8B%E7%BB%8D%E5%8F%8A%E9%9B%86%E7%BE%A4%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">FastDFS介绍及集群环境搭建</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        FastDFS介绍及集群环境搭建
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jun 09, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 4 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <h2 id="一fastdfs介绍及原理">一、FastDFS介绍及原理</h2>
+<p>FastDFS 是一个开源的高性能分布式文件系统（DFS）。 它的主要功能包括：文件存储，文件同步和文件访问，以及高容量和负载平衡。主要解决了海量数据存储问题，适合以中小文件（4KB &lt; file_size &lt;500MB）存储。</p>
+<p>FastDFS 系统有三个角色：</p>
+<ul>
+<li>跟踪服务器(Tracker Server)：Tracker是FastDFS的协调者，负责管理所有的<strong>storage server</strong>和<strong>group</strong>，<strong>每个storage在启动后会连接Tracker，告知自己所属的group等信息</strong>，并保持周期性的心跳，tracker根据storage的心跳信息，建立group==&gt;[storage server list]的映射表。</li>
+<li>存储服务器(Storage Server)：Storage server以组（卷，group或volume）为单位，一个group内包含多台storage机器，数据互为备份。卷中的多台存储服务器起到了冗余备份和负载均衡的作用。存储空间以group内容量最小的storage为准，所以建议group内的多个storage尽量配置相同，以免造成存储空间的浪费。storage接受到写文件请求时，会根据配置好的规则，选择其中一个存储目录来存储文件。为了避免单个目录下的文件数太多，在storage第一次启动时，会在每个数据存储目录里创建2级子目录，每级256个，总共65536个文件目录，新写的文件会以hash的方式被路由到其中某个子目录下，然后将文件数据直接作为一个本地文件存储到该目录中。存储系统由一个或多个卷组成，卷与卷之间的文件是相互独立的，所有卷的文件容量累加就是整个存储系统中的文件容量。当存储空间不足时，可以动态添加group，只需要增加一台或多台服务器，并将它们配置为一个新的组，即可扩大存储系统的容量。当你的某个应用或者模块（对应的 group）的并发过高的时候，可以直接在 group 中增加若干个 Storage 来实现负载均衡。</li>
+<li>和客户端(Client)：一般指我们的应用服务。</li>
+</ul>
+<blockquote>
+<p><code>tracker</code> 和 <code>storage</code> 其实都是 <code>fastdfs</code>，只不过启动时通过不同的配置文件启动，所扮演的角色不同而已。也就是说，安装 <code>tracker</code> 和 <code>storage</code> 就是在安装 <code>fastdfs</code>，然后通过每个角色具体的配置文件启动即可。</p>
+</blockquote>
+<p>结构图如下：</p>
+<p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230612164440621.png" >
+		<img src="/../../images/fastdfs/image-20230612164440621.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230612164440621">
+	</a>
+	
+	<figcaption>image-20230612164440621</figcaption>
+	
+</figure></p>
+<h2 id="二文件上传">二、文件上传</h2>
+<p>当客户端发起一个文件上传请求时，FastDFS通过以下步骤来进行文件存储：</p>
+<p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230609171638800.png" >
+		<img src="/../../images/fastdfs/image-20230609171638800.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230609171638800">
+	</a>
+	
+	<figcaption>image-20230609171638800</figcaption>
+	
+</figure></p>
+<p>1、<strong>选择存储的group</strong>（tracker.conf）：当tracker接收到upload file的请求时，会为该文件分配一个可以存储该文件的group，group选择规则有以下几种：</p>
+<p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230612172953736.png" >
+		<img src="/../../images/fastdfs/image-20230612172953736.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230612172953736">
+	</a>
+	
+	<figcaption>image-20230612172953736</figcaption>
+	
+</figure></p>
+<pre tabindex="0"><code>（1）、Round robin：所有的group间轮询 
+（2）、Specified group：指定某一个确定的group 
+（3）、Load balance：负载均衡，剩余存储空间多的group优先
+</code></pre><p>2、<strong>选择Storage Server</strong>（tracker.conf）：当选定group后，tracker会在group内选择一个storage server给客户端，storage选择的规则：</p>
+<p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230613094728663.png" >
+		<img src="/../../images/fastdfs/image-20230613094728663.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230613094728663">
+	</a>
+	
+	<figcaption>image-20230613094728663</figcaption>
+	
+</figure></p>
+<pre tabindex="0"><code>（1）、Round robin:在group内的所有storage间轮询 
+（2）、First server ordered by ip:按ip排序 
+（3）、First server ordered by priority:按优先级排序（优先级在storage上配置）
+</code></pre><p>3、<strong>选择storage path</strong> (storage.conf)：当分配好storage server后，客户端将向storage发送写文件请求，<code>storage.conf</code>将会为文件分配一个数据存储目录，目录选择的规则：</p>
+<p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230612173103143.png" >
+		<img src="/../../images/fastdfs/image-20230612173103143.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230612173103143">
+	</a>
+	
+	<figcaption>image-20230612173103143</figcaption>
+	
+</figure></p>
+<pre tabindex="0"><code>（1）、Round robin，多个存储目录间轮询 
+（2）、剩余存储空间最多的优先
+</code></pre><p>4、<strong>生成Fileid</strong>**：当文件存储到某个子目录后，即认为该文件存储成功，接下来会为该文件生成一个文件名，文件名由group、存储目录、两级子目录、fileid、文件后缀名（由客户端指定，主要用于区分文件类型）拼接而成（<code>示例：group4/M00/01/0D/CgEiFVpBpkKAdgd5AAr7iauffrw964.pdf</code>）。</p>
+<p>5、<strong>文件同步</strong>：客户端将文件写至group内一个storage server即认为写文件成功，storage server写完文件后，会由后台线程将文件同步至同group内其他的storage server。每个storage写文件后，同时会写一份binlog，binlog里不包含文件数据，只包含文件名等元信息，这份binlog用于后台同步，storage会记录向group内其他storage同步的进度，以便重启后能接上次的进度继续同步（进度以时间戳的方式进行记录，所以最好能保证集群内所有server的时钟保持同步）。storage的同步进度会作为元数据的一部分汇报到tracker上，tracke在选择读storage的时候会以同步进度作为参考。</p>
+<h2 id="三文件下载">三、文件下载</h2>
+<p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230613101107171.png" >
+		<img src="/../../images/fastdfs/image-20230613101107171.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230613101107171">
+	</a>
+	
+	<figcaption>image-20230613101107171</figcaption>
+	
+</figure></p>
+<p>客户端使用storage生成的Fileid即可访问到该文件。在downloadfile时客户端可以选择任意tracker server。发送download请求给某个tracker，必须带上文件名信息，tracke从文件名中解析出文件的group、大小、创建时间等信息，然后为该请求选择一个storage用来服务读请求。</p>
+<p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230613101147821.png" >
+		<img src="/../../images/fastdfs/image-20230613101147821.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230613101147821">
+	</a>
+	
+	<figcaption>image-20230613101147821</figcaption>
+	
+</figure></p>
+<p>由于group内的文件同步时在后台异步进行的，所以有可能出现在读到时候，文件还没有同步到某些storage server上，为了尽量避免访问到这样的storage，tracker按照如下规则选择group内可读的storage。</p>
+<pre tabindex="0"><code> 1、该文件上传到的源头storage - 源头storage只要存活着，肯定包含这个文件，源头的地址被编码在文件名中。 
+</code></pre><p>目前成熟的解决方案是：使用 <code>fastdfs-nginx-module</code>，它可以<strong>重定向文件链接到源服务器</strong>进行获取，避免客户端由于复制延迟导致的文件无法访问的错误。当然如果相信storage server的后台同步效率，也可以不使用该模块。</p>
+<h2 id="四集群环境搭建">四、集群环境搭建</h2>
+<h3 id="41理想的物理架构">4.1、理想的物理架构</h3>
+<p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230613133451722.png" >
+		<img src="/../../images/fastdfs/image-20230613133451722.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230613133451722">
+	</a>
+	
+	<figcaption>image-20230613133451722</figcaption>
+	
+</figure></p>
+<p>实际工作中可以根据需要简化部署，以节约服务器资源。</p>
+<h3 id="42下载资源">4.2、下载资源</h3>
+<p>软件下载：https://gitee.com/fastdfs100</p>
+<ul>
+<li><code>libfastcommon</code>：从 <code>fastdfs</code> 项目和 <code>fastdht</code> 项目中提取出来的公共 C 函数库。</li>
+<li><code>fastdfs</code>：FastDFS 核心项目。</li>
+<li><code>fastdfs-nginx-module</code>：Nginx 整合 FastDFS 时 Nginx 需要添加的模块资源。</li>
+<li><code>fastdfs-client-java</code>: java客户端</li>
+</ul>
+<p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230614090824664.png" >
+		<img src="/../../images/fastdfs/image-20230614090824664.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230614090824664">
+	</a>
+	
+	<figcaption>image-20230614090824664</figcaption>
+	
+</figure></p>
+<p><strong>下载时注意版本对应关系</strong>，有一些版本作者也在下载页面给出了版本说明：</p>
+<p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230614090941974.png" >
+		<img src="/../../images/fastdfs/image-20230614090941974.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230614090941974">
+	</a>
+	
+	<figcaption>image-20230614090941974</figcaption>
+	
+</figure></p>
+<p>由于我的服务器版本是centos6.4，经过尝试后，最后软件列表如下：<figure 
+	>
+	<a href="/../../images/fastdfs/image-20230614111528968.png" >
+		<img src="/../../images/fastdfs/image-20230614111528968.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230614111528968">
+	</a>
+	
+	<figcaption>image-20230614111528968</figcaption>
+	
+</figure></p>
+<p>在centos6.4下，尝试使用如下新版本会有一系列的问题，<strong>所以，要注意版本对应关系</strong>。
+<figure 
+	>
+	<a href="/../../images/fastdfs/image-20230614091720655.png" >
+		<img src="/../../images/fastdfs/image-20230614091720655.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230614091720655">
+	</a>
+	
+	<figcaption>image-20230614091720655</figcaption>
+	
+</figure></p>
+<h3 id="43环境准备">4.3、环境准备</h3>
+<p>本次我们在两台机器上部署两个<code>tracker server</code>，两个<code>storage server</code>，即同一台机器即是<code>tracker server</code>也是<code>storage server</code>。</p>
+<table>
+<thead>
+<tr>
+<th>服务器地址</th>
+<th><strong>服务程序</strong></th>
+<th><strong>配置文件</strong></th>
+<th>服务器版本</th>
+<th><strong>端口区别</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10.10.81.74</td>
+<td>fdfs_trackerd</td>
+<td>tracker.conf</td>
+<td>Centos 6.4</td>
+<td>22122</td>
+</tr>
+<tr>
+<td>10.10.81.75</td>
+<td>fdfs_trackerd</td>
+<td>tracker.conf</td>
+<td>Centos 6.4</td>
+<td>22122</td>
+</tr>
+<tr>
+<td>10.10.81.74</td>
+<td>fdfs_storage</td>
+<td>storage.conf、storage1.conf</td>
+<td>Centos 6.4</td>
+<td>23000、23001</td>
+</tr>
+<tr>
+<td>10.10.81.75</td>
+<td>fdfs_storage</td>
+<td>storage.conf、storage1.conf</td>
+<td>Centos 6.4</td>
+<td>23000、23001</td>
+</tr>
+</tbody>
+</table>
+<p>　FastDFS 是基于 C 语言开发的，安装它之前必须先安装它所依赖的环境。</p>
+<pre tabindex="0"><code>yum install -y make cmake gcc gcc-c++　
+</code></pre><p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230614093738646.png" >
+		<img src="/../../images/fastdfs/image-20230614093738646.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230614093738646">
+	</a>
+	
+	<figcaption>image-20230614093738646</figcaption>
+	
+</figure></p>
+<p>两台机器分别上传：</p>
+<p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230614113055241.png" >
+		<img src="/../../images/fastdfs/image-20230614113055241.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230614113055241">
+	</a>
+	
+	<figcaption>image-20230614113055241</figcaption>
+	
+</figure></p>
+<h3 id="44软件安装">4.4、软件安装</h3>
+<h4 id="441-解压并编译安装-libfastcommon-v107fastdfs-v505">4.4.1 解压并编译安装 (libfastcommon-V1.0.7、fastdfs-V5.05)</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>root@host-192-168-3-100 libfastcommon-V1.0.7<span class="o">]</span><span class="c1"># ./make.sh</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@host-192-168-3-100 libfastcommon-V1.0.7<span class="o">]</span><span class="c1"># ./make.sh install</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@host-192-168-3-100 fastdfs-V5.05<span class="o">]</span><span class="c1"># ./make.sh</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@host-192-168-3-100 fastdfs-V5.05<span class="o">]</span><span class="c1"># ./make.sh installe</span>
+</span></span></code></pre></div><blockquote>
+<p><strong>libfastcommon-V1.0.7 编译安装</strong></p>
+</blockquote>
+<p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230614111830271.png" >
+		<img src="/../../images/fastdfs/image-20230614111830271.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230614111830271">
+	</a>
+	
+	<figcaption>image-20230614111830271</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230614111902891.png" >
+		<img src="/../../images/fastdfs/image-20230614111902891.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230614111902891">
+	</a>
+	
+	<figcaption>image-20230614111902891</figcaption>
+	
+</figure></p>
+<blockquote>
+<p><strong>fastdfs-V5.05 编译安装</strong></p>
+</blockquote>
+<p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230614112653872.png" >
+		<img src="/../../images/fastdfs/image-20230614112653872.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230614112653872">
+	</a>
+	
+	<figcaption>image-20230614112653872</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230614112727772.png" >
+		<img src="/../../images/fastdfs/image-20230614112727772.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230614112727772">
+	</a>
+	
+	<figcaption>image-20230614112727772</figcaption>
+	
+</figure></p>
+<p><code>fastdfs</code> 默认安装在以下位置：</p>
+<ul>
+<li><code>/usr/bin</code>：可执行文件</li>
+<li><code>/etc/fdfs</code>：配置文件</li>
+<li><code>/etc/init.d</code>：主程序代码</li>
+<li><code>/usr/include/fastdfs</code>：插件组</li>
+</ul>
+<p>/etc/fdfs目录下生成三个文件：</p>
+<p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230614113747688.png" >
+		<img src="/../../images/fastdfs/image-20230614113747688.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230614113747688">
+	</a>
+	
+	<figcaption>image-20230614113747688</figcaption>
+	
+</figure></p>
+<ul>
+<li><code>client.conf.sample</code>：客户端的配置文件，测试用。</li>
+<li><code>storage.conf.sample</code>：存储器的配置文件。</li>
+<li><code>tracker.conf.sample</code>：跟踪器的配置文件。</li>
+</ul>
+<p>我们进行拷贝来做后续配置使用。</p>
+<p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230614114502185.png" >
+		<img src="/../../images/fastdfs/image-20230614114502185.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230614114502185">
+	</a>
+	
+	<figcaption>image-20230614114502185</figcaption>
+	
+</figure></p>
+<p>另外，再将<code>/usr/local/fastdfs/fastdfs-V5.05/conf/</code>文件夹中的http.conf和mime.types拷贝到 /etc/fdfs/中。</p>
+<ul>
+<li>http.conf：http访问配置文件，主要是配合nginx做相关的访问配置</li>
+<li>mime.types：媒体类型配置文件，为了让服务器对应处理，也是配合nginx</li>
+</ul>
+<p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230614144953391.png" >
+		<img src="/../../images/fastdfs/image-20230614144953391.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230614144953391">
+	</a>
+	
+	<figcaption>image-20230614144953391</figcaption>
+	
+</figure></p>
+<h4 id="442-创建初始化目录">4.4.2 创建初始化目录</h4>
+<pre tabindex="0"><code>1）配置tracker所需的base_path目录: mkdir -p /data/FASTDFS/fastdfs_tracker
+2）配置storage所需的日志目录: mkdir -p /data/FASTDFS/fastdfs_storage_info
+3）配置storage所需的存储文件目录: mkdir -p /data/FASTDFS/fastdfs_storage_data
+4）配置client的存储文件目录: mkdir -p /data/FASTDFS/client
+</code></pre><h4 id="443配置tracker">4.4.3<strong>配置Tracker</strong></h4>
+<p>编辑2台服务器的 <code>tracker.conf</code> 配置文件，修改以下内容：</p>
+<pre tabindex="0"><code># 允许访问 tracker 服务器的 IP 地址，为空则表示不受限制
+bind_addr =
+
+# tracker 服务监听端口
+port = 22122
+
+# tracker 服务器的运行数据和日志的存储父路径（需要提前创建好）
+base_path = /data/FASTDFS/fastdfs_tracker
+
+# tracker 服务器 HTTP 协议下暴露的端口
+http.server_port = 8080
+</code></pre><p>设置软连接，这样我们就可以采用熟悉的系统服务启动方式</p>
+<pre tabindex="0"><code>ln -s /usr/bin/fdfs_trackerd /usr/local/bin
+ln -s /usr/bin/stop.sh /usr/local/bin
+ln -s /usr/bin/restart.sh /usr/local/bin
+</code></pre><p>配置完成，启动tracker服务：</p>
+<p>启动方式1：</p>
+<pre tabindex="0"><code># 启动 tracker 服务
+service fdfs_trackerd start
+</code></pre><p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230614151134560.png" >
+		<img src="/../../images/fastdfs/image-20230614151134560.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230614151134560">
+	</a>
+	
+	<figcaption>image-20230614151134560</figcaption>
+	
+</figure></p>
+<p>常用命令：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># 启动 tracker 服务</span>
+</span></span><span class="line"><span class="cl">service fdfs_trackerd start
+</span></span><span class="line"><span class="cl"><span class="c1"># 查看 tracker 服务状态</span>
+</span></span><span class="line"><span class="cl">service fdfs_trackerd status
+</span></span><span class="line"><span class="cl"><span class="c1"># 重启 tracker 服务</span>
+</span></span><span class="line"><span class="cl">service fdfs_trackerd restart
+</span></span><span class="line"><span class="cl"><span class="c1"># 停止 tracker 服务</span>
+</span></span><span class="line"><span class="cl">service fdfs_trackerd stop
+</span></span></code></pre></div><p>启动方式2：脚本启动</p>
+<pre tabindex="0"><code>启动tracker服务器: /etc/init.d/fdfs_trackerd start
+停止tracker服务器: /etc/init.d/fdfs_trackerd stop
+</code></pre><p>启动方式3：也可以指定配置文件来启动 tracker服务：</p>
+<pre tabindex="0"><code>#由于fdfs_trackerd在/usr/bin 目录下，所以我们在任意目录下都可以使用它
+
+[root@host-192-168-3-97 fdfs]# fdfs_trackerd /etc/fdfs/tracker.conf start
+[root@host-192-168-3-97 fdfs]# ps -ef|grep fdfs
+root      2076     1  0 15:03 ?        00:00:00 fdfs_trackerd /etc/fdfs/tracker.conf start
+root      2084 26689  0 15:03 pts/0    00:00:00 grep fdfs
+</code></pre><p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230614145529419.png" >
+		<img src="/../../images/fastdfs/image-20230614145529419.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230614145529419">
+	</a>
+	
+	<figcaption>image-20230614145529419</figcaption>
+	
+</figure></p>
+<h4 id="444-配置storage">4.4.4 <strong>配置Storage</strong></h4>
+<p>编辑2台服务器的 <code>storage.conf</code> 配置文件，修改以下内容：</p>
+<pre tabindex="0"><code># storage 组名/卷名，默认为 group1
+group_name = group1
+
+# 允许访问 storage 服务器的 IP 地址，为空则表示不受限制
+bind_addr =
+
+# storage 服务器的运行数据和日志的存储父路径（需要提前创建好）
+base_path = /data/FASTDFS/fastdfs_storage_info
+
+# storage 服务器中客户端上传的文件的存储父路径（需要提前创建好）
+store_path0 = /data/FASTDFS/fastdfs_storage_data
+
+# storage 服务器 HTTP 协议下暴露的端口
+http.server_port = 8888
+
+# tracker 服务器的 IP 和端口
+tracker_server = 10.10.81.74:22122
+tracker_server = 10.10.81.75:22122
+</code></pre><p>设置软连接，这样我们就可以采用熟悉的系统服务启动方式</p>
+<pre tabindex="0"><code>ln -s /usr/bin/fdfs_storaged /usr/local/bin
+</code></pre><p>配置完成，启动storage服务：</p>
+<pre tabindex="0"><code>service fdfs_storaged start
+</code></pre><p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230614153926605.png" >
+		<img src="/../../images/fastdfs/image-20230614153926605.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230614153926605">
+	</a>
+	
+	<figcaption>image-20230614153926605</figcaption>
+	
+</figure></p>
+<p>　查看 <code>/data/FASTDFS/fastdfs_storage_data/data</code> 目录可以看到 Storage 服务器创建了 <code>65536</code> 个文件夹用于存储客户端上传的文件。</p>
+<p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230614154111129.png" >
+		<img src="/../../images/fastdfs/image-20230614154111129.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230614154111129">
+	</a>
+	
+	<figcaption>image-20230614154111129</figcaption>
+	
+</figure></p>
+<h4 id="445-查看集群情况">4.4.5 查看集群情况</h4>
+<pre tabindex="0"><code>[root@host-192-168-3-97 fdfs]# fdfs_monitor /etc/fdfs/storage.conf
+</code></pre><p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230614155238730.png" >
+		<img src="/../../images/fastdfs/image-20230614155238730.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230614155238730">
+	</a>
+	
+	<figcaption>image-20230614155238730</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230614155247435.png" >
+		<img src="/../../images/fastdfs/image-20230614155247435.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230614155247435">
+	</a>
+	
+	<figcaption>image-20230614155247435</figcaption>
+	
+</figure></p>
+<h3 id="45客户端操作">4.5、客户端操作</h3>
+<p>FastDFS 向使用者提供基本文件访问接口，比如 upload、download、append、delete 等，以客户端库的方式提供给用户使用。在 Tracker 服务器的机器上编辑 <code>client.conf</code> 配置文件。</p>
+<pre tabindex="0"><code># client 客户端的运行数据和日志的存储父路径（需要提前创建好）
+base_path = /data/FASTDFS/client
+
+# tracker 服务器的 IP 和端口
+tracker_server = 10.10.81.74:22122
+tracker_server = 10.10.81.75:22122
+</code></pre><h4 id="451-上传">4.5.1 上传</h4>
+<p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230609171638800.png" >
+		<img src="/../../images/fastdfs/image-20230609171638800.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230609171638800">
+	</a>
+	
+	<figcaption>image-20230609171638800</figcaption>
+	
+</figure></p>
+<h5 id="4511-上传方式1fdfs_upload_file">4.5.1.1 上传方式1：fdfs_upload_file</h5>
+<blockquote>
+<p>格式：fdfs_upload_file /etc/fdfs/client.conf  filename</p>
+</blockquote>
+<p>新建文件，并输入任意内容，并上传，可以看到返回的文件信息。</p>
+<pre tabindex="0"><code>[root@host-192-168-3-100 client]# vim aa.text
+
+[root@host-192-168-3-100 client]# fdfs_upload_file /etc/fdfs/client.conf aa.text
+group1/M00/00/00/wKgDYWSJdw-AIrXPAAAAGZBcoxk89.text
+</code></pre><p>文件上传成功以后，会返回该文件在 Storage 服务器中的存储位置及随机生成的文件名。其中 <code>group1</code> 表示 Storage 组名/卷名，<code>M00</code> 是一个虚拟目录，表示 <code>/fastdfs/storage/store/data/</code> 真实路径中的 <code>data</code> 目录。</p>
+<p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230614173818359.png" >
+		<img src="/../../images/fastdfs/image-20230614173818359.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230614173818359">
+	</a>
+	
+	<figcaption>image-20230614173818359</figcaption>
+	
+</figure></p>
+<p>由于2台服务器storage同属于group1。所以2台服务器间同group1下的storage，数据应该是同步的。但在实际测试过程中，上传文件后，在<code>10.10.81.74</code>的存储路径下马上可以看到上传的文件，但是在<code>10.10.81.75</code>同目录下，将近半小时候才看到同步文件。storage 2一直是<code>WAIT_SYNC</code>状态，直到同步完成后才变为<code>ACTIVE</code>状态。</p>
+<p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230614175036075.png" >
+		<img src="/../../images/fastdfs/image-20230614175036075.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230614175036075">
+	</a>
+	
+	<figcaption>image-20230614175036075</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230614175236951.png" >
+		<img src="/../../images/fastdfs/image-20230614175236951.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230614175236951">
+	</a>
+	
+	<figcaption>image-20230614175236951</figcaption>
+	
+</figure></p>
+<h5 id="4512-上传方式2fdfs_test-upload">4.5.1.2 上传方式2：fdfs_test upload</h5>
+<blockquote>
+<p>格式：fdfs_test /etc/fdfs/client.conf  upload filename</p>
+</blockquote>
+<p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230615095357568.png" >
+		<img src="/../../images/fastdfs/image-20230615095357568.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230615095357568">
+	</a>
+	
+	<figcaption>image-20230615095357568</figcaption>
+	
+</figure></p>
+<p>通过 <code>fdfs_test</code> 的方式上传文件，会返回该文件上传成功以后详细的相关信息。</p>
+<ul>
+<li><code>group_name</code>：Storage 组名/卷名</li>
+<li><code>remote_filename</code>：上传成功文件的存储路径及文件名</li>
+<li><code>source_ip address</code>：上传成功文件所在的 Storage 服务器的 IP 地址</li>
+<li><code>file timestamp</code>：上传成功文件时的时间戳</li>
+<li><code>file size</code>：上传成功文件的文件大小</li>
+<li><code>example file url</code>：上传成功文件的 url 地址，<strong>配合 Nginx 可以直接访问</strong></li>
+<li><code>storage_upload_slave_by_filename</code>：FastDFS 的文件主/从特性，由主文件产生从文件</li>
+</ul>
+<p>查看 Storage 服务器发现该文件已成功上传。后缀为 <code>jpg-m</code> 的文件存放了上传成功文件的元数据信息。</p>
+<p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230615095237229.png" >
+		<img src="/../../images/fastdfs/image-20230615095237229.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230615095237229">
+	</a>
+	
+	<figcaption>image-20230615095237229</figcaption>
+	
+</figure></p>
+<p>查看元数据信息如下：</p>
+<p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230615095645500.png" >
+		<img src="/../../images/fastdfs/image-20230615095645500.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230615095645500">
+	</a>
+	
+	<figcaption>image-20230615095645500</figcaption>
+	
+</figure></p>
+<h4 id="452-下载">4.5.2 下载</h4>
+<p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230613101107171.png" >
+		<img src="/../../images/fastdfs/image-20230613101107171.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230613101107171">
+	</a>
+	
+	<figcaption>image-20230613101107171</figcaption>
+	
+</figure></p>
+<p>客户端 upload file 成功以后，会拿到一个 Storage 生成的文件名，接下来客户端根据这个文件名即可访问到该文件。跟 upload file 一样，在 download file 时客户端可以选择任意 Tracker Server。客户端发送 download 请求给某个 Tracker，必须带上文件名信息，Tracke 从文件名中解析出该文件的 group、大小、创建时间等信息，然后为该请求选择一个 Storage 用于提供读取服务。</p>
+<h5 id="4521-下载方式1fdfs_download_file">4.5.2.1 下载方式1：fdfs_download_file</h5>
+<p>我们下载上一步上传的文件：<code>remote_filename=M00/00/00/wKgDYWSKbCWAaL47AAAAMMyxo0k123.txt</code></p>
+<blockquote>
+<p>格式：<code>fdfs_download_file /etc/fdfs/client.conf group_name/remote_filename</code></p>
+</blockquote>
+<p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230615103036227.png" >
+		<img src="/../../images/fastdfs/image-20230615103036227.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230615103036227">
+	</a>
+	
+	<figcaption>image-20230615103036227</figcaption>
+	
+</figure></p>
+<h5 id="4522-下载方式2fdfs_test--download">4.5.2.2 下载方式2：fdfs_test  download</h5>
+<blockquote>
+<p>格式：<code>fdfs_test /etc/fdfs/client.conf download group_name remote_filename</code></p>
+</blockquote>
+<p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230615103314831.png" >
+		<img src="/../../images/fastdfs/image-20230615103314831.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230615103314831">
+	</a>
+	
+	<figcaption>image-20230615103314831</figcaption>
+	
+</figure></p>
+<h2 id="五扩展group2">五、扩展Group2</h2>
+<p>目前我们的部署架构只有一个group1，group有2个storage节点。下面再添加一个group2。</p>
+<p>首先我们分别在<code>10.10.81.74</code>、<code>10.10.81.75</code>的<code>/etc/fdfs</code>目录下，将storage.conf文件拷贝一份出来，作为group2的配置文件。</p>
+<pre tabindex="0"><code>[root@host-192-168-3-97 fdfs]# cp storage.conf storage1.conf
+</code></pre><p>修改内容如下：</p>
+<pre tabindex="0"><code># storage 组名/卷名，默认为 group1
+group_name = group2
+
+#  storage 端口信息，要和group1区分开来
+port=23001
+
+# 允许访问 storage 服务器的 IP 地址，为空则表示不受限制
+bind_addr =
+
+# storage 服务器的运行数据和日志的存储父路径（需要提前创建好）
+base_path = /data/FASTDFS/fastdfs_storage_info1
+
+# storage 服务器中客户端上传的文件的存储父路径（需要提前创建好）
+store_path0 = /data/FASTDFS/fastdfs_storage_data1
+
+# storage 服务器 HTTP 协议下暴露的端口
+http.server_port = 8888
+
+# tracker 服务器的 IP 和端口
+tracker_server = 10.10.81.74:22122
+tracker_server = 10.10.81.75:22122
+</code></pre><p>注意：<code>base_path</code>和<code>base_path0</code>路径需要提前创建好。</p>
+<pre tabindex="0"><code>[root@host-192-168-3-100 fdfs]# mkdir /data/FASTDFS/fastdfs_storage_info1
+[root@host-192-168-3-100 fdfs]# mkdir /data/FASTDFS/fastdfs_storage_data1
+</code></pre><p>然后我们指定配置文件启动storage1.</p>
+<pre tabindex="0"><code>fdfs_storaged /etc/fdfs/storage1.conf start
+</code></pre><p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230615112410583.png" >
+		<img src="/../../images/fastdfs/image-20230615112410583.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230615112410583">
+	</a>
+	
+	<figcaption>image-20230615112410583</figcaption>
+	
+</figure></p>
+<p>我们查看当前集群状态就可以看到新的group2的信息了：</p>
+<pre tabindex="0"><code>[root@host-192-168-3-100 fdfs]# fdfs_monitor /etc/fdfs/storage.conf
+</code></pre><p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230615113505119.png" >
+		<img src="/../../images/fastdfs/image-20230615113505119.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230615113505119">
+	</a>
+	
+	<figcaption>image-20230615113505119</figcaption>
+	
+</figure></p>
+<p>此时我们测试一下附件上传，Tracker选择group的规则默认是Load balance：负载均衡，我们修改其中一个Trackerd.conf规则为轮询。验证附件上传。</p>
+<p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230615133943216.png" >
+		<img src="/../../images/fastdfs/image-20230615133943216.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230615133943216">
+	</a>
+	
+	<figcaption>image-20230615133943216</figcaption>
+	
+</figure></p>
+<p>然后重启tracker服务：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="c1">#  service fdfs_trackerd restart</span>
+</span></span></code></pre></div><p>上传文件，可以看到分别上传到了group1和group2上面。</p>
+<p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230615134206672.png" >
+		<img src="/../../images/fastdfs/image-20230615134206672.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230615134206672">
+	</a>
+	
+	<figcaption>image-20230615134206672</figcaption>
+	
+</figure></p>
+<p>可以看到<code>10.10.81.74</code>对应的文件已经上传到group2的目录下：</p>
+<p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230615135113468.png" >
+		<img src="/../../images/fastdfs/image-20230615135113468.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230615135113468">
+	</a>
+	
+	<figcaption>image-20230615135113468</figcaption>
+	
+</figure></p>
+<h3 id="51解决storage-server一直处于wait_sync状态问题">5.1、解决storage server一直处于wait_sync状态问题</h3>
+<p>此时查看<code>10.10.81.75</code>的group1下是否同步了数据，但是等待20分钟依然没有同步。</p>
+<p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230615140423231.png" >
+		<img src="/../../images/fastdfs/image-20230615140423231.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230615140423231">
+	</a>
+	
+	<figcaption>image-20230615140423231</figcaption>
+	
+</figure></p>
+<p>解决方案是：如果遇到storage状态是WAIT_SYNC状态就把storage从集群中删除。然后在重新启动storage服务（<strong>未验证重启</strong>）。我在删除后，没有重新启动，再次查看就可以看到数据同步了。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>root@host-192-168-3-100 00<span class="o">]</span><span class="c1"># fdfs_monitor /etc/fdfs/storage1.conf delete group2 10.10.81.75</span>
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230615140824526.png" >
+		<img src="/../../images/fastdfs/image-20230615140824526.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230615140824526">
+	</a>
+	
+	<figcaption>image-20230615140824526</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230615141226957.png" >
+		<img src="/../../images/fastdfs/image-20230615141226957.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230615141226957">
+	</a>
+	
+	<figcaption>image-20230615141226957</figcaption>
+	
+</figure></p>
+<p>而且监控信息也变为了<code>ACTIVE</code>，后续上传新文件，也未出现一直不同步的问题。</p>
+<p><figure 
+	>
+	<a href="/../../images/fastdfs/image-20230615141424498.png" >
+		<img src="/../../images/fastdfs/image-20230615141424498.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230615141424498">
+	</a>
+	
+	<figcaption>image-20230615141424498</figcaption>
+	
+</figure></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/fastdfs/">FastDFS</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/java-%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%93%8D%E4%BD%9C-fastdfs/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Java 客户端操作 FastDFS</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/fastdfs%E6%95%B4%E5%90%88nginx/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">FastDFS整合Nginx</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#一fastdfs介绍及原理">一、FastDFS介绍及原理</a></li>
+    <li><a href="#二文件上传">二、文件上传</a></li>
+    <li><a href="#三文件下载">三、文件下载</a></li>
+    <li><a href="#四集群环境搭建">四、集群环境搭建</a>
+      <ol>
+        <li><a href="#41理想的物理架构">4.1、理想的物理架构</a></li>
+        <li><a href="#42下载资源">4.2、下载资源</a></li>
+        <li><a href="#43环境准备">4.3、环境准备</a></li>
+        <li><a href="#44软件安装">4.4、软件安装</a>
+          <ol>
+            <li><a href="#441-解压并编译安装-libfastcommon-v107fastdfs-v505">4.4.1 解压并编译安装 (libfastcommon-V1.0.7、fastdfs-V5.05)</a></li>
+            <li><a href="#442-创建初始化目录">4.4.2 创建初始化目录</a></li>
+            <li><a href="#443配置tracker">4.4.3<strong>配置Tracker</strong></a></li>
+            <li><a href="#444-配置storage">4.4.4 <strong>配置Storage</strong></a></li>
+            <li><a href="#445-查看集群情况">4.4.5 查看集群情况</a></li>
+          </ol>
+        </li>
+        <li><a href="#45客户端操作">4.5、客户端操作</a>
+          <ol>
+            <li><a href="#451-上传">4.5.1 上传</a></li>
+            <li><a href="#452-下载">4.5.2 下载</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+    <li><a href="#五扩展group2">五、扩展Group2</a>
+      <ol>
+        <li><a href="#51解决storage-server一直处于wait_sync状态问题">5.1、解决storage server一直处于wait_sync状态问题</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

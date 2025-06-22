@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Vue (07) 模块化开发'><title>Vue (07) 模块化开发</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/vue-07-%E6%A8%A1%E5%9D%97%E5%8C%96%E5%BC%80%E5%8F%91/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Vue (07) 模块化开发'>
+<meta property='og:description' content='Vue (07) 模块化开发'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/vue-07-%E6%A8%A1%E5%9D%97%E5%8C%96%E5%BC%80%E5%8F%91/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Vue' /><meta property='article:published_time' content='2021-01-14T10:10:34&#43;00:00'/><meta property='article:modified_time' content='2021-01-14T10:10:34&#43;00:00'/>
+<meta name="twitter:title" content="Vue (07) 模块化开发">
+<meta name="twitter:description" content="Vue (07) 模块化开发">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/vue/" >
+                Vue
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/vue-07-%E6%A8%A1%E5%9D%97%E5%8C%96%E5%BC%80%E5%8F%91/">Vue (07) 模块化开发</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        Vue (07) 模块化开发
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jan 14, 2021</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 1 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <h2 id="1模块化解决方案">1、模块化解决方案</h2>
+<p>不解释模块化的出现的意义，如果是用过<code>Query</code>的童鞋一定能想起被几十个<code>.js</code>文件支配的恐惧。</p>
+<ul>
+<li>AMD 提供了异步加载的功能的JavaScript模块化规范，RequireJS是实现了该规范的类库</li>
+<li>CMD 最初是由阿里的玉伯提出的，同AMD类似，使用CMD模块也需要使用对应的SeaJS类库</li>
+<li><strong>CommonJS</strong> 这是一种被广泛使用的Javascript模块化规范，大家最熟悉的Node.js应用中就是采用这个规范</li>
+<li>UMD 通用模块定义(Universal Module Definition)，使用该模块化方案，可以很好地兼容AMD， CommonJS等模块化语法。</li>
+<li><strong>ES6 Modules</strong>，ES6全称 ECMAScript 6.0 ,是 JavaScript 的版本标准。也就是javascript官方的亲儿子，也就是说未来会受到众多浏览器的支撑！即使目前浏览器还无法完全支持ES6 modules，我们还是可以通过Babel等转译工具进行编译使用ES6 Modules。</li>
+</ul>
+<p>我们介绍到的打包工具webpack是依赖于NodeJS的，所以我们很有必要学习一下CommonJS模块化管理。另外，ES6 Modules模块化解决方案时一定要学的。随着ES6 Modules的推出，AMD、CMD、UMD会逐渐退出历史舞台。</p>
+<h2 id="2commonjs">2、<strong>CommonJS</strong></h2>
+<p>模块化有两个核心。</p>
+<ul>
+<li>导出示例</li>
+</ul>
+<p><figure 
+	>
+	<a href="/images/vue-07/image-20210116165837892.png" >
+		<img src="/images/vue-07/image-20210116165837892.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20210116165837892">
+	</a>
+	
+	<figcaption>image-20210116165837892</figcaption>
+	
+</figure></p>
+<ul>
+<li>导入示例</li>
+</ul>
+<p><figure 
+	>
+	<a href="/images/vue-07/image-20210116165859942.png" >
+		<img src="/images/vue-07/image-20210116165859942.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20210116165859942">
+	</a>
+	
+	<figcaption>image-20210116165859942</figcaption>
+	
+</figure></p>
+<p>CommonJS的模块管理方案是依赖于NodeJS环境的，所以上面的代码是无法在浏览器端执行的。那我们vue课程为什么还要学？Vue用到的打包工具webpack，是依赖于NodeJS使用CommonJS做模块化管理方案的。</p>
+<h2 id="3es6-modules">3、ES6 Modules</h2>
+<h3 id="31-es6-modules导出方式">3.1 ES6 Modules导出方式</h3>
+<p>第一种方式，先定义变量及函数、类，然后使用export {……} 进行统一导出。</p>
+<p>第二种方式，在定义变量及函数、类的时候就使用<code>export</code> 关键字导出。</p>
+<p>我们新建一个module-a.js：</p>
+<p><figure 
+	>
+	<a href="/images/vue-07/image-20210116180028347.png" >
+		<img src="/images/vue-07/image-20210116180028347.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20210116180028347">
+	</a>
+	
+	<figcaption>image-20210116180028347</figcaption>
+	
+</figure></p>
+<h3 id="32--es6-modules导入方式">3.2  ES6 Modules导入方式</h3>
+<p>我们使用export指令导出了模块对外提供的接口，下面我们就可以通过import命令来加载对应的这个模块了。</p>
+<p>在module-c.js中使用import {……}语法导入变量、函数、类，from关键字后面跟上导入模块文件的路径。</p>
+<p><figure 
+	>
+	<a href="/images/vue-07/image-20210116185727132.png" >
+		<img src="/images/vue-07/image-20210116185727132.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20210116185727132">
+	</a>
+	
+	<figcaption>image-20210116185727132</figcaption>
+	
+</figure></p>
+<p>如果导出的内容比较多，我们可以使用 import * as 的语法为到处内容起一个别名，如下图中的moduleA。然后在导入之后的使用过程都要用：&ldquo;moduleA.&ldquo;的语法引用变量、函数、类。</p>
+<p><figure 
+	>
+	<a href="/images/vue-07/image-20210116185815590.png" >
+		<img src="/images/vue-07/image-20210116185815590.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20210116185815590">
+	</a>
+	
+	<figcaption>image-20210116185815590</figcaption>
+	
+</figure></p>
+<p>某些情况下，一个模块中包含某个的功能，我们并不希望给这个功能命名，而且让导入者可以自己来命名
+这个时候就可以使用<strong>export default</strong>方式导出</p>
+<p><figure 
+	>
+	<a href="/images/vue-07/image-20210116185244923.png" >
+		<img src="/images/vue-07/image-20210116185244923.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20210116185244923">
+	</a>
+	
+	<figcaption>image-20210116185244923</figcaption>
+	
+</figure></p>
+<p>我们来到main.js中，这样使用就可以了这里的myFunc是自己命名的，可以根据需要命名它对应的名字</p>
+<p><figure 
+	>
+	<a href="/images/vue-07/image-20210117161955408.png" >
+		<img src="/images/vue-07/image-20210117161955408.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20210117161955408">
+	</a>
+	
+	<figcaption>image-20210117161955408</figcaption>
+	
+</figure></p>
+<p>另外，需要注意：export default在同一个模块中，不允许同时存在多个。</p>
+<h3 id="33--html-导入模块">3.3  html 导入模块</h3>
+<p>3.1和3.2都是在Vue环境中导入的，如果我们想要在html文件中引用模块化js文件应该怎么办呢？</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="o">&lt;</span><span class="nx">script</span> <span class="nx">src</span><span class="o">=</span><span class="s2">&#34;module-c.js&#34;</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&#34;module&#34;</span><span class="o">&gt;&lt;</span><span class="err">/script&gt;</span>
+</span></span></code></pre></div>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/vue/">Vue</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/vue-08-webpack%E5%AD%A6%E4%B9%A0/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Vue (08) webpack学习</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/vue-06-%E7%BB%84%E4%BB%B6%E5%8C%96%E5%BC%80%E5%8F%91/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Vue (06) 组件化开发</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/vue-05-vue%E8%BF%87%E6%BB%A4%E5%99%A8%E7%9A%84%E4%BD%BF%E7%94%A8/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Vue (05) Vue过滤器的使用</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/vue-04-%E8%AE%A1%E7%AE%97%E5%99%A8%E5%92%8C%E4%BE%A6%E5%90%AC%E5%99%A8/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Vue (04) 计算器和侦听器</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/vue-03-%E6%95%B0%E7%BB%84%E7%9A%84%E5%93%8D%E5%BA%94%E5%BC%8F%E6%96%B9%E6%B3%95/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Vue (03) 数组的响应式方法</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#1模块化解决方案">1、模块化解决方案</a></li>
+    <li><a href="#2commonjs">2、<strong>CommonJS</strong></a></li>
+    <li><a href="#3es6-modules">3、ES6 Modules</a>
+      <ol>
+        <li><a href="#31-es6-modules导出方式">3.1 ES6 Modules导出方式</a></li>
+        <li><a href="#32--es6-modules导入方式">3.2  ES6 Modules导入方式</a></li>
+        <li><a href="#33--html-导入模块">3.3  html 导入模块</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

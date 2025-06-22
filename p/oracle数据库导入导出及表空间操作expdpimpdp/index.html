@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Oracle数据库导入导出及表空间操作'><title>Oracle数据库导入导出及表空间操作（expdp、impdp）</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/oracle%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AF%BC%E5%85%A5%E5%AF%BC%E5%87%BA%E5%8F%8A%E8%A1%A8%E7%A9%BA%E9%97%B4%E6%93%8D%E4%BD%9Cexpdpimpdp/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Oracle数据库导入导出及表空间操作（expdp、impdp）'>
+<meta property='og:description' content='Oracle数据库导入导出及表空间操作'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/oracle%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AF%BC%E5%85%A5%E5%AF%BC%E5%87%BA%E5%8F%8A%E8%A1%A8%E7%A9%BA%E9%97%B4%E6%93%8D%E4%BD%9Cexpdpimpdp/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='数据库' /><meta property='article:tag' content='Oracle' /><meta property='article:published_time' content='2023-07-25T10:32:55&#43;00:00'/><meta property='article:modified_time' content='2023-07-25T10:32:55&#43;00:00'/>
+<meta name="twitter:title" content="Oracle数据库导入导出及表空间操作（expdp、impdp）">
+<meta name="twitter:description" content="Oracle数据库导入导出及表空间操作">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/" >
+                数据库
+            </a>
+        
+            <a href="/categories/oracle/" >
+                Oracle
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/oracle%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AF%BC%E5%85%A5%E5%AF%BC%E5%87%BA%E5%8F%8A%E8%A1%A8%E7%A9%BA%E9%97%B4%E6%93%8D%E4%BD%9Cexpdpimpdp/">Oracle数据库导入导出及表空间操作（expdp、impdp）</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        Oracle数据库导入导出及表空间操作
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jul 25, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 2 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <p>本文记录一下工作中遇到的<code>Oracle</code>使用<code>expdp</code>和<code>impdp</code>进行数据库导入导出操作。</p>
+<h2 id="一导出操作">一、导出操作</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">--1、查看当前实例，并切换实例 （源实例：devdb000、目标实例devdb001）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">echo</span><span class="w"> </span><span class="err">$</span><span class="n">ORACLE_SID</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">export</span><span class="w"> </span><span class="n">ORACLE_SID</span><span class="o">=</span><span class="n">devdb000</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">sqlplus</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">sysdba</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">---2、确认字符编码（验证源编码是：AMERICAN_AMERICA.ZHS16GBK）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">select</span><span class="w"> </span><span class="n">userenv</span><span class="p">(</span><span class="s1">&#39;language&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">dual</span><span class="p">;</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--3、查看目录并创建目录（用于保存dump文件）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">drop</span><span class="w"> </span><span class="n">directory</span><span class="w"> </span><span class="n">PATH_PPN</span><span class="p">;</span><span class="c1">--删除目录（若需要）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">dba_directories</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">DIRECTORY_NAME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;PATH_PPN&#39;</span><span class="p">;</span><span class="w"> </span><span class="c1">--查看目录
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">create</span><span class="w"> </span><span class="n">directory</span><span class="w"> </span><span class="n">PATH_PPN</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="s1">&#39;/oradata2/ppn27&#39;</span><span class="p">;</span><span class="c1">--如果没有import_path则创建一个
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--4、目录授权给数据库用户
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">grant</span><span class="w"> </span><span class="k">read</span><span class="p">,</span><span class="k">write</span><span class="w"> </span><span class="k">on</span><span class="w"> </span><span class="n">directory</span><span class="w"> </span><span class="n">PATH_PPN</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">ppn27</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--5、退出sqlplus
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">exit</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--6、导出dump文件
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">expdp</span><span class="w"> </span><span class="err">\</span><span class="s1">&#39;/ as sysdba\&#39;</span><span class="w"> </span><span class="n">directory</span><span class="o">=</span><span class="n">PATH_PPN</span><span class="w"> </span><span class="n">dumpfile</span><span class="o">=</span><span class="n">ppn27</span><span class="p">.</span><span class="n">dmp</span><span class="w"> </span><span class="n">logfile</span><span class="o">=</span><span class="n">ppn27</span><span class="p">.</span><span class="n">log</span><span class="w"> </span><span class="n">schemas</span><span class="o">=</span><span class="n">ppn27</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">expdp</span><span class="w"> </span><span class="err">\</span><span class="s1">&#39;/ as sysdba\&#39;</span><span class="w"> </span><span class="n">directory</span><span class="o">=</span><span class="n">PATH_PPN</span><span class="w"> </span><span class="n">dumpfile</span><span class="o">=</span><span class="n">ppn27_preu_file</span><span class="p">.</span><span class="n">dmp</span><span class="w"> </span><span class="n">logfile</span><span class="o">=</span><span class="n">ppn27_preu_file</span><span class="p">.</span><span class="n">log</span><span class="w"> </span><span class="n">schemas</span><span class="o">=</span><span class="n">ppn27_preu_file</span><span class="w">
+</span></span></span></code></pre></div><h2 id="二导入操作">二、导入操作</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">--1、查看当前实例，并切换实例 （源实例：devdb000、目标实例devdb001）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">echo</span><span class="w"> </span><span class="err">$</span><span class="n">ORACLE_SID</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">export</span><span class="w"> </span><span class="n">ORACLE_SID</span><span class="o">=</span><span class="n">devdb001</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">sqlplus</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">sysdba</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--2、创建新数据库用户及密码
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">create</span><span class="w"> </span><span class="k">user</span><span class="w"> </span><span class="n">ppn27utf8</span><span class="w"> </span><span class="n">identified</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">ppn27utf8</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">create</span><span class="w"> </span><span class="k">user</span><span class="w"> </span><span class="n">ppn27fileutf8</span><span class="w"> </span><span class="n">identified</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">ppn27fileutf8</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--3、创建表空间（可选,也可以选择已有表空间）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">CREATE</span><span class="w"> </span><span class="n">TABLESPACE</span><span class="w"> </span><span class="n">tbs_ppn_dev</span><span class="w"> </span><span class="n">LOGGING</span><span class="w"> </span><span class="n">DATAFILE</span><span class="w"> </span><span class="s1">&#39;/oradata2/devdb001/tbs_ppn_dev.dbf&#39;</span><span class="w"> </span><span class="k">SIZE</span><span class="w"> </span><span class="mi">512</span><span class="n">M</span><span class="w"> </span><span class="n">AUTOEXTEND</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">NEXT</span><span class="w"> </span><span class="mi">32</span><span class="n">M</span><span class="w"> </span><span class="n">MAXSIZE</span><span class="w"> </span><span class="n">unlimited</span><span class="w"> </span><span class="n">EXTENT</span><span class="w"> </span><span class="n">MANAGEMENT</span><span class="w"> </span><span class="k">LOCAL</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--4、设置数据库用户和表空间关联关系
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">alter</span><span class="w"> </span><span class="k">user</span><span class="w"> </span><span class="n">ppn27utf8</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="n">tablespace</span><span class="w"> </span><span class="n">tbs_ppn_dev</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">alter</span><span class="w"> </span><span class="k">user</span><span class="w"> </span><span class="n">ppn27fileutf8</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="n">tablespace</span><span class="w"> </span><span class="n">tbs_ppn_dev</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--5、为用户授权(dba权限可选择是否授予)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">grant</span><span class="w"> </span><span class="n">dba</span><span class="p">,</span><span class="n">resource</span><span class="p">,</span><span class="k">connect</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">ppn27utf8</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">grant</span><span class="w"> </span><span class="n">dba</span><span class="p">,</span><span class="n">resource</span><span class="p">,</span><span class="k">connect</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">ppn27fileutf8</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--6、创建目录并授权给数据库用户
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">create</span><span class="w"> </span><span class="n">directory</span><span class="w"> </span><span class="n">PATH_PPN</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="s1">&#39;/oradata2/ppn27&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">grant</span><span class="w"> </span><span class="k">read</span><span class="p">,</span><span class="k">write</span><span class="w"> </span><span class="k">on</span><span class="w"> </span><span class="n">directory</span><span class="w"> </span><span class="n">PATH_PPN</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">ppn27utf8</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">grant</span><span class="w"> </span><span class="k">read</span><span class="p">,</span><span class="k">write</span><span class="w"> </span><span class="k">on</span><span class="w"> </span><span class="n">directory</span><span class="w"> </span><span class="n">PATH_PPN</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">ppn27fileutf8</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--7、导入数据
+</span></span></span><span class="line"><span class="cl"><span class="c1">--（1）只导入表结构（排除索引、约束、统计）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">impdp</span><span class="w"> </span><span class="n">ppn27utf8</span><span class="o">/</span><span class="n">ppn27utf8</span><span class="w"> </span><span class="n">DIRECTORY</span><span class="o">=</span><span class="n">PATH_PPN</span><span class="w"> </span><span class="n">DUMPFILE</span><span class="o">=</span><span class="n">ppn27</span><span class="p">.</span><span class="n">dmp</span><span class="w"> </span><span class="n">logfile</span><span class="o">=</span><span class="n">ppn27_imp</span><span class="p">.</span><span class="n">log</span><span class="w"> </span><span class="n">content</span><span class="o">=</span><span class="n">metadata_only</span><span class="w">  </span><span class="n">exclude</span><span class="o">=</span><span class="k">index</span><span class="p">,</span><span class="k">CONSTRAINT</span><span class="p">,</span><span class="k">STATISTICS</span><span class="w"> </span><span class="n">REMAP_SCHEMA</span><span class="o">=</span><span class="n">ppn27</span><span class="p">:</span><span class="n">ppn27utf8</span><span class="w">  </span><span class="k">transform</span><span class="o">=</span><span class="n">segment_attributes</span><span class="p">:</span><span class="n">n</span><span class="w"> </span><span class="n">remap_tablespace</span><span class="o">=</span><span class="n">TBS_PPNDEMO</span><span class="p">:</span><span class="n">tbs_ppn_dev</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">impdp</span><span class="w"> </span><span class="n">ppn27fileutf8</span><span class="o">/</span><span class="n">ppn27fileutf8</span><span class="w"> </span><span class="n">DIRECTORY</span><span class="o">=</span><span class="n">PATH_PPN</span><span class="w"> </span><span class="n">DUMPFILE</span><span class="o">=</span><span class="n">ppn27_preu_file</span><span class="p">.</span><span class="n">dmp</span><span class="w"> </span><span class="n">logfile</span><span class="o">=</span><span class="n">imp_ppn27_file_metadata</span><span class="p">.</span><span class="n">log</span><span class="w"> </span><span class="n">content</span><span class="o">=</span><span class="n">metadata_only</span><span class="w">  </span><span class="n">exclude</span><span class="o">=</span><span class="k">index</span><span class="p">,</span><span class="k">CONSTRAINT</span><span class="p">,</span><span class="k">STATISTICS</span><span class="w"> </span><span class="n">REMAP_SCHEMA</span><span class="o">=</span><span class="n">ppn27_preu_file</span><span class="p">:</span><span class="n">ppn27fileutf8</span><span class="w">  </span><span class="k">transform</span><span class="o">=</span><span class="n">segment_attributes</span><span class="p">:</span><span class="n">n</span><span class="w"> </span><span class="n">remap_tablespace</span><span class="o">=</span><span class="n">USERS</span><span class="p">:</span><span class="n">tbs_ppn_dev</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--（2）执行字段长度扩展及字段类型转化脚本（运行部已提供），注意：在本操作执行完成后再导入数据
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">   
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--（3）只导入纯数据
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">impdp</span><span class="w"> </span><span class="n">ppn27utf8</span><span class="o">/</span><span class="n">ppn27utf8</span><span class="w"> </span><span class="n">DIRECTORY</span><span class="o">=</span><span class="n">PATH_PPN</span><span class="w"> </span><span class="n">DUMPFILE</span><span class="o">=</span><span class="n">ppn27</span><span class="p">.</span><span class="n">dmp</span><span class="w"> </span><span class="n">logfile</span><span class="o">=</span><span class="n">imp_ppn27_data</span><span class="p">.</span><span class="n">log</span><span class="w"> </span><span class="n">content</span><span class="o">=</span><span class="n">DATA_ONLY</span><span class="w"> </span><span class="n">exclude</span><span class="o">=</span><span class="k">index</span><span class="p">,</span><span class="k">CONSTRAINT</span><span class="p">,</span><span class="k">STATISTICS</span><span class="w">  </span><span class="n">REMAP_SCHEMA</span><span class="o">=</span><span class="n">ppn27</span><span class="p">:</span><span class="n">ppn27utf8</span><span class="w">  </span><span class="k">transform</span><span class="o">=</span><span class="n">segment_attributes</span><span class="p">:</span><span class="n">n</span><span class="w"> </span><span class="n">remap_tablespace</span><span class="o">=</span><span class="n">TBS_PPNDEMO</span><span class="p">:</span><span class="n">tbs_ppn_dev</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">impdp</span><span class="w"> </span><span class="n">ppn27fileutf8</span><span class="o">/</span><span class="n">ppn27fileutf8</span><span class="w"> </span><span class="n">DIRECTORY</span><span class="o">=</span><span class="n">PATH_PPN</span><span class="w"> </span><span class="n">DUMPFILE</span><span class="o">=</span><span class="n">ppn27_preu_file</span><span class="p">.</span><span class="n">dmp</span><span class="w"> </span><span class="n">logfile</span><span class="o">=</span><span class="n">imp_ppn27_file_data</span><span class="p">.</span><span class="n">log</span><span class="w"> </span><span class="n">content</span><span class="o">=</span><span class="n">DATA_ONLY</span><span class="w">   </span><span class="n">exclude</span><span class="o">=</span><span class="k">index</span><span class="p">,</span><span class="k">CONSTRAINT</span><span class="p">,</span><span class="k">STATISTICS</span><span class="w">   </span><span class="n">REMAP_SCHEMA</span><span class="o">=</span><span class="n">ppn27_preu_file</span><span class="p">:</span><span class="n">ppn27fileutf8</span><span class="w">  </span><span class="k">transform</span><span class="o">=</span><span class="n">segment_attributes</span><span class="p">:</span><span class="n">n</span><span class="w"> </span><span class="n">remap_tablespace</span><span class="o">=</span><span class="n">USERS</span><span class="p">:</span><span class="n">tbs_ppn_dev</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--（4）导入索引等信息
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">impdp</span><span class="w"> </span><span class="n">ppn27utf8</span><span class="o">/</span><span class="n">ppn27utf8</span><span class="w"> </span><span class="n">DIRECTORY</span><span class="o">=</span><span class="n">PATH_PPN</span><span class="w"> </span><span class="n">DUMPFILE</span><span class="o">=</span><span class="n">ppn27</span><span class="p">.</span><span class="n">dmp</span><span class="w"> </span><span class="n">logfile</span><span class="o">=</span><span class="n">imp_ppn27_metadata2</span><span class="p">.</span><span class="n">log</span><span class="w"> </span><span class="n">include</span><span class="o">=</span><span class="k">index</span><span class="p">,</span><span class="k">CONSTRAINT</span><span class="p">,</span><span class="k">STATISTICS</span><span class="w">  </span><span class="n">REMAP_SCHEMA</span><span class="o">=</span><span class="n">ppn27</span><span class="p">:</span><span class="n">ppn27utf8</span><span class="w">  </span><span class="k">transform</span><span class="o">=</span><span class="n">segment_attributes</span><span class="p">:</span><span class="n">n</span><span class="w"> </span><span class="n">remap_tablespace</span><span class="o">=</span><span class="n">TBS_PPNDEMO</span><span class="p">:</span><span class="n">tbs_ppn_dev</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">impdp</span><span class="w"> </span><span class="n">ppn27fileutf8</span><span class="o">/</span><span class="n">ppn27fileutf8</span><span class="w"> </span><span class="n">DIRECTORY</span><span class="o">=</span><span class="n">PATH_PPN</span><span class="w"> </span><span class="n">DUMPFILE</span><span class="o">=</span><span class="n">ppn27_preu_file</span><span class="p">.</span><span class="n">dmp</span><span class="w"> </span><span class="n">logfile</span><span class="o">=</span><span class="n">imp_ppn27_file_metadata2</span><span class="p">.</span><span class="n">log</span><span class="w"> </span><span class="n">include</span><span class="o">=</span><span class="k">index</span><span class="p">,</span><span class="k">CONSTRAINT</span><span class="p">,</span><span class="k">STATISTICS</span><span class="w">  </span><span class="n">REMAP_SCHEMA</span><span class="o">=</span><span class="n">ppn27_preu_file</span><span class="p">:</span><span class="n">ppn27fileutf8</span><span class="w">  </span><span class="k">transform</span><span class="o">=</span><span class="n">segment_attributes</span><span class="p">:</span><span class="n">n</span><span class="w"> </span><span class="n">remap_tablespace</span><span class="o">=</span><span class="n">TBS_PPNDEMO</span><span class="p">:</span><span class="n">tbs_ppn_dev</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--8、（可选）全量导入数据(若只需要进行数据库编码转换，执行此全量导入命令即可)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">impdp</span><span class="w"> </span><span class="n">ppn27utf8</span><span class="o">/</span><span class="n">ppn27utf8</span><span class="w"> </span><span class="n">DIRECTORY</span><span class="o">=</span><span class="n">PATH_PPN</span><span class="w"> </span><span class="n">DUMPFILE</span><span class="o">=</span><span class="n">ppn27</span><span class="p">.</span><span class="n">dmp</span><span class="w"> </span><span class="n">logfile</span><span class="o">=</span><span class="n">ppn27_imp</span><span class="p">.</span><span class="n">log</span><span class="w">  </span><span class="n">REMAP_SCHEMA</span><span class="o">=</span><span class="n">ppn27</span><span class="p">:</span><span class="n">ppn27utf8</span><span class="w">  </span><span class="k">transform</span><span class="o">=</span><span class="n">segment_attributes</span><span class="p">:</span><span class="n">n</span><span class="w"> </span><span class="n">remap_tablespace</span><span class="o">=</span><span class="n">TBS_PPNDEMO</span><span class="p">:</span><span class="n">tbs_ppn_dev</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">impdp</span><span class="w"> </span><span class="n">ppn27fileutf8</span><span class="o">/</span><span class="n">ppn27fileutf8</span><span class="w"> </span><span class="n">DIRECTORY</span><span class="o">=</span><span class="n">PATH_PPN</span><span class="w"> </span><span class="n">DUMPFILE</span><span class="o">=</span><span class="n">ppn27_preu_file</span><span class="p">.</span><span class="n">dmp</span><span class="w"> </span><span class="n">logfile</span><span class="o">=</span><span class="n">ppn27_file_imp</span><span class="p">.</span><span class="n">log</span><span class="w">  </span><span class="n">REMAP_SCHEMA</span><span class="o">=</span><span class="n">ppn27_preu_file</span><span class="p">:</span><span class="n">ppn27fileutf8</span><span class="w">  </span><span class="k">transform</span><span class="o">=</span><span class="n">segment_attributes</span><span class="p">:</span><span class="n">n</span><span class="w"> </span><span class="n">remap_tablespace</span><span class="o">=</span><span class="n">USERS</span><span class="p">:</span><span class="n">tbs_ppn_dev</span><span class="w">
+</span></span></span></code></pre></div><h2 id="三其他操作">三、其他操作</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">--查询表空间列表
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">select</span><span class="w"> </span><span class="n">tablespace_name</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">dba_tablespaces</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--查询表空间存储位置（注意表空间名称是大写）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">select</span><span class="w"> </span><span class="n">t1</span><span class="p">.</span><span class="n">name</span><span class="p">,</span><span class="n">t2</span><span class="p">.</span><span class="n">name</span><span class="w">  </span><span class="k">from</span><span class="w"> </span><span class="n">v$tablespace</span><span class="w"> </span><span class="n">t1</span><span class="p">,</span><span class="n">v$datafile</span><span class="w"> </span><span class="n">t2</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">t1</span><span class="p">.</span><span class="n">ts</span><span class="o">#</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">t2</span><span class="p">.</span><span class="n">ts</span><span class="o">#</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">t1</span><span class="p">.</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;TBS_PPN_DEV_&#39;</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><h2 id="四数据库扩容">四、数据库扩容</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="mi">1</span><span class="err">、增加新的数据文件</span><span class="p">:</span><span class="err">为表空间</span><span class="n">TBS_ZNWDZXFZGJ_DEV增加一个新的数据文件tbs_znwdzxfzgj_dev2</span><span class="p">.</span><span class="n">dbf</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">alter</span><span class="w"> </span><span class="n">tablespace</span><span class="w"> </span><span class="n">TBS_ZNWDZXFZGJ_DEV</span><span class="w"> </span><span class="k">add</span><span class="w"> </span><span class="n">datafile</span><span class="w"> </span><span class="s1">&#39;/oradata2/devdb04/tbs_znwdzxfzgj_dev2.dbf&#39;</span><span class="w"> </span><span class="k">size</span><span class="w"> </span><span class="mi">100</span><span class="n">M</span><span class="w"> </span><span class="n">autoextend</span><span class="w"> </span><span class="k">on</span><span class="w"> </span><span class="k">next</span><span class="w"> </span><span class="mi">10</span><span class="n">M</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="mi">2</span><span class="err">、对数据文件进行扩容</span><span class="p">,</span><span class="err">为新的数据文件</span><span class="n">tbs_znwdzxfzgj_dev2</span><span class="p">.</span><span class="n">dbf扩容至153600M大小</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">ALTER</span><span class="w"> </span><span class="k">DATABASE</span><span class="w"> </span><span class="n">DATAFILE</span><span class="w"> </span><span class="s1">&#39;/oradata2/devdb04/tbs_znwdzxfzgj_dev2.dbf&#39;</span><span class="w"> </span><span class="n">RESIZE</span><span class="w"> </span><span class="mi">153600</span><span class="n">M</span><span class="p">;</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="mi">3</span><span class="err">、数据文件大小扩容失败原因</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="err">但此处由于表空间</span><span class="n">TBS_ZNWDZXFZGJ_DEV创建的时候没有使用bigfile创建</span><span class="err">，单个数据文件上限只能是</span><span class="mi">32</span><span class="k">g</span><span class="err">，所以此处如果想为表空间增加超大数据文件，只能多增加几个数据文件</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="mi">4</span><span class="err">、创建</span><span class="n">bigfile表空间</span><span class="p">:</span><span class="err">创建</span><span class="n">bigfile表空间命令</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">create</span><span class="w"> </span><span class="n">bigfile</span><span class="w"> </span><span class="n">tablespace</span><span class="w"> </span><span class="n">tbs_qylywxt</span><span class="w"> </span><span class="n">datafile</span><span class="w"> </span><span class="s1">&#39;/oradata/devdb04/tbs_qylywxt.dbf&#39;</span><span class="w"> </span><span class="k">size</span><span class="w"> </span><span class="mi">100</span><span class="n">M</span><span class="w"> </span><span class="n">autoextend</span><span class="w"> </span><span class="k">on</span><span class="w"> </span><span class="k">next</span><span class="w"> </span><span class="mi">10</span><span class="n">M</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="mi">5</span><span class="err">、查看表空间的剩余空间容量（指的是数据文件的剩余空间）</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">select</span><span class="w"> </span><span class="n">f</span><span class="p">.</span><span class="n">tablespace_name</span><span class="p">,</span><span class="n">d</span><span class="p">.</span><span class="n">file_name</span><span class="p">,</span><span class="n">f</span><span class="p">.</span><span class="n">bytes</span><span class="o">/</span><span class="mi">1048576</span><span class="o">||</span><span class="s1">&#39;M&#39;</span><span class="w"> </span><span class="n">free_m</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">dba_free_space</span><span class="w"> </span><span class="n">f</span><span class="p">,</span><span class="n">dba_data_files</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">f</span><span class="p">.</span><span class="n">tablespace_name</span><span class="o">=</span><span class="n">d</span><span class="p">.</span><span class="n">tablespace_name</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">f</span><span class="p">.</span><span class="n">tablespace_name</span><span class="o">=</span><span class="s1">&#39;TBS_ZNWDZXFZGJ_DEV&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="mi">6</span><span class="err">、修改表空间为自动扩展</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">alter</span><span class="w"> </span><span class="k">database</span><span class="w"> </span><span class="n">datafile</span><span class="w"> </span><span class="s1">&#39;/oradata2/devdb04/tbs_znwdzxfzgj_dev7.dbf&#39;</span><span class="w"> </span><span class="n">autoextend</span><span class="w"> </span><span class="k">on</span><span class="w"> </span><span class="k">next</span><span class="w"> </span><span class="mi">200</span><span class="n">M</span><span class="w"> </span><span class="n">maxsize</span><span class="w"> </span><span class="mi">32760</span><span class="n">M</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="mi">7</span><span class="err">、我们有两个途径创建</span><span class="n">bigfile表空间</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="err">在数据库创建时指定缺省表空间类型为</span><span class="n">bigfile</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">create</span><span class="w"> </span><span class="k">database</span><span class="w"> </span><span class="n">aa</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="n">bigfile</span><span class="w"> </span><span class="n">tablespace</span><span class="p">...</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="err">这样我们创建表空间的时候，如果在</span><span class="k">create</span><span class="w"> </span><span class="n">tablespace语句中没有设置表空间的类型为smallfile</span><span class="err">，则缺省创建</span><span class="n">bigfile表空间</span><span class="err">。</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">(</span><span class="mi">2</span><span class="p">).</span><span class="err">在创建表空间时，指定表空间的类型为</span><span class="n">bigfile</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">create</span><span class="w"> </span><span class="n">bigfile</span><span class="w"> </span><span class="n">tablespace</span><span class="w"> </span><span class="n">bigts</span><span class="w"> </span><span class="n">datafile</span><span class="w"> </span><span class="s1">&#39;/oradata/bigts01.dbf&#39;</span><span class="w"> </span><span class="k">size</span><span class="w"> </span><span class="mi">50</span><span class="k">g</span><span class="p">.</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="mi">8</span><span class="err">、</span><span class="n">bigfile表空间的几个特性</span><span class="err">，需要大家注意：</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="n">A</span><span class="p">.</span><span class="w"> </span><span class="n">bigfile的表空间创建时</span><span class="err">，自动设置为本地管理（</span><span class="n">extent</span><span class="w"> </span><span class="n">management</span><span class="w"> </span><span class="k">local</span><span class="p">)</span><span class="err">和段自动管理（</span><span class="n">segment</span><span class="w"> </span><span class="n">management</span><span class="w"> </span><span class="n">auto</span><span class="p">);</span><span class="err">如果你设置</span><span class="n">bigfile表空间为字典管理</span><span class="err">（</span><span class="n">extent</span><span class="w"> </span><span class="n">management</span><span class="w"> </span><span class="k">dictionary</span><span class="p">)</span><span class="err">或段手工管理（</span><span class="n">segment</span><span class="w"> </span><span class="n">management</span><span class="w"> </span><span class="n">manual</span><span class="p">),</span><span class="err">数据库将返回一个错误。</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="n">B</span><span class="p">.</span><span class="n">bigfile表空间是单文件的</span><span class="err">，执行</span><span class="k">add</span><span class="w"> </span><span class="n">datafile将报错</span><span class="err">，我们可以通过</span><span class="n">resize那个唯一的数据文件和设置表空间自动扩展来增加bigfile的表空间大小</span><span class="err">。</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">alter</span><span class="w"> </span><span class="n">tablespace</span><span class="w"> </span><span class="n">bigtbs</span><span class="w"> </span><span class="n">resize</span><span class="w"> </span><span class="mi">80</span><span class="k">g</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">alter</span><span class="w"> </span><span class="n">tablespace</span><span class="w"> </span><span class="n">bigtbs</span><span class="w"> </span><span class="n">autoextend</span><span class="w"> </span><span class="k">on</span><span class="w"> </span><span class="k">next</span><span class="w"> </span><span class="mi">20</span><span class="k">g</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a>
+        
+            <a href="/tags/oracle/">Oracle</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/oracle%E9%9A%8F%E7%AC%94/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Oracle随笔</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BD%BF%E7%94%A8explain%E5%AF%B9sql%E8%AF%AD%E5%8F%A5%E8%BF%9B%E8%A1%8C%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">使用explain对sql语句进行性能分析</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81%E6%9C%BA%E5%88%B6/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">数据库锁机制</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/sql-%E8%B0%83%E4%BC%98/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">SQL 调优</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/sql-join%E7%9A%84%E4%BD%BF%E7%94%A8/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">SQL join的使用</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#一导出操作">一、导出操作</a></li>
+    <li><a href="#二导入操作">二、导入操作</a></li>
+    <li><a href="#三其他操作">三、其他操作</a></li>
+    <li><a href="#四数据库扩容">四、数据库扩容</a></li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

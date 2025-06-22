@@ -1,0 +1,1538 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Hive简介、安装配置'><title>（Hive-01）Hive简介、安装配置</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/hive-01hive%E7%AE%80%E4%BB%8B%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='（Hive-01）Hive简介、安装配置'>
+<meta property='og:description' content='Hive简介、安装配置'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/hive-01hive%E7%AE%80%E4%BB%8B%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Hive' /><meta property='article:published_time' content='2023-09-14T15:36:40&#43;00:00'/><meta property='article:modified_time' content='2023-09-14T15:36:40&#43;00:00'/>
+<meta name="twitter:title" content="（Hive-01）Hive简介、安装配置">
+<meta name="twitter:description" content="Hive简介、安装配置">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/hive/" >
+                Hive
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/hive-01hive%E7%AE%80%E4%BB%8B%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE/">（Hive-01）Hive简介、安装配置</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        Hive简介、安装配置
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Sep 14, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 6 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <p>常用链接</p>
+<table>
+<thead>
+<tr>
+<th>说明</th>
+<th>端口</th>
+<th>链接</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NameNode HTTP 端口（集群）</td>
+<td>9870</td>
+<td>http://hadoop1:9870/</td>
+</tr>
+<tr>
+<td></td>
+<td>9870</td>
+<td>http://hadoop2:9870/</td>
+</tr>
+<tr>
+<td></td>
+<td>9870</td>
+<td>http://hadoop3:9870/</td>
+</tr>
+<tr>
+<td>MapReduce 查看执行任务端口（集群）</td>
+<td>8080</td>
+<td>http://hadoop1:8088/</td>
+</tr>
+<tr>
+<td></td>
+<td>8080</td>
+<td>http://hadoop2:8088/</td>
+</tr>
+<tr>
+<td></td>
+<td>8080</td>
+<td>http://hadoop3:8088/</td>
+</tr>
+<tr>
+<td>历史服务器通信端口</td>
+<td>19888</td>
+<td>http://hadoop1:19888/jobhistory</td>
+</tr>
+<tr>
+<td>hive-query-plan-viz</td>
+<td>8000</td>
+<td>http://hadoop1:8000/</td>
+</tr>
+</tbody>
+</table>
+<h2 id="一hive简介">一、Hive简介</h2>
+<p>Hive是由Facebook开源，基于Hadoop的一个数据仓库工具，可以将结构化的数据文件映射为一张表，并提供类SQL查询功能。</p>
+<p>Hive是一个Hadoop客户端，用于将HQL（Hive SQL）转化成MapReduce程序。</p>
+<ul>
+<li>（1）Hive中每张表的数据存储在HDFS</li>
+<li>（2）Hive分析数据底层的实现是MapReduce（也可配置为Spark或者Tez）</li>
+<li>（3）执行程序运行在Yarn上</li>
+</ul>
+<h2 id="二hive架构原理">二、Hive架构原理</h2>
+<p><figure 
+	>
+	<a href="/../../images/01-hive-01md/image-20230914134706159.png" >
+		<img src="/../../images/01-hive-01md/image-20230914134706159.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230914134706159">
+	</a>
+	
+	<figcaption>image-20230914134706159</figcaption>
+	
+</figure></p>
+<ul>
+<li>（1）Hive Client（Hive客户端）：可以直接使用CLI（命令行客户端）来访问hive数据库、也可以使用JDBC、ODBC的客户端通过HiveServer2服务来访问hive数据库。</li>
+<li>（2）HiveServer2：提供JDBC、ODBC的访问接口、用户认证功能。</li>
+<li>（3）Metastore（元数据）：数据库（默认是default）、包含表名、表的拥有者、列/分区字段、表的类型（是否是外表）、表的数据所在目录等。默认存储在自带的derby数据库中，由于derby数据库只支持单客户端访问，生产环境中为了多人开发，推荐使用MySQL存储Metastore。</li>
+<li>（4）Driver（驱动器）：用于解析HQL（Hive SQL）转化为MapReduce程序。</li>
+</ul>
+<h2 id="三前期准备">三、前期准备</h2>
+<h3 id="31-环境规划">3.1 环境规划</h3>
+<ul>
+<li>1、Metastore：默认数据库是derby，由于derby数据库只支持单客户端访问，所以我们将Hive的元数据改为用MySQL存储。</li>
+<li>2、由于CLI（command-line interface）命令行客户端只能在安装了hadoop服务的机器上访问，不利于后期开发过程中使用Hive数据库，所以我们配置HiveServer2服务来连接Hive。</li>
+</ul>
+<p>在我们之前hadoop集群的基础上，我们进行以下扩展：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>hadoop1</th>
+<th>hadoop2</th>
+<th>hadoop3</th>
+<th>hadoop4</th>
+<th>hadoop5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HDFS</td>
+<td>NameNode</td>
+<td>NameNode</td>
+<td>NameNode</td>
+<td>DataNode</td>
+<td>DataNode</td>
+</tr>
+<tr>
+<td></td>
+<td>DataNode</td>
+<td>DataNode</td>
+<td>DataNode</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>journalnode</td>
+<td>journalnode</td>
+<td>journalnode</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>YARN</td>
+<td>ResourceManager</td>
+<td>ResourceManager</td>
+<td>ResourceManager</td>
+<td>NodeManager</td>
+<td>NodeManager</td>
+</tr>
+<tr>
+<td></td>
+<td>NodeManager</td>
+<td>NodeManager</td>
+<td>NodeManager</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Zookeeper</td>
+<td>Zookeeper</td>
+<td>Zookeeper</td>
+<td>Zookeeper</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>ZKFC</td>
+<td>ZKFC</td>
+<td>ZKFC</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Mysql</td>
+<td>Mysql5.7</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Hive</td>
+<td>HiveServer2</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>Metastore</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>hive-query-plan-viz</td>
+<td>hive-query-plan-viz:执行计划图形化解析器</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="32-mysql-安装和卸载">3.2 mysql 安装和卸载</h3>
+<p><a class="link" href="https://downloads.mysql.com/archives/community/"  target="_blank" rel="noopener"
+    >https://downloads.mysql.com/archives/community/</a></p>
+<p><figure 
+	>
+	<a href="/../../images/01-hive-01md/image-20230914161213899.png" >
+		<img src="/../../images/01-hive-01md/image-20230914161213899.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230914161213899">
+	</a>
+	
+	<figcaption>image-20230914161213899</figcaption>
+	
+</figure></p>
+<p>1、上传mysql-5.7.28-1.el7.x86_64.rpm-bundle.tar到hadoop1的<code>/opt/module/software</code></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 software<span class="o">]</span>$ tar -xvf mysql-5.7.28-1.el7.x86_64.rpm-bundle.tar -C /opt/module/mysql-5.7.28
+</span></span><span class="line"><span class="cl">mysql-community-embedded-5.7.28-1.el7.x86_64.rpm
+</span></span><span class="line"><span class="cl">mysql-community-libs-compat-5.7.28-1.el7.x86_64.rpm
+</span></span><span class="line"><span class="cl">mysql-community-devel-5.7.28-1.el7.x86_64.rpm
+</span></span><span class="line"><span class="cl">mysql-community-embedded-compat-5.7.28-1.el7.x86_64.rpm
+</span></span><span class="line"><span class="cl">mysql-community-libs-5.7.28-1.el7.x86_64.rpm
+</span></span><span class="line"><span class="cl">mysql-community-test-5.7.28-1.el7.x86_64.rpm
+</span></span><span class="line"><span class="cl">mysql-community-common-5.7.28-1.el7.x86_64.rpm
+</span></span><span class="line"><span class="cl">mysql-community-embedded-devel-5.7.28-1.el7.x86_64.rpm
+</span></span><span class="line"><span class="cl">mysql-community-client-5.7.28-1.el7.x86_64.rpm
+</span></span><span class="line"><span class="cl">mysql-community-server-5.7.28-1.el7.x86_64.rpm
+</span></span></code></pre></div><p>2、安装libaio</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 software<span class="o">]</span>$ sudo yum -y install libaio
+</span></span></code></pre></div><p>3、卸载系统自带的mariadb</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 software<span class="o">]</span>$ sudo rpm -qa <span class="p">|</span> grep mariadb <span class="p">|</span> xargs sudo rpm -e --nodeps
+</span></span></code></pre></div><p>4、安装MySQL</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 mysql-5.7.28<span class="o">]</span>$ yum install mysql-community-*.rpm
+</span></span></code></pre></div><p>5、启动mysql</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 ~<span class="o">]</span>$ sudo systemctl start mysqld
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 ~<span class="o">]</span>$ sudo systemctl status mysqld
+</span></span><span class="line"><span class="cl">● mysqld.service - MySQL Server
+</span></span><span class="line"><span class="cl">   Loaded: loaded <span class="o">(</span>/usr/lib/systemd/system/mysqld.service<span class="p">;</span> enabled<span class="p">;</span> vendor preset: disabled<span class="o">)</span>
+</span></span><span class="line"><span class="cl">   Active: active <span class="o">(</span>running<span class="o">)</span> since Thu 2023-09-14 15:10:19 CST<span class="p">;</span> 10s ago
+</span></span><span class="line"><span class="cl">     Docs: man:mysqld<span class="o">(</span>8<span class="o">)</span>
+</span></span><span class="line"><span class="cl">           http://dev.mysql.com/doc/refman/en/using-systemd.html
+</span></span><span class="line"><span class="cl">  Process: <span class="m">31717</span> <span class="nv">ExecStart</span><span class="o">=</span>/usr/sbin/mysqld --daemonize --pid-file<span class="o">=</span>/var/run/mysqld/mysqld.pid <span class="nv">$MYSQLD_OPTS</span> <span class="o">(</span><span class="nv">code</span><span class="o">=</span>exited, <span class="nv">status</span><span class="o">=</span>0/SUCCESS<span class="o">)</span>
+</span></span><span class="line"><span class="cl">  Process: <span class="m">31617</span> <span class="nv">ExecStartPre</span><span class="o">=</span>/usr/bin/mysqld_pre_systemd <span class="o">(</span><span class="nv">code</span><span class="o">=</span>exited, <span class="nv">status</span><span class="o">=</span>0/SUCCESS<span class="o">)</span>
+</span></span><span class="line"><span class="cl"> Main PID: <span class="m">31720</span> <span class="o">(</span>mysqld<span class="o">)</span>
+</span></span><span class="line"><span class="cl">   CGroup: /system.slice/mysqld.service
+</span></span><span class="line"><span class="cl">           └─31720 /usr/sbin/mysqld --daemonize --pid-file<span class="o">=</span>/var/run/mysqld/mysqld.pid
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Sep <span class="m">14</span> 15:09:56 hadoop1 systemd<span class="o">[</span>1<span class="o">]</span>: Starting MySQL Server...
+</span></span><span class="line"><span class="cl">Sep <span class="m">14</span> 15:10:19 hadoop1 systemd<span class="o">[</span>1<span class="o">]</span>: Started MySQL Server.
+</span></span></code></pre></div><p>6、查看MySQL密码并登陆</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 ~<span class="o">]</span>$ sudo cat /var/log/mysqld.log <span class="p">|</span> grep password
+</span></span><span class="line"><span class="cl">2023-09-14T07:10:06.885593Z <span class="m">1</span> <span class="o">[</span>Note<span class="o">]</span> A temporary password is generated <span class="k">for</span> root@localhost: jN61idtMqs,*
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 ~<span class="o">]</span>$ mysql -uroot -p<span class="s1">&#39;jN61idtMqs,*&#39;</span>
+</span></span><span class="line"><span class="cl">mysql&gt;
+</span></span></code></pre></div><p>7、修改密码策略并修改密码为000000</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">mysql&gt; <span class="nb">set</span> global <span class="nv">validate_password_policy</span><span class="o">=</span>0<span class="p">;</span>
+</span></span><span class="line"><span class="cl">Query OK, <span class="m">0</span> rows affected <span class="o">(</span>0.00 sec<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">mysql&gt; <span class="nb">set</span> global <span class="nv">validate_password_length</span><span class="o">=</span>4<span class="p">;</span>
+</span></span><span class="line"><span class="cl">Query OK, <span class="m">0</span> rows affected <span class="o">(</span>0.00 sec<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">mysql&gt; <span class="nb">set</span> <span class="nv">password</span><span class="o">=</span>password<span class="o">(</span><span class="s2">&#34;000000&#34;</span><span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">Query OK, <span class="m">0</span> rows affected, <span class="m">1</span> warning <span class="o">(</span>0.00 sec<span class="o">)</span>
+</span></span></code></pre></div><p>使用<code>quit</code>命令退出，下次即可使用新密码登陆了：<code>mysql -uroot -p'000000'</code>。</p>
+<p>8、此时数据库只允许localhost或127.0.0.1访问，不允许远程访问，需要做以下配置</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">mysql&gt; use mysql<span class="p">;</span>
+</span></span><span class="line"><span class="cl">Reading table information <span class="k">for</span> completion of table and column names
+</span></span><span class="line"><span class="cl">You can turn off this feature to get a quicker startup with -A
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Database changed
+</span></span><span class="line"><span class="cl">mysql&gt; update user <span class="nb">set</span> <span class="nv">host</span><span class="o">=</span><span class="s2">&#34;%&#34;</span> where <span class="nv">user</span><span class="o">=</span><span class="s2">&#34;root&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">Query OK, <span class="m">1</span> row affected <span class="o">(</span>0.00 sec<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Rows matched: <span class="m">1</span>  Changed: <span class="m">1</span>  Warnings: <span class="m">0</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">mysql&gt; flush privileges<span class="p">;</span>
+</span></span><span class="line"><span class="cl">Query OK, <span class="m">0</span> rows affected <span class="o">(</span>0.00 sec<span class="o">)</span>
+</span></span></code></pre></div><p>9、修改mysql编码</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">mysql&gt; show variables like <span class="s1">&#39;character%&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">+--------------------------+----------------------------+
+</span></span><span class="line"><span class="cl"><span class="p">|</span> Variable_name            <span class="p">|</span> Value                      <span class="p">|</span>
+</span></span><span class="line"><span class="cl">+--------------------------+----------------------------+
+</span></span><span class="line"><span class="cl"><span class="p">|</span> character_set_client     <span class="p">|</span> utf8                       <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> character_set_connection <span class="p">|</span> utf8                       <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> character_set_database   <span class="p">|</span> latin1                     <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> character_set_filesystem <span class="p">|</span> binary                     <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> character_set_results    <span class="p">|</span> utf8                       <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> character_set_server     <span class="p">|</span> latin1                     <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> character_set_system     <span class="p">|</span> utf8                       <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> character_sets_dir       <span class="p">|</span> /usr/share/mysql/charsets/ <span class="p">|</span>
+</span></span><span class="line"><span class="cl">+--------------------------+----------------------------+
+</span></span><span class="line"><span class="cl"><span class="m">8</span> rows in <span class="nb">set</span> <span class="o">(</span>0.00 sec<span class="o">)</span>
+</span></span></code></pre></div><ul>
+<li>character_set_client为客户端编码方式；</li>
+<li>character_set_connection为建立连接使用的编码；</li>
+<li>character_set_database数据库的编码（默认是Latin1，不支持中文，要支持中文需要把数据库的默认修改为gbk或者utf8）；</li>
+<li>character_set_results结果集的编码；</li>
+<li>character_set_server数据库服务器的编码；</li>
+</ul>
+<p>添加如下内容：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 mysql-5.7.28<span class="o">]</span>$ sudo vim /etc/my.cnf
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nv">character_set_server</span><span class="o">=</span>utf8
+</span></span><span class="line"><span class="cl"><span class="nv">init_connect</span><span class="o">=</span><span class="s1">&#39;SET NAMES utf8&#39;</span>
+</span></span><span class="line"><span class="cl">collation-server<span class="o">=</span>utf8_general_ci
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>client<span class="o">]</span>                   
+</span></span><span class="line"><span class="cl">default-character-set<span class="o">=</span>utf8
+</span></span></code></pre></div><p>再次查看编码就正常了：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">mysql&gt; show variables like <span class="s1">&#39;character%&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">+--------------------------+----------------------------+
+</span></span><span class="line"><span class="cl"><span class="p">|</span> Variable_name            <span class="p">|</span> Value                      <span class="p">|</span>
+</span></span><span class="line"><span class="cl">+--------------------------+----------------------------+
+</span></span><span class="line"><span class="cl"><span class="p">|</span> character_set_client     <span class="p">|</span> utf8                       <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> character_set_connection <span class="p">|</span> utf8                       <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> character_set_database   <span class="p">|</span> utf8                       <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> character_set_filesystem <span class="p">|</span> binary                     <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> character_set_results    <span class="p">|</span> utf8                       <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> character_set_server     <span class="p">|</span> utf8                       <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> character_set_system     <span class="p">|</span> utf8                       <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> character_sets_dir       <span class="p">|</span> /usr/share/mysql/charsets/ <span class="p">|</span>
+</span></span><span class="line"><span class="cl">+--------------------------+----------------------------+
+</span></span><span class="line"><span class="cl"><span class="m">8</span> rows in <span class="nb">set</span> <span class="o">(</span>0.00 sec<span class="o">)</span>
+</span></span></code></pre></div><p>接下来我们使用工具连接数据库：</p>
+<p><figure 
+	>
+	<a href="/../../images/01-hive-01md/image-20230914152509208.png" >
+		<img src="/../../images/01-hive-01md/image-20230914152509208.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230914152509208">
+	</a>
+	
+	<figcaption>image-20230914152509208</figcaption>
+	
+</figure></p>
+<blockquote>
+<p>补充：此处记录一下mysql卸载步骤。<strong>未做验证</strong></p>
+</blockquote>
+<p>（1）清空原有数据</p>
+<p>​		①查看MySQL数据的存储位置<code>datadir</code>，默认：datadir=/var/lib/mysql</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">$ sudo cat /etc/my.cnf
+</span></span></code></pre></div><p>​		②删除 datadir路径数据</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">rm -rf /var/lib/mysql 
+</span></span></code></pre></div><p>（2）卸载MySQL相关包</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">$ sudo rpm -qa <span class="p">|</span> grep -i -E mysql
+</span></span><span class="line"><span class="cl">$ rpm -qa <span class="p">|</span> grep -i -E mysql<span class="se">\|</span>mariadb <span class="p">|</span> xargs -n1 sudo rpm -e --nodeps
+</span></span></code></pre></div><h2 id="四hive安装">四、Hive安装</h2>
+<h3 id="41-官网地址">4.1 官网地址</h3>
+<p>1）Hive官网地址：http://hive.apache.org/</p>
+<p>2）文档查看地址：https://cwiki.apache.org/confluence/display/Hive/GettingStarted</p>
+<p>3）下载地址：http://archive.apache.org/dist/hive/</p>
+<p>我们本次使用和hadoop3.1.3版本匹配的Hive版本：</p>
+<p><figure 
+	>
+	<a href="/../../images/01-hive-01md/image-20230915084636019.png" >
+		<img src="/../../images/01-hive-01md/image-20230915084636019.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230915084636019">
+	</a>
+	
+	<figcaption>image-20230915084636019</figcaption>
+	
+</figure></p>
+<h3 id="42-hive安装">4.2 Hive安装</h3>
+<p>1、上传apache-hive-3.1.3-bin.tar.gz到hadoop1的<code>/opt/software</code>目录，并解压到<code>/opt/module/</code></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 software<span class="o">]</span>$ tar -zxvf /opt/software/apache-hive-3.1.3-bin.tar.gz -C /opt/module/
+</span></span></code></pre></div><p>2、配置环境变量</p>
+<p>在  <code>/etc/profile.d/</code>目录下新建<code>myhive.sh</code>（注意需要使用root账户）</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="nb">cd</span> /etc/profile.d/
+</span></span><span class="line"><span class="cl">vim myhive.sh
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">HIVE_HOME</span><span class="o">=</span>/opt/module/apache-hive-3.1.3-bin
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span><span class="nv">$PATH</span>:<span class="nv">$HIVE_HOME</span>/bin
+</span></span></code></pre></div><p>执行以下命令，使PATH生效：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="nb">source</span> /etc/profile
+</span></span></code></pre></div><h3 id="43-配置hive元数据存储到mysql">4.3 配置Hive元数据存储到MySQL</h3>
+<p>(1) 在Mysql中新建Hive元数据库：metastore</p>
+<p><figure 
+	>
+	<a href="/../../images/01-hive-01md/image-20230915094659984.png" >
+		<img src="/../../images/01-hive-01md/image-20230915094659984.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230915094659984">
+	</a>
+	
+	<figcaption>image-20230915094659984</figcaption>
+	
+</figure></p>
+<p>（2）上传数据库驱动到hadoop1的<code>/opt/software</code>目录，并拷贝到Hive的lib目录下。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 software<span class="o">]</span>$ cp /opt/software/mysql-connector-java-5.1.37.jar <span class="nv">$HIVE_HOME</span>/lib
+</span></span></code></pre></div><p>（3）<code>/opt/module/apache-hive-3.1.3-bin/conf</code>目录下新建<code>hive-site.xml</code>文件</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="cp">&lt;?xml version=&#34;1.0&#34;?&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="cp">&lt;?xml-stylesheet type=&#34;text/xsl&#34; href=&#34;configuration.xsl&#34;?&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;configuration&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="c">&lt;!-- jdbc连接的URL --&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;property&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;name&gt;</span>javax.jdo.option.ConnectionURL<span class="nt">&lt;/name&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;value&gt;</span>jdbc:mysql://hadoop1:3306/metastore?useSSL=false<span class="ni">&amp;amp;</span>useUnicode=true<span class="ni">&amp;amp;</span>characterEncoding=UTF-8<span class="ni">&amp;amp;</span>allowPublicKeyRetrieval=true<span class="nt">&lt;/value&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/property&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c">&lt;!-- jdbc连接的Driver--&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;property&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;name&gt;</span>javax.jdo.option.ConnectionDriverName<span class="nt">&lt;/name&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;value&gt;</span>com.mysql.jdbc.Driver<span class="nt">&lt;/value&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/property&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c">&lt;!-- jdbc连接的username--&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;property&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;name&gt;</span>javax.jdo.option.ConnectionUserName<span class="nt">&lt;/name&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;value&gt;</span>root<span class="nt">&lt;/value&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/property&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c">&lt;!-- jdbc连接的password --&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;property&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;name&gt;</span>javax.jdo.option.ConnectionPassword<span class="nt">&lt;/name&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;value&gt;</span>000000<span class="nt">&lt;/value&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/property&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c">&lt;!-- Hive默认在HDFS的工作目录 --&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;property&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;name&gt;</span>hive.metastore.warehouse.dir<span class="nt">&lt;/name&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;value&gt;</span>/user/hive/warehouse<span class="nt">&lt;/value&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/property&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/configuration&gt;</span>
+</span></span></code></pre></div><p>（4） Hive初始化MySQL存储元数据库</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 apache-hive-3.1.3-bin<span class="o">]</span>$ bin/schematool -dbType mysql -initSchema -verbose
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/01-hive-01md/image-20230915095443024.png" >
+		<img src="/../../images/01-hive-01md/image-20230915095443024.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230915095443024">
+	</a>
+	
+	<figcaption>image-20230915095443024</figcaption>
+	
+</figure></p>
+<h3 id="45-配置hiveserver2服务">4.5 配置hiveserver2服务</h3>
+<p>Hive的hiveserver2服务的作用是提供jdbc/odbc接口，为用户提供远程访问Hive数据的功能，例如用户期望在个人电脑中访问远程服务中的Hive数据，而不用使用xheel等工具来连接服务器，就需要用到Hiveserver2。</p>
+<p>所以此时需考虑一个问题：在远程访问Hive数据时，客户端并未直接访问Hadoop集群，而是由Hivesever2代理访问。由于Hadoop集群中的数据具备访问权限控制，所以此时需考虑一个问题：那就是访问Hadoop集群的用户身份是谁？是Hiveserver2的启动用户？还是客户端的登录用户？此处就涉及了Hive模拟用户的功能。</p>
+<p><strong>Hiveserver2的<code>hive.server2.enable.doAs</code>参数决定模拟成哪个用户。若启用，则Hiveserver2会模拟成客户端的登录用户去访问Hadoop集群的数据，不启用，则Hivesever2会直接使用启动用户访问Hadoop集群数据。模拟用户的功能，默认是开启的。</strong></p>
+<blockquote>
+<p>注意：HiveServer2服务必须能够连接hadoop集群。这样才能代理客户端与hadoop集群交互。</p>
+</blockquote>
+<p>hivesever2的模拟用户功能，依赖于Hadoop提供的proxy user（代理用户功能），只有Hadoop中的代理用户才能模拟其他用户的身份访问Hadoop集群。因此，需要将hiveserver2的启动用户设置为Hadoop的代理用户。</p>
+<p><figure 
+	>
+	<a href="/../../images/01-hive-01md/image-20230915135538749.png" >
+		<img src="/../../images/01-hive-01md/image-20230915135538749.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230915135538749">
+	</a>
+	
+	<figcaption>image-20230915135538749</figcaption>
+	
+</figure></p>
+<p>配置步骤如下：</p>
+<p>1、修改hadoop1配置文件<code>core-site.xml</code>,添加如下配置，并分发文件。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="c">&lt;!--配置所有hadoop节点的admin用户都可作为代理用户--&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;property&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;name&gt;</span>hadoop.proxyuser.admin.hosts<span class="nt">&lt;/name&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;value&gt;</span>*<span class="nt">&lt;/value&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/property&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="c">&lt;!--配置admin用户能够代理的用户组为任意组--&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;property&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;name&gt;</span>hadoop.proxyuser.admin.groups<span class="nt">&lt;/name&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;value&gt;</span>*<span class="nt">&lt;/value&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/property&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="c">&lt;!--配置admin用户能够代理的用户为任意用户--&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;property&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;name&gt;</span>hadoop.proxyuser.admin.users<span class="nt">&lt;/name&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;value&gt;</span>*<span class="nt">&lt;/value&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/property&gt;</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 hadoop<span class="o">]</span>$ xsync core-site.xml
+</span></span><span class="line"><span class="cl"><span class="c1">##重启hadoop集群</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 apache-hive-3.1.3-bin<span class="o">]</span>$ myhadoop stop
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 apache-hive-3.1.3-bin<span class="o">]</span>$ myhadoop start
+</span></span></code></pre></div><p>2、在hadoop1的hive-site.xml文件中添加如下配置信息</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="c">&lt;!-- 指定hiveserver2连接的hive 服务的host --&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;property&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;name&gt;</span>hive.server2.thrift.bind.host<span class="nt">&lt;/name&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;value&gt;</span>hadoop1<span class="nt">&lt;/value&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/property&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="c">&lt;!-- 指定hiveserver2连接的端口号 --&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;property&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;name&gt;</span>hive.server2.thrift.port<span class="nt">&lt;/name&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;value&gt;</span>10000<span class="nt">&lt;/value&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/property&gt;</span>
+</span></span></code></pre></div><p>3、启动hiveserver2服务器</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 apache-hive-3.1.3-bin<span class="o">]</span>$ nohup bin/hiveserver2 <span class="p">&amp;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 bin<span class="o">]</span>$ jps -ml<span class="p">|</span>grep HiveServer2
+</span></span><span class="line"><span class="cl"><span class="m">12184</span> org.apache.hadoop.util.RunJar /opt/module/apache-hive-3.1.3-bin/lib/hive-service-3.1.3.jar org.apache.hive.service.server.HiveServer2
+</span></span></code></pre></div><h3 id="46-测试连接hiveserver2服务">4.6 测试连接hiveserver2服务</h3>
+<h4 id="461-连接测试beelinedbeaverdatagrip">4.6.1 连接测试（beeline、DBeaver、DataGrip）</h4>
+<p>（1）beeline客户端连接hiveserver2（hive自带工具）</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 apache-hive-3.1.3-bin<span class="o">]</span>$ bin/beeline -u jdbc:hive2://hadoop1:10000 -n admin
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/01-hive-01md/image-20230915160735927.png" >
+		<img src="/../../images/01-hive-01md/image-20230915160735927.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230915160735927">
+	</a>
+	
+	<figcaption>image-20230915160735927</figcaption>
+	
+</figure></p>
+<p>(2)DBeaver客户端连接</p>
+<p>DBeaver是免费的客户端</p>
+<p><figure 
+	>
+	<a href="/../../images/01-hive-01md/image-20230919161806601.png" >
+		<img src="/../../images/01-hive-01md/image-20230919161806601.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230919161806601">
+	</a>
+	
+	<figcaption>image-20230919161806601</figcaption>
+	
+</figure></p>
+<p>（3）DataGrip客户端连接</p>
+<blockquote>
+<p>​	百度自行安装DataGrip工具。</p>
+</blockquote>
+<p><figure 
+	>
+	<a href="/../../images/01-hive-01md/image-20230915161826613.png" >
+		<img src="/../../images/01-hive-01md/image-20230915161826613.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230915161826613">
+	</a>
+	
+	<figcaption>image-20230915161826613</figcaption>
+	
+</figure></p>
+<p>配置连接信息，下载驱动：</p>
+<p><figure 
+	>
+	<a href="/../../images/01-hive-01md/image-20230915162603323.png" >
+		<img src="/../../images/01-hive-01md/image-20230915162603323.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230915162603323">
+	</a>
+	
+	<figcaption>image-20230915162603323</figcaption>
+	
+</figure></p>
+<p>可以看到已经可以连接源数据库了：</p>
+<p><figure 
+	>
+	<a href="/../../images/01-hive-01md/image-20230915162758343.png" >
+		<img src="/../../images/01-hive-01md/image-20230915162758343.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230915162758343">
+	</a>
+	
+	<figcaption>image-20230915162758343</figcaption>
+	
+</figure></p>
+<p>执行以下语句：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">create</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">phone_data</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="n">id</span><span class="w"> </span><span class="nb">int</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="n">phone</span><span class="w"> </span><span class="n">string</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="n">ip</span><span class="w"> </span><span class="n">string</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="n">website</span><span class="w"> </span><span class="n">string</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="n">upFlow</span><span class="w"> </span><span class="nb">int</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="n">downFlow</span><span class="w"> </span><span class="nb">int</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="n">status</span><span class="w"> </span><span class="n">string</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">alter</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">phone_data</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="n">tblproperties</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;comment&#39;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;流量表&#39;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">insert</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="n">phone_data</span><span class="w"> </span><span class="k">values</span><span class="p">(</span><span class="mi">1</span><span class="w">	</span><span class="p">,</span><span class="s2">&#34;13736230513&#34;</span><span class="w">	</span><span class="p">,</span><span class="s2">&#34;192.196.100.1&#34;</span><span class="p">,</span><span class="w">	</span><span class="s2">&#34;www.baidu.com&#34;</span><span class="p">,</span><span class="w">	</span><span class="mi">2481</span><span class="p">,</span><span class="w">	</span><span class="mi">24681</span><span class="p">,</span><span class="w">	</span><span class="mi">200</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/01-hive-01md/image-20230915170503889.png" >
+		<img src="/../../images/01-hive-01md/image-20230915170503889.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230915170503889">
+	</a>
+	
+	<figcaption>image-20230915170503889</figcaption>
+	
+</figure></p>
+<p>执行完成后，查看HDFS，可以看到对应的目录下已经有文件了。</p>
+<p><figure 
+	>
+	<a href="/../../images/01-hive-01md/image-20230915170752282.png" >
+		<img src="/../../images/01-hive-01md/image-20230915170752282.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230915170752282">
+	</a>
+	
+	<figcaption>image-20230915170752282</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/01-hive-01md/image-20230915170805355.png" >
+		<img src="/../../images/01-hive-01md/image-20230915170805355.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230915170805355">
+	</a>
+	
+	<figcaption>image-20230915170805355</figcaption>
+	
+</figure></p>
+<p>MapReduce 查看执行任务页面也可以看到对应的insert任务，此时我们已经基本认识了Hive的作用。<figure 
+	>
+	<a href="/../../images/01-hive-01md/image-20230915172401983.png" >
+		<img src="/../../images/01-hive-01md/image-20230915172401983.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230915172401983">
+	</a>
+	
+	<figcaption>image-20230915172401983</figcaption>
+	
+</figure></p>
+<p>如果我们向phone_data表插入多条记录：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">insert</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="n">phone_data</span><span class="w"> </span><span class="k">values</span><span class="p">(</span><span class="mi">1</span><span class="w">	</span><span class="p">,</span><span class="s2">&#34;13736230511&#34;</span><span class="w">	</span><span class="p">,</span><span class="s2">&#34;192.196.100.1&#34;</span><span class="p">,</span><span class="w">	</span><span class="s2">&#34;www.baidu.com&#34;</span><span class="p">,</span><span class="w">	</span><span class="mi">2481</span><span class="p">,</span><span class="w">	</span><span class="mi">24681</span><span class="p">,</span><span class="w">	</span><span class="mi">200</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">insert</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="n">phone_data</span><span class="w"> </span><span class="k">values</span><span class="p">(</span><span class="mi">2</span><span class="w">	</span><span class="p">,</span><span class="s2">&#34;13736230512&#34;</span><span class="w">	</span><span class="p">,</span><span class="s2">&#34;192.196.100.2&#34;</span><span class="p">,</span><span class="w">	</span><span class="s2">&#34;www.baidu.com&#34;</span><span class="p">,</span><span class="w">	</span><span class="mi">2482</span><span class="p">,</span><span class="w">	</span><span class="mi">24682</span><span class="p">,</span><span class="w">	</span><span class="mi">200</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">insert</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="n">phone_data</span><span class="w"> </span><span class="k">values</span><span class="p">(</span><span class="mi">3</span><span class="w">	</span><span class="p">,</span><span class="s2">&#34;13736230513&#34;</span><span class="w">	</span><span class="p">,</span><span class="s2">&#34;192.196.100.3&#34;</span><span class="p">,</span><span class="w">	</span><span class="s2">&#34;www.baidu.com&#34;</span><span class="p">,</span><span class="w">	</span><span class="mi">2483</span><span class="p">,</span><span class="w">	</span><span class="mi">24683</span><span class="p">,</span><span class="w">	</span><span class="mi">200</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">insert</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="n">phone_data</span><span class="w"> </span><span class="k">values</span><span class="p">(</span><span class="mi">4</span><span class="w">	</span><span class="p">,</span><span class="s2">&#34;13736230514&#34;</span><span class="w">	</span><span class="p">,</span><span class="s2">&#34;192.196.100.4&#34;</span><span class="p">,</span><span class="w">	</span><span class="s2">&#34;www.baidu.com&#34;</span><span class="p">,</span><span class="w">	</span><span class="mi">2484</span><span class="p">,</span><span class="w">	</span><span class="mi">24684</span><span class="p">,</span><span class="w">	</span><span class="mi">200</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">insert</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="n">phone_data</span><span class="w"> </span><span class="k">values</span><span class="p">(</span><span class="mi">5</span><span class="w">	</span><span class="p">,</span><span class="s2">&#34;13736230511&#34;</span><span class="w">	</span><span class="p">,</span><span class="s2">&#34;192.196.100.1&#34;</span><span class="p">,</span><span class="w">	</span><span class="s2">&#34;www.baidu.com&#34;</span><span class="p">,</span><span class="w">	</span><span class="mi">2481</span><span class="p">,</span><span class="w">	</span><span class="mi">24681</span><span class="p">,</span><span class="w">	</span><span class="mi">200</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">insert</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="n">phone_data</span><span class="w"> </span><span class="k">values</span><span class="p">(</span><span class="mi">6</span><span class="w">	</span><span class="p">,</span><span class="s2">&#34;13736230512&#34;</span><span class="w">	</span><span class="p">,</span><span class="s2">&#34;192.196.100.2&#34;</span><span class="p">,</span><span class="w">	</span><span class="s2">&#34;www.baidu.com&#34;</span><span class="p">,</span><span class="w">	</span><span class="mi">2482</span><span class="p">,</span><span class="w">	</span><span class="mi">24682</span><span class="p">,</span><span class="w">	</span><span class="mi">200</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">insert</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="n">phone_data</span><span class="w"> </span><span class="k">values</span><span class="p">(</span><span class="mi">7</span><span class="w">	</span><span class="p">,</span><span class="s2">&#34;13736230513&#34;</span><span class="w">	</span><span class="p">,</span><span class="s2">&#34;192.196.100.3&#34;</span><span class="p">,</span><span class="w">	</span><span class="s2">&#34;www.baidu.com&#34;</span><span class="p">,</span><span class="w">	</span><span class="mi">2483</span><span class="p">,</span><span class="w">	</span><span class="mi">24683</span><span class="p">,</span><span class="w">	</span><span class="mi">200</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">insert</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="n">phone_data</span><span class="w"> </span><span class="k">values</span><span class="p">(</span><span class="mi">8</span><span class="w">	</span><span class="p">,</span><span class="s2">&#34;13736230514&#34;</span><span class="w">	</span><span class="p">,</span><span class="s2">&#34;192.196.100.4&#34;</span><span class="p">,</span><span class="w">	</span><span class="s2">&#34;www.baidu.com&#34;</span><span class="p">,</span><span class="w">	</span><span class="mi">2484</span><span class="p">,</span><span class="w">	</span><span class="mi">24684</span><span class="p">,</span><span class="w">	</span><span class="mi">200</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/01-hive-01md/image-20230919091530911.png" >
+		<img src="/../../images/01-hive-01md/image-20230919091530911.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230919091530911">
+	</a>
+	
+	<figcaption>image-20230919091530911</figcaption>
+	
+</figure></p>
+<blockquote>
+<p><strong>HDFS目录对应hive数据库表，每条记录在HDFS中是一个文件，二者相互关联，删除其中任意一个，另一个都会被删除。</strong></p>
+</blockquote>
+<h4 id="462-数据库表与hdfs对应关系">4.6.2 数据库表与HDFS对应关系</h4>
+<p>那么hive数据库表与HDFS存储如何关联呢？</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">TBLS</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">SDS</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">DBS</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>DBS:<figure 
+	>
+	<a href="/../../images/01-hive-01md/image-20230918105518301.png" >
+		<img src="/../../images/01-hive-01md/image-20230918105518301.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230918105518301">
+	</a>
+	
+	<figcaption>image-20230918105518301</figcaption>
+	
+</figure></p>
+<p>SDS:<figure 
+	>
+	<a href="/../../images/01-hive-01md/image-20230918105550649.png" >
+		<img src="/../../images/01-hive-01md/image-20230918105550649.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230918105550649">
+	</a>
+	
+	<figcaption>image-20230918105550649</figcaption>
+	
+</figure></p>
+<p>TBLS:<figure 
+	>
+	<a href="/../../images/01-hive-01md/image-20230918110147510.png" >
+		<img src="/../../images/01-hive-01md/image-20230918110147510.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230918110147510">
+	</a>
+	
+	<figcaption>image-20230918110147510</figcaption>
+	
+</figure></p>
+<p>可以看到对应关系是保存在数据库表中的。而我们使用的hadoop1-hive,就是对这些数据的图形化展示。</p>
+<p><figure 
+	>
+	<a href="/../../images/01-hive-01md/image-20230915170503889.png" >
+		<img src="/../../images/01-hive-01md/image-20230915170503889.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230915170503889">
+	</a>
+	
+	<figcaption>image-20230915170503889</figcaption>
+	
+</figure></p>
+<h3 id="47--配置metastore服务">4.7  配置metastore服务</h3>
+<p>Hive的metastore服务的作用是为Hive CLI或者Hiveserver2提供元数据访问接口。metastore有两种运行模式，分别为<strong>嵌入式模式</strong>和<strong>独立服务模式</strong>。目前为止我们都是使用的嵌入式模式（即客户端直接访问元数据库）。</p>
+<h4 id="471-metastore运行模式">4.7.1 metastore运行模式</h4>
+<p>嵌入式模式（默认）：只需保证Hiveserver2和每个Hive CLI的配置文件hive-site.xml中包含连接元数据库所需要的驱动参数即可。</p>
+<p><figure 
+	>
+	<a href="/../../images/01-hive-01md/image-20230915171923311.png" >
+		<img src="/../../images/01-hive-01md/image-20230915171923311.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230915171923311">
+	</a>
+	
+	<figcaption>image-20230915171923311</figcaption>
+	
+</figure></p>
+<p>独立服务模式（<strong>注意：图中的metastore是服务，而不是数据库名称</strong>）：</p>
+<p><figure 
+	>
+	<a href="/../../images/01-hive-01md/image-20230915171938205.png" >
+		<img src="/../../images/01-hive-01md/image-20230915171938205.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230915171938205">
+	</a>
+	
+	<figcaption>image-20230915171938205</figcaption>
+	
+</figure></p>
+<p>生产环境中，不推荐使用嵌入式模式。嵌入式模式下，每个Hive CLI都需要直接连接元数据库，当Hive CLI较多时，数据库压力会比较大。</p>
+<h4 id="472-metastore服务配置及启动">4.7.2 metastore服务配置及启动</h4>
+<p>在hadoop1的<code>hive-site.xml</code>中配置如下参数：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="c">&lt;!-- 指定metastore服务的地址 --&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;property&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="nt">&lt;name&gt;</span>hive.metastore.uris<span class="nt">&lt;/name&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="nt">&lt;value&gt;</span>thrift://hadoop1:9083<span class="nt">&lt;/value&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/property&gt;</span>
+</span></span></code></pre></div><p>主机名需要改为metastore服务所在节点，端口号无需修改，metastore服务的默认端口就是9083。**配置文件中有此参数时，hive就会默认通过metastore服务访问元数据库。**但是metastore服务所在节点必须配置JDBC参数。</p>
+<p>然后启动metastore服务：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 conf<span class="o">]</span>$ nohup hive --service metastore <span class="p">&amp;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 conf<span class="o">]</span>$ jps -ml<span class="p">|</span>grep HiveMetaStore
+</span></span><span class="line"><span class="cl"><span class="m">5079</span> org.apache.hadoop.util.RunJar /opt/module/apache-hive-3.1.3-bin/lib/hive-metastore-3.1.3.jar org.apache.hadoop.hive.metastore.HiveMetaStore
+</span></span></code></pre></div><p>再次使用DataGrip连接即可。</p>
+<p><figure 
+	>
+	<a href="/../../images/01-hive-01md/image-20230918094642639.png" >
+		<img src="/../../images/01-hive-01md/image-20230918094642639.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230918094642639">
+	</a>
+	
+	<figcaption>image-20230918094642639</figcaption>
+	
+</figure></p>
+<h4 id="473-其他节点访问metastore服务">4.7.3 其他节点访问metastore服务</h4>
+<p>除了在hadoop1自身配置访问metastore外，其他节点也可以通过访问hadoop1的metastore服务来实现访问元数据库的目的。</p>
+<p>我们将hive从hadoop拷贝到Hadoop2节点</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 ~<span class="o">]</span>$ scp -r /opt/module/apache-hive-3.1.3-bin/ hadoop2:/opt/module/
+</span></span></code></pre></div><p>同步环境变量到Hadoop2节点</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 ~<span class="o">]</span><span class="c1"># scp -r  /etc/profile.d/myhive.sh hadoop2:/etc/profile.d</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@hadoop2 ~<span class="o">]</span><span class="c1"># source /etc/profile</span>
+</span></span></code></pre></div><p>修改hive-site.xml文件如下：（删除了JDBC配置，通过连接hadoop1的metastore服务来连接数据库）</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl">[admin@hadoop2 conf]$ vim hive-site.xml
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;configuration&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="c">&lt;!-- Hive默认在HDFS的工作目录 --&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;property&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;name&gt;</span>hive.metastore.warehouse.dir<span class="nt">&lt;/name&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;value&gt;</span>/user/hive/warehouse<span class="nt">&lt;/value&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/property&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="c">&lt;!-- 指定hiveserver2连接的hive 服务的host --&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;property&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;name&gt;</span>hive.server2.thrift.bind.host<span class="nt">&lt;/name&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;value&gt;</span>hadoop2<span class="nt">&lt;/value&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/property&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="c">&lt;!-- 指定hiveserver2连接的端口号 --&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;property&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;name&gt;</span>hive.server2.thrift.port<span class="nt">&lt;/name&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;value&gt;</span>10000<span class="nt">&lt;/value&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/property&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="c">&lt;!-- 指定metastore服务的地址 --&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="nt">&lt;property&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="nt">&lt;name&gt;</span>hive.metastore.uris<span class="nt">&lt;/name&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="nt">&lt;value&gt;</span>thrift://hadoop1:9083<span class="nt">&lt;/value&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="nt">&lt;/property&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/configuration&gt;</span>
+</span></span></code></pre></div><p>然后启动Hadoop2的hiveserver2服务：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop2 apache-hive-3.1.3-bin<span class="o">]</span>$ nohup bin/hiveserver2 <span class="p">&amp;</span>
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/01-hive-01md/image-20230918101532998.png" >
+		<img src="/../../images/01-hive-01md/image-20230918101532998.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230918101532998">
+	</a>
+	
+	<figcaption>image-20230918101532998</figcaption>
+	
+</figure></p>
+<p>可以看到hadoop2未配置JDBC，也是可以访问到数据库的。<figure 
+	>
+	<a href="/../../images/01-hive-01md/image-20230918101612389.png" >
+		<img src="/../../images/01-hive-01md/image-20230918101612389.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230918101612389">
+	</a>
+	
+	<figcaption>image-20230918101612389</figcaption>
+	
+</figure></p>
+<p>此时如果我们杀掉hadoop1的metastore服务，就无法连接数据库了：</p>
+<p><figure 
+	>
+	<a href="/../../images/01-hive-01md/image-20230918102254486.png" >
+		<img src="/../../images/01-hive-01md/image-20230918102254486.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230918102254486">
+	</a>
+	
+	<figcaption>image-20230918102254486</figcaption>
+	
+</figure></p>
+<h3 id="48-修改日志存储路径">4.8 修改日志存储路径</h3>
+<p>Hive的log默认存放在/tmp/admin/hive.log里（当前用户名下），我们修改下日志存储路径。</p>
+<p>修改<code>/opt/module/apache-hive-3.1.3-bin/conf</code>目录下的日志配置文件：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 conf<span class="o">]</span>$ cp hive-log4j2.properties.template hive-log4j2.properties
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 conf<span class="o">]</span>$ vim hive-log4j2.properties
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">property.hive.log.dir<span class="o">=</span>/opt/module/apache-hive-3.1.3-bin/logs
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/01-hive-01md/image-20230918163727203.png" >
+		<img src="/../../images/01-hive-01md/image-20230918163727203.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230918163727203">
+	</a>
+	
+	<figcaption>image-20230918163727203</figcaption>
+	
+</figure></p>
+<p>重启HiveServer2、Metastroe服务即可。</p>
+<p><figure 
+	>
+	<a href="/../../images/01-hive-01md/image-20230918164157578.png" >
+		<img src="/../../images/01-hive-01md/image-20230918164157578.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230918164157578">
+	</a>
+	
+	<figcaption>image-20230918164157578</figcaption>
+	
+</figure></p>
+<h3 id="49-hive常见属性配置">4.9 Hive常见属性配置</h3>
+<h4 id="491-hive的jvm堆内存设置">4.9.1 Hive的JVM堆内存设置</h4>
+<p>新版本的Hive启动的时候，默认申请的JVM堆内存大小为256M，JVM堆内存申请的太小，导致后期开启本地模式，执行复杂的SQL时经常会报错：java.lang.OutOfMemoryError: Java heap space</p>
+<p>（1）修改$HIVE_HOME/conf下的hive-env.sh.template为hive-env.sh</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">$ mv hive-env.sh.template hive-env.sh
+</span></span></code></pre></div><p>将hive-env.sh其中的参数 export HADOOP_HEAPSIZE修改为2048，重启Hive</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl">export HADOOP_HEAPSIZE=2048
+</span></span></code></pre></div><p>然后重启Hive服务即可。</p>
+<p>（2）Hive的计算是依赖hadoop yarn的，一般会把yarn的虚拟内存检查功能关闭。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">$ vim yarn-site.xml
+</span></span></code></pre></div><p>添加以下内容：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="c">&lt;!--关闭虚拟内存检查--&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;property&gt;</span>
+</span></span><span class="line"><span class="cl">   <span class="nt">&lt;name&gt;</span>yarn.nodemanager.vmem-check-enabled<span class="nt">&lt;/name&gt;</span>
+</span></span><span class="line"><span class="cl">   <span class="nt">&lt;value&gt;</span>false<span class="nt">&lt;/value&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/property&gt;</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">$ xsync yarn-site.xml
+</span></span></code></pre></div><p>然后重启Hadoop集群。</p>
+<h2 id="五中文乱码问题">五、中文乱码问题</h2>
+<h4 id="51-中文乱码原因">5.1 中文乱码原因</h4>
+<p>我们在安装mysql时已经将mysql设置为了utf-8模式，但是我们发现数据库中的中文依然是乱码：</p>
+<p><figure 
+	>
+	<a href="/../../images/01-hive-01md/image-20230919100033032.png" >
+		<img src="/../../images/01-hive-01md/image-20230919100033032.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230919100033032">
+	</a>
+	
+	<figcaption>image-20230919100033032</figcaption>
+	
+</figure></p>
+<p>而且对应的mysql数据库TABLE_PARAMS表（存储了所有表的注释）记录，中文也是乱码（此处用的dbeaver，DataGrip看不到编码）。</p>
+<p><figure 
+	>
+	<a href="/../../images/01-hive-01md/image-20230919100759906.png" >
+		<img src="/../../images/01-hive-01md/image-20230919100759906.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230919100759906">
+	</a>
+	
+	<figcaption>image-20230919100759906</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/01-hive-01md/image-20230919100933906.png" >
+		<img src="/../../images/01-hive-01md/image-20230919100933906.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230919100933906">
+	</a>
+	
+	<figcaption>image-20230919100933906</figcaption>
+	
+</figure></p>
+<p>发现表字符集是latin1，我们不是已经设置UTF-8了吗？这是因为，我们在进行Hive初始化MySQL存储元数据库时会使用hive的初始化脚本：</p>
+<p><figure 
+	>
+	<a href="/../../images/01-hive-01md/image-20230919102401665.png" >
+		<img src="/../../images/01-hive-01md/image-20230919102401665.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230919102401665">
+	</a>
+	
+	<figcaption>image-20230919102401665</figcaption>
+	
+</figure></p>
+<p><code>/opt/module/apache-hive-3.1.3-bin/scripts/metastore/upgrade/mysql</code>目录下的<code>hive-schema-3.1.0.mysql.sql</code>文件，SQL语句中指定了编码为latin1。</p>
+<p><figure 
+	>
+	<a href="/../../images/01-hive-01md/image-20230919102638875.png" >
+		<img src="/../../images/01-hive-01md/image-20230919102638875.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230919102638875">
+	</a>
+	
+	<figcaption>image-20230919102638875</figcaption>
+	
+</figure></p>
+<h4 id="52-中文乱码解决方案">5.2 中文乱码解决方案</h4>
+<p>知道了问题原因我们就可以解决了。可以通过修改默认脚本的方式，也可以直接修改已经生成的metastore数据库。</p>
+<p>我们采用第二种，这样不用改动hive的内容，避免其他问题。（注意需要把之前的数据库删除了重新建，因为之前的元数据已经存储进去了乱码的形式，所以查的话就给你显示之前的了）</p>
+<p>先关闭hive服务。然后删除数据库。</p>
+<pre tabindex="0"><code>mysql&gt; drop database metastore;
+Query OK, 74 rows affected (5.03 sec)
+
+mysql&gt; create database metastore;
+Query OK, 1 row affected (0.00 sec)
+</code></pre><p>重新进行初始化：</p>
+<pre tabindex="0"><code>[admin@hadoop1 apache-hive-3.1.3-bin]$ bin/schematool -dbType mysql -initSchema -verbose
+</code></pre><p>修改mysql数据库表字段注解和表注解</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="line"><span class="cl"><span class="nx">alter</span> <span class="nx">table</span> <span class="nx">COLUMNS_V2</span> <span class="nx">modify</span> <span class="nx">column</span> <span class="nx">COMMENT</span> <span class="nx">varchar</span><span class="p">(</span><span class="mi">256</span><span class="p">)</span> <span class="nx">character</span> <span class="nx">set</span> <span class="nx">utf8</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">alter</span> <span class="nx">table</span> <span class="nx">TABLE_PARAMS</span> <span class="nx">modify</span> <span class="nx">column</span> <span class="nx">PARAM_VALUE</span> <span class="nx">varchar</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span> <span class="nx">character</span> <span class="nx">set</span> <span class="nx">utf8</span><span class="p">;</span>
+</span></span></code></pre></div><p>修改mysql数据库分区字段注解</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="line"><span class="cl"><span class="nx">alter</span> <span class="nx">table</span> <span class="nx">PARTITION_PARAMS</span> <span class="nx">modify</span> <span class="nx">column</span> <span class="nx">PARAM_VALUE</span> <span class="nx">varchar</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span> <span class="nx">character</span> <span class="nx">set</span> <span class="nx">utf8</span><span class="p">;</span>
+</span></span></code></pre></div><p>修改mysql数据库索引注解</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="line"><span class="cl"><span class="nx">alter</span> <span class="nx">table</span> <span class="nx">PARTITION_KEYS</span> <span class="nx">modify</span> <span class="nx">column</span> <span class="nx">PKEY_COMMENT</span> <span class="nx">varchar</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span> <span class="nx">character</span> <span class="nx">set</span> <span class="nx">utf8</span><span class="p">;</span>
+</span></span></code></pre></div><p>登录hive数据库，再次执行hive建表语句</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">create</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">phone_data</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="n">id</span><span class="w"> </span><span class="nb">int</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="n">phone</span><span class="w"> </span><span class="n">string</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="n">ip</span><span class="w"> </span><span class="n">string</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="n">website</span><span class="w"> </span><span class="n">string</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="n">upFlow</span><span class="w"> </span><span class="nb">int</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="n">downFlow</span><span class="w"> </span><span class="nb">int</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="n">status</span><span class="w"> </span><span class="n">string</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">alter</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">phone_data</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="n">tblproperties</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;comment&#39;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;流量表&#39;</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></div><p>这样就变成中文了：</p>
+<p><figure 
+	>
+	<a href="/../../images/01-hive-01md/image-20230919105608381.png" >
+		<img src="/../../images/01-hive-01md/image-20230919105608381.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230919105608381">
+	</a>
+	
+	<figcaption>image-20230919105608381</figcaption>
+	
+</figure></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/hive/">Hive</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/hive-11hive%E8%B0%83%E4%BC%98-%E4%BB%BB%E5%8A%A1%E5%B9%B6%E8%A1%8C%E5%BA%A6%E4%BC%98%E5%8C%96%E5%B0%8F%E6%96%87%E4%BB%B6%E5%90%88%E5%B9%B6%E4%BC%98%E5%8C%96%E6%9C%AC%E5%9C%B0%E6%A8%A1%E5%BC%8Fstage%E5%B9%B6%E8%A1%8C%E6%89%A7%E8%A1%8C%E4%B8%A5%E6%A0%BC%E6%A8%A1%E5%BC%8Fcbo%E4%BC%98%E5%8C%96/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hive-11）Hive调优-任务并行度优化、小文件合并优化、本地模式、Stage并行执行、严格模式、CBO优化</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hive-10hive%E8%B0%83%E4%BC%98-%E6%95%B0%E6%8D%AE%E5%80%BE%E6%96%9C%E8%B0%83%E4%BC%98/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hive-10）Hive调优-数据倾斜调优</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hive-09hive-explain%E6%89%A7%E8%A1%8C%E8%AE%A1%E5%88%92%E5%88%86%E6%9E%90%E5%8F%8Asql%E8%B0%83%E4%BC%98/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hive-09）Hive Explain执行计划分析及SQL调优</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hive-08hive%E9%85%8D%E7%BD%AE%E8%B0%83%E4%BC%98/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hive-08）Hive配置调优</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hive-07hive%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F%E6%96%87%E4%BB%B6%E5%8E%8B%E7%BC%A9/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hive-07）Hive文件格式、文件压缩</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#一hive简介">一、Hive简介</a></li>
+    <li><a href="#二hive架构原理">二、Hive架构原理</a></li>
+    <li><a href="#三前期准备">三、前期准备</a>
+      <ol>
+        <li><a href="#31-环境规划">3.1 环境规划</a></li>
+        <li><a href="#32-mysql-安装和卸载">3.2 mysql 安装和卸载</a></li>
+      </ol>
+    </li>
+    <li><a href="#四hive安装">四、Hive安装</a>
+      <ol>
+        <li><a href="#41-官网地址">4.1 官网地址</a></li>
+        <li><a href="#42-hive安装">4.2 Hive安装</a></li>
+        <li><a href="#43-配置hive元数据存储到mysql">4.3 配置Hive元数据存储到MySQL</a></li>
+        <li><a href="#45-配置hiveserver2服务">4.5 配置hiveserver2服务</a></li>
+        <li><a href="#46-测试连接hiveserver2服务">4.6 测试连接hiveserver2服务</a>
+          <ol>
+            <li><a href="#461-连接测试beelinedbeaverdatagrip">4.6.1 连接测试（beeline、DBeaver、DataGrip）</a></li>
+            <li><a href="#462-数据库表与hdfs对应关系">4.6.2 数据库表与HDFS对应关系</a></li>
+          </ol>
+        </li>
+        <li><a href="#47--配置metastore服务">4.7  配置metastore服务</a>
+          <ol>
+            <li><a href="#471-metastore运行模式">4.7.1 metastore运行模式</a></li>
+            <li><a href="#472-metastore服务配置及启动">4.7.2 metastore服务配置及启动</a></li>
+            <li><a href="#473-其他节点访问metastore服务">4.7.3 其他节点访问metastore服务</a></li>
+          </ol>
+        </li>
+        <li><a href="#48-修改日志存储路径">4.8 修改日志存储路径</a></li>
+        <li><a href="#49-hive常见属性配置">4.9 Hive常见属性配置</a>
+          <ol>
+            <li><a href="#491-hive的jvm堆内存设置">4.9.1 Hive的JVM堆内存设置</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+    <li><a href="#五中文乱码问题">五、中文乱码问题</a>
+      <ol>
+        <li>
+          <ol>
+            <li><a href="#51-中文乱码原因">5.1 中文乱码原因</a></li>
+            <li><a href="#52-中文乱码解决方案">5.2 中文乱码解决方案</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

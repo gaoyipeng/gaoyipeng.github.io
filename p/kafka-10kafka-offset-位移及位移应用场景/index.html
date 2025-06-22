@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='（Kafka-10）Kafka offset 位移及位移应用场景'><title>（Kafka-10）Kafka offset 位移及位移应用场景</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/kafka-10kafka-offset-%E4%BD%8D%E7%A7%BB%E5%8F%8A%E4%BD%8D%E7%A7%BB%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='（Kafka-10）Kafka offset 位移及位移应用场景'>
+<meta property='og:description' content='（Kafka-10）Kafka offset 位移及位移应用场景'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/kafka-10kafka-offset-%E4%BD%8D%E7%A7%BB%E5%8F%8A%E4%BD%8D%E7%A7%BB%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Kafka' /><meta property='article:published_time' content='2023-12-07T13:36:40&#43;00:00'/><meta property='article:modified_time' content='2023-12-07T13:36:40&#43;00:00'/>
+<meta name="twitter:title" content="（Kafka-10）Kafka offset 位移及位移应用场景">
+<meta name="twitter:description" content="（Kafka-10）Kafka offset 位移及位移应用场景">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/kafka/" >
+                Kafka
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/kafka-10kafka-offset-%E4%BD%8D%E7%A7%BB%E5%8F%8A%E4%BD%8D%E7%A7%BB%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/">（Kafka-10）Kafka offset 位移及位移应用场景</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        （Kafka-10）Kafka offset 位移及位移应用场景
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Dec 07, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 5 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <h2 id="一位移及位移应用场景">一、位移及位移应用场景</h2>
+<h3 id="11-kafka-offset-信息保存位置及查看">1.1 Kafka <strong>offset</strong> 信息保存位置及查看</h3>
+<p>Kafka consumer消费会产生offset来记录消费位置，Kafka0.9版本之前，consumer默认将offset保存在Zookeeper中。</p>
+<p>从0.9版本开始，consumer默认将offset保存在Kafka一个<strong>内置的topic</strong>中，<strong>该topic为__consumer_offsets</strong>。</p>
+<p><figure 
+	>
+	<a href="/../../images/10-kafka-10/image-20231212104218705.png" >
+		<img src="/../../images/10-kafka-10/image-20231212104218705.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231212104218705">
+	</a>
+	
+	<figcaption>image-20231212104218705</figcaption>
+	
+</figure></p>
+<p>__consumer_offsets 主题里面采用 key 和 value 的方式存储数据。key 是 group.id+topic+分区号，value 就是当前 offset 的值。每隔一段时间，kafka 内部会对这个 topic 进行compact，也就是每个 group.id+topic+分区号就保留最新数据。</p>
+<p>我们使用如下命令消费topic five主题的消息，并指定group组名，这样有利于查找offsets记录。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 kafka_2.12-3.0.2<span class="o">]</span>$ bin/kafka-console-consumer.sh --bootstrap-server hadoop1:9092 --topic five --group <span class="nb">test</span>
+</span></span></code></pre></div><p>查看消费者消费主题__consumer_offsets,可以看到test组当前的offsets位置。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 kafka_2.12-3.0.2<span class="o">]</span>$ bin/kafka-console-consumer.sh --topic __consumer_offsets --bootstrap-server hadoop1:9092 --consumer.config config/consumer.properties --formatter <span class="s2">&#34;kafka.coordinator.group.GroupMetadataManager\$OffsetsMessageFormatter&#34;</span> --from-beginning
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">..............
+</span></span><span class="line"><span class="cl"><span class="o">[</span>test,five,0<span class="o">]</span>::OffsetAndMetadata<span class="o">(</span><span class="nv">offset</span><span class="o">=</span>80, <span class="nv">leaderEpoch</span><span class="o">=</span>Optional<span class="o">[</span>0<span class="o">]</span>, <span class="nv">metadata</span><span class="o">=</span>, <span class="nv">commitTimestamp</span><span class="o">=</span>1702349991382, <span class="nv">expireTimestamp</span><span class="o">=</span>None<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>test,five,1<span class="o">]</span>::OffsetAndMetadata<span class="o">(</span><span class="nv">offset</span><span class="o">=</span>126, <span class="nv">leaderEpoch</span><span class="o">=</span>Optional<span class="o">[</span>0<span class="o">]</span>, <span class="nv">metadata</span><span class="o">=</span>, <span class="nv">commitTimestamp</span><span class="o">=</span>1702349991382, <span class="nv">expireTimestamp</span><span class="o">=</span>None<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>test,five,2<span class="o">]</span>::OffsetAndMetadata<span class="o">(</span><span class="nv">offset</span><span class="o">=</span>80, <span class="nv">leaderEpoch</span><span class="o">=</span>Optional<span class="o">[</span>0<span class="o">]</span>, <span class="nv">metadata</span><span class="o">=</span>, <span class="nv">commitTimestamp</span><span class="o">=</span>1702349991382, <span class="nv">expireTimestamp</span><span class="o">=</span>None<span class="o">)</span>
+</span></span></code></pre></div><p>然后我们向five主题指定分区（1号分区）发送消息：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">// 3. 创建 kafka 生产者对象
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">KafkaProducer</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">kafkaProducer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">KafkaProducer</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;(</span><span class="n">properties</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// 4. 调用 send 方法,发送消息
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">10</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// 添加回调
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">kafkaProducer</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="k">new</span> <span class="n">ProducerRecord</span><span class="o">(</span><span class="s">&#34;five&#34;</span><span class="o">,</span><span class="n">1</span><span class="o">,</span><span class="s">&#34;&#34;</span><span class="o">,</span><span class="s">&#34;CustomProducerCallback &#34;</span> <span class="o">+</span> <span class="n">i</span><span class="o">),</span> <span class="k">new</span> <span class="n">Callback</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 该方法在 Producer 收到 ack 时调用，为异步调用
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onCompletion</span><span class="o">(</span><span class="n">RecordMetadata</span> <span class="n">metadata</span><span class="o">,</span> <span class="n">Exception</span> <span class="n">exception</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="o">(</span><span class="n">exception</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="c1">// 没有异常,输出信息到控制台
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34; 主题： &#34;</span> <span class="o">+</span> <span class="n">metadata</span><span class="o">.</span><span class="na">topic</span><span class="o">()</span> <span class="o">+</span> <span class="s">&#34;-&gt;&#34;</span> <span class="o">+</span> <span class="s">&#34;分区：&#34;</span> <span class="o">+</span> <span class="n">metadata</span><span class="o">.</span><span class="na">partition</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="c1">// 出现异常打印
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="n">exception</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">});</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// 延迟一会会看到数据发往不同分区
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">Thread</span><span class="o">.</span><span class="na">sleep</span><span class="o">(</span><span class="n">2</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>再次查看消费者消费主题__consumer_offsets,可以看到test组当前的offsets位置，已经由offset=126变成了offset=136</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 kafka_2.12-3.0.2<span class="o">]</span>$ bin/kafka-console-consumer.sh --topic __consumer_offsets --bootstrap-server hadoop1:9092 --consumer.config config/consumer.properties --formatter <span class="s2">&#34;kafka.coordinator.group.GroupMetadataManager\$OffsetsMessageFormatter&#34;</span> --from-beginning
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/10-kafka-10/image-20231212110351246.png" >
+		<img src="/../../images/10-kafka-10/image-20231212110351246.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231212110351246">
+	</a>
+	
+	<figcaption>image-20231212110351246</figcaption>
+	
+</figure></p>
+<h3 id="12-kafka-offset自动提交">1.2 kafka offset自动提交</h3>
+<p>Kafka提供了自动提交offset的功能。自动提交offset的相关参数：</p>
+<ul>
+<li><strong>enable.auto.commit</strong>：是否开启自动提交offset功能，默认是true。</li>
+<li><strong>auto.commit.interval.ms</strong>：如果设置了 enable.auto.commit 的值为 true， 则该值定义了消费者偏移量向 Kafka 提交的频率，默认 5s。</li>
+</ul>
+<p><figure 
+	>
+	<a href="/../../images/10-kafka-10/image-20231212140107702.png" >
+		<img src="/../../images/10-kafka-10/image-20231212140107702.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231212140107702">
+	</a>
+	
+	<figcaption>image-20231212140107702</figcaption>
+	
+</figure></p>
+<p>对应消费者代码(设置自动提交，提交周期30s)：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">CustomConsumerGroup0</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 1.创建消费者的配置对象
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">Properties</span> <span class="n">properties</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Properties</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 2.给消费者配置对象添加参数
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ConsumerConfig</span><span class="o">.</span><span class="na">BOOTSTRAP_SERVERS_CONFIG</span><span class="o">,</span><span class="s">&#34;hadoop1:9092,hadoop2:9092,hadoop3:9092&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 配置序列化 必须
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ConsumerConfig</span><span class="o">.</span><span class="na">KEY_DESERIALIZER_CLASS_CONFIG</span><span class="o">,</span> <span class="n">StringDeserializer</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ConsumerConfig</span><span class="o">.</span><span class="na">VALUE_DESERIALIZER_CLASS_CONFIG</span><span class="o">,</span><span class="n">StringDeserializer</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 配置消费者组（组名任意起名） 必须
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ConsumerConfig</span><span class="o">.</span><span class="na">GROUP_ID_CONFIG</span><span class="o">,</span> <span class="s">&#34;test&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">// 是否自动提交 offset
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ConsumerConfig</span><span class="o">.</span><span class="na">ENABLE_AUTO_COMMIT_CONFIG</span><span class="o">,</span> <span class="kc">true</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 提交 offset 的时间周期 30000ms，默认 5s
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ConsumerConfig</span><span class="o">.</span><span class="na">AUTO_COMMIT_INTERVAL_MS_CONFIG</span><span class="o">,</span> <span class="n">30000</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">// 创建消费者对象
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">KafkaConsumer</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">kafkaConsumer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">KafkaConsumer</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;(</span><span class="n">properties</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 注册要消费的主题（可以消费多个主题）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">topics</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;&gt;();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">topics</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">&#34;five&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">kafkaConsumer</span><span class="o">.</span><span class="na">subscribe</span><span class="o">(</span><span class="n">topics</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 拉取数据打印
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">while</span> <span class="o">(</span><span class="kc">true</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// 设置 1s 中消费一批数据
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">ConsumerRecords</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">consumerRecords</span> <span class="o">=</span> <span class="n">kafkaConsumer</span><span class="o">.</span><span class="na">poll</span><span class="o">(</span><span class="n">Duration</span><span class="o">.</span><span class="na">ofSeconds</span><span class="o">(</span><span class="n">1</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// 打印消费到的数据
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="k">for</span> <span class="o">(</span><span class="n">ConsumerRecord</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">consumerRecord</span> <span class="o">:</span> <span class="n">consumerRecords</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;CustomConsumer消费数据：&#34;</span><span class="o">+</span><span class="n">consumerRecord</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>记录当前offset位置（offset=176）：</p>
+<pre tabindex="0"><code>[test,five,1]::OffsetAndMetadata(offset=176, leaderEpoch=Optional[0], metadata=, commitTimestamp=1702364894577, expireTimestamp=None)
+</code></pre><p>我们发送消息</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"> <span class="c1">// 4. 调用 send 方法,发送消息
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">10</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// 添加回调
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">kafkaProducer</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="k">new</span> <span class="n">ProducerRecord</span><span class="o">(</span><span class="s">&#34;five&#34;</span><span class="o">,</span><span class="n">1</span><span class="o">,</span><span class="s">&#34;&#34;</span><span class="o">,</span><span class="s">&#34;CustomProducerCallback &#34;</span> <span class="o">+</span> <span class="n">i</span><span class="o">),</span> <span class="k">new</span> <span class="n">Callback</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 该方法在 Producer 收到 ack 时调用，为异步调用
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onCompletion</span><span class="o">(</span><span class="n">RecordMetadata</span> <span class="n">metadata</span><span class="o">,</span> <span class="n">Exception</span> <span class="n">exception</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="o">(</span><span class="n">exception</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="c1">// 没有异常,输出信息到控制台
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34; 主题： &#34;</span> <span class="o">+</span> <span class="n">metadata</span><span class="o">.</span><span class="na">topic</span><span class="o">()</span> <span class="o">+</span> <span class="s">&#34;-&gt;&#34;</span> <span class="o">+</span> <span class="s">&#34;分区：&#34;</span> <span class="o">+</span> <span class="n">metadata</span><span class="o">.</span><span class="na">partition</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="c1">// 出现异常打印
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="n">exception</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">});</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// 延迟一会会看到数据发往不同分区
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">Thread</span><span class="o">.</span><span class="na">sleep</span><span class="o">(</span><span class="n">20</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>然后马上查看offset位置情况，可以看到offset初始不变，大约等30秒后，看到了offset=186</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>test,five,1<span class="o">]</span>::OffsetAndMetadata<span class="o">(</span><span class="nv">offset</span><span class="o">=</span>186, <span class="nv">leaderEpoch</span><span class="o">=</span>Optional<span class="o">[</span>0<span class="o">]</span>, <span class="nv">metadata</span><span class="o">=</span>, <span class="nv">commitTimestamp</span><span class="o">=</span>1702365104639, <span class="nv">expireTimestamp</span><span class="o">=</span>None<span class="o">)</span>
+</span></span></code></pre></div><h3 id="13-kafka-offset手动提交">1.3 kafka offset手动提交</h3>
+<p>​		虽然自动提交offset十分简单便利，但由于其是基于时间提交的，开发人员难以把握offset提交的时机。因此Kafka还提供了手动提交offset的API。手动提交offset的方法有两种：<strong>分别是commitSync（同步提交）和commitAsync（异步提交）</strong>。两者的相同点是，都会将本次提交的一批数据最高的偏移量提交；不同点是，同步提交阻塞当前线程，一直到提交成功，并且会自动失败重试（由不可控因素导致，也会出现提交失败）；而异步提交则没有失败重试机制，故有可能提交失败。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">ENABLE_AUTO_COMMIT_CONFIG</span> <span class="o">=</span> <span class="s">&#34;enable.auto.commit&#34;</span><span class="o">;</span>
+</span></span></code></pre></div><ul>
+<li>
+<p>commitSync（同步提交）：必须等待offset提交完毕，再去消费下一批数据。</p>
+</li>
+<li>
+<p>commitAsync（异步提交） ：发送完提交offset请求后，就开始消费下一批数据了。</p>
+</li>
+</ul>
+<h4 id="131-同步提交offset-api">1.3.1 同步提交offset API</h4>
+<p>​		由于同步提交 offset 有失败重试机制，故更加可靠，但是由于一直等待提交结果，提交的效率比较低。</p>
+<p>示例：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.kafka.consumer</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.kafka.clients.consumer.ConsumerConfig</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.kafka.clients.consumer.ConsumerRecord</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.kafka.clients.consumer.ConsumerRecords</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.kafka.clients.consumer.KafkaConsumer</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.kafka.common.serialization.StringDeserializer</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.time.Duration</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.util.ArrayList</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.util.Properties</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">CustomConsumerByHandSync</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 1.创建消费者的配置对象
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">Properties</span> <span class="n">properties</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Properties</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 2.给消费者配置对象添加参数
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ConsumerConfig</span><span class="o">.</span><span class="na">BOOTSTRAP_SERVERS_CONFIG</span><span class="o">,</span><span class="s">&#34;hadoop1:9092,hadoop2:9092,hadoop3:9092&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 配置序列化 必须
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ConsumerConfig</span><span class="o">.</span><span class="na">KEY_DESERIALIZER_CLASS_CONFIG</span><span class="o">,</span> <span class="n">StringDeserializer</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ConsumerConfig</span><span class="o">.</span><span class="na">VALUE_DESERIALIZER_CLASS_CONFIG</span><span class="o">,</span><span class="n">StringDeserializer</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 配置消费者组（组名任意起名） 必须
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ConsumerConfig</span><span class="o">.</span><span class="na">GROUP_ID_CONFIG</span><span class="o">,</span> <span class="s">&#34;test&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">// 是否自动提交 offset
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ConsumerConfig</span><span class="o">.</span><span class="na">ENABLE_AUTO_COMMIT_CONFIG</span><span class="o">,</span> <span class="kc">false</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">// 创建消费者对象
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">KafkaConsumer</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">kafkaConsumer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">KafkaConsumer</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;(</span><span class="n">properties</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 注册要消费的主题（可以消费多个主题）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">topics</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;&gt;();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">topics</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">&#34;five&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">kafkaConsumer</span><span class="o">.</span><span class="na">subscribe</span><span class="o">(</span><span class="n">topics</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 拉取数据打印
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">while</span> <span class="o">(</span><span class="kc">true</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// 设置 1s 中消费一批数据
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">ConsumerRecords</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">consumerRecords</span> <span class="o">=</span> <span class="n">kafkaConsumer</span><span class="o">.</span><span class="na">poll</span><span class="o">(</span><span class="n">Duration</span><span class="o">.</span><span class="na">ofSeconds</span><span class="o">(</span><span class="n">1</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// 打印消费到的数据
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="k">for</span> <span class="o">(</span><span class="n">ConsumerRecord</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">consumerRecord</span> <span class="o">:</span> <span class="n">consumerRecords</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;CustomConsumerByHandSync消费数据：&#34;</span><span class="o">+</span><span class="n">consumerRecord</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// 同步提交 offset
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">kafkaConsumer</span><span class="o">.</span><span class="na">commitSync</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><h4 id="132-异步提交offset-api">1.3.2 异步提交offset API</h4>
+<p>​		虽然同步提交 offset 更可靠一些，但是由于其会阻塞当前线程，直到提交成功。因此吞吐量会受到很大的影响。因此更多的情况下，会选用异步提交 offset 的方式。</p>
+<p>示例：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.kafka.consumer</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.kafka.clients.consumer.ConsumerConfig</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.kafka.clients.consumer.ConsumerRecord</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.kafka.clients.consumer.ConsumerRecords</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.kafka.clients.consumer.KafkaConsumer</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.kafka.common.serialization.StringDeserializer</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.time.Duration</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.util.ArrayList</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.util.Properties</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">CustomConsumerByHandAsync</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 1.创建消费者的配置对象
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">Properties</span> <span class="n">properties</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Properties</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 2.给消费者配置对象添加参数
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ConsumerConfig</span><span class="o">.</span><span class="na">BOOTSTRAP_SERVERS_CONFIG</span><span class="o">,</span><span class="s">&#34;hadoop1:9092,hadoop2:9092,hadoop3:9092&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 配置序列化 必须
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ConsumerConfig</span><span class="o">.</span><span class="na">KEY_DESERIALIZER_CLASS_CONFIG</span><span class="o">,</span> <span class="n">StringDeserializer</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ConsumerConfig</span><span class="o">.</span><span class="na">VALUE_DESERIALIZER_CLASS_CONFIG</span><span class="o">,</span><span class="n">StringDeserializer</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 配置消费者组（组名任意起名） 必须
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ConsumerConfig</span><span class="o">.</span><span class="na">GROUP_ID_CONFIG</span><span class="o">,</span> <span class="s">&#34;test&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">// 是否自动提交 offset
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ConsumerConfig</span><span class="o">.</span><span class="na">ENABLE_AUTO_COMMIT_CONFIG</span><span class="o">,</span> <span class="kc">false</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">// 创建消费者对象
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">KafkaConsumer</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">kafkaConsumer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">KafkaConsumer</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;(</span><span class="n">properties</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 注册要消费的主题（可以消费多个主题）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">topics</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;&gt;();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">topics</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">&#34;five&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">kafkaConsumer</span><span class="o">.</span><span class="na">subscribe</span><span class="o">(</span><span class="n">topics</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 拉取数据打印
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">while</span> <span class="o">(</span><span class="kc">true</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// 设置 1s 中消费一批数据
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">ConsumerRecords</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">consumerRecords</span> <span class="o">=</span> <span class="n">kafkaConsumer</span><span class="o">.</span><span class="na">poll</span><span class="o">(</span><span class="n">Duration</span><span class="o">.</span><span class="na">ofSeconds</span><span class="o">(</span><span class="n">1</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// 打印消费到的数据
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="k">for</span> <span class="o">(</span><span class="n">ConsumerRecord</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">consumerRecord</span> <span class="o">:</span> <span class="n">consumerRecords</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;CustomConsumerByHandAsync消费数据：&#34;</span><span class="o">+</span><span class="n">consumerRecord</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// 异步提交 offset
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">kafkaConsumer</span><span class="o">.</span><span class="na">commitAsync</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><h3 id="14-指定offset消费">1.4 指定Offset消费</h3>
+<p>auto.offset.reset = earliest | latest | none ，默认是 latest。</p>
+<ul>
+<li>（1）earliest：自动将偏移量重置为最早的偏移量，&ndash;from-beginning。</li>
+<li>（2）latest（默认值）：自动将偏移量重置为最新偏移量。</li>
+<li>（3）none：如果未找到消费者组的先前偏移量，则向消费者抛出异常。</li>
+</ul>
+<p>示例：</p>
+<p>先向five主题的1分区发送20条消息。查看test消费组当前offset位置（分区1：offset=246）</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>test,five,0<span class="o">]</span>::OffsetAndMetadata<span class="o">(</span><span class="nv">offset</span><span class="o">=</span>80, <span class="nv">leaderEpoch</span><span class="o">=</span>Optional<span class="o">[</span>0<span class="o">]</span>, <span class="nv">metadata</span><span class="o">=</span>, <span class="nv">commitTimestamp</span><span class="o">=</span>1702880096494, <span class="nv">expireTimestamp</span><span class="o">=</span>None<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>test,five,1<span class="o">]</span>::OffsetAndMetadata<span class="o">(</span><span class="nv">offset</span><span class="o">=</span>246, <span class="nv">leaderEpoch</span><span class="o">=</span>Optional<span class="o">[</span>0<span class="o">]</span>, <span class="nv">metadata</span><span class="o">=</span>, <span class="nv">commitTimestamp</span><span class="o">=</span>1702880096494, <span class="nv">expireTimestamp</span><span class="o">=</span>None<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>test,five,2<span class="o">]</span>::OffsetAndMetadata<span class="o">(</span><span class="nv">offset</span><span class="o">=</span>80, <span class="nv">leaderEpoch</span><span class="o">=</span>Optional<span class="o">[</span>0<span class="o">]</span>, <span class="nv">metadata</span><span class="o">=</span>, <span class="nv">commitTimestamp</span><span class="o">=</span>1702880096494, <span class="nv">expireTimestamp</span><span class="o">=</span>None<span class="o">)</span>
+</span></span></code></pre></div><p>代码如下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.kafka.consumer</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.kafka.clients.consumer.ConsumerConfig</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.kafka.clients.consumer.ConsumerRecord</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.kafka.clients.consumer.ConsumerRecords</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.kafka.clients.consumer.KafkaConsumer</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.kafka.common.TopicPartition</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.kafka.common.serialization.StringDeserializer</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.time.Duration</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.util.ArrayList</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.util.HashSet</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.util.Properties</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.util.Set</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">CustomConsumerSeek</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 1.创建消费者的配置对象
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">Properties</span> <span class="n">properties</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Properties</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 2.给消费者配置对象添加参数
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ConsumerConfig</span><span class="o">.</span><span class="na">BOOTSTRAP_SERVERS_CONFIG</span><span class="o">,</span><span class="s">&#34;hadoop1:9092,hadoop2:9092,hadoop3:9092&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 配置序列化 必须
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ConsumerConfig</span><span class="o">.</span><span class="na">KEY_DESERIALIZER_CLASS_CONFIG</span><span class="o">,</span> <span class="n">StringDeserializer</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ConsumerConfig</span><span class="o">.</span><span class="na">VALUE_DESERIALIZER_CLASS_CONFIG</span><span class="o">,</span><span class="n">StringDeserializer</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 配置消费者组（组名任意起名） 必须
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ConsumerConfig</span><span class="o">.</span><span class="na">GROUP_ID_CONFIG</span><span class="o">,</span> <span class="s">&#34;test1&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 创建消费者对象
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">KafkaConsumer</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">kafkaConsumer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">KafkaConsumer</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;(</span><span class="n">properties</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 注册要消费的主题（可以消费多个主题）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">topics</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;&gt;();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">topics</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">&#34;five&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">kafkaConsumer</span><span class="o">.</span><span class="na">subscribe</span><span class="o">(</span><span class="n">topics</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">Set</span><span class="o">&lt;</span><span class="n">TopicPartition</span><span class="o">&gt;</span> <span class="n">assignment</span><span class="o">=</span> <span class="k">new</span> <span class="n">HashSet</span><span class="o">&lt;&gt;();</span>
+</span></span><span class="line"><span class="cl">        <span class="k">while</span> <span class="o">(</span><span class="n">assignment</span><span class="o">.</span><span class="na">size</span><span class="o">()</span> <span class="o">==</span> <span class="n">0</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">kafkaConsumer</span><span class="o">.</span><span class="na">poll</span><span class="o">(</span><span class="n">Duration</span><span class="o">.</span><span class="na">ofSeconds</span><span class="o">(</span><span class="n">1</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// 获取消费者分区分配信息（有了分区分配信息才能开始消费）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">assignment</span> <span class="o">=</span> <span class="n">kafkaConsumer</span><span class="o">.</span><span class="na">assignment</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 遍历所有分区，并指定 offset 从 246-20 = 226 的位置开始消费
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">for</span> <span class="o">(</span><span class="n">TopicPartition</span> <span class="n">tp</span><span class="o">:</span> <span class="n">assignment</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">tp</span><span class="o">.</span><span class="na">topic</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">tp</span><span class="o">.</span><span class="na">partition</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="o">(</span><span class="n">tp</span><span class="o">.</span><span class="na">partition</span><span class="o">()</span> <span class="o">==</span> <span class="n">1</span><span class="o">){</span>
+</span></span><span class="line"><span class="cl">                <span class="n">kafkaConsumer</span><span class="o">.</span><span class="na">seek</span><span class="o">(</span><span class="n">tp</span><span class="o">,</span> <span class="n">226</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">// 拉取数据打印
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">while</span> <span class="o">(</span><span class="kc">true</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// 设置 1s 中消费一批数据
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">ConsumerRecords</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">consumerRecords</span> <span class="o">=</span> <span class="n">kafkaConsumer</span><span class="o">.</span><span class="na">poll</span><span class="o">(</span><span class="n">Duration</span><span class="o">.</span><span class="na">ofSeconds</span><span class="o">(</span><span class="n">1</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// 打印消费到的数据
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="k">for</span> <span class="o">(</span><span class="n">ConsumerRecord</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">consumerRecord</span> <span class="o">:</span> <span class="n">consumerRecords</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;CustomConsumerSeek消费数据：&#34;</span><span class="o">+</span><span class="n">consumerRecord</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>可以看到只消费了226以后的数据</p>
+<p><figure 
+	>
+	<a href="/../../images/10-kafka-10/image-20231219171836613.png" >
+		<img src="/../../images/10-kafka-10/image-20231219171836613.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231219171836613">
+	</a>
+	
+	<figcaption>image-20231219171836613</figcaption>
+	
+</figure></p>
+<h3 id="15-消费指定时间段数据">1.5 消费指定时间段数据</h3>
+<p>在生产环境中，会遇到最近消费的几个小时数据异常，想重新按照时间消费。例如要求按照时间消费5天前的数据，怎么处理？</p>
+<p>代码如下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.kafka.consumer</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.kafka.clients.consumer.*</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.kafka.common.TopicPartition</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.kafka.common.serialization.StringDeserializer</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.time.Duration</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.util.*</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">CustomConsumerForTime</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 1.创建消费者的配置对象
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">Properties</span> <span class="n">properties</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Properties</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 2.给消费者配置对象添加参数
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ConsumerConfig</span><span class="o">.</span><span class="na">BOOTSTRAP_SERVERS_CONFIG</span><span class="o">,</span><span class="s">&#34;hadoop1:9092,hadoop2:9092,hadoop3:9092&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 配置序列化 必须
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ConsumerConfig</span><span class="o">.</span><span class="na">KEY_DESERIALIZER_CLASS_CONFIG</span><span class="o">,</span> <span class="n">StringDeserializer</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ConsumerConfig</span><span class="o">.</span><span class="na">VALUE_DESERIALIZER_CLASS_CONFIG</span><span class="o">,</span><span class="n">StringDeserializer</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 配置消费者组（组名任意起名） 必须
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ConsumerConfig</span><span class="o">.</span><span class="na">GROUP_ID_CONFIG</span><span class="o">,</span> <span class="s">&#34;test2&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 创建消费者对象
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">KafkaConsumer</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">kafkaConsumer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">KafkaConsumer</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;(</span><span class="n">properties</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 注册要消费的主题（可以消费多个主题）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">topics</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;&gt;();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">topics</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">&#34;five&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">kafkaConsumer</span><span class="o">.</span><span class="na">subscribe</span><span class="o">(</span><span class="n">topics</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">Set</span><span class="o">&lt;</span><span class="n">TopicPartition</span><span class="o">&gt;</span> <span class="n">assignment</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashSet</span><span class="o">&lt;&gt;();</span>
+</span></span><span class="line"><span class="cl">        <span class="k">while</span> <span class="o">(</span><span class="n">assignment</span><span class="o">.</span><span class="na">size</span><span class="o">()</span> <span class="o">==</span> <span class="n">0</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">kafkaConsumer</span><span class="o">.</span><span class="na">poll</span><span class="o">(</span><span class="n">Duration</span><span class="o">.</span><span class="na">ofSeconds</span><span class="o">(</span><span class="n">1</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// 获取消费者分区分配信息（有了分区分配信息才能开始消费）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">assignment</span> <span class="o">=</span> <span class="n">kafkaConsumer</span><span class="o">.</span><span class="na">assignment</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">TopicPartition</span><span class="o">,</span> <span class="n">Long</span><span class="o">&gt;</span> <span class="n">timestampToSearch</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;&gt;();</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 封装集合存储，每个分区对应5天前的数据
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">for</span> <span class="o">(</span><span class="n">TopicPartition</span> <span class="n">topicPartition</span> <span class="o">:</span> <span class="n">assignment</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">timestampToSearch</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">topicPartition</span><span class="o">,</span><span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">()</span> <span class="o">-</span> <span class="n">5</span> <span class="o">*</span> <span class="n">24</span> <span class="o">*</span> <span class="n">3600</span> <span class="o">*</span> <span class="n">1000</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 获取从 1 天前开始消费的每个分区的 offset
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">Map</span><span class="o">&lt;</span><span class="n">TopicPartition</span><span class="o">,</span> <span class="n">OffsetAndTimestamp</span><span class="o">&gt;</span> <span class="n">offsets</span> <span class="o">=</span> <span class="n">kafkaConsumer</span><span class="o">.</span><span class="na">offsetsForTimes</span><span class="o">(</span><span class="n">timestampToSearch</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">// 遍历每个分区，对每个分区设置消费时间。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">for</span> <span class="o">(</span><span class="n">TopicPartition</span> <span class="n">topicPartition</span> <span class="o">:</span> <span class="n">assignment</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">OffsetAndTimestamp</span> <span class="n">offsetAndTimestamp</span> <span class="o">=</span> <span class="n">offsets</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">topicPartition</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// 根据时间指定开始消费的位置
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="k">if</span> <span class="o">(</span><span class="n">offsetAndTimestamp</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">){</span>
+</span></span><span class="line"><span class="cl">                <span class="n">kafkaConsumer</span><span class="o">.</span><span class="na">seek</span><span class="o">(</span><span class="n">topicPartition</span><span class="o">,</span><span class="n">offsetAndTimestamp</span><span class="o">.</span><span class="na">offset</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">// 拉取数据打印
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">while</span> <span class="o">(</span><span class="kc">true</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// 设置 1s 中消费一批数据
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">ConsumerRecords</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">consumerRecords</span> <span class="o">=</span> <span class="n">kafkaConsumer</span><span class="o">.</span><span class="na">poll</span><span class="o">(</span><span class="n">Duration</span><span class="o">.</span><span class="na">ofSeconds</span><span class="o">(</span><span class="n">1</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// 打印消费到的数据
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="k">for</span> <span class="o">(</span><span class="n">ConsumerRecord</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">consumerRecord</span> <span class="o">:</span> <span class="n">consumerRecords</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;CustomConsumerForTime：&#34;</span><span class="o">+</span><span class="n">consumerRecord</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/10-kafka-10/image-20231220103051946.png" >
+		<img src="/../../images/10-kafka-10/image-20231220103051946.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231220103051946">
+	</a>
+	
+	<figcaption>image-20231220103051946</figcaption>
+	
+</figure></p>
+<h2 id="二消费者事务">二、消费者事务</h2>
+<h3 id="21-漏消费和重复消费">2.1 漏消费和重复消费</h3>
+<p>**重复消费：**已经消费了数据，但是 offset 没提交。</p>
+<p>**漏消费：**先提交 offset 后消费，有可能会造成数据的漏消费。</p>
+<p><figure 
+	>
+	<a href="/../../images/10-kafka-10/image-20231220104153703.png" >
+		<img src="/../../images/10-kafka-10/image-20231220104153703.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231220104153703">
+	</a>
+	
+	<figcaption>image-20231220104153703</figcaption>
+	
+</figure></p>
+<p>消费者事务：如果想完成Consumer端的精准一次性消费，那么需要Kafka消费端将消费过程和提交offset过程做原子绑定。此时我们需要将Kafka的offset保存到支持事务的自定义介质（比 如MySQL）。</p>
+<h2 id="三消费者如何提高吞吐量">三、消费者如何提高吞吐量</h2>
+<p>1）如果是Kafka消费能力不足，则可以考虑增 加Topic的分区数，并且同时提升消费组的消费者数量，消费者数 = 分区数。（两者缺一不可）</p>
+<p>2）如果是下游的数据处理不及时：提高每批次拉取的数量。批次拉取数据过少（拉取数据/处理时间 &lt; 生产速度），使处理的数据小于生产的数据，也会造成数据积压。</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>fetch.max.bytes</td>
+<td>默认 Default: 52428800（50 m）。消费者获取服务器端一批消息最大的字节数。如果服务器端一批次的数据大于该值（50m）仍然可以拉取回来这批数据，因此，这不是一个绝对最大值。一批次的大小受 message.max.bytes （broker config）or max.message.bytes （topic config）影响。</td>
+</tr>
+<tr>
+<td>max.poll.records</td>
+<td>一次 poll 拉取数据返回消息的最大条数，默认是 500 条</td>
+</tr>
+</tbody>
+</table>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/kafka/">Kafka</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/kafka-13kafka-%E9%9B%86%E6%88%90springbootflume/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Kafka-13）Kafka 集成SpringBoot、Flume</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/kafka-12kafka-web%E7%9B%91%E6%8E%A7kafka-eagle/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Kafka-12）Kafka Web监控：Kafka-Eagle</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/kafka-11kafka-kraft-%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Kafka-11）Kafka-Kraft 模式</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/kafka-09kafka-%E6%B6%88%E8%B4%B9%E8%80%85%E6%B6%88%E8%B4%B9%E8%80%85%E7%BB%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Kafka-09）Kafka 消费者、消费者组</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/kafka-08kafka-%E6%96%87%E4%BB%B6%E5%AD%98%E5%82%A8%E6%96%87%E4%BB%B6%E6%B8%85%E7%90%86%E6%96%87%E4%BB%B6%E6%95%B0%E6%8D%AE%E9%AB%98%E6%95%88%E8%AF%BB%E5%86%99/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Kafka-08）Kafka 文件存储、文件清理、文件数据高效读写</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#一位移及位移应用场景">一、位移及位移应用场景</a>
+      <ol>
+        <li><a href="#11-kafka-offset-信息保存位置及查看">1.1 Kafka <strong>offset</strong> 信息保存位置及查看</a></li>
+        <li><a href="#12-kafka-offset自动提交">1.2 kafka offset自动提交</a></li>
+        <li><a href="#13-kafka-offset手动提交">1.3 kafka offset手动提交</a>
+          <ol>
+            <li><a href="#131-同步提交offset-api">1.3.1 同步提交offset API</a></li>
+            <li><a href="#132-异步提交offset-api">1.3.2 异步提交offset API</a></li>
+          </ol>
+        </li>
+        <li><a href="#14-指定offset消费">1.4 指定Offset消费</a></li>
+        <li><a href="#15-消费指定时间段数据">1.5 消费指定时间段数据</a></li>
+      </ol>
+    </li>
+    <li><a href="#二消费者事务">二、消费者事务</a>
+      <ol>
+        <li><a href="#21-漏消费和重复消费">2.1 漏消费和重复消费</a></li>
+      </ol>
+    </li>
+    <li><a href="#三消费者如何提高吞吐量">三、消费者如何提高吞吐量</a></li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

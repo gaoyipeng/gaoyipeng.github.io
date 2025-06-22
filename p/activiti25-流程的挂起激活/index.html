@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Activiti（25） 流程的挂起、激活'><title>Activiti（25） 流程的挂起、激活</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/activiti25-%E6%B5%81%E7%A8%8B%E7%9A%84%E6%8C%82%E8%B5%B7%E6%BF%80%E6%B4%BB/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Activiti（25） 流程的挂起、激活'>
+<meta property='og:description' content='Activiti（25） 流程的挂起、激活'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/activiti25-%E6%B5%81%E7%A8%8B%E7%9A%84%E6%8C%82%E8%B5%B7%E6%BF%80%E6%B4%BB/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Activiti' /><meta property='article:published_time' content='2020-09-19T13:04:29&#43;00:00'/><meta property='article:modified_time' content='2020-09-19T13:04:29&#43;00:00'/>
+<meta name="twitter:title" content="Activiti（25） 流程的挂起、激活">
+<meta name="twitter:description" content="Activiti（25） 流程的挂起、激活">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/activiti/" >
+                Activiti
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/activiti25-%E6%B5%81%E7%A8%8B%E7%9A%84%E6%8C%82%E8%B5%B7%E6%BF%80%E6%B4%BB/">Activiti（25） 流程的挂起、激活</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        Activiti（25） 流程的挂起、激活
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Sep 19, 2020</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 1 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <p>本节我们介绍流程的挂起、激活。</p>
+<p>使用场景：流程发起后，由于某些情况，需要暂停流程，或者流程暂停后再次激活。</p>
+<ul>
+<li>
+<p>当流程实例被挂起时，无法通过下一个节点对应的任务id来继续这个流程实例。</p>
+</li>
+<li>
+<p>通过挂起某一特定的流程实例，可以终止当前的流程实例，而不影响到该流程定义的其他流程实例。</p>
+</li>
+<li>
+<p>激活之后可以继续该流程实例，不会对后续任务造成影响。</p>
+</li>
+<li>
+<p>流程挂起时 act_ru_task 的 SUSPENSION_STATE_ 为 2，默认为1</p>
+</li>
+</ul>
+<h2 id="1-代码">1、 代码</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@PostMapping</span><span class="o">(</span> <span class="s">&#34;/suspendProcessInstance&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@ApiOperation</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;挂起、激活流程实例&#34;</span><span class="o">,</span><span class="n">notes</span> <span class="o">=</span> <span class="s">&#34;挂起、激活流程实例&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="n">CommonResponse</span> <span class="nf">suspendProcessInstance</span><span class="o">(</span><span class="nd">@RequestParam</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;processInstanceId&#34;</span><span class="o">,</span> <span class="n">required</span> <span class="o">=</span> <span class="kc">true</span><span class="o">)</span><span class="nd">@ApiParam</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;流程实例ID&#34;</span> <span class="o">,</span><span class="n">required</span> <span class="o">=</span> <span class="kc">true</span><span class="o">)</span><span class="n">String</span> <span class="n">processInstanceId</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">                                             <span class="nd">@RequestParam</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;suspendState&#34;</span><span class="o">,</span> <span class="n">required</span> <span class="o">=</span> <span class="kc">true</span><span class="o">)</span><span class="nd">@ApiParam</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;状态： 1、激活 2、挂起&#34;</span> <span class="o">,</span><span class="n">required</span> <span class="o">=</span> <span class="kc">true</span><span class="o">)</span><span class="n">String</span> <span class="n">suspendState</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">processService</span><span class="o">.</span><span class="na">suspendProcessInstance</span><span class="o">(</span><span class="n">processInstanceId</span><span class="o">,</span> <span class="n">suspendState</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="k">new</span> <span class="n">CommonResponse</span><span class="o">().</span><span class="na">code</span><span class="o">(</span><span class="n">CodeEnum</span><span class="o">.</span><span class="na">SUCCESS</span><span class="o">.</span><span class="na">getCode</span><span class="o">()).</span><span class="na">message</span><span class="o">(</span><span class="s">&#34;操作成功&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * 挂起、激活流程实例
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @param processInstanceId
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @param suspendState
+</span></span></span><span class="line"><span class="cl"><span class="cm"> */</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kt">void</span> <span class="nf">suspendProcessInstance</span><span class="o">(</span><span class="n">String</span> <span class="n">processInstanceId</span><span class="o">,</span> <span class="n">String</span> <span class="n">suspendState</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="o">(</span><span class="s">&#34;2&#34;</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">suspendState</span><span class="o">))</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">runtimeService</span><span class="o">.</span><span class="na">suspendProcessInstanceById</span><span class="o">(</span><span class="n">processInstanceId</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span> <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="s">&#34;1&#34;</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">suspendState</span><span class="o">))</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">runtimeService</span><span class="o">.</span><span class="na">activateProcessInstanceById</span><span class="o">(</span><span class="n">processInstanceId</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><h2 id="2流程挂起">2、流程挂起</h2>
+<p>我们依然使用动态表单-请假流程来演示。此时的流程状态：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-25/image-20200919135009573.png" >
+		<img src="/images/activiti6-25/image-20200919135009573.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200919135009573">
+	</a>
+	
+	<figcaption>image-20200919135009573</figcaption>
+	
+</figure></p>
+<p>当前流程到达了人事审批节点，我们使用hruser查看一下当前的待办。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-25/image-20200919135243738.png" >
+		<img src="/images/activiti6-25/image-20200919135243738.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200919135243738">
+	</a>
+	
+	<figcaption>image-20200919135243738</figcaption>
+	
+</figure></p>
+<p>可以看到hruser有一条待办。此时发起人忽然发现，流程需要补充一些线下材料，需要暂停流程，执行流程挂起操作：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-25/image-20200919135423141.png" >
+		<img src="/images/activiti6-25/image-20200919135423141.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200919135423141">
+	</a>
+	
+	<figcaption>image-20200919135423141</figcaption>
+	
+</figure></p>
+<p>此时再次查看hruser的待办</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-25/image-20200919135500955.png" >
+		<img src="/images/activiti6-25/image-20200919135500955.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200919135500955">
+	</a>
+	
+	<figcaption>image-20200919135500955</figcaption>
+	
+</figure></p>
+<p>可以看到，待办已经没有了</p>
+<h2 id="3流程激活">3、流程激活</h2>
+<p>流程激活很简单</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-25/image-20200919135736808.png" >
+		<img src="/images/activiti6-25/image-20200919135736808.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200919135736808">
+	</a>
+	
+	<figcaption>image-20200919135736808</figcaption>
+	
+</figure></p>
+<p>查看hruser待办：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-25/image-20200919135809793.png" >
+		<img src="/images/activiti6-25/image-20200919135809793.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200919135809793">
+	</a>
+	
+	<figcaption>image-20200919135809793</figcaption>
+	
+</figure></p>
+<p>发现待办又出现了。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/activiti/">Activiti</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/activiti6%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%B3%BB%E7%BB%9F%E6%90%AD%E5%BB%BA%E6%95%99%E7%A8%8B/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti6工作流系统搭建教程</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti33-spring-security%E8%8E%B7%E5%8F%96%E5%BD%93%E5%89%8D%E6%93%8D%E4%BD%9C%E4%BA%BA%E4%BF%A1%E6%81%AF/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（33） Spring-Security获取当前操作人信息</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti34-%E4%BD%BF%E7%94%A8swagger%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（34） 使用Swagger生成静态接口文档</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti35-%E4%BD%BF%E7%94%A8swagger%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（35） 使用Swagger生成静态接口文档</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti32-%E6%9B%BF%E6%8D%A2activiti%E7%94%A8%E6%88%B7%E5%92%8C%E7%94%A8%E6%88%B7%E7%BB%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（32） 替换Activiti用户和用户组</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#1-代码">1、 代码</a></li>
+    <li><a href="#2流程挂起">2、流程挂起</a></li>
+    <li><a href="#3流程激活">3、流程激活</a></li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

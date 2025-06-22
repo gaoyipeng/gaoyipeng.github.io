@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Python on 十一爸爸的博客</title>
+    <link>https://garnettboy.gitee.io/categories/python/</link>
+    <description>Recent content in Python on 十一爸爸的博客</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Fri, 09 Jun 2023 10:00:36 +0000</lastBuildDate><atom:link href="https://garnettboy.gitee.io/categories/python/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Python 基础4</title>
+      <link>https://garnettboy.gitee.io/p/python-%E5%9F%BA%E7%A1%804/</link>
+      <pubDate>Fri, 09 Jun 2023 10:00:36 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/python-%E5%9F%BA%E7%A1%804/</guid>
+      <description>一、 闭包 image-20230609092626670nonlocal 关键字：用于在内部函数中修改外部函数的变量
+image-20230609095019996image-20230609095040475image-20230609095325659二、多线程 image-20230609111931221多线程简单使用示例：
+image-20230609112234463</description>
+    </item>
+    
+    <item>
+      <title>Python 基础3</title>
+      <link>https://garnettboy.gitee.io/p/python-%E5%9F%BA%E7%A1%803/</link>
+      <pubDate>Wed, 07 Jun 2023 10:02:36 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/python-%E5%9F%BA%E7%A1%803/</guid>
+      <description>一、Spark和pySpark Spark是一个分布式计算框架，计算海量数据。
+image-202306071424267921.1 Pyspark安装 image-20230607145346707image-20230607145843088image-20230608092234879</description>
+    </item>
+    
+    <item>
+      <title>Python 基础2</title>
+      <link>https://garnettboy.gitee.io/p/python-%E5%9F%BA%E7%A1%802/</link>
+      <pubDate>Thu, 01 Jun 2023 10:02:36 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/python-%E5%9F%BA%E7%A1%802/</guid>
+      <description>一、Python 文件操作 1.1 文件打开函数 image-20230601114448402image-20230601114737895f = open(&amp;#39;D:/name.txt&amp;#39;, &amp;#39;w&amp;#39;, encoding=&amp;#34;UTF-8&amp;#34;) 执行后，会在D盘生成一个新文件name.txt。
+1.2 文件内容读取 image-20230601141828793#1、读取所有内容,read(num),num指定读取字节长度 f = open(&amp;#39;D:/name.txt&amp;#39;, &amp;#39;r&amp;#39;, encoding=&amp;#34;UTF-8&amp;#34;) print(f.read()) #2、读取所有对象，以行为单位，放在数组中 f = open(&amp;#39;D:/name.txt&amp;#39;, &amp;#39;r&amp;#39;, encoding=&amp;#34;UTF-8&amp;#34;) print(f.readlines()) #3、每次读取一行，以下代码，分别读取第一行和第二行 f = open(&amp;#39;D:/name.txt&amp;#39;, &amp;#39;r&amp;#39;, encoding=&amp;#34;UTF-8&amp;#34;) print(f.readline()) print(f.readline()) #4、for 循环读取，每次读取一行 f = open(&amp;#39;D:/name.txt&amp;#39;, &amp;#39;r&amp;#39;, encoding=&amp;#34;UTF-8&amp;#34;) #print(f.read()) for i in f: print(f&amp;#34;每行数据为：{i}&amp;#34;) 1.3 文件关闭 #主动关闭文件占用 f = open(&amp;#39;D:/name.txt&amp;#39;, &amp;#39;r&amp;#39;, encoding=&amp;#34;UTF-8&amp;#34;) for i in f: print(f&amp;#34;每行数据为：{i}&amp;#34;) f.close() 方式二：with open语法（自动关闭文件）
+with open(&amp;#39;D:/name.txt&amp;#39;, &amp;#39;r&amp;#39;, encoding=&amp;#34;UTF-8&amp;#34;) as f: for i in f: print(f&amp;#34;每行数据为：{i}&amp;#34;) 1.</description>
+    </item>
+    
+    <item>
+      <title>Python 基础1</title>
+      <link>https://garnettboy.gitee.io/p/python-%E5%9F%BA%E7%A1%801/</link>
+      <pubDate>Tue, 30 May 2023 10:02:36 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/python-%E5%9F%BA%E7%A1%801/</guid>
+      <description>一、Python 入门 1.1 常用数据类型 image-202305301641374031.2运算符 1.2.1 算数运算符 image-202305301727222921.2.1 赋值运算符 image-202305301731412321.2.1 复合赋值运算符 image-202305301732369731.3格式化 1.3.1 占位符 image-20230531091947106image-20230531101427396示例：
+name = &amp;#34;测试&amp;#34; name2 = 1111.11 name3 = 1111.22 print(&amp;#34; %s || %d || %f&amp;#34; % (name,name2,name3)) 输出结果：测试 || 1111 || 1111.220000 ----------------------------------------- name = &amp;#34;测试&amp;#34; name2 = 1111.11 name3 = 1111.22 print(&amp;#34; %s || %10d || %10.1f&amp;#34; % (name,name2,name3)) 输出结果： 测试 || 1111 || 1111.2 1.3.2 字符串格式化-快速写法 语法：f&amp;quot;内容{变量}&amp;quot;，该类型不限制类型，不做精度控制</description>
+    </item>
+    
+  </channel>
+</rss>

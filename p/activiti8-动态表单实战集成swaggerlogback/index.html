@@ -1,0 +1,1609 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Activiti（8） 动态表单实战、集成Swagger、Logback'><title>Activiti（8） 动态表单实战、集成Swagger、Logback</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/activiti8-%E5%8A%A8%E6%80%81%E8%A1%A8%E5%8D%95%E5%AE%9E%E6%88%98%E9%9B%86%E6%88%90swaggerlogback/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Activiti（8） 动态表单实战、集成Swagger、Logback'>
+<meta property='og:description' content='Activiti（8） 动态表单实战、集成Swagger、Logback'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/activiti8-%E5%8A%A8%E6%80%81%E8%A1%A8%E5%8D%95%E5%AE%9E%E6%88%98%E9%9B%86%E6%88%90swaggerlogback/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Activiti' /><meta property='article:tag' content='Swagger' /><meta property='article:tag' content='logback' /><meta property='article:published_time' content='2020-06-08T16:51:23&#43;00:00'/><meta property='article:modified_time' content='2020-06-08T16:51:23&#43;00:00'/>
+<meta name="twitter:title" content="Activiti（8） 动态表单实战、集成Swagger、Logback">
+<meta name="twitter:description" content="Activiti（8） 动态表单实战、集成Swagger、Logback">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/activiti/" >
+                Activiti
+            </a>
+        
+            <a href="/categories/swagger/" >
+                Swagger
+            </a>
+        
+            <a href="/categories/logback/" >
+                logback
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/activiti8-%E5%8A%A8%E6%80%81%E8%A1%A8%E5%8D%95%E5%AE%9E%E6%88%98%E9%9B%86%E6%88%90swaggerlogback/">Activiti（8） 动态表单实战、集成Swagger、Logback</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        Activiti（8） 动态表单实战、集成Swagger、Logback
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jun 08, 2020</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 9 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <blockquote>
+<p>动态表单是直接将工作流节点处的表单嵌入流程定义文件BPMN中。系统利用JS或者模板引擎，根据流程定义中表单定义的各个子控件及其属性动态渲染出表单并加载出来。</p>
+</blockquote>
+<p>在正式开始介绍表单前，我们先完善一下系统。</p>
+<h1 id="1工程完善">1、工程完善</h1>
+<h2 id="11集成swagger">1.1、集成Swagger</h2>
+<p>在开始实战前，我们先集成Swagger,这样有利于我们后期管理接口。</p>
+<ul>
+<li>在workflow-activiti-rest module的pom.xml文件中添加：</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"> <span class="c">&lt;!-- swagger2--&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;groupId&gt;</span>io.springfox<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;artifactId&gt;</span>springfox-swagger2<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;groupId&gt;</span>io.springfox<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;artifactId&gt;</span>springfox-swagger-ui<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/dependency&gt;</span>
+</span></span></code></pre></div><ul>
+<li>添加配置类</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.workflow.activiti.rest.config</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.context.annotation.Bean</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.context.annotation.Configuration</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">springfox.documentation.builders.ApiInfoBuilder</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">springfox.documentation.builders.PathSelectors</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">springfox.documentation.builders.RequestHandlerSelectors</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">springfox.documentation.service.ApiInfo</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">springfox.documentation.service.Contact</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">springfox.documentation.spi.DocumentationType</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">springfox.documentation.spring.web.plugins.Docket</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">springfox.documentation.swagger2.annotations.EnableSwagger2</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nd">@Configuration</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@EnableSwagger2</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">SwaggerConfig</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 通过 createRestApi函数来构建一个DocketBean
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 函数名,可以随意命名,喜欢什么命名就什么命名
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Bean</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">Docket</span> <span class="nf">createRestApi</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="k">new</span> <span class="n">Docket</span><span class="o">(</span><span class="n">DocumentationType</span><span class="o">.</span><span class="na">SWAGGER_2</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">apiInfo</span><span class="o">(</span><span class="n">apiInfo</span><span class="o">())</span><span class="c1">//调用apiInfo方法,创建一个ApiInfo实例,里面是展示在文档页面信息内容
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="o">.</span><span class="na">select</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">                <span class="c1">//控制暴露出去的路径下的实例
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="c1">//如果某个接口不想暴露,可以使用以下注解
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="c1">//@ApiIgnore 这样,该接口就不会暴露在 swagger2 的页面下
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="o">.</span><span class="na">apis</span><span class="o">(</span><span class="n">RequestHandlerSelectors</span><span class="o">.</span><span class="na">basePackage</span><span class="o">(</span><span class="s">&#34;com.sxdx.workflow.activiti.rest&#34;</span><span class="o">))</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">paths</span><span class="o">(</span><span class="n">PathSelectors</span><span class="o">.</span><span class="na">any</span><span class="o">())</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//构建 api文档的详细信息函数
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kd">private</span> <span class="n">ApiInfo</span> <span class="nf">apiInfo</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="k">new</span> <span class="n">ApiInfoBuilder</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">                <span class="c1">//页面标题
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="o">.</span><span class="na">title</span><span class="o">(</span><span class="s">&#34;Springboot2集成Activiti6&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">contact</span><span class="o">(</span><span class="s">&#34;Garnett&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">version</span><span class="o">(</span><span class="s">&#34;1.0&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="c1">//描述
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="o">.</span><span class="na">description</span><span class="o">(</span><span class="s">&#34;Springboot2集成Activiti6&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>按swagger的语法规则在<code>Controller</code>上添加对应的注解。</p>
+<p><strong>参考</strong>：<a class="link" href="https://www.ibm.com/developerworks/cn/java/j-using-swagger-in-a-spring-boot-project/index.html"  target="_blank" rel="noopener"
+    >在 Spring Boot 项目中使用 Swagger 文档</a></p>
+<ul>
+<li>访问 http://localhost:8080/swagger-ui.html</li>
+</ul>
+<p><figure 
+	>
+	<a href="/images/activiti6-08/image-20200608191250469.png" >
+		<img src="/images/activiti6-08/image-20200608191250469.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200608191250469">
+	</a>
+	
+	<figcaption>image-20200608191250469</figcaption>
+	
+</figure></p>
+<p>集成Swagger就是这么简单。</p>
+<h2 id="12安装lombok">1.2、安装lombok</h2>
+<p>不解释lombok 是啥玩意儿，直接贴出集成步骤。</p>
+<p><code>workflow-activiti </code>的pom.xml:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;lombok.version&gt;</span>1.16.10<span class="nt">&lt;/lombok.version&gt;</span> 
+</span></span><span class="line"><span class="cl"><span class="c">&lt;!--lombok--&gt;</span>
+</span></span><span class="line"><span class="cl"> <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl"> 	<span class="nt">&lt;groupId&gt;</span>org.projectlombok<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl"> 	<span class="nt">&lt;artifactId&gt;</span>lombok<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl"> 	<span class="nt">&lt;version&gt;</span>${lombok.version}<span class="nt">&lt;/version&gt;</span>
+</span></span><span class="line"><span class="cl"> <span class="nt">&lt;/dependency&gt;</span>
+</span></span></code></pre></div><p><code>workflow-activiti-rest</code> 的 pom.xml:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;groupId&gt;</span>org.projectlombok<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;artifactId&gt;</span>lombok<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/dependency&gt;</span>
+</span></span></code></pre></div><h2 id="13集成logback日志">1.3、集成logback日志</h2>
+<p>无需再次引入Jar包，因为springboot本身就内置了日志功能。<strong>在spring-boot-starters</strong>中即可看到：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-08/image-20200609163952858.png" >
+		<img src="/images/activiti6-08/image-20200609163952858.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200609163952858">
+	</a>
+	
+	<figcaption>image-20200609163952858</figcaption>
+	
+</figure></p>
+<p>我们只需要创建<code>logback-spring.xml</code>文件即可</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="cp">&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;configuration</span> <span class="na">scan=</span><span class="s">&#34;true&#34;</span> <span class="na">scanPeriod=</span><span class="s">&#34;60 seconds&#34;</span> <span class="na">debug=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;contextName&gt;</span>logback<span class="nt">&lt;/contextName&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;property</span> <span class="na">resource=</span><span class="s">&#34;application.yml&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;springProperty</span> <span class="na">scope=</span><span class="s">&#34;context&#34;</span> <span class="na">name=</span><span class="s">&#34;log.path&#34;</span> <span class="na">source=</span><span class="s">&#34;logging.path&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;springProperty</span> <span class="na">scope=</span><span class="s">&#34;context&#34;</span> <span class="na">name=</span><span class="s">&#34;log.lv&#34;</span> <span class="na">source=</span><span class="s">&#34;logging.lv&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;springProperty</span> <span class="na">scope=</span><span class="s">&#34;context&#34;</span> <span class="na">name=</span><span class="s">&#34;log.dateSize&#34;</span> <span class="na">source=</span><span class="s">&#34;logging.dateSize&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c">&lt;!--输出到控制台--&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;appender</span> <span class="na">name=</span><span class="s">&#34;console&#34;</span> <span class="na">class=</span><span class="s">&#34;ch.qos.logback.core.ConsoleAppender&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="c">&lt;!--此日志appender是为开发使用，只配置最底级别，控制台输出的日志级别是大于或等于此级别的日志信息--&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;filter</span> <span class="na">class=</span><span class="s">&#34;ch.qos.logback.classic.filter.ThresholdFilter&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;level&gt;</span>${log.lv}<span class="nt">&lt;/level&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/filter&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;encoder&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;pattern&gt;</span>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n<span class="nt">&lt;/pattern&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="c">&lt;!--编码--&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;charset&gt;</span>utf-8<span class="nt">&lt;/charset&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/encoder&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/appender&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c">&lt;!--输出到debug--&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;appender</span> <span class="na">name=</span><span class="s">&#34;debug&#34;</span> <span class="na">class=</span><span class="s">&#34;ch.qos.logback.core.rolling.RollingFileAppender&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="c">&lt;!-- 正在记录的日志文件的路径及文件名 --&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;file&gt;</span>${log.path}/logback-debug.log<span class="nt">&lt;/file&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="c">&lt;!-- 日志记录器的滚动策略，按日期，按大小记录 --&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;rollingPolicy</span> <span class="na">class=</span><span class="s">&#34;ch.qos.logback.core.rolling.TimeBasedRollingPolicy&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;fileNamePattern&gt;</span>${log.path}/logback-debug-%d{yyyy-MM-dd}_%i.log<span class="nt">&lt;/fileNamePattern&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;timeBasedFileNamingAndTriggeringPolicy</span> <span class="na">class=</span><span class="s">&#34;ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;maxFileSize&gt;</span>100MB<span class="nt">&lt;/maxFileSize&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;/timeBasedFileNamingAndTriggeringPolicy&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="c">&lt;!--日志文件保留天数--&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;maxHistory&gt;</span>${log.dateSize}<span class="nt">&lt;/maxHistory&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/rollingPolicy&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;append&gt;</span>true<span class="nt">&lt;/append&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;encoder&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;pattern&gt;</span>%d{yyyy-MM-dd HH:mm:ss.SSS} %contextName [%thread] %-5level %logger{36} - %msg%n<span class="nt">&lt;/pattern&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="c">&lt;!--编码--&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;charset&gt;</span>utf-8<span class="nt">&lt;/charset&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/encoder&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;filter</span> <span class="na">class=</span><span class="s">&#34;ch.qos.logback.classic.filter.LevelFilter&#34;</span><span class="nt">&gt;</span><span class="c">&lt;!-- 只打印DEBUG日志 --&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;level&gt;</span>DEBUG<span class="nt">&lt;/level&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;onMatch&gt;</span>ACCEPT<span class="nt">&lt;/onMatch&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;onMismatch&gt;</span>DENY<span class="nt">&lt;/onMismatch&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/filter&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/appender&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c">&lt;!--输出到info--&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;appender</span> <span class="na">name=</span><span class="s">&#34;info&#34;</span> <span class="na">class=</span><span class="s">&#34;ch.qos.logback.core.rolling.RollingFileAppender&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="c">&lt;!-- 正在记录的日志文件的路径及文件名 --&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;file&gt;</span>${log.path}/logback-info.log<span class="nt">&lt;/file&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="c">&lt;!-- 日志记录器的滚动策略，按日期，按大小记录 --&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;rollingPolicy</span> <span class="na">class=</span><span class="s">&#34;ch.qos.logback.core.rolling.TimeBasedRollingPolicy&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;fileNamePattern&gt;</span>${log.path}/logback-info-%d{yyyy-MM-dd}_%i.log<span class="nt">&lt;/fileNamePattern&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;timeBasedFileNamingAndTriggeringPolicy</span> <span class="na">class=</span><span class="s">&#34;ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;maxFileSize&gt;</span>100MB<span class="nt">&lt;/maxFileSize&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;/timeBasedFileNamingAndTriggeringPolicy&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="c">&lt;!--日志文件保留天数--&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;maxHistory&gt;</span>${log.dateSize}<span class="nt">&lt;/maxHistory&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/rollingPolicy&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;append&gt;</span>true<span class="nt">&lt;/append&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;encoder&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;pattern&gt;</span>%d{yyyy-MM-dd HH:mm:ss.SSS} %contextName [%thread] %-5level %logger{36} - %msg%n<span class="nt">&lt;/pattern&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="c">&lt;!--编码--&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;charset&gt;</span>utf-8<span class="nt">&lt;/charset&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/encoder&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;filter</span> <span class="na">class=</span><span class="s">&#34;ch.qos.logback.classic.filter.LevelFilter&#34;</span><span class="nt">&gt;</span><span class="c">&lt;!-- 只打印INFO日志 --&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;level&gt;</span>INFO<span class="nt">&lt;/level&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;onMatch&gt;</span>ACCEPT<span class="nt">&lt;/onMatch&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;onMismatch&gt;</span>DENY<span class="nt">&lt;/onMismatch&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/filter&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/appender&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c">&lt;!--输出到warn--&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;appender</span> <span class="na">name=</span><span class="s">&#34;warn&#34;</span> <span class="na">class=</span><span class="s">&#34;ch.qos.logback.core.rolling.RollingFileAppender&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="c">&lt;!-- 正在记录的日志文件的路径及文件名 --&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;file&gt;</span>${log.path}/logback-warn.log<span class="nt">&lt;/file&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="c">&lt;!-- 日志记录器的滚动策略，按日期，按大小记录 --&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;rollingPolicy</span> <span class="na">class=</span><span class="s">&#34;ch.qos.logback.core.rolling.TimeBasedRollingPolicy&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;fileNamePattern&gt;</span>${log.path}/logback-warn-%d{yyyy-MM-dd}_%i.log<span class="nt">&lt;/fileNamePattern&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;timeBasedFileNamingAndTriggeringPolicy</span> <span class="na">class=</span><span class="s">&#34;ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;maxFileSize&gt;</span>100MB<span class="nt">&lt;/maxFileSize&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;/timeBasedFileNamingAndTriggeringPolicy&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="c">&lt;!--日志文件保留天数--&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;maxHistory&gt;</span>${log.dateSize}<span class="nt">&lt;/maxHistory&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/rollingPolicy&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;append&gt;</span>true<span class="nt">&lt;/append&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;encoder&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;pattern&gt;</span>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n<span class="nt">&lt;/pattern&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;charset&gt;</span>utf-8<span class="nt">&lt;/charset&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/encoder&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;filter</span> <span class="na">class=</span><span class="s">&#34;ch.qos.logback.classic.filter.LevelFilter&#34;</span><span class="nt">&gt;</span><span class="c">&lt;!-- 只打印WARN日志 --&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;level&gt;</span>WARN<span class="nt">&lt;/level&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;onMatch&gt;</span>ACCEPT<span class="nt">&lt;/onMatch&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;onMismatch&gt;</span>DENY<span class="nt">&lt;/onMismatch&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/filter&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/appender&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c">&lt;!--输出到error--&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;appender</span> <span class="na">name=</span><span class="s">&#34;error&#34;</span> <span class="na">class=</span><span class="s">&#34;ch.qos.logback.core.rolling.RollingFileAppender&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="c">&lt;!-- 正在记录的日志文件的路径及文件名 --&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;file&gt;</span>${log.path}/logback-error.log<span class="nt">&lt;/file&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="c">&lt;!-- 日志记录器的滚动策略，按日期，按大小记录 --&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;rollingPolicy</span> <span class="na">class=</span><span class="s">&#34;ch.qos.logback.core.rolling.TimeBasedRollingPolicy&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;fileNamePattern&gt;</span>${log.path}/logback-error-%d{yyyy-MM-dd}_%i.log<span class="nt">&lt;/fileNamePattern&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;timeBasedFileNamingAndTriggeringPolicy</span> <span class="na">class=</span><span class="s">&#34;ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;maxFileSize&gt;</span>100MB<span class="nt">&lt;/maxFileSize&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;/timeBasedFileNamingAndTriggeringPolicy&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="c">&lt;!--日志文件保留天数--&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;maxHistory&gt;</span>${log.dateSize}<span class="nt">&lt;/maxHistory&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/rollingPolicy&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;append&gt;</span>true<span class="nt">&lt;/append&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;encoder&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;pattern&gt;</span>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n<span class="nt">&lt;/pattern&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;charset&gt;</span>utf-8<span class="nt">&lt;/charset&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/encoder&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;filter</span> <span class="na">class=</span><span class="s">&#34;ch.qos.logback.classic.filter.LevelFilter&#34;</span><span class="nt">&gt;</span><span class="c">&lt;!-- 只打印ERROR日志 --&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;level&gt;</span>ERROR<span class="nt">&lt;/level&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;onMatch&gt;</span>ACCEPT<span class="nt">&lt;/onMatch&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;onMismatch&gt;</span>DENY<span class="nt">&lt;/onMismatch&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/filter&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/appender&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="c">&lt;!--不同环境分别设置对应的日志输出节点 --&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="c">&lt;!--开发--&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;springProfile</span> <span class="na">name=</span><span class="s">&#34;dev&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;root</span> <span class="na">level=</span><span class="s">&#34;debug&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;appender-ref</span> <span class="na">ref=</span><span class="s">&#34;console&#34;</span> <span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;appender-ref</span> <span class="na">ref=</span><span class="s">&#34;debug&#34;</span> <span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;appender-ref</span> <span class="na">ref=</span><span class="s">&#34;info&#34;</span> <span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;appender-ref</span> <span class="na">ref=</span><span class="s">&#34;warn&#34;</span> <span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;appender-ref</span> <span class="na">ref=</span><span class="s">&#34;error&#34;</span> <span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/root&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/springProfile&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c">&lt;!--生产环境--&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;springProfile</span> <span class="na">name=</span><span class="s">&#34;release&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;root</span> <span class="na">level=</span><span class="s">&#34;info&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;appender-ref</span> <span class="na">ref=</span><span class="s">&#34;console&#34;</span> <span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;appender-ref</span> <span class="na">ref=</span><span class="s">&#34;debug&#34;</span> <span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;appender-ref</span> <span class="na">ref=</span><span class="s">&#34;info&#34;</span> <span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;appender-ref</span> <span class="na">ref=</span><span class="s">&#34;warn&#34;</span> <span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;appender-ref</span> <span class="na">ref=</span><span class="s">&#34;error&#34;</span> <span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/root&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/springProfile&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/configuration&gt;</span>
+</span></span></code></pre></div><p>application中添加日志设置：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="c">#日志配置</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">logging</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l">E:/Data/idea-workspace/workflow-activiti/logs</span><span class="w"> </span><span class="c">#保存日志</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">lv</span><span class="p">:</span><span class="w"> </span><span class="l">info</span><span class="w"> </span><span class="c"># 控制台日志输出级别</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">dateSize</span><span class="p">:</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="c"># 日志保存天数</span><span class="w">
+</span></span></span></code></pre></div><p><figure 
+	>
+	<a href="/images/activiti6-08/image-20200609164452285.png" >
+		<img src="/images/activiti6-08/image-20200609164452285.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200609164452285">
+	</a>
+	
+	<figcaption>image-20200609164452285</figcaption>
+	
+</figure></p>
+<h1 id="2动态表单">2、动态表单</h1>
+<p>接下里我们用一个请假流程来演示，流程定义如下：leave-dynamic-from.bpmn</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="cp">&lt;?xml version=&#39;1.0&#39; encoding=&#39;UTF-8&#39;?&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;definitions</span> <span class="na">xmlns=</span><span class="s">&#34;http://www.omg.org/spec/BPMN/20100524/MODEL&#34;</span> <span class="na">xmlns:xsi=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span> <span class="na">xmlns:xsd=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema&#34;</span> <span class="na">xmlns:activiti=</span><span class="s">&#34;http://activiti.org/bpmn&#34;</span> <span class="na">xmlns:bpmndi=</span><span class="s">&#34;http://www.omg.org/spec/BPMN/20100524/DI&#34;</span> <span class="na">xmlns:omgdc=</span><span class="s">&#34;http://www.omg.org/spec/DD/20100524/DC&#34;</span> <span class="na">xmlns:omgdi=</span><span class="s">&#34;http://www.omg.org/spec/DD/20100524/DI&#34;</span> <span class="na">typeLanguage=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema&#34;</span> <span class="na">expressionLanguage=</span><span class="s">&#34;http://www.w3.org/1999/XPath&#34;</span> <span class="na">targetNamespace=</span><span class="s">&#34;http://www.kafeitu.me/demo/activiti/leave&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;process</span> <span class="na">id=</span><span class="s">&#34;leave-dynamic-from&#34;</span> <span class="na">name=</span><span class="s">&#34;请假流程-动态表单&#34;</span> <span class="na">isExecutable=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;documentation&gt;</span>请假流程演示-动态表单<span class="nt">&lt;/documentation&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;startEvent</span> <span class="na">id=</span><span class="s">&#34;startevent1&#34;</span> <span class="na">name=</span><span class="s">&#34;Start&#34;</span> <span class="na">activiti:initiator=</span><span class="s">&#34;applyUserId&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;startDate&#34;</span> <span class="na">name=</span><span class="s">&#34;请假开始日期&#34;</span> <span class="na">type=</span><span class="s">&#34;date&#34;</span> <span class="na">datePattern=</span><span class="s">&#34;yyyy-MM-dd&#34;</span> <span class="na">required=</span><span class="s">&#34;true&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;endDate&#34;</span> <span class="na">name=</span><span class="s">&#34;请假结束日期&#34;</span> <span class="na">type=</span><span class="s">&#34;date&#34;</span> <span class="na">datePattern=</span><span class="s">&#34;yyyy-MM-dd&#34;</span> <span class="na">required=</span><span class="s">&#34;true&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;reason&#34;</span> <span class="na">name=</span><span class="s">&#34;请假原因&#34;</span> <span class="na">type=</span><span class="s">&#34;string&#34;</span> <span class="na">required=</span><span class="s">&#34;true&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/startEvent&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;userTask</span> <span class="na">id=</span><span class="s">&#34;deptLeaderAudit&#34;</span> <span class="na">name=</span><span class="s">&#34;部门领导审批&#34;</span> <span class="na">activiti:candidateGroups=</span><span class="s">&#34;deptLeader&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;startDate&#34;</span> <span class="na">name=</span><span class="s">&#34;请假开始日期&#34;</span> <span class="na">type=</span><span class="s">&#34;date&#34;</span> <span class="na">datePattern=</span><span class="s">&#34;yyyy-MM-dd&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;endDate&#34;</span> <span class="na">name=</span><span class="s">&#34;请假结束日期&#34;</span> <span class="na">type=</span><span class="s">&#34;date&#34;</span> <span class="na">datePattern=</span><span class="s">&#34;yyyy-MM-dd&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;reason&#34;</span> <span class="na">name=</span><span class="s">&#34;请假原因&#34;</span> <span class="na">type=</span><span class="s">&#34;string&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;deptLeaderPass&#34;</span> <span class="na">name=</span><span class="s">&#34;审批意见&#34;</span> <span class="na">type=</span><span class="s">&#34;enum&#34;</span> <span class="na">required=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&lt;activiti:value</span> <span class="na">id=</span><span class="s">&#34;true&#34;</span> <span class="na">name=</span><span class="s">&#34;同意&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&lt;activiti:value</span> <span class="na">id=</span><span class="s">&#34;false&#34;</span> <span class="na">name=</span><span class="s">&#34;不同意&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/userTask&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;exclusiveGateway</span> <span class="na">id=</span><span class="s">&#34;exclusivegateway5&#34;</span> <span class="na">name=</span><span class="s">&#34;Exclusive Gateway&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;userTask</span> <span class="na">id=</span><span class="s">&#34;modifyApply&#34;</span> <span class="na">name=</span><span class="s">&#34;调整申请&#34;</span> <span class="na">activiti:assignee=</span><span class="s">&#34;${applyUserId}&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;startDate&#34;</span> <span class="na">name=</span><span class="s">&#34;请假开始日期&#34;</span> <span class="na">type=</span><span class="s">&#34;date&#34;</span> <span class="na">datePattern=</span><span class="s">&#34;yyyy-MM-dd&#34;</span> <span class="na">required=</span><span class="s">&#34;true&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;endDate&#34;</span> <span class="na">name=</span><span class="s">&#34;请假结束日期&#34;</span> <span class="na">type=</span><span class="s">&#34;date&#34;</span> <span class="na">datePattern=</span><span class="s">&#34;yyyy-MM-dd&#34;</span> <span class="na">required=</span><span class="s">&#34;true&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;reason&#34;</span> <span class="na">name=</span><span class="s">&#34;请假原因&#34;</span> <span class="na">type=</span><span class="s">&#34;string&#34;</span> <span class="na">required=</span><span class="s">&#34;true&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;reApply&#34;</span> <span class="na">name=</span><span class="s">&#34;重新申请&#34;</span> <span class="na">type=</span><span class="s">&#34;enum&#34;</span> <span class="na">required=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&lt;activiti:value</span> <span class="na">id=</span><span class="s">&#34;true&#34;</span> <span class="na">name=</span><span class="s">&#34;重新申请&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&lt;activiti:value</span> <span class="na">id=</span><span class="s">&#34;false&#34;</span> <span class="na">name=</span><span class="s">&#34;取消申请&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/userTask&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;userTask</span> <span class="na">id=</span><span class="s">&#34;hrAudit&#34;</span> <span class="na">name=</span><span class="s">&#34;人事审批&#34;</span> <span class="na">activiti:candidateGroups=</span><span class="s">&#34;hr&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;startDate&#34;</span> <span class="na">name=</span><span class="s">&#34;请假开始日期&#34;</span> <span class="na">type=</span><span class="s">&#34;date&#34;</span> <span class="na">datePattern=</span><span class="s">&#34;yyyy-MM-dd&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;endDate&#34;</span> <span class="na">name=</span><span class="s">&#34;请假结束日期&#34;</span> <span class="na">type=</span><span class="s">&#34;date&#34;</span> <span class="na">datePattern=</span><span class="s">&#34;yyyy-MM-dd&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;reason&#34;</span> <span class="na">name=</span><span class="s">&#34;请假原因&#34;</span> <span class="na">type=</span><span class="s">&#34;string&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;hrPass&#34;</span> <span class="na">name=</span><span class="s">&#34;审批意见&#34;</span> <span class="na">type=</span><span class="s">&#34;enum&#34;</span> <span class="na">required=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&lt;activiti:value</span> <span class="na">id=</span><span class="s">&#34;true&#34;</span> <span class="na">name=</span><span class="s">&#34;同意&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&lt;activiti:value</span> <span class="na">id=</span><span class="s">&#34;false&#34;</span> <span class="na">name=</span><span class="s">&#34;不同意&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/userTask&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;exclusiveGateway</span> <span class="na">id=</span><span class="s">&#34;exclusivegateway6&#34;</span> <span class="na">name=</span><span class="s">&#34;Exclusive Gateway&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;userTask</span> <span class="na">id=</span><span class="s">&#34;reportBack&#34;</span> <span class="na">name=</span><span class="s">&#34;销假&#34;</span> <span class="na">activiti:assignee=</span><span class="s">&#34;${applyUserId}&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;startDate&#34;</span> <span class="na">name=</span><span class="s">&#34;请假开始日期&#34;</span> <span class="na">type=</span><span class="s">&#34;date&#34;</span> <span class="na">datePattern=</span><span class="s">&#34;yyyy-MM-dd&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;endDate&#34;</span> <span class="na">name=</span><span class="s">&#34;请假结束日期&#34;</span> <span class="na">type=</span><span class="s">&#34;date&#34;</span> <span class="na">datePattern=</span><span class="s">&#34;yyyy-MM-dd&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;reason&#34;</span> <span class="na">name=</span><span class="s">&#34;请假原因&#34;</span> <span class="na">type=</span><span class="s">&#34;string&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;reportBackDate&#34;</span> <span class="na">name=</span><span class="s">&#34;销假日期&#34;</span> <span class="na">type=</span><span class="s">&#34;date&#34;</span> <span class="na">datePattern=</span><span class="s">&#34;yyyy-MM-dd&#34;</span> <span class="na">required=</span><span class="s">&#34;true&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/userTask&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;endEvent</span> <span class="na">id=</span><span class="s">&#34;endevent1&#34;</span> <span class="na">name=</span><span class="s">&#34;End&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;exclusiveGateway</span> <span class="na">id=</span><span class="s">&#34;exclusivegateway7&#34;</span> <span class="na">name=</span><span class="s">&#34;Exclusive Gateway&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow2&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;startevent1&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;deptLeaderAudit&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow3&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;deptLeaderAudit&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;exclusivegateway5&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow4&#34;</span> <span class="na">name=</span><span class="s">&#34;不同意&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;exclusivegateway5&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;modifyApply&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;conditionExpression</span> <span class="na">xsi:type=</span><span class="s">&#34;tFormalExpression&#34;</span><span class="nt">&gt;</span><span class="cp">&lt;![CDATA[${deptLeaderPass == &#39;false&#39;}]]&gt;</span><span class="nt">&lt;/conditionExpression&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow5&#34;</span> <span class="na">name=</span><span class="s">&#34;同意&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;exclusivegateway5&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;hrAudit&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;conditionExpression</span> <span class="na">xsi:type=</span><span class="s">&#34;tFormalExpression&#34;</span><span class="nt">&gt;</span><span class="cp">&lt;![CDATA[${deptLeaderPass == &#39;true&#39;}]]&gt;</span><span class="nt">&lt;/conditionExpression&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow6&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;hrAudit&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;exclusivegateway6&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow7&#34;</span> <span class="na">name=</span><span class="s">&#34;同意&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;exclusivegateway6&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;reportBack&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;conditionExpression</span> <span class="na">xsi:type=</span><span class="s">&#34;tFormalExpression&#34;</span><span class="nt">&gt;</span><span class="cp">&lt;![CDATA[${hrPass == &#39;true&#39;}]]&gt;</span><span class="nt">&lt;/conditionExpression&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow8&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;reportBack&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;endevent1&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow9&#34;</span> <span class="na">name=</span><span class="s">&#34;不同意&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;exclusivegateway6&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;modifyApply&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;conditionExpression</span> <span class="na">xsi:type=</span><span class="s">&#34;tFormalExpression&#34;</span><span class="nt">&gt;</span><span class="cp">&lt;![CDATA[${hrPass == &#39;false&#39;}]]&gt;</span><span class="nt">&lt;/conditionExpression&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow10&#34;</span> <span class="na">name=</span><span class="s">&#34;重新申请&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;exclusivegateway7&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;deptLeaderAudit&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;conditionExpression</span> <span class="na">xsi:type=</span><span class="s">&#34;tFormalExpression&#34;</span><span class="nt">&gt;</span><span class="cp">&lt;![CDATA[${reApply == &#39;true&#39;}]]&gt;</span><span class="nt">&lt;/conditionExpression&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow11&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;modifyApply&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;exclusivegateway7&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow12&#34;</span> <span class="na">name=</span><span class="s">&#34;结束流程&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;exclusivegateway7&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;endevent1&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;conditionExpression</span> <span class="na">xsi:type=</span><span class="s">&#34;tFormalExpression&#34;</span><span class="nt">&gt;</span><span class="cp">&lt;![CDATA[${reApply == &#39;false&#39;}]]&gt;</span><span class="nt">&lt;/conditionExpression&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;/process&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;bpmndi:BPMNDiagram</span> <span class="na">id=</span><span class="s">&#34;BPMNDiagram_leave-dynamic-from&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;bpmndi:BPMNPlane</span> <span class="na">bpmnElement=</span><span class="s">&#34;leave-dynamic-from&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNPlane_leave-dynamic-from&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;startevent1&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_startevent1&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;35.0&#34;</span> <span class="na">width=</span><span class="s">&#34;35.0&#34;</span> <span class="na">x=</span><span class="s">&#34;10.0&#34;</span> <span class="na">y=</span><span class="s">&#34;90.0&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;deptLeaderAudit&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_deptLeaderAudit&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;55.0&#34;</span> <span class="na">width=</span><span class="s">&#34;105.0&#34;</span> <span class="na">x=</span><span class="s">&#34;90.0&#34;</span> <span class="na">y=</span><span class="s">&#34;80.0&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;exclusivegateway5&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_exclusivegateway5&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;40.0&#34;</span> <span class="na">width=</span><span class="s">&#34;40.0&#34;</span> <span class="na">x=</span><span class="s">&#34;250.0&#34;</span> <span class="na">y=</span><span class="s">&#34;87.0&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;modifyApply&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_modifyApply&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;55.0&#34;</span> <span class="na">width=</span><span class="s">&#34;105.0&#34;</span> <span class="na">x=</span><span class="s">&#34;218.0&#34;</span> <span class="na">y=</span><span class="s">&#34;190.0&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;hrAudit&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_hrAudit&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;55.0&#34;</span> <span class="na">width=</span><span class="s">&#34;105.0&#34;</span> <span class="na">x=</span><span class="s">&#34;358.0&#34;</span> <span class="na">y=</span><span class="s">&#34;80.0&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;exclusivegateway6&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_exclusivegateway6&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;40.0&#34;</span> <span class="na">width=</span><span class="s">&#34;40.0&#34;</span> <span class="na">x=</span><span class="s">&#34;495.0&#34;</span> <span class="na">y=</span><span class="s">&#34;87.0&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;reportBack&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_reportBack&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;55.0&#34;</span> <span class="na">width=</span><span class="s">&#34;105.0&#34;</span> <span class="na">x=</span><span class="s">&#34;590.0&#34;</span> <span class="na">y=</span><span class="s">&#34;80.0&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;endevent1&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_endevent1&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;35.0&#34;</span> <span class="na">width=</span><span class="s">&#34;35.0&#34;</span> <span class="na">x=</span><span class="s">&#34;625.0&#34;</span> <span class="na">y=</span><span class="s">&#34;283.0&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;exclusivegateway7&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_exclusivegateway7&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;40.0&#34;</span> <span class="na">width=</span><span class="s">&#34;40.0&#34;</span> <span class="na">x=</span><span class="s">&#34;250.0&#34;</span> <span class="na">y=</span><span class="s">&#34;280.0&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;flow2&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_flow2&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;45.0&#34;</span> <span class="na">y=</span><span class="s">&#34;107.5&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;90.0&#34;</span> <span class="na">y=</span><span class="s">&#34;107.5&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;flow3&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_flow3&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;195.0&#34;</span> <span class="na">y=</span><span class="s">&#34;107.29411764705883&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;250.078125&#34;</span> <span class="na">y=</span><span class="s">&#34;107.078125&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;flow4&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_flow4&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;270.0900900900901&#34;</span> <span class="na">y=</span><span class="s">&#34;126.90990990990991&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;270.3755656108597&#34;</span> <span class="na">y=</span><span class="s">&#34;190.0&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;flow5&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_flow5&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;289.92907801418437&#34;</span> <span class="na">y=</span><span class="s">&#34;107.0709219858156&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;358.0&#34;</span> <span class="na">y=</span><span class="s">&#34;107.31316725978647&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;flow6&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_flow6&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;463.0&#34;</span> <span class="na">y=</span><span class="s">&#34;107.2488038277512&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;495.0952380952381&#34;</span> <span class="na">y=</span><span class="s">&#34;107.0952380952381&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;flow7&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_flow7&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;534.921875&#34;</span> <span class="na">y=</span><span class="s">&#34;107.078125&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;590.0&#34;</span> <span class="na">y=</span><span class="s">&#34;107.29411764705883&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;flow10&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_flow10&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;250.15503875968992&#34;</span> <span class="na">y=</span><span class="s">&#34;299.84496124031006&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;142.0&#34;</span> <span class="na">y=</span><span class="s">&#34;299.0&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;142.42819843342036&#34;</span> <span class="na">y=</span><span class="s">&#34;135.0&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;flow8&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_flow8&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;642.5&#34;</span> <span class="na">y=</span><span class="s">&#34;135.0&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;642.5&#34;</span> <span class="na">y=</span><span class="s">&#34;283.0&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;flow11&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_flow11&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;270.3333333333333&#34;</span> <span class="na">y=</span><span class="s">&#34;245.0&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;270.12048192771084&#34;</span> <span class="na">y=</span><span class="s">&#34;280.12048192771084&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;flow9&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_flow9&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;514.8198198198198&#34;</span> <span class="na">y=</span><span class="s">&#34;126.81981981981981&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;514.0&#34;</span> <span class="na">y=</span><span class="s">&#34;217.0&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;323.0&#34;</span> <span class="na">y=</span><span class="s">&#34;217.39219712525667&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;flow12&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_flow12&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;289.97319034852546&#34;</span> <span class="na">y=</span><span class="s">&#34;300.02680965147454&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;625.0000157650343&#34;</span> <span class="na">y=</span><span class="s">&#34;300.47651008827523&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/bpmndi:BPMNPlane&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;/bpmndi:BPMNDiagram&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/definitions&gt;</span>
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/images/activiti6-08/image-20200609094606898.png" >
+		<img src="/images/activiti6-08/image-20200609094606898.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200609094606898">
+	</a>
+	
+	<figcaption>image-20200609094606898</figcaption>
+	
+</figure></p>
+<p>可以看到，流程图和之前的请假流程一样，只是在各个节点添加了动态表单。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-08/image-20200609094620979.png" >
+		<img src="/images/activiti6-08/image-20200609094620979.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200609094620979">
+	</a>
+	
+	<figcaption>image-20200609094620979</figcaption>
+	
+</figure></p>
+<p>此处我们介绍下Activiti默认支持的表单类型，此外Activiti还支持自定义表单类型，这个我们后面用到了再介绍。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-08/image-20200705161847399.png" >
+		<img src="/images/activiti6-08/image-20200705161847399.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200705161847399">
+	</a>
+	
+	<figcaption>image-20200705161847399</figcaption>
+	
+</figure></p>
+<h2 id="21-初始化流程审批人员">2.1、 初始化流程审批人员</h2>
+<p>可以参考第4节的单元测试代码来初始化数据，（我是直接套用了kft-activiti-demo项目的表数据）最终表结构如下：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-08/image-20200609191006625.png" >
+		<img src="/images/activiti6-08/image-20200609191006625.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200609191006625">
+	</a>
+	
+	<figcaption>image-20200609191006625</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-08/image-20200609191024047.png" >
+		<img src="/images/activiti6-08/image-20200609191024047.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200609191024047">
+	</a>
+	
+	<figcaption>image-20200609191024047</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-08/image-20200609191044731.png" >
+		<img src="/images/activiti6-08/image-20200609191044731.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200609191044731">
+	</a>
+	
+	<figcaption>image-20200609191044731</figcaption>
+	
+</figure></p>
+<h2 id="22-部署流程定义">2.2 、部署流程定义</h2>
+<p>直接使用<code>swagger</code>上传<code>.bpmn</code>文件来部署流程定义。说明（因为本地端口占用，我把端口改为9090了）</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-08/image-20200611094537384.png" >
+		<img src="/images/activiti6-08/image-20200611094537384.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200611094537384">
+	</a>
+	
+	<figcaption>image-20200611094537384</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-08/image-20200611094714776.png" >
+		<img src="/images/activiti6-08/image-20200611094714776.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200611094714776">
+	</a>
+	
+	<figcaption>image-20200611094714776</figcaption>
+	
+</figure></p>
+<p>可以看到，数据库中生成了一条流程定义记录。</p>
+<h2 id="23-获取流程启动节点表单信息">2.3、 获取流程启动节点表单信息</h2>
+<p>我们针对动态表单，新建一个<code>dynamicFromController.java</code>文件，动态表单专有的方法写这里：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@Api</span><span class="o">(</span><span class="n">value</span><span class="o">=</span><span class="s">&#34;动态表单模块&#34;</span><span class="o">,</span> <span class="n">description</span><span class="o">=</span><span class="s">&#34;动态表单模块&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@RestController</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@Slf4j</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">dynamicFromController</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@Autowired</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">FormService</span> <span class="n">formService</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 读取启动流程的表单字段来渲染start form
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@GetMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;/get-form/start/{reProcdef}&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@ApiOperation</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;获取流程启动节点表单信息&#34;</span><span class="o">,</span><span class="n">notes</span> <span class="o">=</span> <span class="s">&#34;获取流程启动节点表单信息&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">CommonResponse</span> <span class="nf">findStartForm</span><span class="o">(</span><span class="nd">@PathVariable</span><span class="o">(</span><span class="s">&#34;reProcdef&#34;</span><span class="o">)</span> <span class="nd">@ApiParam</span><span class="o">(</span><span class="s">&#34;流程定义Id(act_re_procdef表id)&#34;</span><span class="o">)</span> <span class="n">String</span> <span class="n">processDefinitionId</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;</span> <span class="n">result</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">StartFormDataImpl</span> <span class="n">startFormData</span> <span class="o">=</span> <span class="o">(</span><span class="n">StartFormDataImpl</span><span class="o">)</span> <span class="n">formService</span><span class="o">.</span><span class="na">getStartFormData</span><span class="o">(</span><span class="n">processDefinitionId</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">startFormData</span><span class="o">.</span><span class="na">setProcessDefinition</span><span class="o">(</span><span class="kc">null</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * 读取enum类型数据，用于下拉框
+</span></span></span><span class="line"><span class="cl"><span class="cm">         */</span>
+</span></span><span class="line"><span class="cl">        <span class="n">List</span><span class="o">&lt;</span><span class="n">FormProperty</span><span class="o">&gt;</span> <span class="n">formProperties</span> <span class="o">=</span> <span class="n">startFormData</span><span class="o">.</span><span class="na">getFormProperties</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="o">(</span><span class="n">FormProperty</span> <span class="n">formProperty</span> <span class="o">:</span> <span class="n">formProperties</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">values</span> <span class="o">=</span> <span class="o">(</span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;)</span> <span class="n">formProperty</span><span class="o">.</span><span class="na">getType</span><span class="o">().</span><span class="na">getInformation</span><span class="o">(</span><span class="s">&#34;values&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="o">(</span><span class="n">values</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="k">for</span> <span class="o">(</span><span class="n">Map</span><span class="o">.</span><span class="na">Entry</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">enumEntry</span> <span class="o">:</span> <span class="n">values</span><span class="o">.</span><span class="na">entrySet</span><span class="o">())</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">log</span><span class="o">.</span><span class="na">debug</span><span class="o">(</span><span class="s">&#34;enum, key: {}, value: {}&#34;</span><span class="o">,</span> <span class="n">enumEntry</span><span class="o">.</span><span class="na">getKey</span><span class="o">(),</span> <span class="n">enumEntry</span><span class="o">.</span><span class="na">getValue</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">                <span class="o">}</span>
+</span></span><span class="line"><span class="cl">                <span class="n">result</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;enum_&#34;</span> <span class="o">+</span> <span class="n">formProperty</span><span class="o">.</span><span class="na">getId</span><span class="o">(),</span> <span class="n">values</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="n">result</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;form&#34;</span><span class="o">,</span> <span class="n">startFormData</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="k">new</span> <span class="n">CommonResponse</span><span class="o">().</span><span class="na">code</span><span class="o">(</span><span class="n">CodeEnum</span><span class="o">.</span><span class="na">SUCCESS</span><span class="o">.</span><span class="na">getCode</span><span class="o">()).</span><span class="na">message</span><span class="o">(</span><span class="s">&#34;获取启动节点&#34;</span><span class="o">).</span><span class="na">data</span><span class="o">(</span><span class="n">result</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>测试：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-08/image-20200611094938822.png" >
+		<img src="/images/activiti6-08/image-20200611094938822.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200611094938822">
+	</a>
+	
+	<figcaption>image-20200611094938822</figcaption>
+	
+</figure></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;code&#34;</span><span class="p">:</span> <span class="s2">&#34;0000&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;data&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;form&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;formKey&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;deploymentId&#34;</span><span class="p">:</span> <span class="s2">&#34;3&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;formProperties&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="s2">&#34;startDate&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;请假开始日期&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;date&#34;</span>
+</span></span><span class="line"><span class="cl">          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;value&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;readable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;writable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;required&#34;</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="s2">&#34;endDate&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;请假结束日期&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;date&#34;</span>
+</span></span><span class="line"><span class="cl">          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;value&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;readable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;writable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;required&#34;</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="s2">&#34;reason&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;请假原因&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;string&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;mimeType&#34;</span><span class="p">:</span> <span class="s2">&#34;text/plain&#34;</span>
+</span></span><span class="line"><span class="cl">          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;value&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;readable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;writable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;required&#34;</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">      <span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;processDefinition&#34;</span><span class="p">:</span> <span class="kc">null</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;message&#34;</span><span class="p">:</span> <span class="s2">&#34;获取启动节点&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>可以看到我们已经获取到了start节点的动态表单信息。我们可以根据这些信息，来动态生成一个表单页面。</p>
+<h2 id="24-提交启动流程">2.4 、提交启动流程</h2>
+<p>上一步我们已经获取到了启动流程的开始节点所需的表单信息。接下来我们将这些字段赋值后提交到后台，并启动流程。</p>
+<ul>
+<li>Controller层代码</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 提交启动流程
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@PostMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;/start-process/{processDefinitionId}&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@ApiOperation</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;提交启动流程&#34;</span><span class="o">,</span><span class="n">notes</span> <span class="o">=</span> <span class="s">&#34;获取动态表单提交的数据，并发起流程，表单数据key-value结构，key需要以fp_开头&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">CommonResponse</span> <span class="nf">submitStartFormAndStartProcessInstance</span><span class="o">(</span><span class="nd">@PathVariable</span><span class="o">(</span><span class="s">&#34;processDefinitionId&#34;</span><span class="o">)</span> <span class="nd">@ApiParam</span><span class="o">(</span><span class="s">&#34;流程定义Id(act_re_procdef表id)&#34;</span><span class="o">)</span><span class="n">String</span> <span class="n">processDefinitionId</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">                                                         <span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">CommonException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ProcessInstance</span> <span class="n">processInstance</span> <span class="o">=</span> <span class="n">dynamicFromService</span><span class="o">.</span><span class="na">submitStartFormAndStartProcessInstance</span><span class="o">(</span><span class="n">processDefinitionId</span><span class="o">,</span><span class="n">request</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="k">new</span> <span class="n">CommonResponse</span><span class="o">().</span><span class="na">code</span><span class="o">(</span><span class="n">CodeEnum</span><span class="o">.</span><span class="na">SUCCESS</span><span class="o">.</span><span class="na">getCode</span><span class="o">()).</span><span class="na">message</span><span class="o">(</span><span class="s">&#34;流程启动成功，流程ID：&#34;</span> <span class="o">+</span> <span class="n">processInstance</span><span class="o">.</span><span class="na">getId</span><span class="o">()).</span><span class="na">data</span><span class="o">(</span><span class="n">processInstance</span><span class="o">.</span><span class="na">getId</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span></code></pre></div><ul>
+<li>Service层代码：</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 获取动态表单提交的数据，并发起流程，表单数据 key-value结构，key需要以fp_开头
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param processDefinitionId
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param request
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @return
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Transactional</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">ProcessInstance</span> <span class="nf">submitStartFormAndStartProcessInstance</span><span class="o">(</span><span class="n">String</span> <span class="n">processDefinitionId</span><span class="o">,</span><span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">CommonException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">formProperties</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;();</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 从request中读取参数然后转换
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">[]&gt;</span> <span class="n">parameterMap</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="na">getParameterMap</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="o">(</span><span class="n">parameterMap</span><span class="o">.</span><span class="na">size</span><span class="o">()&gt;</span><span class="n">0</span><span class="o">){</span>
+</span></span><span class="line"><span class="cl">            <span class="n">Set</span><span class="o">&lt;</span><span class="n">Map</span><span class="o">.</span><span class="na">Entry</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">[]&gt;&gt;</span> <span class="n">entrySet</span> <span class="o">=</span> <span class="n">parameterMap</span><span class="o">.</span><span class="na">entrySet</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">            <span class="k">for</span> <span class="o">(</span><span class="n">Map</span><span class="o">.</span><span class="na">Entry</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">[]&gt;</span> <span class="n">entry</span> <span class="o">:</span> <span class="n">entrySet</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">String</span> <span class="n">key</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="na">getKey</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">                <span class="c1">// fp_的意思是form paremeter
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="k">if</span> <span class="o">(</span><span class="n">StringUtils</span><span class="o">.</span><span class="na">defaultString</span><span class="o">(</span><span class="n">key</span><span class="o">).</span><span class="na">startsWith</span><span class="o">(</span><span class="s">&#34;fp_&#34;</span><span class="o">))</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">formProperties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">key</span><span class="o">.</span><span class="na">split</span><span class="o">(</span><span class="s">&#34;_&#34;</span><span class="o">)[</span><span class="n">1</span><span class="o">],</span> <span class="n">entry</span><span class="o">.</span><span class="na">getValue</span><span class="o">()[</span><span class="n">0</span><span class="o">]);</span>
+</span></span><span class="line"><span class="cl">                <span class="o">}</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span><span class="k">else</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">throw</span> <span class="k">new</span> <span class="n">CommonException</span><span class="o">(</span><span class="s">&#34;表单数据为空&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">log</span><span class="o">.</span><span class="na">debug</span><span class="o">(</span><span class="s">&#34;start form parameters: {}&#34;</span><span class="o">,</span> <span class="n">formProperties</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">//TODO 此处应该添加获取当前操作人的代码,先写死用kafeitu发起流程。用户未登录不能操作，实际应用使用权限框架实现，例如Spring Security、Shiro等
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">UserQueryImpl</span> <span class="n">user</span> <span class="o">=</span> <span class="k">new</span> <span class="n">UserQueryImpl</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">user</span> <span class="o">=</span> <span class="o">(</span><span class="n">UserQueryImpl</span><span class="o">)</span><span class="n">identityService</span><span class="o">.</span><span class="na">createUserQuery</span><span class="o">().</span><span class="na">userId</span><span class="o">(</span><span class="s">&#34;kafeitu&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">ProcessInstance</span> <span class="n">processInstance</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">try</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">identityService</span><span class="o">.</span><span class="na">setAuthenticatedUserId</span><span class="o">(</span><span class="n">user</span><span class="o">.</span><span class="na">getId</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">            <span class="n">processInstance</span> <span class="o">=</span> <span class="n">formService</span><span class="o">.</span><span class="na">submitStartFormData</span><span class="o">(</span><span class="n">processDefinitionId</span><span class="o">,</span> <span class="n">formProperties</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">log</span><span class="o">.</span><span class="na">debug</span><span class="o">(</span><span class="s">&#34;start a processinstance: {}&#34;</span><span class="o">,</span> <span class="n">processInstance</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">identityService</span><span class="o">.</span><span class="na">setAuthenticatedUserId</span><span class="o">(</span><span class="kc">null</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">processInstance</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span></code></pre></div><p>因为需要使用form表单方式上传表单数据，不能直接使用swagger。Postman测试如下：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-08/image-20200611095115978.png" >
+		<img src="/images/activiti6-08/image-20200611095115978.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200611095115978">
+	</a>
+	
+	<figcaption>image-20200611095115978</figcaption>
+	
+</figure></p>
+<p><strong>注意：在字段前加<code>fp_</code>前缀，这样来区分表单字段和业务字段。加<code>fp_</code>的字段会被添加到工作流数据表中</strong></p>
+<p>此时我们调用<strong>获取流程图,输出跟踪流程信息</strong>，可以看到流程已经到达<strong>部门领导审批</strong>环节。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-08/image-20200611100619751.png" >
+		<img src="/images/activiti6-08/image-20200611100619751.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200611100619751">
+	</a>
+	
+	<figcaption>image-20200611100619751</figcaption>
+	
+</figure></p>
+<h2 id="25-获取待办流程列表">2.5、 获取待办流程列表</h2>
+<p>流程启动后，下一步是部门经理审批，我们获取<strong>部门经理待办列表</strong>。</p>
+<ul>
+<li>
+<p>Controller</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"> <span class="nd">@PostMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;/task/list&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@ResponseBody</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@ApiOperation</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;获取当前人员待办列表&#34;</span><span class="o">,</span><span class="n">notes</span> <span class="o">=</span> <span class="s">&#34;获取当前人员待办列表,如果要查询所有，则传all&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">CommonResponse</span> <span class="nf">taskList</span><span class="o">(</span><span class="nd">@RequestParam</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;processDefinitionKey&#34;</span><span class="o">,</span> <span class="n">required</span> <span class="o">=</span> <span class="kc">true</span><span class="o">)</span> <span class="nd">@ApiParam</span><span class="o">(</span><span class="s">&#34;流程定义Id(act_re_procdef表KEY)&#34;</span><span class="o">)</span><span class="n">String</span> <span class="n">processDefinitionKey</span><span class="o">,</span> <span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">List</span><span class="o">&lt;</span><span class="n">Task</span><span class="o">&gt;</span> <span class="n">taskList</span> <span class="o">=</span> <span class="n">processService</span><span class="o">.</span><span class="na">taskList</span><span class="o">(</span><span class="n">processDefinitionKey</span><span class="o">,</span> <span class="n">request</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">List</span><span class="o">&lt;</span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;&gt;</span> <span class="n">customTaskList</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;&gt;();</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="o">(</span><span class="n">Task</span> <span class="n">task</span> <span class="o">:</span> <span class="n">taskList</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;</span> <span class="n">map</span> <span class="o">=</span> <span class="k">new</span> <span class="n">LinkedHashMap</span><span class="o">&lt;&gt;();</span>
+</span></span><span class="line"><span class="cl">            <span class="n">map</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;taskId&#34;</span><span class="o">,</span> <span class="n">task</span><span class="o">.</span><span class="na">getId</span><span class="o">());</span><span class="c1">//任务ID
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">map</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;taskName&#34;</span><span class="o">,</span><span class="n">task</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span><span class="c1">//任务名称
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">map</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;taskDefinitionKey&#34;</span><span class="o">,</span> <span class="n">task</span><span class="o">.</span><span class="na">getTaskDefinitionKey</span><span class="o">());</span><span class="c1">//任务Key
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">map</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;processDefinitionId&#34;</span><span class="o">,</span> <span class="n">task</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span><span class="c1">//流程定义ID
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">map</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;processInstanceId&#34;</span><span class="o">,</span> <span class="n">task</span><span class="o">.</span><span class="na">getProcessInstanceId</span><span class="o">());</span><span class="c1">//	流程实例ID
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">map</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;priority&#34;</span><span class="o">,</span> <span class="n">task</span><span class="o">.</span><span class="na">getPriority</span><span class="o">());</span><span class="c1">//	优先级
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">map</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;createTime&#34;</span><span class="o">,</span> <span class="n">task</span><span class="o">.</span><span class="na">getCreateTime</span><span class="o">());</span><span class="c1">//	任务创建日期
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">map</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;dueDate&#34;</span><span class="o">,</span> <span class="n">task</span><span class="o">.</span><span class="na">getDueDate</span><span class="o">());</span><span class="c1">//任务逾期日
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">map</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;description&#34;</span><span class="o">,</span> <span class="n">task</span><span class="o">.</span><span class="na">getDescription</span><span class="o">());</span><span class="c1">//任务描述
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">map</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;owner&#34;</span><span class="o">,</span> <span class="n">task</span><span class="o">.</span><span class="na">getOwner</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">            <span class="n">map</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;assignee&#34;</span><span class="o">,</span> <span class="n">task</span><span class="o">.</span><span class="na">getAssignee</span><span class="o">());</span><span class="c1">//任务所属人（为空需要签收）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">customTaskList</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">map</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="k">new</span> <span class="n">CommonResponse</span><span class="o">().</span><span class="na">code</span><span class="o">(</span><span class="n">CodeEnum</span><span class="o">.</span><span class="na">SUCCESS</span><span class="o">.</span><span class="na">getCode</span><span class="o">()).</span><span class="na">message</span><span class="o">(</span><span class="s">&#34;获取当前人员待办列表成功&#34;</span><span class="o">).</span><span class="na">data</span><span class="o">(</span><span class="n">customTaskList</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span></code></pre></div></li>
+<li>
+<p>Service</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Task</span><span class="o">&gt;</span> <span class="nf">taskList</span><span class="o">(</span><span class="n">String</span> <span class="n">processDefinitionKey</span><span class="o">,</span> <span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">//TODO 此处应该添加获取当前操作人的代码,先写死用 leaderuser。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">UserQueryImpl</span> <span class="n">user</span> <span class="o">=</span> <span class="k">new</span> <span class="n">UserQueryImpl</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">user</span> <span class="o">=</span> <span class="o">(</span><span class="n">UserQueryImpl</span><span class="o">)</span><span class="n">identityService</span><span class="o">.</span><span class="na">createUserQuery</span><span class="o">().</span><span class="na">userId</span><span class="o">(</span><span class="s">&#34;leaderuser&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">List</span><span class="o">&lt;</span><span class="n">Task</span><span class="o">&gt;</span> <span class="n">tasks</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">Task</span><span class="o">&gt;();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="o">(!</span><span class="n">StringUtils</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">processDefinitionKey</span><span class="o">,</span> <span class="s">&#34;all&#34;</span><span class="o">))</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">tasks</span> <span class="o">=</span> <span class="n">taskService</span><span class="o">.</span><span class="na">createTaskQuery</span><span class="o">().</span><span class="na">processDefinitionKey</span><span class="o">(</span><span class="n">processDefinitionKey</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                    <span class="o">.</span><span class="na">taskCandidateOrAssigned</span><span class="o">(</span><span class="n">user</span><span class="o">.</span><span class="na">getId</span><span class="o">()).</span><span class="na">active</span><span class="o">().</span><span class="na">orderByTaskId</span><span class="o">().</span><span class="na">desc</span><span class="o">().</span><span class="na">list</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">tasks</span> <span class="o">=</span> <span class="n">taskService</span><span class="o">.</span><span class="na">createTaskQuery</span><span class="o">().</span><span class="na">taskCandidateOrAssigned</span><span class="o">(</span><span class="n">user</span><span class="o">.</span><span class="na">getId</span><span class="o">()).</span><span class="na">active</span><span class="o">().</span><span class="na">orderByTaskId</span><span class="o">().</span><span class="na">desc</span><span class="o">().</span><span class="na">list</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">tasks</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span></code></pre></div></li>
+<li>
+<p>测试</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-08/image-20200611095231773.png" >
+		<img src="/images/activiti6-08/image-20200611095231773.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200611095231773">
+	</a>
+	
+	<figcaption>image-20200611095231773</figcaption>
+	
+</figure></p>
+</li>
+</ul>
+<h2 id="26-签收任务">2.6 、签收任务</h2>
+<p>上面我们获取了<code>leaderuser</code>的待办任务，其中 assignee 为 <code>null</code>。说明这个任务需要签收。签收后此字段会变为<code>leaderuser</code></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"> <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">  * 签收任务
+</span></span></span><span class="line"><span class="cl"><span class="cm">  */</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@GetMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;/task/claim/{id}&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@ResponseBody</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@ApiOperation</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;签收任务&#34;</span><span class="o">,</span><span class="n">notes</span> <span class="o">=</span> <span class="s">&#34;签收任务&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="n">CommonResponse</span> <span class="nf">claim</span><span class="o">(</span><span class="nd">@PathVariable</span><span class="o">(</span><span class="s">&#34;id&#34;</span><span class="o">)</span> <span class="nd">@ApiParam</span><span class="o">(</span><span class="s">&#34;任务id&#34;</span><span class="o">)</span><span class="n">String</span> <span class="n">taskId</span><span class="o">,</span> <span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">processService</span><span class="o">.</span><span class="na">claim</span><span class="o">(</span><span class="n">taskId</span><span class="o">,</span> <span class="n">request</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="k">new</span> <span class="n">CommonResponse</span><span class="o">().</span><span class="na">code</span><span class="o">(</span><span class="n">CodeEnum</span><span class="o">.</span><span class="na">SUCCESS</span><span class="o">.</span><span class="na">getCode</span><span class="o">()).</span><span class="na">message</span><span class="o">(</span><span class="s">&#34;已签收&#34;</span><span class="o">).</span><span class="na">data</span><span class="o">(</span><span class="s">&#34;&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"> <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kt">void</span> <span class="nf">claim</span><span class="o">(</span><span class="n">String</span> <span class="n">taskId</span><span class="o">,</span> <span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//TODO 此处应该添加获取当前操作人的代码,先写死用 leaderuser。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">UserQueryImpl</span> <span class="n">user</span> <span class="o">=</span> <span class="k">new</span> <span class="n">UserQueryImpl</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="n">user</span> <span class="o">=</span> <span class="o">(</span><span class="n">UserQueryImpl</span><span class="o">)</span><span class="n">identityService</span><span class="o">.</span><span class="na">createUserQuery</span><span class="o">().</span><span class="na">userId</span><span class="o">(</span><span class="s">&#34;leaderuser&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">taskService</span><span class="o">.</span><span class="na">claim</span><span class="o">(</span><span class="n">taskId</span><span class="o">,</span> <span class="n">user</span><span class="o">.</span><span class="na">getId</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>测试：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-08/image-20200611095518425.png" >
+		<img src="/images/activiti6-08/image-20200611095518425.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200611095518425">
+	</a>
+	
+	<figcaption>image-20200611095518425</figcaption>
+	
+</figure></p>
+<h2 id="27-leaderuser-读取task的表单信息">2.7 、<code>leaderuser</code> 读取task的表单信息</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 读取Task的表单
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@GetMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;get-form/task/{taskId}&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@ResponseBody</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@ApiOperation</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;读取task的表单信息&#34;</span><span class="o">,</span><span class="n">notes</span> <span class="o">=</span> <span class="s">&#34;读取task的表单信息&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">CommonResponse</span> <span class="nf">getTaskFormByTaskId</span><span class="o">(</span><span class="nd">@PathVariable</span><span class="o">(</span><span class="s">&#34;taskId&#34;</span><span class="o">)</span> <span class="n">String</span> <span class="n">taskId</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;</span> <span class="n">result</span> <span class="o">=</span>  <span class="n">processService</span><span class="o">.</span><span class="na">getTaskFormByTaskId</span><span class="o">(</span><span class="n">taskId</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="k">new</span> <span class="n">CommonResponse</span><span class="o">().</span><span class="na">code</span><span class="o">(</span><span class="n">CodeEnum</span><span class="o">.</span><span class="na">SUCCESS</span><span class="o">.</span><span class="na">getCode</span><span class="o">()).</span><span class="na">message</span><span class="o">(</span><span class="s">&#34;读取Task的表单成功&#34;</span><span class="o">).</span><span class="na">data</span><span class="o">(</span><span class="n">result</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;</span> <span class="nf">getTaskFormByTaskId</span><span class="o">(</span><span class="n">String</span> <span class="n">taskId</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;</span> <span class="n">result</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;();</span>
+</span></span><span class="line"><span class="cl">    <span class="n">TaskFormDataImpl</span> <span class="n">taskFormData</span> <span class="o">=</span> <span class="o">(</span><span class="n">TaskFormDataImpl</span><span class="o">)</span> <span class="n">formService</span><span class="o">.</span><span class="na">getTaskFormData</span><span class="o">(</span><span class="n">taskId</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// 设置task为null，否则输出json的时候会报错
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">taskFormData</span><span class="o">.</span><span class="na">setTask</span><span class="o">(</span><span class="kc">null</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">result</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;taskFormData&#34;</span><span class="o">,</span> <span class="n">taskFormData</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">         * 读取enum类型数据，用于下拉框
+</span></span></span><span class="line"><span class="cl"><span class="cm">         */</span>
+</span></span><span class="line"><span class="cl">    <span class="n">List</span><span class="o">&lt;</span><span class="n">FormProperty</span><span class="o">&gt;</span> <span class="n">formProperties</span> <span class="o">=</span> <span class="n">taskFormData</span><span class="o">.</span><span class="na">getFormProperties</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="o">(</span><span class="n">FormProperty</span> <span class="n">formProperty</span> <span class="o">:</span> <span class="n">formProperties</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">values</span> <span class="o">=</span> <span class="o">(</span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;)</span> <span class="n">formProperty</span><span class="o">.</span><span class="na">getType</span><span class="o">().</span><span class="na">getInformation</span><span class="o">(</span><span class="s">&#34;values&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="o">(</span><span class="n">values</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">for</span> <span class="o">(</span><span class="n">Map</span><span class="o">.</span><span class="na">Entry</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">enumEntry</span> <span class="o">:</span> <span class="n">values</span><span class="o">.</span><span class="na">entrySet</span><span class="o">())</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">log</span><span class="o">.</span><span class="na">debug</span><span class="o">(</span><span class="s">&#34;enum, key: {}, value: {}&#34;</span><span class="o">,</span> <span class="n">enumEntry</span><span class="o">.</span><span class="na">getKey</span><span class="o">(),</span> <span class="n">enumEntry</span><span class="o">.</span><span class="na">getValue</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">            <span class="n">result</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">formProperty</span><span class="o">.</span><span class="na">getId</span><span class="o">(),</span> <span class="n">values</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>swagger测试：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-08/image-20200611095658107.png" >
+		<img src="/images/activiti6-08/image-20200611095658107.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200611095658107">
+	</a>
+	
+	<figcaption>image-20200611095658107</figcaption>
+	
+</figure></p>
+<p>我们贴出返回值,可以看到发起人填写的表单信息，部门经理节点是可以看到的。这是因为表单的字段信息都被流程引擎保存在<code>act_hi_detail</code>表中了。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-08/image-20200617113356897.png" >
+		<img src="/images/activiti6-08/image-20200617113356897.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200617113356897">
+	</a>
+	
+	<figcaption>image-20200617113356897</figcaption>
+	
+</figure></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;code&#34;</span><span class="p">:</span> <span class="s2">&#34;0000&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;data&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;taskFormData&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;formKey&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;deploymentId&#34;</span><span class="p">:</span> <span class="s2">&#34;3&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;formProperties&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="s2">&#34;startDate&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;请假开始日期&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;date&#34;</span>
+</span></span><span class="line"><span class="cl">          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;value&#34;</span><span class="p">:</span> <span class="s2">&#34;2020-02-03&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;readable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;writable&#34;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;required&#34;</span><span class="p">:</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="s2">&#34;endDate&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;请假结束日期&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;date&#34;</span>
+</span></span><span class="line"><span class="cl">          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;value&#34;</span><span class="p">:</span> <span class="s2">&#34;2020-02-04&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;readable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;writable&#34;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;required&#34;</span><span class="p">:</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="s2">&#34;reason&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;请假原因&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;string&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;mimeType&#34;</span><span class="p">:</span> <span class="s2">&#34;text/plain&#34;</span>
+</span></span><span class="line"><span class="cl">          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;value&#34;</span><span class="p">:</span> <span class="s2">&#34;世界这么大，我想去看看&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;readable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;writable&#34;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;required&#34;</span><span class="p">:</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="s2">&#34;deptLeaderPass&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;审批意见&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;enum&#34;</span>
+</span></span><span class="line"><span class="cl">          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;value&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;readable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;writable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;required&#34;</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">      <span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;task&#34;</span><span class="p">:</span> <span class="kc">null</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;deptLeaderPass&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;true&#34;</span><span class="p">:</span> <span class="s2">&#34;同意&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;false&#34;</span><span class="p">:</span> <span class="s2">&#34;不同意&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;message&#34;</span><span class="p">:</span> <span class="s2">&#34;读取Task的表单成功&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><h2 id="28办理任务提交task并保存-form">2.8、办理任务，提交task，并保存 form</h2>
+<p>这个节点代码是公用的，每个处理节点都是使用这个方法来提交本节点需要提供的表单数据，并办理任务。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"> <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">  * 办理任务，提交task，并保存form
+</span></span></span><span class="line"><span class="cl"><span class="cm">  */</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@PostMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;/task/complete/{taskId}&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@ResponseBody</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@ApiOperation</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;办理任务，提交task，并保存form&#34;</span><span class="o">,</span><span class="n">notes</span> <span class="o">=</span> <span class="s">&#34;办理任务，提交task，并保存form&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="n">CommonResponse</span> <span class="nf">completeTask</span><span class="o">(</span><span class="nd">@PathVariable</span><span class="o">(</span><span class="s">&#34;taskId&#34;</span><span class="o">)</span> <span class="n">String</span> <span class="n">taskId</span><span class="o">,</span> <span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">processService</span><span class="o">.</span><span class="na">completeTask</span><span class="o">(</span><span class="n">taskId</span><span class="o">,</span><span class="n">request</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="k">new</span> <span class="n">CommonResponse</span><span class="o">().</span><span class="na">code</span><span class="o">(</span><span class="n">CodeEnum</span><span class="o">.</span><span class="na">SUCCESS</span><span class="o">.</span><span class="na">getCode</span><span class="o">()).</span><span class="na">message</span><span class="o">(</span><span class="s">&#34;任务办理成功&#34;</span><span class="o">).</span><span class="na">data</span><span class="o">(</span><span class="n">taskId</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kt">void</span> <span class="nf">completeTask</span><span class="o">(</span><span class="n">String</span> <span class="n">taskId</span><span class="o">,</span> <span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">formProperties</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;();</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// 从request中读取参数然后转换
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">[]&gt;</span> <span class="n">parameterMap</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="na">getParameterMap</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Set</span><span class="o">&lt;</span><span class="n">Map</span><span class="o">.</span><span class="na">Entry</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">[]&gt;&gt;</span> <span class="n">entrySet</span> <span class="o">=</span> <span class="n">parameterMap</span><span class="o">.</span><span class="na">entrySet</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="o">(</span><span class="n">Map</span><span class="o">.</span><span class="na">Entry</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">[]&gt;</span> <span class="n">entry</span> <span class="o">:</span> <span class="n">entrySet</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">String</span> <span class="n">key</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="na">getKey</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// fp_的意思是form paremeter
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">if</span> <span class="o">(</span><span class="n">StringUtils</span><span class="o">.</span><span class="na">defaultString</span><span class="o">(</span><span class="n">key</span><span class="o">).</span><span class="na">startsWith</span><span class="o">(</span><span class="s">&#34;fp_&#34;</span><span class="o">))</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">formProperties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">key</span><span class="o">.</span><span class="na">split</span><span class="o">(</span><span class="s">&#34;_&#34;</span><span class="o">)[</span><span class="n">1</span><span class="o">],</span> <span class="n">entry</span><span class="o">.</span><span class="na">getValue</span><span class="o">()[</span><span class="n">0</span><span class="o">]);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">log</span><span class="o">.</span><span class="na">debug</span><span class="o">(</span><span class="s">&#34;start form parameters: {}&#34;</span><span class="o">,</span> <span class="n">formProperties</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//TODO 此处应该添加获取当前操作人的代码,先写死用 leaderuser。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">UserQueryImpl</span> <span class="n">user</span> <span class="o">=</span> <span class="k">new</span> <span class="n">UserQueryImpl</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="n">user</span> <span class="o">=</span> <span class="o">(</span><span class="n">UserQueryImpl</span><span class="o">)</span><span class="n">identityService</span><span class="o">.</span><span class="na">createUserQuery</span><span class="o">().</span><span class="na">userId</span><span class="o">(</span><span class="s">&#34;leaderuser&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// 用户未登录不能操作，实际应用使用权限框架实现，例如Spring Security、Shiro等
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span> <span class="o">(</span><span class="n">user</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="n">StringUtils</span><span class="o">.</span><span class="na">isBlank</span><span class="o">(</span><span class="n">user</span><span class="o">.</span><span class="na">getId</span><span class="o">()))</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">throw</span> <span class="k">new</span> <span class="n">CommonException</span><span class="o">(</span><span class="s">&#34;用户未登录不能操作&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">try</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">identityService</span><span class="o">.</span><span class="na">setAuthenticatedUserId</span><span class="o">(</span><span class="n">user</span><span class="o">.</span><span class="na">getId</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="n">formService</span><span class="o">.</span><span class="na">submitTaskFormData</span><span class="o">(</span><span class="n">taskId</span><span class="o">,</span> <span class="n">formProperties</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">identityService</span><span class="o">.</span><span class="na">setAuthenticatedUserId</span><span class="o">(</span><span class="kc">null</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>我们通过这个任务：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-08/image-20200611101301369.png" >
+		<img src="/images/activiti6-08/image-20200611101301369.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200611101301369">
+	</a>
+	
+	<figcaption>image-20200611101301369</figcaption>
+	
+</figure></p>
+<p>查看当前流程图，可以看到已经到达人事节点。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-08/image-20200611101326298.png" >
+		<img src="/images/activiti6-08/image-20200611101326298.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200611101326298">
+	</a>
+	
+	<figcaption>image-20200611101326298</figcaption>
+	
+</figure></p>
+<h2 id="29人事签收及办理任务">2.9、人事签收及办理任务</h2>
+<p>这个过程和部门经理审批类似，不再详细介绍，注意每个节点表单信息是不一样的。</p>
+<p><strong>步骤：获取待办列表（taskId)—签收任务—完成任务</strong></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-08/image-20200611103959430.png" >
+		<img src="/images/activiti6-08/image-20200611103959430.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200611103959430">
+	</a>
+	
+	<figcaption>image-20200611103959430</figcaption>
+	
+</figure></p>
+<h2 id="210-销假">2.10 销假</h2>
+<p>销假环节，和前2步大同小异，需要注意的是，销假环节的审批用户是<code>kafeitu</code></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-08/image-20200611104713878.png" >
+		<img src="/images/activiti6-08/image-20200611104713878.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200611104713878">
+	</a>
+	
+	<figcaption>image-20200611104713878</figcaption>
+	
+</figure></p>
+<p><code>applyUserId</code>是在流程发起环节就已经定义好的。所以，此处无需签收任务。</p>
+<p>我们获取发起人的待办列表，可以看到：无需签收动作，assignee就已经自动指向了<code>kafeitu</code></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-08/image-20200611104920139.png" >
+		<img src="/images/activiti6-08/image-20200611104920139.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200611104920139">
+	</a>
+	
+	<figcaption>image-20200611104920139</figcaption>
+	
+</figure></p>
+<p>完成销假：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-08/image-20200611105355237.png" >
+		<img src="/images/activiti6-08/image-20200611105355237.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200611105355237">
+	</a>
+	
+	<figcaption>image-20200611105355237</figcaption>
+	
+</figure></p>
+<h2 id="211-流程结束">2.11 流程结束</h2>
+<p><figure 
+	>
+	<a href="/images/activiti6-08/image-20200611105438350.png" >
+		<img src="/images/activiti6-08/image-20200611105438350.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200611105438350">
+	</a>
+	
+	<figcaption>image-20200611105438350</figcaption>
+	
+</figure></p>
+<h1 id="3总结">3、总结</h1>
+<p>我们完整的走了一遍流程，对动态表单的执行过程有了全面的了解。</p>
+<p>弊端：</p>
+<p>1、每个流程表单信息是不一样的，我们每次获取表单信息后，利用这些信息生成我们的页面，这个其实不是很方便。表单少些还好，如果很多，那么就是灾难。和流程引擎的耦合度太高了。</p>
+<p>2、流程业务数据全部保存在Activiti的表（act_hi_detail）中，不利于我们后期的数据处理。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/activiti/">Activiti</a>
+        
+            <a href="/tags/swagger/">Swagger</a>
+        
+            <a href="/tags/logback/">logback</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/activiti34-%E4%BD%BF%E7%94%A8swagger%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（34） 使用Swagger生成静态接口文档</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti35-%E4%BD%BF%E7%94%A8swagger%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（35） 使用Swagger生成静态接口文档</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti6%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%B3%BB%E7%BB%9F%E6%90%AD%E5%BB%BA%E6%95%99%E7%A8%8B/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti6工作流系统搭建教程</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti33-spring-security%E8%8E%B7%E5%8F%96%E5%BD%93%E5%89%8D%E6%93%8D%E4%BD%9C%E4%BA%BA%E4%BF%A1%E6%81%AF/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（33） Spring-Security获取当前操作人信息</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti32-%E6%9B%BF%E6%8D%A2activiti%E7%94%A8%E6%88%B7%E5%92%8C%E7%94%A8%E6%88%B7%E7%BB%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（32） 替换Activiti用户和用户组</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#11集成swagger">1.1、集成Swagger</a></li>
+    <li><a href="#12安装lombok">1.2、安装lombok</a></li>
+    <li><a href="#13集成logback日志">1.3、集成logback日志</a></li>
+  </ol>
+
+  <ol>
+    <li><a href="#21-初始化流程审批人员">2.1、 初始化流程审批人员</a></li>
+    <li><a href="#22-部署流程定义">2.2 、部署流程定义</a></li>
+    <li><a href="#23-获取流程启动节点表单信息">2.3、 获取流程启动节点表单信息</a></li>
+    <li><a href="#24-提交启动流程">2.4 、提交启动流程</a></li>
+    <li><a href="#25-获取待办流程列表">2.5、 获取待办流程列表</a></li>
+    <li><a href="#26-签收任务">2.6 、签收任务</a></li>
+    <li><a href="#27-leaderuser-读取task的表单信息">2.7 、<code>leaderuser</code> 读取task的表单信息</a></li>
+    <li><a href="#28办理任务提交task并保存-form">2.8、办理任务，提交task，并保存 form</a></li>
+    <li><a href="#29人事签收及办理任务">2.9、人事签收及办理任务</a></li>
+    <li><a href="#210-销假">2.10 销假</a></li>
+    <li><a href="#211-流程结束">2.11 流程结束</a></li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='本地IDEA导入spring-framework-5.1.0.RC1.zip'><title>Spring源码学习（一）：环境准备</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B8%80%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Spring源码学习（一）：环境准备'>
+<meta property='og:description' content='本地IDEA导入spring-framework-5.1.0.RC1.zip'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B8%80%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Spring' /><meta property='article:published_time' content='2020-03-14T16:03:51&#43;00:00'/><meta property='article:modified_time' content='2020-03-14T16:03:51&#43;00:00'/>
+<meta name="twitter:title" content="Spring源码学习（一）：环境准备">
+<meta name="twitter:description" content="本地IDEA导入spring-framework-5.1.0.RC1.zip">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/spring/" >
+                Spring
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B8%80%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87/">Spring源码学习（一）：环境准备</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        本地IDEA导入spring-framework-5.1.0.RC1.zip
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Mar 14, 2020</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 2 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <blockquote>
+<p>Spring源码学习所有的代码已经上传到github：https://github.com/gaoyipeng/spring-framework-5.1.0.RC1.git</p>
+</blockquote>
+<h2 id="构建工具-gradle">构建工具 Gradle</h2>
+<p>Spring 源码不是使用我们常用的Maven构建，使用Gradle。 Gradle不是我们介绍的重点，我们在本地Window10环境下配置好环境即可。</p>
+<p>参考：<a class="link" href="https://www.cnblogs.com/NyanKoSenSei/p/11458953.html"  target="_blank" rel="noopener"
+    >Gradle的安装与配置</a></p>
+<p><figure 
+	>
+	<a href="/images/spring-study-01/gradle-v.png" >
+		<img src="/images/spring-study-01/gradle-v.png"
+			
+			
+			
+			loading="lazy"
+			alt="gradle-v.png">
+	</a>
+	
+	<figcaption>gradle-v.png</figcaption>
+	
+</figure></p>
+<h2 id="spring-源码包准备">Spring 源码包准备</h2>
+<h3 id="下载预编译">下载预编译</h3>
+<p>从Github下载源码包：<a class="link" href="https://github.com/spring-projects/spring-framework/archive/v5.1.0.RC1.zip"  target="_blank" rel="noopener"
+    >下载地址</a>,我下载的是：spring-framework-5.1.0.RC1.zip</p>
+<p>解压文件，查看import-into-idea.md文件：</p>
+<pre tabindex="0"><code>The following has been tested against IntelliJ IDEA 2016.2.2
+
+## Steps
+
+_Within your locally cloned spring-framework working directory:_
+
+1. Precompile `spring-oxm` with `./gradlew :spring-oxm:compileTestJava`
+2. Import into IntelliJ (File -&gt; New -&gt; Project from Existing Sources -&gt; Navigate to directory -&gt; Select build.gradle)
+3. When prompted exclude the `spring-aspects` module (or after the import via File-&gt; Project Structure -&gt; Modules)
+4. Code away
+
+## Known issues
+
+1. `spring-core` and `spring-oxm` should be pre-compiled due to repackaged dependencies.
+See `*RepackJar` tasks in the build and https://youtrack.jetbrains.com/issue/IDEA-160605).
+2. `spring-aspects` does not compile due to references to aspect types unknown to
+IntelliJ IDEA. See https://youtrack.jetbrains.com/issue/IDEA-64446 for details. In the meantime, the
+&#39;spring-aspects&#39; can be excluded from the project to avoid compilation errors.
+3. While JUnit tests pass from the command line with Gradle, some may fail when run from
+IntelliJ IDEA. Resolving this is a work in progress. If attempting to run all JUnit tests from within
+IntelliJ IDEA, you will likely need to set the following VM options to avoid out of memory errors:
+    -XX:MaxPermSize=2048m -Xmx2048m -XX:MaxHeapSize=2048m
+4. If you invoke &#34;Rebuild Project&#34; in the IDE, you&#39;ll have to generate some test
+resources of the `spring-oxm` module again (`./gradlew :spring-oxm:compileTestJava`)    
+
+
+## Tips
+
+In any case, please do not check in your own generated .iml, .ipr, or .iws files.
+You&#39;ll notice these files are already intentionally in .gitignore. The same policy goes for eclipse metadata.
+
+## FAQ
+
+Q. What about IntelliJ IDEA&#39;s own [Gradle support](https://confluence.jetbrains.net/display/IDEADEV/Gradle+integration)?
+
+A. Keep an eye on https://youtrack.jetbrains.com/issue/IDEA-53476
+</code></pre><p>在解压目录下执行预编译命令：gradlew :spring-oxm:compileTestJava命令</p>
+<p><figure 
+	>
+	<a href="/images/spring-study-01/init-project.png" >
+		<img src="/images/spring-study-01/init-project.png"
+			
+			
+			
+			loading="lazy"
+			alt="init-project.png">
+	</a>
+	
+	<figcaption>init-project.png</figcaption>
+	
+</figure>
+<figure 
+	>
+	<a href="/images/spring-study-01/init-project1.png" >
+		<img src="/images/spring-study-01/init-project1.png"
+			
+			
+			
+			loading="lazy"
+			alt="init-project1.png">
+	</a>
+	
+	<figcaption>init-project1.png</figcaption>
+	
+</figure></p>
+<h3 id="导入idea">导入IDEA</h3>
+<p>import-into-idea.md文件，已经说明了导入步骤：</p>
+<p>File -&gt; New -&gt; Project from Existing Sources -&gt; Navigate to directory -&gt; Select build.gradle</p>
+<p>然后耐心等待jar包下载完 &hellip;.</p>
+<p><figure 
+	>
+	<a href="/images/spring-study-01/spring-idea.png" >
+		<img src="/images/spring-study-01/spring-idea.png"
+			
+			
+			
+			loading="lazy"
+			alt="spring-idea.png">
+	</a>
+	
+	<figcaption>spring-idea.png</figcaption>
+	
+</figure></p>
+<h3 id="运行测试">运行测试</h3>
+<p>打开SimplePropertyNamespaceHandlerWithExpressionLanguageTests.java，执行单元测试。
+<figure 
+	>
+	<a href="/images/spring-study-01/init-test.png" >
+		<img src="/images/spring-study-01/init-test.png"
+			
+			
+			
+			loading="lazy"
+			alt="init-test.png">
+	</a>
+	
+	<figcaption>init-test.png</figcaption>
+	
+</figure></p>
+<p>到这一步，基本完工，本节的目的只是为了导入spring工程后代码别飘红就行，要不看着报错很糟心。</p>
+<p>接下来开始源码学习，希望自己可以坚持下去，不写了，打把LOL去。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/spring/">Spring</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A011spring-%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Spring源码学习（11）：Spring 事务管理</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A010spring-aop/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Spring源码学习（10）：Spring AOP</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A09%E9%9D%A2%E5%90%91%E5%88%87%E9%9D%A2%E7%BC%96%E7%A8%8Baop%E6%A6%82%E5%BF%B5%E5%BC%95%E5%85%A5/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Spring源码学习（9）：面向切面编程（AOP）概念引入</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A08spring%E4%B8%AD%E7%9A%84%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Spring源码学习（8）：Spring中的代理模式</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A07bean%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Spring源码学习（7）：Bean的生命周期</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#构建工具-gradle">构建工具 Gradle</a></li>
+    <li><a href="#spring-源码包准备">Spring 源码包准备</a>
+      <ol>
+        <li><a href="#下载预编译">下载预编译</a></li>
+        <li><a href="#导入idea">导入IDEA</a></li>
+        <li><a href="#运行测试">运行测试</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

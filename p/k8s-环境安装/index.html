@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='k8s 环境安装'><title>k8s 环境安装</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/k8s-%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='k8s 环境安装'>
+<meta property='og:description' content='k8s 环境安装'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/k8s-%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='k8s' /><meta property='article:published_time' content='2025-06-16T09:36:40&#43;00:00'/><meta property='article:modified_time' content='2025-06-16T09:36:40&#43;00:00'/>
+<meta name="twitter:title" content="k8s 环境安装">
+<meta name="twitter:description" content="k8s 环境安装">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/k8s/" >
+                k8s
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/k8s-%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85/">k8s 环境安装</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        k8s 环境安装
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jun 16, 2025</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 6 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <p>之前虽然学习过K8S，但是一直没有通过做笔记，趁着这段时间把知识点再回顾一下。</p>
+<h2 id="一kubernetes简介">一、kubernetes简介</h2>
+<p>K8S官网文档：https://kubernetes.io/zh/docs/home</p>
+<p><figure 
+	>
+	<a href="/../../images/k8s-01/image-20250619110607292.png" >
+		<img src="/../../images/k8s-01/image-20250619110607292.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20250619110607292">
+	</a>
+	
+	<figcaption>image-20250619110607292</figcaption>
+	
+</figure></p>
+<h3 id="11-k8s核心特性">1.1 K8S核心特性</h3>
+<ol>
+<li>服务发现与负载均衡：无需修改你的应用程序即可使用陌生的服务发现机制。</li>
+<li>存储编排：自动挂载所选存储系统，包括本地存储。</li>
+<li>Secret和配置管理：部署更新Secrets和应用程序的配置时不必重新构建容器镜像，且不必将软件堆栈配置中的秘密信息暴露出来。</li>
+<li>批量执行：除了服务之外，Kubernetes还可以管理你的批处理和CI工作负载，在期望时替换掉失效的容器。</li>
+<li>水平扩缩：使用一个简单的命令、一个UI或基于CPU使用情况自动对应用程序进行扩缩。</li>
+<li>自动化上线和回滚：Kubernetes会分步骤地将针对应用或其配置的更改上线，同时监视应用程序运行状况以确保你不会同时终止所有实例。</li>
+<li>自动装箱：根据资源需求和其他约束自动放置容器，同时避免影响可用性。</li>
+<li>自我修复：重新启动失败的容器，在节点死亡时替换并重新调度容器，杀死不响应用户定义的健康检查的容器。</li>
+</ol>
+<h3 id="12-版本说明">1.2 版本说明</h3>
+<p>从 Kubernetes 1.19 开始，官方推荐在集群中使用特定版本的 Docker 作为容器运行时。这是因为 Kubernetes 1.20 引入了 CRI (Container Runtime Interface) 插件，允许使用多种容器运行时，如 containerd、CRI-O 等，而不仅仅是 Docker。</p>
+<p>最后官方支持 Docker 的 K8s 版本是Kubernetes 1.23，否者需要安装额外的cri-dockerd才能使用更新版本的docker.</p>
+<p>此处我们虚拟机环境选择版本是：Kubernetes 1.20、Docker 20.10版本。</p>
+<p><figure 
+	>
+	<a href="/../../images/k8s-01/image-20250620100322086.png" >
+		<img src="/../../images/k8s-01/image-20250620100322086.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20250620100322086">
+	</a>
+	
+	<figcaption>image-20250620100322086</figcaption>
+	
+</figure></p>
+<h2 id="二docker安装指定版本">二、Docker安装指定版本</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="c1">#安装指定版本</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@hadoop3 ~<span class="o">]</span><span class="c1"># yum install -y docker-ce-20.10.7 docker-ce-cli-20.10.7 containerd.io-1.4.6</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#启动&amp;开机启动docker</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@hadoop3 ~<span class="o">]</span><span class="c1"># systemctl start docker</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@hadoop3 ~<span class="o">]</span><span class="c1"># systemctl enable docker</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#配置镜像加速器</span>
+</span></span><span class="line"><span class="cl">sudo mkdir -p /etc/docker
+</span></span><span class="line"><span class="cl">sudo tee /etc/docker/daemon.json <span class="s">&lt;&lt;-&#39;EOF&#39;
+</span></span></span><span class="line"><span class="cl"><span class="s">{
+</span></span></span><span class="line"><span class="cl"><span class="s">  &#34;registry-mirrors&#34;: [&#34;https://56kk8rik.mirror.aliyuncs.com&#34;]
+</span></span></span><span class="line"><span class="cl"><span class="s">}
+</span></span></span><span class="line"><span class="cl"><span class="s">EOF</span>
+</span></span><span class="line"><span class="cl">sudo systemctl daemon-reload
+</span></span><span class="line"><span class="cl">sudo systemctl restart docker
+</span></span></code></pre></div><h2 id="三k8s安装">三、K8s安装</h2>
+<h3 id="31-环境信息">3.1 环境信息</h3>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>hostname</th>
+<th>IP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>master</td>
+<td>hadoop1</td>
+<td>192.168.40.129</td>
+</tr>
+<tr>
+<td>node</td>
+<td>hadoop2</td>
+<td>192.168.40.130</td>
+</tr>
+<tr>
+<td>node</td>
+<td>hadoop3</td>
+<td>192.168.40.131</td>
+</tr>
+</tbody>
+</table>
+<h3 id="32--环境准备">3.2  环境准备</h3>
+<p>所有机器执行以下操作、要求每个机器使用内网ip互通。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="c1">#1. 关闭防火墙并设置开机不启动</span>
+</span></span><span class="line"><span class="cl">systemctl stop firewalld
+</span></span><span class="line"><span class="cl">systemctl disable firewalld
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 2、关闭 selinux</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 将 SELinux 设置为 permissive 模式（相当于将其禁用）</span>
+</span></span><span class="line"><span class="cl">sudo setenforce <span class="m">0</span>
+</span></span><span class="line"><span class="cl">sudo sed -i <span class="s1">&#39;s/^SELINUX=enforcing$/SELINUX=permissive/&#39;</span> /etc/selinux/config
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#3、关闭swap</span>
+</span></span><span class="line"><span class="cl">swapoff -a  
+</span></span><span class="line"><span class="cl">sed -ri <span class="s1">&#39;s/.*swap.*/#&amp;/&#39;</span> /etc/fstab
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">free -m  <span class="c1">#查看下swap交换区是否都为0，如果都为0则swap关闭成功,否则使用 systemctl reboot 重启生效</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#4、给三台机器分别设置主机名（我之前已经配置过）</span>
+</span></span><span class="line"><span class="cl">hostnamectl set-hostname xxx
+</span></span><span class="line"><span class="cl">第一台：hadoop1
+</span></span><span class="line"><span class="cl">第二台：hadoop2
+</span></span><span class="line"><span class="cl">第三台：hadoop3
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#5、添加hosts，执行如下命令，ip需要修改成你自己机器的ip</span>
+</span></span><span class="line"><span class="cl">cat &gt;&gt; /etc/hosts <span class="s">&lt;&lt; EOF
+</span></span></span><span class="line"><span class="cl"><span class="s">192.168.40.129 hadoop1
+</span></span></span><span class="line"><span class="cl"><span class="s">192.168.40.130 hadoop2
+</span></span></span><span class="line"><span class="cl"><span class="s">192.168.40.131 hadoop3
+</span></span></span><span class="line"><span class="cl"><span class="s">EOF</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#6、允许 iptables 检查桥接流量</span>
+</span></span><span class="line"><span class="cl">cat <span class="s">&lt;&lt;EOF | sudo tee /etc/modules-load.d/k8s.conf
+</span></span></span><span class="line"><span class="cl"><span class="s">br_netfilter
+</span></span></span><span class="line"><span class="cl"><span class="s">EOF</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">cat <span class="s">&lt;&lt;EOF | sudo tee /etc/sysctl.d/k8s.conf
+</span></span></span><span class="line"><span class="cl"><span class="s">net.bridge.bridge-nf-call-ip6tables = 1
+</span></span></span><span class="line"><span class="cl"><span class="s">net.bridge.bridge-nf-call-iptables = 1
+</span></span></span><span class="line"><span class="cl"><span class="s">EOF</span>
+</span></span><span class="line"><span class="cl">sudo sysctl --system  
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#7、设置时间同步</span>
+</span></span><span class="line"><span class="cl">yum install ntpdate -y
+</span></span><span class="line"><span class="cl">ntpdate time.windows.com
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#8、配置k8s的yum源地址</span>
+</span></span><span class="line"><span class="cl">cat <span class="s">&lt;&lt;EOF | sudo tee /etc/yum.repos.d/kubernetes.repo
+</span></span></span><span class="line"><span class="cl"><span class="s">[kubernetes]
+</span></span></span><span class="line"><span class="cl"><span class="s">name=Kubernetes
+</span></span></span><span class="line"><span class="cl"><span class="s">baseurl=http://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64
+</span></span></span><span class="line"><span class="cl"><span class="s">enabled=1
+</span></span></span><span class="line"><span class="cl"><span class="s">gpgcheck=0
+</span></span></span><span class="line"><span class="cl"><span class="s">repo_gpgcheck=0
+</span></span></span><span class="line"><span class="cl"><span class="s">gpgkey=http://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg
+</span></span></span><span class="line"><span class="cl"><span class="s">   http://mirrors.aliyun.com/kubernetes/yum/doc/rpm-package-key.gpg
+</span></span></span><span class="line"><span class="cl"><span class="s">EOF</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#9、如果之前安装过k8s，先卸载旧版本（可选）</span>
+</span></span><span class="line"><span class="cl">yum remove -y kubelet kubeadm kubectl
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#10、查看可以安装的版本</span>
+</span></span><span class="line"><span class="cl">yum list kubelet --showduplicates <span class="p">|</span> sort -r
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#11、安装 kubelet，kubeadm，kubectl指定版本，我们使用kubeadm方式安装k8s集群</span>
+</span></span><span class="line"><span class="cl">sudo yum install -y kubelet-1.20.9 kubeadm-1.20.9 kubectl-1.20.9
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#12、开机启动kubelet</span>
+</span></span><span class="line"><span class="cl">sudo systemctl <span class="nb">enable</span> --now kubelet
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#13、下载各个机器需要的镜像</span>
+</span></span><span class="line"><span class="cl">sudo tee ./images.sh <span class="s">&lt;&lt;-&#39;EOF&#39;
+</span></span></span><span class="line"><span class="cl"><span class="s">#!/bin/bash
+</span></span></span><span class="line"><span class="cl"><span class="s">images=(
+</span></span></span><span class="line"><span class="cl"><span class="s">kube-apiserver:v1.20.9
+</span></span></span><span class="line"><span class="cl"><span class="s">kube-proxy:v1.20.9
+</span></span></span><span class="line"><span class="cl"><span class="s">kube-controller-manager:v1.20.9
+</span></span></span><span class="line"><span class="cl"><span class="s">kube-scheduler:v1.20.9
+</span></span></span><span class="line"><span class="cl"><span class="s">coredns:1.7.0
+</span></span></span><span class="line"><span class="cl"><span class="s">etcd:3.4.13-0
+</span></span></span><span class="line"><span class="cl"><span class="s">pause:3.2
+</span></span></span><span class="line"><span class="cl"><span class="s">)
+</span></span></span><span class="line"><span class="cl"><span class="s">for imageName in ${images[@]} ; do
+</span></span></span><span class="line"><span class="cl"><span class="s">docker pull registry.cn-hangzhou.aliyuncs.com/lfy_k8s_images/$imageName
+</span></span></span><span class="line"><span class="cl"><span class="s">done
+</span></span></span><span class="line"><span class="cl"><span class="s">EOF</span>
+</span></span><span class="line"><span class="cl">   
+</span></span><span class="line"><span class="cl">chmod +x ./images.sh <span class="o">&amp;&amp;</span> ./images.sh
+</span></span></code></pre></div><h3 id="33-初始化master主节点">3.3 初始化master主节点</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="c1"># 在k8s-master机器上执行初始化操作(里面的第一个ip地址就是hadoop1机器的ip，后面两个ip网段不用动)</span>
+</span></span><span class="line"><span class="cl">kubeadm init <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>--apiserver-advertise-address<span class="o">=</span>192.168.40.129 <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>--control-plane-endpoint<span class="o">=</span>hadoop1 <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>--image-repository registry.cn-hangzhou.aliyuncs.com/lfy_k8s_images <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>--kubernetes-version v1.20.9 <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>--service-cidr<span class="o">=</span>10.96.0.0/16 <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>--pod-network-cidr<span class="o">=</span>10.244.0.0/16
+</span></span></code></pre></div><p>成功后，返回信息如下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 ~<span class="o">]</span><span class="c1"># kubeadm init \</span>
+</span></span><span class="line"><span class="cl">&gt; --apiserver-advertise-address<span class="o">=</span>192.168.40.129 <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>&gt; --control-plane-endpoint<span class="o">=</span>hadoop1 <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>&gt; --image-repository registry.cn-hangzhou.aliyuncs.com/lfy_k8s_images <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>&gt; --kubernetes-version v1.20.9 <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>&gt; --service-cidr<span class="o">=</span>10.96.0.0/16 <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>&gt; --pod-network-cidr<span class="o">=</span>10.244.0.0/16
+</span></span><span class="line"><span class="cl"><span class="o">[</span>init<span class="o">]</span> Using Kubernetes version: v1.20.9
+</span></span><span class="line"><span class="cl"><span class="o">[</span>preflight<span class="o">]</span> Running pre-flight checks
+</span></span><span class="line"><span class="cl">        <span class="o">[</span>WARNING IsDockerSystemdCheck<span class="o">]</span>: detected <span class="s2">&#34;cgroupfs&#34;</span> as the Docker cgroup driver. The recommended driver is <span class="s2">&#34;systemd&#34;</span>. Please follow the guide at https://kubernetes.io/docs/setup/cri/
+</span></span><span class="line"><span class="cl">        <span class="o">[</span>WARNING SystemVerification<span class="o">]</span>: this Docker version is not on the list of validated versions: 20.10.7. Latest validated version: 19.03
+</span></span><span class="line"><span class="cl"><span class="o">[</span>preflight<span class="o">]</span> Pulling images required <span class="k">for</span> setting up a Kubernetes cluster
+</span></span><span class="line"><span class="cl"><span class="o">[</span>preflight<span class="o">]</span> This might take a minute or two, depending on the speed of your internet connection
+</span></span><span class="line"><span class="cl"><span class="o">[</span>preflight<span class="o">]</span> You can also perform this action in beforehand using <span class="s1">&#39;kubeadm config images pull&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>certs<span class="o">]</span> Using certificateDir folder <span class="s2">&#34;/etc/kubernetes/pki&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>certs<span class="o">]</span> Generating <span class="s2">&#34;ca&#34;</span> certificate and key
+</span></span><span class="line"><span class="cl"><span class="o">[</span>certs<span class="o">]</span> Generating <span class="s2">&#34;apiserver&#34;</span> certificate and key
+</span></span><span class="line"><span class="cl"><span class="o">[</span>certs<span class="o">]</span> apiserver serving cert is signed <span class="k">for</span> DNS names <span class="o">[</span>hadoop1 kubernetes kubernetes.default kubernetes.default.svc kubernetes.default.svc.cluster.local<span class="o">]</span> and IPs <span class="o">[</span>10.96.0.1 192.168.40.129<span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>certs<span class="o">]</span> Generating <span class="s2">&#34;apiserver-kubelet-client&#34;</span> certificate and key
+</span></span><span class="line"><span class="cl"><span class="o">[</span>certs<span class="o">]</span> Generating <span class="s2">&#34;front-proxy-ca&#34;</span> certificate and key
+</span></span><span class="line"><span class="cl"><span class="o">[</span>certs<span class="o">]</span> Generating <span class="s2">&#34;front-proxy-client&#34;</span> certificate and key
+</span></span><span class="line"><span class="cl"><span class="o">[</span>certs<span class="o">]</span> Generating <span class="s2">&#34;etcd/ca&#34;</span> certificate and key
+</span></span><span class="line"><span class="cl"><span class="o">[</span>certs<span class="o">]</span> Generating <span class="s2">&#34;etcd/server&#34;</span> certificate and key
+</span></span><span class="line"><span class="cl"><span class="o">[</span>certs<span class="o">]</span> etcd/server serving cert is signed <span class="k">for</span> DNS names <span class="o">[</span>hadoop1 localhost<span class="o">]</span> and IPs <span class="o">[</span>192.168.40.129 127.0.0.1 ::1<span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>certs<span class="o">]</span> Generating <span class="s2">&#34;etcd/peer&#34;</span> certificate and key
+</span></span><span class="line"><span class="cl"><span class="o">[</span>certs<span class="o">]</span> etcd/peer serving cert is signed <span class="k">for</span> DNS names <span class="o">[</span>hadoop1 localhost<span class="o">]</span> and IPs <span class="o">[</span>192.168.40.129 127.0.0.1 ::1<span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>certs<span class="o">]</span> Generating <span class="s2">&#34;etcd/healthcheck-client&#34;</span> certificate and key
+</span></span><span class="line"><span class="cl"><span class="o">[</span>certs<span class="o">]</span> Generating <span class="s2">&#34;apiserver-etcd-client&#34;</span> certificate and key
+</span></span><span class="line"><span class="cl"><span class="o">[</span>certs<span class="o">]</span> Generating <span class="s2">&#34;sa&#34;</span> key and public key
+</span></span><span class="line"><span class="cl"><span class="o">[</span>kubeconfig<span class="o">]</span> Using kubeconfig folder <span class="s2">&#34;/etc/kubernetes&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>kubeconfig<span class="o">]</span> Writing <span class="s2">&#34;admin.conf&#34;</span> kubeconfig file
+</span></span><span class="line"><span class="cl"><span class="o">[</span>kubeconfig<span class="o">]</span> Writing <span class="s2">&#34;kubelet.conf&#34;</span> kubeconfig file
+</span></span><span class="line"><span class="cl"><span class="o">[</span>kubeconfig<span class="o">]</span> Writing <span class="s2">&#34;controller-manager.conf&#34;</span> kubeconfig file
+</span></span><span class="line"><span class="cl"><span class="o">[</span>kubeconfig<span class="o">]</span> Writing <span class="s2">&#34;scheduler.conf&#34;</span> kubeconfig file
+</span></span><span class="line"><span class="cl"><span class="o">[</span>kubelet-start<span class="o">]</span> Writing kubelet environment file with flags to file <span class="s2">&#34;/var/lib/kubelet/kubeadm-flags.env&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>kubelet-start<span class="o">]</span> Writing kubelet configuration to file <span class="s2">&#34;/var/lib/kubelet/config.yaml&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>kubelet-start<span class="o">]</span> Starting the kubelet
+</span></span><span class="line"><span class="cl"><span class="o">[</span>control-plane<span class="o">]</span> Using manifest folder <span class="s2">&#34;/etc/kubernetes/manifests&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>control-plane<span class="o">]</span> Creating static Pod manifest <span class="k">for</span> <span class="s2">&#34;kube-apiserver&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>control-plane<span class="o">]</span> Creating static Pod manifest <span class="k">for</span> <span class="s2">&#34;kube-controller-manager&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>control-plane<span class="o">]</span> Creating static Pod manifest <span class="k">for</span> <span class="s2">&#34;kube-scheduler&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>etcd<span class="o">]</span> Creating static Pod manifest <span class="k">for</span> <span class="nb">local</span> etcd in <span class="s2">&#34;/etc/kubernetes/manifests&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>wait-control-plane<span class="o">]</span> Waiting <span class="k">for</span> the kubelet to boot up the control plane as static Pods from directory <span class="s2">&#34;/etc/kubernetes/manifests&#34;</span>. This can take up to 4m0s
+</span></span><span class="line"><span class="cl"><span class="o">[</span>apiclient<span class="o">]</span> All control plane components are healthy after 19.006143 seconds
+</span></span><span class="line"><span class="cl"><span class="o">[</span>upload-config<span class="o">]</span> Storing the configuration used in ConfigMap <span class="s2">&#34;kubeadm-config&#34;</span> in the <span class="s2">&#34;kube-system&#34;</span> Namespace
+</span></span><span class="line"><span class="cl"><span class="o">[</span>kubelet<span class="o">]</span> Creating a ConfigMap <span class="s2">&#34;kubelet-config-1.20&#34;</span> in namespace kube-system with the configuration <span class="k">for</span> the kubelets in the cluster
+</span></span><span class="line"><span class="cl"><span class="o">[</span>upload-certs<span class="o">]</span> Skipping phase. Please see --upload-certs
+</span></span><span class="line"><span class="cl"><span class="o">[</span>mark-control-plane<span class="o">]</span> Marking the node hadoop1 as control-plane by adding the labels <span class="s2">&#34;node-role.kubernetes.io/master=&#39;&#39;&#34;</span> and <span class="s2">&#34;node-role.kubernetes.io/control-plane=&#39;&#39; (deprecated)&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>mark-control-plane<span class="o">]</span> Marking the node hadoop1 as control-plane by adding the taints <span class="o">[</span>node-role.kubernetes.io/master:NoSchedule<span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>bootstrap-token<span class="o">]</span> Using token: fjojsn.lv7q7sjyuv09bemr
+</span></span><span class="line"><span class="cl"><span class="o">[</span>bootstrap-token<span class="o">]</span> Configuring bootstrap tokens, cluster-info ConfigMap, RBAC Roles
+</span></span><span class="line"><span class="cl"><span class="o">[</span>bootstrap-token<span class="o">]</span> configured RBAC rules to allow Node Bootstrap tokens to get nodes
+</span></span><span class="line"><span class="cl"><span class="o">[</span>bootstrap-token<span class="o">]</span> configured RBAC rules to allow Node Bootstrap tokens to post CSRs in order <span class="k">for</span> nodes to get long term certificate credentials
+</span></span><span class="line"><span class="cl"><span class="o">[</span>bootstrap-token<span class="o">]</span> configured RBAC rules to allow the csrapprover controller automatically approve CSRs from a Node Bootstrap Token
+</span></span><span class="line"><span class="cl"><span class="o">[</span>bootstrap-token<span class="o">]</span> configured RBAC rules to allow certificate rotation <span class="k">for</span> all node client certificates in the cluster
+</span></span><span class="line"><span class="cl"><span class="o">[</span>bootstrap-token<span class="o">]</span> Creating the <span class="s2">&#34;cluster-info&#34;</span> ConfigMap in the <span class="s2">&#34;kube-public&#34;</span> namespace
+</span></span><span class="line"><span class="cl"><span class="o">[</span>kubelet-finalize<span class="o">]</span> Updating <span class="s2">&#34;/etc/kubernetes/kubelet.conf&#34;</span> to point to a rotatable kubelet client certificate and key
+</span></span><span class="line"><span class="cl"><span class="o">[</span>addons<span class="o">]</span> Applied essential addon: CoreDNS
+</span></span><span class="line"><span class="cl"><span class="o">[</span>addons<span class="o">]</span> Applied essential addon: kube-proxy
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Your Kubernetes control-plane has initialized successfully!
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">To start using your cluster, you need to run the following as a regular user:
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  mkdir -p <span class="nv">$HOME</span>/.kube
+</span></span><span class="line"><span class="cl">  sudo cp -i /etc/kubernetes/admin.conf <span class="nv">$HOME</span>/.kube/config
+</span></span><span class="line"><span class="cl">  sudo chown <span class="k">$(</span>id -u<span class="k">)</span>:<span class="k">$(</span>id -g<span class="k">)</span> <span class="nv">$HOME</span>/.kube/config
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Alternatively, <span class="k">if</span> you are the root user, you can run:
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nb">export</span> <span class="nv">KUBECONFIG</span><span class="o">=</span>/etc/kubernetes/admin.conf
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">You should now deploy a pod network to the cluster.
+</span></span><span class="line"><span class="cl">Run <span class="s2">&#34;kubectl apply -f [podnetwork].yaml&#34;</span> with one of the options listed at:
+</span></span><span class="line"><span class="cl">  https://kubernetes.io/docs/concepts/cluster-administration/addons/
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">You can now join any number of control-plane nodes by copying certificate authorities
+</span></span><span class="line"><span class="cl">and service account keys on each node and <span class="k">then</span> running the following as root:
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  kubeadm join hadoop1:6443 --token fjojsn.lv7q7sjyuv09bemr <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --discovery-token-ca-cert-hash sha256:5013924688b0581d8d3a0ea8caf8f375b025788549fabe1207db0be7701fbf14 <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --control-plane
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Then you can join any number of worker nodes by running the following on each as root:
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">kubeadm join hadoop1:6443 --token fjojsn.lv7q7sjyuv09bemr <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --discovery-token-ca-cert-hash sha256:5013924688b0581d8d3a0ea8caf8f375b025788549fabe1207db0be7701fbf14
+</span></span></code></pre></div><p>注意这些信息，分别是需要在Master节点进行的2个操作及后续加入集群的命令。<figure 
+	>
+	<a href="/../../images/k8s-01/image-20250620112447139.png" >
+		<img src="/../../images/k8s-01/image-20250620112447139.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20250620112447139">
+	</a>
+	
+	<figcaption>image-20250620112447139</figcaption>
+	
+</figure></p>
+<p>在hadoop1节点执行:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">mkdir -p <span class="nv">$HOME</span>/.kube
+</span></span><span class="line"><span class="cl">sudo cp -i /etc/kubernetes/admin.conf <span class="nv">$HOME</span>/.kube/config
+</span></span><span class="line"><span class="cl">sudo chown <span class="k">$(</span>id -u<span class="k">)</span>:<span class="k">$(</span>id -g<span class="k">)</span> <span class="nv">$HOME</span>/.kube/config
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">KUBECONFIG</span><span class="o">=</span>/etc/kubernetes/admin.conf
+</span></span></code></pre></div><p>可以查看kubelet日志</p>
+<blockquote>
+<p>journalctl -xefu kubelet</p>
+</blockquote>
+<p>#如果初始化失败，做以下操作后再次尝试。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="c1">#如果初始化失败，重置kubeadm</span>
+</span></span><span class="line"><span class="cl">kubeadm reset
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">rm -rf /etc/cni/net.d  <span class="nv">$HOME</span>/.kube/config
+</span></span><span class="line"><span class="cl">rm -rf /etc/kubernetes/*
+</span></span><span class="line"><span class="cl">rm -rf /var/lib/etcd/*
+</span></span><span class="line"><span class="cl">rm -rf /var/lib/kubelet/*
+</span></span><span class="line"><span class="cl"><span class="c1">#清理 iptables 规则</span>
+</span></span><span class="line"><span class="cl">iptables -F
+</span></span><span class="line"><span class="cl">iptables -X
+</span></span><span class="line"><span class="cl">iptables -t nat -F
+</span></span><span class="line"><span class="cl">iptables -t nat -X
+</span></span><span class="line"><span class="cl">iptables -t mangle -F
+</span></span><span class="line"><span class="cl">iptables -t mangle -X
+</span></span><span class="line"><span class="cl">iptables -P INPUT ACCEPT
+</span></span><span class="line"><span class="cl">iptables -P FORWARD ACCEPT
+</span></span><span class="line"><span class="cl">iptables -P OUTPUT ACCEPT
+</span></span><span class="line"><span class="cl">iptables -F <span class="o">&amp;&amp;</span> iptables -t nat -F <span class="o">&amp;&amp;</span> iptables -t mangle -F <span class="o">&amp;&amp;</span> iptables -X
+</span></span></code></pre></div><h3 id="34-master节点安装calico网络插件">3.4 master节点安装Calico网络插件</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 ~<span class="o">]</span><span class="c1"># curl https://docs.projectcalico.org/archive/v3.20/manifests/calico.yaml -O</span>
+</span></span><span class="line"><span class="cl">  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+</span></span><span class="line"><span class="cl">                                 Dload  Upload   Total   Spent    Left  Speed
+</span></span><span class="line"><span class="cl"><span class="m">100</span>  198k  <span class="m">100</span>  198k    <span class="m">0</span>     <span class="m">0</span>  <span class="m">65436</span>      <span class="m">0</span>  0:00:03  0:00:03 --:--:-- <span class="m">65469</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 ~<span class="o">]</span><span class="c1"># kubectl apply -f calico.yaml</span>
+</span></span><span class="line"><span class="cl">configmap/calico-config created
+</span></span><span class="line"><span class="cl">customresourcedefinition.apiextensions.k8s.io/bgpconfigurations.crd.projectcalico.org created
+</span></span><span class="line"><span class="cl">customresourcedefinition.apiextensions.k8s.io/bgppeers.crd.projectcalico.org created
+</span></span><span class="line"><span class="cl">。。。省略
+</span></span><span class="line"><span class="cl">deployment.apps/calico-kube-controllers created
+</span></span><span class="line"><span class="cl">serviceaccount/calico-kube-controllers created
+</span></span><span class="line"><span class="cl">poddisruptionbudget.policy/calico-kube-controllers created
+</span></span></code></pre></div><p>如果配置多网卡，出现下面的错误：calico/node is not ready: BIRD is not ready: BGP not established with xxx</p>
+<p>修改calico.yaml的内容,指定网卡，添加下面两行：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">- name: IP_AUTODETECTION_METHOD  
+</span></span><span class="line"><span class="cl">  value: <span class="s2">&#34;interface=ens33&#34;</span>
+</span></span></code></pre></div><p>另外在下载后，通过下面命令查看pod节点，可以看到有个错误（等所有都变为Running才是正常的）。</p>
+<pre tabindex="0"><code>[root@hadoop1 ~]# kubectl get pod -A
+</code></pre><p><figure 
+	>
+	<a href="/../../images/k8s-01/image-20250620125130117.png" >
+		<img src="/../../images/k8s-01/image-20250620125130117.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20250620125130117">
+	</a>
+	
+	<figcaption>image-20250620125130117</figcaption>
+	
+</figure></p>
+<p>查看详情</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 ~<span class="o">]</span><span class="c1"># kubectl describe pod calico-node-g6ctc -n kube-system</span>
+</span></span></code></pre></div><p>这是因为无法pull镜像<figure 
+	>
+	<a href="/../../images/k8s-01/image-20250620125219104.png" >
+		<img src="/../../images/k8s-01/image-20250620125219104.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20250620125219104">
+	</a>
+	
+	<figcaption>image-20250620125219104</figcaption>
+	
+</figure></p>
+<p>我们换个下载源手动下载：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">sudo mkdir -p /etc/docker
+</span></span><span class="line"><span class="cl">sudo tee /etc/docker/daemon.json <span class="s">&lt;&lt;-&#39;EOF&#39;
+</span></span></span><span class="line"><span class="cl"><span class="s">{
+</span></span></span><span class="line"><span class="cl"><span class="s">  &#34;registry-mirrors&#34;: [&#34;https://docker.xuanyuan.me&#34;]
+</span></span></span><span class="line"><span class="cl"><span class="s">}
+</span></span></span><span class="line"><span class="cl"><span class="s">EOF</span>
+</span></span><span class="line"><span class="cl">sudo systemctl daemon-reload
+</span></span><span class="line"><span class="cl">sudo systemctl restart docker
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 ~<span class="o">]</span><span class="c1"># docker pull docker.io/calico/node:v3.20.6</span>
+</span></span><span class="line"><span class="cl">v3.20.6: Pulling from calico/node
+</span></span><span class="line"><span class="cl">6186aa1623f4: Pull <span class="nb">complete</span>
+</span></span><span class="line"><span class="cl">e8c9316f3d9d: Pull <span class="nb">complete</span>
+</span></span><span class="line"><span class="cl">Digest: sha256:fa0d089717da35bb49314dca9cc4cbf35e544323f3899d9425dc3672879316cf
+</span></span><span class="line"><span class="cl">Status: Downloaded newer image <span class="k">for</span> calico/node:v3.20.6
+</span></span><span class="line"><span class="cl">docker.io/calico/node:v3.20.6
+</span></span></code></pre></div><p>然后删除pod，这个pod会再次下载</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">kubectl delete pod calico-node-g6ctc -n kube-system
+</span></span></code></pre></div><p>再次查看，就正常了：</p>
+<p><figure 
+	>
+	<a href="/../../images/k8s-01/image-20250620132642104.png" >
+		<img src="/../../images/k8s-01/image-20250620132642104.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20250620132642104">
+	</a>
+	
+	<figcaption>image-20250620132642104</figcaption>
+	
+</figure></p>
+<h3 id="35-将node节点加入进master节点的集群里">3.5 将node节点加入进master节点的集群里</h3>
+<p>分别在hadoop2、hadoop3节点执行以下命令（初始化主节点时，返回打印的命令）</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>root@hadoop2 ~<span class="o">]</span><span class="c1"># kubeadm join hadoop1:6443 --token fjojsn.lv7q7sjyuv09bemr \</span>
+</span></span><span class="line"><span class="cl">&gt;     --discovery-token-ca-cert-hash sha256:5013924688b0581d8d3a0ea8caf8f375b025788549fabe1207db0be7701fbf1
+</span></span><span class="line"><span class="cl">。。。省略
+</span></span><span class="line"><span class="cl">Run <span class="s1">&#39;kubectl get nodes&#39;</span> on the control-plane to see this node join the cluster.
+</span></span></code></pre></div><p>在hadoop2、hadoop3节点使用 kubectl get nodes 查看节点信息，提示；</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>root@hadoop2 ~<span class="o">]</span><span class="c1"># kubectl get nodes</span>
+</span></span><span class="line"><span class="cl">The connection to the server localhost:8080 was refused - did you specify the right host or port?
+</span></span></code></pre></div><p>解决方案是在node节点配置KUBECONFIG环境变量即可。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;export KUBECONFIG=/etc/kubernetes/kubelet.conf&#34;</span> &gt;&gt; /etc/profile
+</span></span><span class="line"><span class="cl"><span class="nb">source</span> /etc/profile
+</span></span></code></pre></div><p>另外，如果没记录加入集群的命令，也可以自己重新生成：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="c1">#可以通过下面的命令重新生成令牌</span>
+</span></span><span class="line"><span class="cl">kubeadm token create --print-join-command
+</span></span></code></pre></div><h3 id="36-验证集群节点状态">3.6 验证集群节点状态</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="c1">#在master机器执行查看节点命令 </span>
+</span></span><span class="line"><span class="cl">kubectl get nodes
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/k8s-01/image-20250620135338351.png" >
+		<img src="/../../images/k8s-01/image-20250620135338351.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20250620135338351">
+	</a>
+	
+	<figcaption>image-20250620135338351</figcaption>
+	
+</figure></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/k8s/">k8s</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/k8s-%E6%A6%82%E5%BF%B5%E5%8F%8A%E4%BD%BF%E7%94%A8/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">k8s 概念及使用</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#一kubernetes简介">一、kubernetes简介</a>
+      <ol>
+        <li><a href="#11-k8s核心特性">1.1 K8S核心特性</a></li>
+        <li><a href="#12-版本说明">1.2 版本说明</a></li>
+      </ol>
+    </li>
+    <li><a href="#二docker安装指定版本">二、Docker安装指定版本</a></li>
+    <li><a href="#三k8s安装">三、K8s安装</a>
+      <ol>
+        <li><a href="#31-环境信息">3.1 环境信息</a></li>
+        <li><a href="#32--环境准备">3.2  环境准备</a></li>
+        <li><a href="#33-初始化master主节点">3.3 初始化master主节点</a></li>
+        <li><a href="#34-master节点安装calico网络插件">3.4 master节点安装Calico网络插件</a></li>
+        <li><a href="#35-将node节点加入进master节点的集群里">3.5 将node节点加入进master节点的集群里</a></li>
+        <li><a href="#36-验证集群节点状态">3.6 验证集群节点状态</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

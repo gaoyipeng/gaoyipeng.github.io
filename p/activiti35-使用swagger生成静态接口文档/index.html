@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Activiti（35） 使用Swagger生成静态接口文档'><title>Activiti（35） 使用Swagger生成静态接口文档</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/activiti35-%E4%BD%BF%E7%94%A8swagger%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Activiti（35） 使用Swagger生成静态接口文档'>
+<meta property='og:description' content='Activiti（35） 使用Swagger生成静态接口文档'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/activiti35-%E4%BD%BF%E7%94%A8swagger%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Activiti' /><meta property='article:tag' content='Swagger' /><meta property='article:published_time' content='2020-10-23T09:19:39&#43;00:00'/><meta property='article:modified_time' content='2020-10-23T09:19:39&#43;00:00'/>
+<meta name="twitter:title" content="Activiti（35） 使用Swagger生成静态接口文档">
+<meta name="twitter:description" content="Activiti（35） 使用Swagger生成静态接口文档">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/activiti/" >
+                Activiti
+            </a>
+        
+            <a href="/categories/swagger/" >
+                Swagger
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/activiti35-%E4%BD%BF%E7%94%A8swagger%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3/">Activiti（35） 使用Swagger生成静态接口文档</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        Activiti（35） 使用Swagger生成静态接口文档
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Oct 23, 2020</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 2 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <p>实际工作中往往需要我们提供接口文档，但是有的用户并不能直接访问Swagger-UI 来获取接口，所以本节我们介绍一下如何使用Swagger生成静态接口文档。</p>
+<p>我们以<code>workflow-activit-rest</code>工程为例。本节我们演示生成<strong>HTML、MarkDown、PDF</strong>格式的静态接口文档。</p>
+<h2 id="1添加依赖">1、添加依赖</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="c">&lt;!--swagger静态化输出依赖--&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;groupId&gt;</span>io.github.swagger2markup<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;artifactId&gt;</span>swagger2markup<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;version&gt;</span>1.3.3<span class="nt">&lt;/version&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/dependency&gt;</span>
+</span></span></code></pre></div><p>另外还需要在POM文件中添加如下内容：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;repositories&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;repository&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;id&gt;</span>spring-libs-milestone<span class="nt">&lt;/id&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;url&gt;</span>https://repo.spring.io/libs-milestone<span class="nt">&lt;/url&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;snapshots&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;enabled&gt;</span>false<span class="nt">&lt;/enabled&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/snapshots&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/repository&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="c">&lt;!-- jhipster-needle-maven-repository --&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/repositories&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;pluginRepositories&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;pluginRepository&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;id&gt;</span>spring-plugins-release<span class="nt">&lt;/id&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;url&gt;</span>https://repo.spring.io/plugins-release<span class="nt">&lt;/url&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;snapshots&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;enabled&gt;</span>false<span class="nt">&lt;/enabled&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/snapshots&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/pluginRepository&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/pluginRepositories&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c">&lt;!--swagger静态化插件 先执行测试类生成.adoc文件再运行maven命令 asciidoctor:process-asciidoc生成html--&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;plugin&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;groupId&gt;</span>org.asciidoctor<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;artifactId&gt;</span>asciidoctor-maven-plugin<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;version&gt;</span>1.5.6<span class="nt">&lt;/version&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;configuration&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;sourceDirectory&gt;</span>./docs/asciidoc/generated<span class="nt">&lt;/sourceDirectory&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;outputDirectory&gt;</span>./docs/asciidoc/html<span class="nt">&lt;/outputDirectory&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;headerFooter&gt;</span>true<span class="nt">&lt;/headerFooter&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;doctype&gt;</span>book<span class="nt">&lt;/doctype&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;backend&gt;</span>html<span class="nt">&lt;/backend&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;sourceHighlighter&gt;</span>coderay<span class="nt">&lt;/sourceHighlighter&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;attributes&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="c">&lt;!--菜单栏在左边--&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;toc&gt;</span>left<span class="nt">&lt;/toc&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="c">&lt;!--多标题排列--&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;toclevels&gt;</span>3<span class="nt">&lt;/toclevels&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="c">&lt;!--自动打数字序号--&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;sectnums&gt;</span>true<span class="nt">&lt;/sectnums&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/attributes&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/configuration&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/plugin&gt;</span>
+</span></span></code></pre></div><h2 id="2生成接口">2、生成接口</h2>
+<p>此处我们写一个单元测试类来存放生成接口：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.workflow.activiti.rest</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">io.github.swagger2markup.GroupBy</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">io.github.swagger2markup.Language</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">io.github.swagger2markup.Swagger2MarkupConfig</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">io.github.swagger2markup.Swagger2MarkupConverter</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">io.github.swagger2markup.builder.Swagger2MarkupConfigBuilder</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">io.github.swagger2markup.markup.builder.MarkupLanguage</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.junit.Test</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.junit.runner.RunWith</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.boot.test.context.SpringBootTest</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.test.context.junit4.SpringRunner</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.net.URL</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.nio.file.Paths</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nd">@RunWith</span><span class="o">(</span><span class="n">SpringRunner</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@SpringBootTest</span><span class="o">(</span><span class="n">webEnvironment</span> <span class="o">=</span> <span class="n">SpringBootTest</span><span class="o">.</span><span class="na">WebEnvironment</span><span class="o">.</span><span class="na">DEFINED_PORT</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">SwaggerTests</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 生成Confluence格式文档
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @throws Exception
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Test</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">generateConfluenceDocs</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//  输出Confluence使用的格式
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">Swagger2MarkupConfig</span> <span class="n">config</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Swagger2MarkupConfigBuilder</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">withMarkupLanguage</span><span class="o">(</span><span class="n">MarkupLanguage</span><span class="o">.</span><span class="na">CONFLUENCE_MARKUP</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">withOutputLanguage</span><span class="o">(</span><span class="n">Language</span><span class="o">.</span><span class="na">ZH</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">withPathsGroupedBy</span><span class="o">(</span><span class="n">GroupBy</span><span class="o">.</span><span class="na">TAGS</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">withGeneratedExamples</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">withoutInlineSchema</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">Swagger2MarkupConverter</span><span class="o">.</span><span class="na">from</span><span class="o">(</span><span class="k">new</span> <span class="n">URL</span><span class="o">(</span><span class="s">&#34;http://localhost:9090/v2/api-docs&#34;</span><span class="o">))</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">withConfig</span><span class="o">(</span><span class="n">config</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">build</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">toFolder</span><span class="o">(</span><span class="n">Paths</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&#34;./docs/confluence/generated&#34;</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 生成AsciiDocs格式文档,并汇总成一个文件
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @throws Exception
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Test</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">generateAsciiDocsToFile</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//  输出Ascii到单文件
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">Swagger2MarkupConfig</span> <span class="n">config</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Swagger2MarkupConfigBuilder</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">withMarkupLanguage</span><span class="o">(</span><span class="n">MarkupLanguage</span><span class="o">.</span><span class="na">ASCIIDOC</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">withOutputLanguage</span><span class="o">(</span><span class="n">Language</span><span class="o">.</span><span class="na">ZH</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">withPathsGroupedBy</span><span class="o">(</span><span class="n">GroupBy</span><span class="o">.</span><span class="na">TAGS</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">withGeneratedExamples</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">withoutInlineSchema</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">Swagger2MarkupConverter</span><span class="o">.</span><span class="na">from</span><span class="o">(</span><span class="k">new</span> <span class="n">URL</span><span class="o">(</span><span class="s">&#34;http://localhost:9090/v2/api-docs&#34;</span><span class="o">))</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">withConfig</span><span class="o">(</span><span class="n">config</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">build</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">toFile</span><span class="o">(</span><span class="n">Paths</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&#34;./docs/asciidoc/generated/all&#34;</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 生成Markdown格式文档,并汇总成一个文件
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @throws Exception
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Test</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">generateMarkdownDocsToFile</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//  输出Markdown到单文件
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">Swagger2MarkupConfig</span> <span class="n">config</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Swagger2MarkupConfigBuilder</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">withMarkupLanguage</span><span class="o">(</span><span class="n">MarkupLanguage</span><span class="o">.</span><span class="na">MARKDOWN</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">withOutputLanguage</span><span class="o">(</span><span class="n">Language</span><span class="o">.</span><span class="na">ZH</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">withPathsGroupedBy</span><span class="o">(</span><span class="n">GroupBy</span><span class="o">.</span><span class="na">TAGS</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">withGeneratedExamples</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">withoutInlineSchema</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">Swagger2MarkupConverter</span><span class="o">.</span><span class="na">from</span><span class="o">(</span><span class="k">new</span> <span class="n">URL</span><span class="o">(</span><span class="s">&#34;http://localhost:9090/v2/api-docs&#34;</span><span class="o">))</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">withConfig</span><span class="o">(</span><span class="n">config</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">build</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">toFile</span><span class="o">(</span><span class="n">Paths</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&#34;./docs/markdown/generated/all&#34;</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>其中的<code>http://localhost:9090/v2/api-docs</code>即Swagger页面的文档地址：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-34/image-20201023095034280.png" >
+		<img src="/images/activiti6-34/image-20201023095034280.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201023095034280">
+	</a>
+	
+	<figcaption>image-20201023095034280</figcaption>
+	
+</figure></p>
+<p><strong>说明</strong>：此处我们需要修改SwaggerConfig文件的内容，使swagger不再扫描Activici自带的接口，否则生成的接口文档只包含Activici接口，我们自己写的接口排版是错误的。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-34/image-20201023095424805.png" >
+		<img src="/images/activiti6-34/image-20201023095424805.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201023095424805">
+	</a>
+	
+	<figcaption>image-20201023095424805</figcaption>
+	
+</figure></p>
+<h3 id="21-生成markdown接口文档">2.1 生成MarkDown接口文档</h3>
+<p>首先，我么需要把服务关掉，否则会报端口占用：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-34/image-20201023095920423.png" >
+		<img src="/images/activiti6-34/image-20201023095920423.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201023095920423">
+	</a>
+	
+	<figcaption>image-20201023095920423</figcaption>
+	
+</figure></p>
+<p>然后执行单元测试方法：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-34/image-20201023100010900.png" >
+		<img src="/images/activiti6-34/image-20201023100010900.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201023100010900">
+	</a>
+	
+	<figcaption>image-20201023100010900</figcaption>
+	
+</figure></p>
+<p>执行完成后会在当前项目目录下生成如下内容：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-34/image-20201023100146296.png" >
+		<img src="/images/activiti6-34/image-20201023100146296.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201023100146296">
+	</a>
+	
+	<figcaption>image-20201023100146296</figcaption>
+	
+</figure></p>
+<p>我们使用Typora打开这个md文件：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-34/image-20201023100332021.png" >
+		<img src="/images/activiti6-34/image-20201023100332021.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201023100332021">
+	</a>
+	
+	<figcaption>image-20201023100332021</figcaption>
+	
+</figure></p>
+<p>可以看到已经生成了接口文档</p>
+<h3 id="22-生成pdf接口文档">2.2 生成PDF接口文档</h3>
+<p>这里我们是使用Typora的功能来生成PDF文件的。点击Typora左上角的 <strong>文件-导出-PDF</strong>，生成文件如下：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-34/image-20201023101100713.png" >
+		<img src="/images/activiti6-34/image-20201023101100713.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201023101100713">
+	</a>
+	
+	<figcaption>image-20201023101100713</figcaption>
+	
+</figure></p>
+<h3 id="23-生成html接口文档">2.3 生成HTML接口文档</h3>
+<p>然后执行单元测试方法（记着关闭服务）：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-34/image-20201023101703740.png" >
+		<img src="/images/activiti6-34/image-20201023101703740.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201023101703740">
+	</a>
+	
+	<figcaption>image-20201023101703740</figcaption>
+	
+</figure></p>
+<p>执行结束会生成如下文件：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-34/image-20201023102037614.png" >
+		<img src="/images/activiti6-34/image-20201023102037614.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201023102037614">
+	</a>
+	
+	<figcaption>image-20201023102037614</figcaption>
+	
+</figure></p>
+<p>然后我们打开Maven：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-34/image-20201027140841101.png" >
+		<img src="/images/activiti6-34/image-20201027140841101.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201027140841101">
+	</a>
+	
+	<figcaption>image-20201027140841101</figcaption>
+	
+</figure></p>
+<p>执行结束后，就可以看到HTML文件了：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-34/image-20201023102234475.png" >
+		<img src="/images/activiti6-34/image-20201023102234475.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201023102234475">
+	</a>
+	
+	<figcaption>image-20201023102234475</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-34/image-20201023102303562.png" >
+		<img src="/images/activiti6-34/image-20201023102303562.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201023102303562">
+	</a>
+	
+	<figcaption>image-20201023102303562</figcaption>
+	
+</figure></p>
+<p>可以看到HTML格式的接口文档为我们提供了序号，更加合理一些。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/activiti/">Activiti</a>
+        
+            <a href="/tags/swagger/">Swagger</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/activiti34-%E4%BD%BF%E7%94%A8swagger%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（34） 使用Swagger生成静态接口文档</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti8-%E5%8A%A8%E6%80%81%E8%A1%A8%E5%8D%95%E5%AE%9E%E6%88%98%E9%9B%86%E6%88%90swaggerlogback/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（8） 动态表单实战、集成Swagger、Logback</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti6%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%B3%BB%E7%BB%9F%E6%90%AD%E5%BB%BA%E6%95%99%E7%A8%8B/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti6工作流系统搭建教程</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti33-spring-security%E8%8E%B7%E5%8F%96%E5%BD%93%E5%89%8D%E6%93%8D%E4%BD%9C%E4%BA%BA%E4%BF%A1%E6%81%AF/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（33） Spring-Security获取当前操作人信息</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti32-%E6%9B%BF%E6%8D%A2activiti%E7%94%A8%E6%88%B7%E5%92%8C%E7%94%A8%E6%88%B7%E7%BB%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（32） 替换Activiti用户和用户组</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#1添加依赖">1、添加依赖</a></li>
+    <li><a href="#2生成接口">2、生成接口</a>
+      <ol>
+        <li><a href="#21-生成markdown接口文档">2.1 生成MarkDown接口文档</a></li>
+        <li><a href="#22-生成pdf接口文档">2.2 生成PDF接口文档</a></li>
+        <li><a href="#23-生成html接口文档">2.3 生成HTML接口文档</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

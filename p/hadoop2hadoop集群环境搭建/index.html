@@ -1,0 +1,1458 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Hadoop集群环境搭建'><title>（Hadoop2）Hadoop集群环境搭建</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/hadoop2hadoop%E9%9B%86%E7%BE%A4%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='（Hadoop2）Hadoop集群环境搭建'>
+<meta property='og:description' content='Hadoop集群环境搭建'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/hadoop2hadoop%E9%9B%86%E7%BE%A4%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Hadoop' /><meta property='article:published_time' content='2023-07-14T16:36:40&#43;00:00'/><meta property='article:modified_time' content='2023-07-14T16:36:40&#43;00:00'/>
+<meta name="twitter:title" content="（Hadoop2）Hadoop集群环境搭建">
+<meta name="twitter:description" content="Hadoop集群环境搭建">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/hadoop/" >
+                Hadoop
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/hadoop2hadoop%E9%9B%86%E7%BE%A4%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">（Hadoop2）Hadoop集群环境搭建</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        Hadoop集群环境搭建
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jul 14, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 5 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <h2 id="一环境介绍">一、环境介绍</h2>
+<ul>
+<li>centos7.5</li>
+<li>jdk-8u212-linux-x64.tar.gz</li>
+<li>vmware15.5</li>
+<li>hadoop-3.1.3</li>
+</ul>
+<h2 id="二基础环境配置">二、基础环境配置</h2>
+<p>先搭建一台模板机,后续通过克隆来创建其他虚拟机(同步创建<code>root</code>用户和普通用户<code>admin</code>)。模板机IP：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">192.168.40.128 
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">vim  /etc/hostname
+</span></span><span class="line"><span class="cl"><span class="c1">##修改机器名称</span>
+</span></span><span class="line"><span class="cl">hadoop0
+</span></span></code></pre></div><h3 id="21-模板机操作">2.1 模板机操作</h3>
+<p>1、配置admin用户具有 root 权限，方便后期加 sudo 执行 root 权限的命令</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">vim /etc/sudoers
+</span></span><span class="line"><span class="cl"><span class="c1">##修改/etc/sudoers 文件，在%wheel 这行下面添加一行</span>
+</span></span><span class="line"><span class="cl">admin   <span class="nv">ALL</span><span class="o">=(</span>ALL<span class="o">)</span> NOPASSWD:ALL
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/hadoop-02/image-20230713091509884.png" >
+		<img src="/../../images/hadoop-02/image-20230713091509884.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230713091509884">
+	</a>
+	
+	<figcaption>image-20230713091509884</figcaption>
+	
+</figure></p>
+<p>2、在<code>/opt</code>目录下创建文件夹，并修改所属主和所属组</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">mkdir /opt/module
+</span></span><span class="line"><span class="cl">mkdir /opt/software
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">chown admin:admin /opt/module
+</span></span><span class="line"><span class="cl">chown admin:admin /opt/software
+</span></span></code></pre></div><p>3、卸载虚拟机自带JDK</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">rpm -qa <span class="p">|</span> grep -i java <span class="p">|</span> xargs -n1 rpm -e --nodeps
+</span></span></code></pre></div><h3 id="22-克隆3台虚拟机">2.2 克隆3台虚拟机</h3>
+<p>关闭模板机，克隆3台虚拟，IP分别是：</p>
+<pre tabindex="0"><code>192.168.40.129 
+192.168.40.130 
+192.168.40.131 
+</code></pre><p>并修改对应的<code>hostname</code>分别为<code>hadoop1、hadoop2、hadoop3</code>，同时修改4台虚拟机的<code>hosts</code>文件：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">vim /etc/hosts
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">##插入以下内容</span>
+</span></span><span class="line"><span class="cl">192.168.40.128 hadoop0
+</span></span><span class="line"><span class="cl">192.168.40.129 hadoop1
+</span></span><span class="line"><span class="cl">192.168.40.130 hadoop2
+</span></span><span class="line"><span class="cl">192.168.40.131 hadoop3
+</span></span></code></pre></div><p><strong>注意，此处要配置内网IP（通过ifconfig命令查看）</strong>。</p>
+<p>然后重启虚拟机。</p>
+<h3 id="23-安装jdk">2.3 安装JDK</h3>
+<p>分别在<code>hadoop1、hadoop2、hadoop3</code>3台虚拟机上安装JDK。上传jdk安装包到<code>/opt/software</code>目录下。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1">##解压java到/opt/module下</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 software<span class="o">]</span>$ tar -zxvf jdk-8u212-linux-x64.tar.gz -C ../module/
+</span></span></code></pre></div><p>在  <code>/etc/profile.d/</code>目录下新建<code>myjdk.sh</code>（注意需要使用root账户）</p>
+<pre tabindex="0"><code>cd /etc/profile.d/
+vim myjdk.sh
+
+export JAVA_HOME=/opt/module/jdk1.8.0_212
+export CLASSPATH=.:${JAVA_HOME}/jre/lib/rt.jar:${JAVA_HOME}/lib/dt.jar:${JAVA_HOME}/lib/tools.jar
+export PATH=$PATH:${JAVA_HOME}/bin
+</code></pre><p>执行以下命令，使PATH生效：</p>
+<pre tabindex="0"><code>source /etc/profile
+</code></pre><p>查看JDK是否安装成功</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 profile.d<span class="o">]</span><span class="c1"># java -version</span>
+</span></span><span class="line"><span class="cl">java version <span class="s2">&#34;1.8.0_212&#34;</span>
+</span></span><span class="line"><span class="cl">Java<span class="o">(</span>TM<span class="o">)</span> SE Runtime Environment <span class="o">(</span>build 1.8.0_212-b10<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Java HotSpot<span class="o">(</span>TM<span class="o">)</span> 64-Bit Server VM <span class="o">(</span>build 25.212-b10, mixed mode<span class="o">)</span>
+</span></span></code></pre></div><h3 id="24-安装hadoop">2.4 安装hadoop</h3>
+<p>Hadoop 官方网站：http://hadoop.apache.org/</p>
+<p>Hadoop 下载地址：https://archive.apache.org/dist/hadoop/common/hadoop-3.1.3/</p>
+<p>hadoop的安装和jdk是类似的。上传jdk安装包到<code>/opt/software</code>目录下。</p>
+<p><figure 
+	>
+	<a href="/../../images/hadoop-02/image-20230713112421450.png" >
+		<img src="/../../images/hadoop-02/image-20230713112421450.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230713112421450">
+	</a>
+	
+	<figcaption>image-20230713112421450</figcaption>
+	
+</figure></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1">##解压hadoop /opt/module下</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop3 software<span class="o">]</span><span class="c1"># tar -zxvf hadoop-3.1.3.tar.gz -C ../module/</span>
+</span></span></code></pre></div><p>在  <code>/etc/profile.d/</code>目录下新建<code>myhadoop.sh</code>（注意需要使用root账户）</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="nb">cd</span> /etc/profile.d/
+</span></span><span class="line"><span class="cl">vim myhadoop.sh
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">HADOOP_HOME</span><span class="o">=</span>/opt/module/hadoop-3.1.3
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span><span class="nv">$PATH</span>:<span class="nv">$HADOOP_HOME</span>/bin
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span><span class="nv">$PATH</span>:<span class="nv">$HADOOP_HOME</span>/sbin
+</span></span></code></pre></div><p>执行以下命令，使PATH生效：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="nb">source</span> /etc/profile
+</span></span></code></pre></div><p>查看hadoop是否安装成功</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">hadoop version
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/hadoop-02/image-20230713112901155.png" >
+		<img src="/../../images/hadoop-02/image-20230713112901155.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230713112901155">
+	</a>
+	
+	<figcaption>image-20230713112901155</figcaption>
+	
+</figure></p>
+<h3 id="25-hadoop目录结构">2.5 hadoop目录结构</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 module<span class="o">]</span><span class="c1"># cd hadoop-3.1.3/</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@hadoop1 hadoop-3.1.3<span class="o">]</span><span class="c1"># ll</span>
+</span></span><span class="line"><span class="cl">总用量 <span class="m">176</span>
+</span></span><span class="line"><span class="cl">drwxr-xr-x. <span class="m">2</span> admin admin    <span class="m">183</span> 9月  <span class="m">12</span> <span class="m">2019</span> bin
+</span></span><span class="line"><span class="cl">drwxr-xr-x. <span class="m">3</span> admin admin     <span class="m">20</span> 9月  <span class="m">12</span> <span class="m">2019</span> etc
+</span></span><span class="line"><span class="cl">drwxr-xr-x. <span class="m">2</span> admin admin    <span class="m">106</span> 9月  <span class="m">12</span> <span class="m">2019</span> include
+</span></span><span class="line"><span class="cl">drwxr-xr-x. <span class="m">3</span> admin admin     <span class="m">20</span> 9月  <span class="m">12</span> <span class="m">2019</span> lib
+</span></span><span class="line"><span class="cl">drwxr-xr-x. <span class="m">4</span> admin admin    <span class="m">288</span> 9月  <span class="m">12</span> <span class="m">2019</span> libexec
+</span></span><span class="line"><span class="cl">-rw-rw-r--. <span class="m">1</span> admin admin <span class="m">147145</span> 9月   <span class="m">4</span> <span class="m">2019</span> LICENSE.txt
+</span></span><span class="line"><span class="cl">-rw-rw-r--. <span class="m">1</span> admin admin  <span class="m">21867</span> 9月   <span class="m">4</span> <span class="m">2019</span> NOTICE.txt
+</span></span><span class="line"><span class="cl">-rw-rw-r--. <span class="m">1</span> admin admin   <span class="m">1366</span> 9月   <span class="m">4</span> <span class="m">2019</span> README.txt
+</span></span><span class="line"><span class="cl">drwxr-xr-x. <span class="m">3</span> admin admin   <span class="m">4096</span> 9月  <span class="m">12</span> <span class="m">2019</span> sbin
+</span></span><span class="line"><span class="cl">drwxr-xr-x. <span class="m">4</span> admin admin     <span class="m">31</span> 9月  <span class="m">12</span> <span class="m">2019</span> share
+</span></span></code></pre></div><ul>
+<li>（1）bin 目录：存放对 Hadoop 相关服务（hdfs，yarn，mapred）进行操作的脚本</li>
+<li>（2）etc 目录：Hadoop 的配置文件目录，存放 Hadoop 的配置文件</li>
+<li>（3）lib 目录：存放 Hadoop 的本地库（对数据进行压缩解压缩功能）</li>
+<li>（4）sbin 目录：存放启动或停止 Hadoop 相关服务的脚本</li>
+<li>（5）share 目录：存放 Hadoop 的依赖 jar 包、文档、和官方案例</li>
+</ul>
+<h2 id="三xsync分发脚本工具">三、xsync分发脚本工具</h2>
+<p>后期会涉及很多集群间的文件同步，为了可以快速在集群建进行文件拷贝，我们创建一个<code>xsync分发工具</code>,实现循环复制文件到所有节点的相同目录下。</p>
+<p>原理是使用rsync命令：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">rsync -av <span class="nv">$pdir</span>/<span class="nv">$fname</span> <span class="nv">$user</span>@<span class="nv">$host</span>:<span class="nv">$pdir</span>/<span class="nv">$fname</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">命令 选项参数 要拷贝的文件路径/名称 目的地用户@主机:目的地路径/名称
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">选项参数说明
+</span></span><span class="line"><span class="cl">-a 归档拷贝
+</span></span><span class="line"><span class="cl">-v 显示复制过程
+</span></span></code></pre></div><h4 id="31-创建自定义命令xsync">3.1 创建自定义命令<code>xsync</code></h4>
+<p>我们在<code>hadoop1</code>机器的<code>/bin</code>目录下新建<code>xsync</code>文件（在<code>/bin</code>目录是因为该目录属于<code>$PATH</code>,root和普通用户都可以执行该目录下的命令），输入以下内容：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="cp">#!/bin/bash
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="c1">#1. 判断参数个数</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="o">[</span> <span class="nv">$#</span> -lt <span class="m">1</span> <span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="k">then</span>
+</span></span><span class="line"><span class="cl"> <span class="nb">echo</span> Not Enough Arguement!
+</span></span><span class="line"><span class="cl"> exit<span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">fi</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#2. 遍历集群所有机器</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> host in hadoop1 hadoop2 hadoop3
+</span></span><span class="line"><span class="cl"><span class="k">do</span>
+</span></span><span class="line"><span class="cl"> <span class="nb">echo</span> <span class="o">====================</span> <span class="nv">$host</span> <span class="o">====================</span>
+</span></span><span class="line"><span class="cl"> <span class="c1">#3. 遍历所有目录，挨个发送</span>
+</span></span><span class="line"><span class="cl"> <span class="k">for</span> file in <span class="nv">$@</span>
+</span></span><span class="line"><span class="cl"> <span class="k">do</span>
+</span></span><span class="line"><span class="cl"> <span class="c1">#4. 判断文件是否存在</span>
+</span></span><span class="line"><span class="cl"> <span class="k">if</span> <span class="o">[</span> -e <span class="nv">$file</span> <span class="o">]</span>
+</span></span><span class="line"><span class="cl"> <span class="k">then</span>
+</span></span><span class="line"><span class="cl"> <span class="c1">#5. 获取父目录</span>
+</span></span><span class="line"><span class="cl"> <span class="nv">pdir</span><span class="o">=</span><span class="k">$(</span><span class="nb">cd</span> -P <span class="k">$(</span>dirname <span class="nv">$file</span><span class="k">)</span><span class="p">;</span> <span class="nb">pwd</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl"> <span class="c1">#6. 获取当前文件的名称</span>
+</span></span><span class="line"><span class="cl"> <span class="nv">fname</span><span class="o">=</span><span class="k">$(</span>basename <span class="nv">$file</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl"> ssh <span class="nv">$host</span> <span class="s2">&#34;mkdir -p </span><span class="nv">$pdir</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl"> rsync -av <span class="nv">$pdir</span>/<span class="nv">$fname</span> <span class="nv">$host</span>:<span class="nv">$pdir</span>
+</span></span><span class="line"><span class="cl"> <span class="k">else</span>
+</span></span><span class="line"><span class="cl"> <span class="nb">echo</span> <span class="nv">$file</span> does not exists!
+</span></span><span class="line"><span class="cl"> <span class="k">fi</span>
+</span></span><span class="line"><span class="cl"> <span class="k">done</span>
+</span></span><span class="line"><span class="cl"><span class="k">done</span>
+</span></span></code></pre></div><p>修改文件执行权限</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">chmod <span class="m">755</span> xsync
+</span></span></code></pre></div><p>我们在<code>/opt</code>目录下新建测试文件，进行验证。</p>
+<p><figure 
+	>
+	<a href="/../../images/hadoop-02/image-20230717112904280.png" >
+		<img src="/../../images/hadoop-02/image-20230717112904280.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230717112904280">
+	</a>
+	
+	<figcaption>image-20230717112904280</figcaption>
+	
+</figure></p>
+<p>可以看到文件已经被批量同步到集群的其它机器上了。</p>
+<p><figure 
+	>
+	<a href="/../../images/hadoop-02/image-20230717112945926.png" >
+		<img src="/../../images/hadoop-02/image-20230717112945926.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230717112945926">
+	</a>
+	
+	<figcaption>image-20230717112945926</figcaption>
+	
+</figure></p>
+<h4 id="32-设置xsync集群免密传输">3.2 设置xsync集群免密传输</h4>
+<p>但是我们在使用xsync命令时，还需要依次输入各集群机器的密码，比较麻烦，我们下面配置一下免密传输。</p>
+<p>我们在<code>hadoop1</code>中，执行<code>ssh-keygen -t rsa</code>，然后敲（三个回车），就会生成两个文件 id_rsa（私钥）、id_rsa.pub（公钥）</p>
+<p><figure 
+	>
+	<a href="/../../images/hadoop-02/image-20230717151924697.png" >
+		<img src="/../../images/hadoop-02/image-20230717151924697.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230717151924697">
+	</a>
+	
+	<figcaption>image-20230717151924697</figcaption>
+	
+</figure></p>
+<p>将公钥拷贝到要免密登录的目标机器上。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">ssh-copy-id hadoop1
+</span></span><span class="line"><span class="cl">ssh-copy-id hadoop2
+</span></span><span class="line"><span class="cl">ssh-copy-id hadoop3
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/hadoop-02/image-20230717172425840.png" >
+		<img src="/../../images/hadoop-02/image-20230717172425840.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230717172425840">
+	</a>
+	
+	<figcaption>image-20230717172425840</figcaption>
+	
+</figure></p>
+<p>我们再次验证同步文件，可以看到无需密码了：</p>
+<p><figure 
+	>
+	<a href="/../../images/hadoop-02/image-20230717165853066.png" >
+		<img src="/../../images/hadoop-02/image-20230717165853066.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230717165853066">
+	</a>
+	
+	<figcaption>image-20230717165853066</figcaption>
+	
+</figure></p>
+<p>注意，这部分演示我们是用root账户操作的，我们需要在所有集群节点，分别使用root和admin用户，重复这部分操作，实现集群建任意节点免密传输。</p>
+<h2 id="四hadoop运行模式">四、Hadoop运行模式</h2>
+<p><figure 
+	>
+	<a href="/../../images/hadoop-02/image-20230714150341209.png" >
+		<img src="/../../images/hadoop-02/image-20230714150341209.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230714150341209">
+	</a>
+	
+	<figcaption>image-20230714150341209</figcaption>
+	
+</figure></p>
+<p>Hadoop 运行模式包括：<strong>本地模式</strong>、<strong>伪分布式模式</strong>以及<strong>完全分布式模式</strong>。</p>
+<p>➢ <strong>本地模式</strong>：单机运行，数据存储在Linux本地。</p>
+<p>➢ <strong>伪分布式模式</strong>：也是单机运行，但是具备 Hadoop 集群的所有功能，一台服务器模拟一个分布式的环境。数据存储在HDFS。</p>
+<p>➢ <strong>完全分布式模式</strong>：多台服务器组成分布式环境。生产环境使用。</p>
+<p>我们主要学习分布式模式。</p>
+<h2 id="五集群配置">五、集群配置</h2>
+<h3 id="51-集群部署规划">5.1 集群部署规划</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>hadoop1</th>
+<th>hadoop2</th>
+<th>hadoop3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HDFS</td>
+<td>NameNode</td>
+<td>DataNode</td>
+<td>SecondaryNameNodeDataNode</td>
+</tr>
+<tr>
+<td></td>
+<td>DataNode</td>
+<td></td>
+<td>DataNode</td>
+</tr>
+<tr>
+<td>YARN</td>
+<td>NodeManager</td>
+<td>ResourceManager</td>
+<td>NodeManager</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>NodeManager</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>由于我们是测试环境，虚拟机资源有限，分配规则如下：</p>
+<p>➢ NameNode 和 SecondaryNameNode 不要安装在同一台服务器</p>
+<p>➢ ResourceManager 也很消耗内存，不要和 NameNode、SecondaryNameNode 配置在同一台机器上。</p>
+<h3 id="52-配置文件说明">5.2 配置文件说明</h3>
+<p>Hadoop 配置文件分两类：默认配置文件和自定义配置文件，只有用户想修改某一默认配置值时，才需要修改自定义配置文件，更改相应属性值。</p>
+<h4 id="521默认配置文件defaultxml">5.2.1默认配置文件（default.xml）：</h4>
+<table>
+<thead>
+<tr>
+<th>默认配置文件</th>
+<th>位置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>core-default.xml</td>
+<td>/hadoop-3.1.3/share/hadoop/common/hadoop-common-3.1.3.jar/core-default.xml</td>
+</tr>
+<tr>
+<td>hdfs-default.xml</td>
+<td>/hadoop-3.1.3/share/hadoop/hdfs/hadoop-hdfs-3.1.3.jar/hdfs-default.xml</td>
+</tr>
+<tr>
+<td>yarn-default.xml</td>
+<td>/hadoop-3.1.3/share/hadoop/yarn/hadoop-yarn-common-3.1.3.jar/yarn-default.xml</td>
+</tr>
+<tr>
+<td>mapred-default.xml</td>
+<td>/hadoop-3.1.3/share/hadoop/mapreduce//hadoop-3.1.3/share/hadoop/mapreduce</td>
+</tr>
+</tbody>
+</table>
+<h4 id="522自定义配置文件sitexml">5.2.2自定义配置文件（site.xml）</h4>
+<p><code>core-site.xml、hdfs-site.xml、yarn-site.xml、mapred-site.xml</code> 四个配置文件存放在<code>$HADOOP_HOME/etc/hadoop</code> 这个路径上，用户可以根据项目需求重新进行修改配置。</p>
+<h3 id="52-配置集群">5.2 配置集群</h3>
+<h4 id="521-配置-core-sitexml">5.2.1 配置 core-site.xml</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="c">&lt;!-- 指定 NameNode 的地址及端口 --&gt;</span>
+</span></span><span class="line"><span class="cl"> <span class="nt">&lt;property&gt;</span>
+</span></span><span class="line"><span class="cl"> 	<span class="nt">&lt;name&gt;</span>fs.defaultFS<span class="nt">&lt;/name&gt;</span>
+</span></span><span class="line"><span class="cl"> 	<span class="nt">&lt;value&gt;</span>hdfs://hadoop1:8020<span class="nt">&lt;/value&gt;</span>
+</span></span><span class="line"><span class="cl"> <span class="nt">&lt;/property&gt;</span>
+</span></span><span class="line"><span class="cl"> <span class="c">&lt;!-- 指定 hadoop 数据的存储目录 --&gt;</span>
+</span></span><span class="line"><span class="cl"> <span class="nt">&lt;property&gt;</span>
+</span></span><span class="line"><span class="cl"> 	<span class="nt">&lt;name&gt;</span>hadoop.tmp.dir<span class="nt">&lt;/name&gt;</span>
+</span></span><span class="line"><span class="cl"> 	<span class="nt">&lt;value&gt;</span>/opt/module/hadoop-3.1.3/data<span class="nt">&lt;/value&gt;</span>
+</span></span><span class="line"><span class="cl"> <span class="nt">&lt;/property&gt;</span>
+</span></span><span class="line"><span class="cl"> <span class="c">&lt;!-- 配置 HDFS 网页登录使用的静态用户为 admin --&gt;</span>
+</span></span><span class="line"><span class="cl"> <span class="nt">&lt;property&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="nt">&lt;name&gt;</span>hadoop.http.staticuser.user<span class="nt">&lt;/name&gt;</span>
+</span></span><span class="line"><span class="cl"> 	<span class="nt">&lt;value&gt;</span>admin<span class="nt">&lt;/value&gt;</span>
+</span></span><span class="line"><span class="cl"> <span class="nt">&lt;/property&gt;</span>
+</span></span></code></pre></div><h4 id="522-配置-hdfs-sitexml">5.2.2 配置 hdfs-site.xml</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="c">&lt;!-- NameNode web 端访问地址--&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;property&gt;</span>
+</span></span><span class="line"><span class="cl"> 	<span class="nt">&lt;name&gt;</span>dfs.namenode.http-address<span class="nt">&lt;/name&gt;</span>
+</span></span><span class="line"><span class="cl"> 	<span class="nt">&lt;value&gt;</span>hadoop1:9870<span class="nt">&lt;/value&gt;</span>
+</span></span><span class="line"><span class="cl"> <span class="nt">&lt;/property&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="c">&lt;!-- SecondaryNameNode web 端访问地址--&gt;</span>
+</span></span><span class="line"><span class="cl"> <span class="nt">&lt;property&gt;</span>
+</span></span><span class="line"><span class="cl"> 	<span class="nt">&lt;name&gt;</span>dfs.namenode.secondary.http-address<span class="nt">&lt;/name&gt;</span>
+</span></span><span class="line"><span class="cl"> 	<span class="nt">&lt;value&gt;</span>hadoop3:9868<span class="nt">&lt;/value&gt;</span>
+</span></span><span class="line"><span class="cl"> <span class="nt">&lt;/property&gt;</span>
+</span></span></code></pre></div><h4 id="523-配置-yarn-sitexml">5.2.3 配置 yarn-site.xml</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="c">&lt;!-- 指定 MapReduce 走 shuffle --&gt;</span>
+</span></span><span class="line"><span class="cl"> <span class="nt">&lt;property&gt;</span>
+</span></span><span class="line"><span class="cl"> 	<span class="nt">&lt;name&gt;</span>yarn.nodemanager.aux-services<span class="nt">&lt;/name&gt;</span>
+</span></span><span class="line"><span class="cl"> 	<span class="nt">&lt;value&gt;</span>mapreduce_shuffle<span class="nt">&lt;/value&gt;</span>
+</span></span><span class="line"><span class="cl"> <span class="nt">&lt;/property&gt;</span>
+</span></span><span class="line"><span class="cl"> <span class="c">&lt;!-- 指定 ResourceManager 的地址--&gt;</span>
+</span></span><span class="line"><span class="cl"> <span class="nt">&lt;property&gt;</span>
+</span></span><span class="line"><span class="cl"> 	<span class="nt">&lt;name&gt;</span>yarn.resourcemanager.hostname<span class="nt">&lt;/name&gt;</span>
+</span></span><span class="line"><span class="cl"> 	<span class="nt">&lt;value&gt;</span>hadoop2<span class="nt">&lt;/value&gt;</span>
+</span></span><span class="line"><span class="cl"> <span class="nt">&lt;/property&gt;</span>
+</span></span><span class="line"><span class="cl"> <span class="c">&lt;!-- 环境变量的继承 --&gt;</span>
+</span></span><span class="line"><span class="cl"> <span class="nt">&lt;property&gt;</span>
+</span></span><span class="line"><span class="cl"> 	<span class="nt">&lt;name&gt;</span>yarn.nodemanager.env-whitelist<span class="nt">&lt;/name&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;value&gt;</span>JAVA_HOME,HADOOP_COMMON_HOME,HADOOP_HDFS_HOME,HADOOP_CO
+</span></span><span class="line"><span class="cl">    NF_DIR,CLASSPATH_PREPEND_DISTCACHE,HADOOP_YARN_HOME,HADOOP_MAPRED_HOME<span class="nt">&lt;/value&gt;</span>
+</span></span><span class="line"><span class="cl"> <span class="nt">&lt;/property&gt;</span>
+</span></span></code></pre></div><h4 id="524-配置-mapred-sitexml">5.2.4 配置 mapred-site.xml</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="c">&lt;!-- 指定 MapReduce 程序运行在 Yarn 上 --&gt;</span>
+</span></span><span class="line"><span class="cl"> <span class="nt">&lt;property&gt;</span>
+</span></span><span class="line"><span class="cl"> 	<span class="nt">&lt;name&gt;</span>mapreduce.framework.name<span class="nt">&lt;/name&gt;</span>
+</span></span><span class="line"><span class="cl"> 	<span class="nt">&lt;value&gt;</span>yarn<span class="nt">&lt;/value&gt;</span>
+</span></span><span class="line"><span class="cl"> <span class="nt">&lt;/property&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;property&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;name&gt;</span>yarn.app.mapreduce.am.env<span class="nt">&lt;/name&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;value&gt;</span>HADOOP_MAPRED_HOME=/opt/module/hadoop-3.1.3<span class="nt">&lt;/value&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/property&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;property&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;name&gt;</span>mapreduce.map.env<span class="nt">&lt;/name&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;value&gt;</span>HADOOP_MAPRED_HOME=/opt/module/hadoop-3.1.3<span class="nt">&lt;/value&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/property&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;property&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;name&gt;</span>mapreduce.reduce.env<span class="nt">&lt;/name&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;value&gt;</span>HADOOP_MAPRED_HOME=/opt/module/hadoop-3.1.3<span class="nt">&lt;/value&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/property&gt;</span>
+</span></span></code></pre></div><p>通过<code>xsync</code>命令将配置文件分发到其他节点</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 hadoop<span class="o">]</span>$ xsync /opt/module/hadoop-3.1.3/etc/hadoop
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/hadoop-02/image-20230718141827172.png" >
+		<img src="/../../images/hadoop-02/image-20230718141827172.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230718141827172">
+	</a>
+	
+	<figcaption>image-20230718141827172</figcaption>
+	
+</figure></p>
+<h4 id="525-配置集群workers">5.2.5 配置集群workers</h4>
+<p>修改 <code>/opt/module/hadoop-3.1.3/etc/hadoop/workers</code>文件，添加集群机器信息，并同步其他机器节点：</p>
+<pre tabindex="0"><code>hadoop1
+hadoop2
+hadoop3
+</code></pre><p>注意：该文件中添加的内容结尾不允许有空格，文件中不允许有空行。</p>
+<p><figure 
+	>
+	<a href="/../../images/hadoop-02/image-20230718160629484.png" >
+		<img src="/../../images/hadoop-02/image-20230718160629484.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230718160629484">
+	</a>
+	
+	<figcaption>image-20230718160629484</figcaption>
+	
+</figure></p>
+<h3 id="53初始化namenode">5.3初始化NameNode</h3>
+<p>由于我们的集群是第一次搭建，需要在 hadoop1 节点（即NameNode节点）格式化 NameNode</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 hadoop-3.1.3<span class="o">]</span>$ hdfs namenode -format
+</span></span><span class="line"><span class="cl">WARNING: /opt/module/hadoop-3.1.3/logs does not exist. Creating.
+</span></span><span class="line"><span class="cl">2023-07-18 16:08:25,091 INFO namenode.NameNode: STARTUP_MSG:
+</span></span><span class="line"><span class="cl">/************************************************************
+</span></span><span class="line"><span class="cl">STARTUP_MSG: Starting NameNode
+</span></span><span class="line"><span class="cl">STARTUP_MSG:   <span class="nv">host</span> <span class="o">=</span> hadoop1/192.168.40.129
+</span></span><span class="line"><span class="cl">STARTUP_MSG:   <span class="nv">args</span> <span class="o">=</span> <span class="o">[</span>-format<span class="o">]</span>
+</span></span><span class="line"><span class="cl">STARTUP_MSG:   <span class="nv">version</span> <span class="o">=</span> 3.1.3
+</span></span><span class="line"><span class="cl">STARTUP_MSG:   <span class="nv">classpath</span> <span class="o">=</span> /opt/module/hadoop-3.1.3/etc/hadoop:/opt/module/hadoop-3.1.3/share/hadoop                                                                                                         
+</span></span><span class="line"><span class="cl">//此处省略
+</span></span></code></pre></div><p>此时可以看到hadoop安装目录下生成了data目录：</p>
+<p><figure 
+	>
+	<a href="/../../images/hadoop-02/image-20230718161327607.png" >
+		<img src="/../../images/hadoop-02/image-20230718161327607.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230718161327607">
+	</a>
+	
+	<figcaption>image-20230718161327607</figcaption>
+	
+</figure></p>
+<p>注意：格式化 NameNode，会产生新的集群 id，导致 NameNode 和 DataNode 的集群 id 不一致，集群找不到已往数据。如果集群在运行过程中报错，需要重新格式化 NameNode 的话，一定要先停止 namenode 和 datanode 进程，并且要删除所有机器的 data 和 logs 目录，然后再进行格式化。</p>
+<p>其他情况：</p>
+<ul>
+<li>1、有时候hosts文件修改后不生效，初始化没问题但是后续启动HDFS时namenode无法启动，这种情况需要重启服务器或者刷新配置，然后再次进行初始化操作。</li>
+</ul>
+<h3 id="54启动hdfs">5.4启动HDFS</h3>
+<p>我们在hadoop1节点</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 hadoop-3.1.3<span class="o">]</span>$ sbin/start-dfs.sh
+</span></span></code></pre></div><p>可以看到HDFS启动成功了：<figure 
+	>
+	<a href="/../../images/hadoop-02/image-20230718161915294.png" >
+		<img src="/../../images/hadoop-02/image-20230718161915294.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230718161915294">
+	</a>
+	
+	<figcaption>image-20230718161915294</figcaption>
+	
+</figure></p>
+<p>我们已经配置了HDFS 的 NameNode Web端访问地址，我们直接浏览器查看：</p>
+<p>http://192.168.40.129:9870/</p>
+<p><figure 
+	>
+	<a href="/../../images/hadoop-02/image-20230718162910399.png" >
+		<img src="/../../images/hadoop-02/image-20230718162910399.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230718162910399">
+	</a>
+	
+	<figcaption>image-20230718162910399</figcaption>
+	
+</figure></p>
+<h3 id="55-启动yarn">5.5 启动yarn</h3>
+<p>注意，需要在配置了<strong>ResourceManager</strong> 的节点（hadoop2）启动 yarn。</p>
+<p><figure 
+	>
+	<a href="/../../images/hadoop-02/image-20230718170301925.png" >
+		<img src="/../../images/hadoop-02/image-20230718170301925.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230718170301925">
+	</a>
+	
+	<figcaption>image-20230718170301925</figcaption>
+	
+</figure></p>
+<p>yarn默认的 Web访问端口是8088，我们直接浏览器查看：</p>
+<p>http://192.168.40.130:8088/</p>
+<p><figure 
+	>
+	<a href="/../../images/hadoop-02/image-20230718172216202.png" >
+		<img src="/../../images/hadoop-02/image-20230718172216202.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230718172216202">
+	</a>
+	
+	<figcaption>image-20230718172216202</figcaption>
+	
+</figure></p>
+<h3 id="56验证集群启动情况">5.6验证集群启动情况</h3>
+<p>我们分别查看3个节点，集群服务情况，查看是否和集群部署规划相同。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>hadoop1</th>
+<th>hadoop2</th>
+<th>hadoop3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HDFS</td>
+<td>NameNode、<!-- raw HTML omitted -->DataNode</td>
+<td>DataNode</td>
+<td>SecondaryNameNode、<!-- raw HTML omitted -->DataNode</td>
+</tr>
+<tr>
+<td>YARN</td>
+<td>NodeManager</td>
+<td>ResourceManager、<!-- raw HTML omitted -->NodeManager</td>
+<td>NodeManager</td>
+</tr>
+</tbody>
+</table>
+<p><figure 
+	>
+	<a href="/../../images/hadoop-02/image-20230718172645698.png" >
+		<img src="/../../images/hadoop-02/image-20230718172645698.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230718172645698">
+	</a>
+	
+	<figcaption>image-20230718172645698</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/hadoop-02/image-20230718172658689.png" >
+		<img src="/../../images/hadoop-02/image-20230718172658689.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230718172658689">
+	</a>
+	
+	<figcaption>image-20230718172658689</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/hadoop-02/image-20230718172709458.png" >
+		<img src="/../../images/hadoop-02/image-20230718172709458.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230718172709458">
+	</a>
+	
+	<figcaption>image-20230718172709458</figcaption>
+	
+</figure></p>
+<p>可以看到符合预期，我们集群搭建完成。</p>
+<h2 id="六集群测试">六、集群测试</h2>
+<h3 id="61-测试上传下载">6.1 测试上传下载</h3>
+<p>我们hadoop1节点新建一个上传目录</p>
+<pre tabindex="0"><code>[admin@hadoop1 hadoop-3.1.3]$ hadoop fs -mkdir /input
+</code></pre><p>然后在控制台可以看到：</p>
+<p><figure 
+	>
+	<a href="/../../images/hadoop-02/image-20230719141911986.png" >
+		<img src="/../../images/hadoop-02/image-20230719141911986.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230719141911986">
+	</a>
+	
+	<figcaption>image-20230719141911986</figcaption>
+	
+</figure></p>
+<p>新建一个hello.txt文件，并上传</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 module<span class="o">]</span>$ hadoop fs -put hello.txt /input
+</span></span></code></pre></div><p>我们可以查到文件已经上传到了DataNode节点：</p>
+<p><figure 
+	>
+	<a href="/../../images/hadoop-02/image-20230719144909071.png" >
+		<img src="/../../images/hadoop-02/image-20230719144909071.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230719144909071">
+	</a>
+	
+	<figcaption>image-20230719144909071</figcaption>
+	
+</figure></p>
+<p>并且在浏览器端可以看到文件已经上传成功，并且可以预览及下载<figure 
+	>
+	<a href="/../../images/hadoop-02/image-20230719143533962.png" >
+		<img src="/../../images/hadoop-02/image-20230719143533962.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230719143533962">
+	</a>
+	
+	<figcaption>image-20230719143533962</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/hadoop-02/image-20230719143633855.png" >
+		<img src="/../../images/hadoop-02/image-20230719143633855.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230719143633855">
+	</a>
+	
+	<figcaption>image-20230719143633855</figcaption>
+	
+</figure></p>
+<p>我们也可以用过命令下载</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 ~<span class="o">]</span>$ hadoop fs -get /input/hello.txt
+</span></span></code></pre></div><p>注意，由于我们在前面配置了workers为机器名，在浏览器端下载\预览时，会默认使用机器名下载，所以需要在Windows环境中也配置一下hosts</p>
+<pre tabindex="0"><code>192.168.40.128 hadoop0
+192.168.40.129 hadoop1
+192.168.40.130 hadoop2
+192.168.40.131 hadoop3
+</code></pre><h3 id="62-测试yarn">6.2 测试Yarn</h3>
+<p>我们运行mapreduce计算一下我们之前上传到<code>/input</code> 下的<code>hello.txt</code>的各字符出现的次数。（注意：<code>/output</code>必须是不存在的）</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 hadoop-3.1.3<span class="o">]</span>$ hadoop jar /opt/module/hadoop-3.1.3/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.1.3.jar  wordcount /input /output
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/hadoop-02/image-20230719161916988.png" >
+		<img src="/../../images/hadoop-02/image-20230719161916988.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230719161916988">
+	</a>
+	
+	<figcaption>image-20230719161916988</figcaption>
+	
+</figure></p>
+<p>页面可以看到yarn的任务调度记录，由于虚拟机配置太差的（1c  1g），所以第一次执行是失败的。</p>
+<p><figure 
+	>
+	<a href="/../../images/hadoop-02/image-20230719162008150.png" >
+		<img src="/../../images/hadoop-02/image-20230719162008150.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230719162008150">
+	</a>
+	
+	<figcaption>image-20230719162008150</figcaption>
+	
+</figure></p>
+<p>我们查看一下计算结果：</p>
+<p><figure 
+	>
+	<a href="/../../images/hadoop-02/image-20230719162120614.png" >
+		<img src="/../../images/hadoop-02/image-20230719162120614.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230719162120614">
+	</a>
+	
+	<figcaption>image-20230719162120614</figcaption>
+	
+</figure></p>
+<p>最终计算结果如下：</p>
+<p><figure 
+	>
+	<a href="/../../images/hadoop-02/image-20230719162147291.png" >
+		<img src="/../../images/hadoop-02/image-20230719162147291.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230719162147291">
+	</a>
+	
+	<figcaption>image-20230719162147291</figcaption>
+	
+</figure></p>
+<h2 id="七配置历史服务器">七、配置历史服务器</h2>
+<p>我们发现当yarn控制界面刷新后，再次点击history,发现无法查看历史，或者重启yarn后，计算记录会丢失，所以此处我们需要配置历史服务器。</p>
+<p><figure 
+	>
+	<a href="/../../images/hadoop-02/image-20230719162252368.png" >
+		<img src="/../../images/hadoop-02/image-20230719162252368.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230719162252368">
+	</a>
+	
+	<figcaption>image-20230719162252368</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/hadoop-02/image-20230719162421874.png" >
+		<img src="/../../images/hadoop-02/image-20230719162421874.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230719162421874">
+	</a>
+	
+	<figcaption>image-20230719162421874</figcaption>
+	
+</figure></p>
+<p>我们首先在hadoop2关闭yarn：</p>
+<pre tabindex="0"><code>[admin@hadoop2 sbin]$ ./stop-yarn.sh
+</code></pre><p>然后在需要<code>mapred-site.xml</code>中添加如下配置：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="c">&lt;!-- 历史服务器端地址：hadoop内部使用 --&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;property&gt;</span>
+</span></span><span class="line"><span class="cl"> <span class="nt">&lt;name&gt;</span>mapreduce.jobhistory.address<span class="nt">&lt;/name&gt;</span>
+</span></span><span class="line"><span class="cl"> <span class="nt">&lt;value&gt;</span>hadoop1:10020<span class="nt">&lt;/value&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/property&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="c">&lt;!-- 历史服务器 web 端地址 --&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;property&gt;</span>
+</span></span><span class="line"><span class="cl"> <span class="nt">&lt;name&gt;</span>mapreduce.jobhistory.webapp.address<span class="nt">&lt;/name&gt;</span>
+</span></span><span class="line"><span class="cl"> <span class="nt">&lt;value&gt;</span>hadoop1:19888<span class="nt">&lt;/value&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/property&gt;</span>
+</span></span></code></pre></div><p>同步该文件至集群其他节点</p>
+<pre tabindex="0"><code>[admin@hadoop1 hadoop]$ xsync mapred-site.xml
+</code></pre><p>注意：历史服务器需要手动启动，不会随着yarn启动，我们先在Hadoop2重启yarn,然后在hadoop1上启动历史服务器：</p>
+<pre tabindex="0"><code>mapred --daemon start historyserver
+</code></pre><p><figure 
+	>
+	<a href="/../../images/hadoop-02/image-20230719173242534.png" >
+		<img src="/../../images/hadoop-02/image-20230719173242534.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230719173242534">
+	</a>
+	
+	<figcaption>image-20230719173242534</figcaption>
+	
+</figure></p>
+<p>然后我们再次进行计算：</p>
+<pre tabindex="0"><code>[admin@hadoop1 hadoop]$ hadoop jar /opt/module/hadoop-3.1.3/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.1.3.jar  wordcount /input /output1
+</code></pre><p>注意：这里是<code>/output1</code>，第一次计算是<code>/output</code>。</p>
+<p><figure 
+	>
+	<a href="/../../images/hadoop-02/image-20230719174113047.png" >
+		<img src="/../../images/hadoop-02/image-20230719174113047.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230719174113047">
+	</a>
+	
+	<figcaption>image-20230719174113047</figcaption>
+	
+</figure></p>
+<p>这次也是试了2次才成功，低配破笔记本误我~~，我们再次查看history，显示正常：</p>
+<p><figure 
+	>
+	<a href="/../../images/hadoop-02/image-20230719174206447.png" >
+		<img src="/../../images/hadoop-02/image-20230719174206447.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230719174206447">
+	</a>
+	
+	<figcaption>image-20230719174206447</figcaption>
+	
+</figure></p>
+<p>除此之外，我们重启yarn，访问http://192.168.40.130:8088/cluster/apps，可以看到计算历史记录为空</p>
+<p><figure 
+	>
+	<a href="/../../images/hadoop-02/image-20230720112023436.png" >
+		<img src="/../../images/hadoop-02/image-20230720112023436.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230720112023436">
+	</a>
+	
+	<figcaption>image-20230720112023436</figcaption>
+	
+</figure></p>
+<p>此时我们访问http://hadoop1:19888/jobhistory，就可以看到历史记录了</p>
+<p><figure 
+	>
+	<a href="/../../images/hadoop-02/image-20230720112133700.png" >
+		<img src="/../../images/hadoop-02/image-20230720112133700.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230720112133700">
+	</a>
+	
+	<figcaption>image-20230720112133700</figcaption>
+	
+</figure></p>
+<h2 id="八配置日志保存功能">八、配置日志保存功能</h2>
+<p>我们前面已经配置了历史服务器，我们如果想要看本次任务的具体执行日志，可以点击对应的job ID</p>
+<p><figure 
+	>
+	<a href="/../../images/hadoop-02/image-20230720153223972.png" >
+		<img src="/../../images/hadoop-02/image-20230720153223972.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230720153223972">
+	</a>
+	
+	<figcaption>image-20230720153223972</figcaption>
+	
+</figure></p>
+<p>但是现在由于执行日志过程未被保存，点击后无法查看日志，所以我们需要配置日志保存功能。</p>
+<p><strong>日志保存概念：应用运行完成以后，将程序运行日志信息上传到 HDFS 系统上。</strong></p>
+<p>注意：开启日志聚集功能，需要重新启动 NodeManager 、ResourceManager 和HistoryServer。</p>
+<p>我们先关闭yarn、HistoryServer服务</p>
+<pre tabindex="0"><code>[admin@hadoop1 hadoop]$ mapred --daemon stop historyserver
+</code></pre><pre tabindex="0"><code>[admin@hadoop2 sbin]$ ./stop-yarn.sh
+</code></pre><p>修改yarn-site.xml,添加如下信息</p>
+<pre tabindex="0"><code>[admin@hadoop1 hadoop]$ vim yarn-site.xml
+</code></pre><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="c">&lt;!-- 开启日志聚集功能 --&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;property&gt;</span>
+</span></span><span class="line"><span class="cl"> <span class="nt">&lt;name&gt;</span>yarn.log-aggregation-enable<span class="nt">&lt;/name&gt;</span>
+</span></span><span class="line"><span class="cl"> <span class="nt">&lt;value&gt;</span>true<span class="nt">&lt;/value&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/property&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="c">&lt;!-- 设置日志聚集服务器地址 --&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;property&gt;</span> 
+</span></span><span class="line"><span class="cl"> <span class="nt">&lt;name&gt;</span>yarn.log.server.url<span class="nt">&lt;/name&gt;</span> 
+</span></span><span class="line"><span class="cl"> <span class="nt">&lt;value&gt;</span>http://hadoop1:19888/jobhistory/logs<span class="nt">&lt;/value&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/property&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="c">&lt;!-- 设置日志保留时间为 7 天 --&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;property&gt;</span>
+</span></span><span class="line"><span class="cl"> <span class="nt">&lt;name&gt;</span>yarn.log-aggregation.retain-seconds<span class="nt">&lt;/name&gt;</span>
+</span></span><span class="line"><span class="cl"> <span class="nt">&lt;value&gt;</span>604800<span class="nt">&lt;/value&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/property&gt;</span>
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/hadoop-02/image-20230720154325189.png" >
+		<img src="/../../images/hadoop-02/image-20230720154325189.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230720154325189">
+	</a>
+	
+	<figcaption>image-20230720154325189</figcaption>
+	
+</figure></p>
+<p>同步分发到其他机器节点。</p>
+<pre tabindex="0"><code>[admin@hadoop1 hadoop]$ xsync yarn-site.xml
+</code></pre><p>然后重启yarn、HistoryServer服务</p>
+<pre tabindex="0"><code>[admin@hadoop2 sbin]$ ./start-yarn.sh
+
+[admin@hadoop1 hadoop]$ mapred --daemon start historyserver
+</code></pre><p>然后我们再次进行计算：</p>
+<pre tabindex="0"><code>[admin@hadoop1 hadoop]$ hadoop jar /opt/module/hadoop-3.1.3/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.1.3.jar  wordcount /input /output2
+</code></pre><p>我们查看本次计算的日志：</p>
+<p><figure 
+	>
+	<a href="/../../images/hadoop-02/image-20230720160742148.png" >
+		<img src="/../../images/hadoop-02/image-20230720160742148.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230720160742148">
+	</a>
+	
+	<figcaption>image-20230720160742148</figcaption>
+	
+</figure></p>
+<p>可以看大详细的日志了：</p>
+<p><figure 
+	>
+	<a href="/../../images/hadoop-02/image-20230720160814614.png" >
+		<img src="/../../images/hadoop-02/image-20230720160814614.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230720160814614">
+	</a>
+	
+	<figcaption>image-20230720160814614</figcaption>
+	
+</figure></p>
+<p>OK，集群搭建到此结束</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/hadoop/">Hadoop</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/hadoop23hadoop-ha-%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A4/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hadoop23）Hadoop HA 高可用集群</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hadoop22hadoop-mapreduce-%E5%8F%82%E6%95%B0%E8%B0%83%E4%BC%98/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hadoop22）Hadoop MapReduce 参数调优</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hadoop21hdfs-%E5%AE%89%E5%85%A8%E6%A8%A1%E5%BC%8F%E6%85%A2%E7%A3%81%E7%9B%98%E7%9B%91%E6%8E%A7%E5%B0%8F%E6%96%87%E4%BB%B6%E5%BD%92%E6%A1%A3%E8%A7%A3%E5%BD%92%E6%A1%A3%E9%9B%86%E7%BE%A4%E6%95%B0%E6%8D%AE%E8%BF%81%E7%A7%BB/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hadoop21）HDFS 安全模式、慢磁盘监控、小文件归档、解归档、集群数据迁移</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hadoop20hdfs-%E5%86%B7%E7%83%AD%E6%95%B0%E6%8D%AE%E5%88%86%E7%A6%BB%E5%BC%82%E6%9E%84%E5%AD%98%E5%82%A8/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hadoop20）HDFS 冷热数据分离（异构存储）</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hadoop19hdfs-%E7%BA%A0%E5%88%A0%E7%A0%81/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hadoop19）HDFS 纠删码</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#一环境介绍">一、环境介绍</a></li>
+    <li><a href="#二基础环境配置">二、基础环境配置</a>
+      <ol>
+        <li><a href="#21-模板机操作">2.1 模板机操作</a></li>
+        <li><a href="#22-克隆3台虚拟机">2.2 克隆3台虚拟机</a></li>
+        <li><a href="#23-安装jdk">2.3 安装JDK</a></li>
+        <li><a href="#24-安装hadoop">2.4 安装hadoop</a></li>
+        <li><a href="#25-hadoop目录结构">2.5 hadoop目录结构</a></li>
+      </ol>
+    </li>
+    <li><a href="#三xsync分发脚本工具">三、xsync分发脚本工具</a>
+      <ol>
+        <li>
+          <ol>
+            <li><a href="#31-创建自定义命令xsync">3.1 创建自定义命令<code>xsync</code></a></li>
+            <li><a href="#32-设置xsync集群免密传输">3.2 设置xsync集群免密传输</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+    <li><a href="#四hadoop运行模式">四、Hadoop运行模式</a></li>
+    <li><a href="#五集群配置">五、集群配置</a>
+      <ol>
+        <li><a href="#51-集群部署规划">5.1 集群部署规划</a></li>
+        <li><a href="#52-配置文件说明">5.2 配置文件说明</a>
+          <ol>
+            <li><a href="#521默认配置文件defaultxml">5.2.1默认配置文件（default.xml）：</a></li>
+            <li><a href="#522自定义配置文件sitexml">5.2.2自定义配置文件（site.xml）</a></li>
+          </ol>
+        </li>
+        <li><a href="#52-配置集群">5.2 配置集群</a>
+          <ol>
+            <li><a href="#521-配置-core-sitexml">5.2.1 配置 core-site.xml</a></li>
+            <li><a href="#522-配置-hdfs-sitexml">5.2.2 配置 hdfs-site.xml</a></li>
+            <li><a href="#523-配置-yarn-sitexml">5.2.3 配置 yarn-site.xml</a></li>
+            <li><a href="#524-配置-mapred-sitexml">5.2.4 配置 mapred-site.xml</a></li>
+            <li><a href="#525-配置集群workers">5.2.5 配置集群workers</a></li>
+          </ol>
+        </li>
+        <li><a href="#53初始化namenode">5.3初始化NameNode</a></li>
+        <li><a href="#54启动hdfs">5.4启动HDFS</a></li>
+        <li><a href="#55-启动yarn">5.5 启动yarn</a></li>
+        <li><a href="#56验证集群启动情况">5.6验证集群启动情况</a></li>
+      </ol>
+    </li>
+    <li><a href="#六集群测试">六、集群测试</a>
+      <ol>
+        <li><a href="#61-测试上传下载">6.1 测试上传下载</a></li>
+        <li><a href="#62-测试yarn">6.2 测试Yarn</a></li>
+      </ol>
+    </li>
+    <li><a href="#七配置历史服务器">七、配置历史服务器</a></li>
+    <li><a href="#八配置日志保存功能">八、配置日志保存功能</a></li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>
