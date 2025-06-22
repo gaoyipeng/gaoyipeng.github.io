@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='title: （Hive-03）Hive常用SQL date: 2023-09-18 16:36:40 tags: [Hive] categories: [Hive] description: Hive常用SQL（DDL操作、DML操作）
+一、DDL操作 1.1.1 创建数据库 CREATE DATABASE [IF NOT EXISTS] database_name[COMMENT database_comment][LOCATION hdfs_path][WITH DBPROPERTIES (property_name=property_value, ...)]; COMMENT：备注 LOCATION：数据库指定路径，若不指定路径，其默认路径为${hive.metastore.warehouse.dir}/database_name.db WITH DBPROPERTIES：数据库参数 示例：
+create database db_hive2 location &amp;#39;/db_hive2&amp;#39; with dbproperties(&amp;#39;create_date&amp;#39;=&amp;#39;2023-09-20&amp;#39;); image-20230920095746266image-202309200950366171.1.2 查询数据库 /*查询数据库*/ SHOW DATABASES [LIKE &amp;#39;identifier_with_wildcards&amp;#39;]; /*查看数据库信息*/ DESC DATABASE [EXTENDED] db_name; *like通配表达式说明：表示任意个任意字符，|表示或的关系。
+示例：
+/*查询数据库*/ show databases like &amp;#39;db_hive*&amp;#39;; /*查看数据库信息*/ desc database extended db_hive2; 1.1.3 修改数据库 /*修改dbproperties*/ ALTER DATABASE database_name SET DBPROPERTIES (property_name=property_value, .'><title></title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content=''>
+<meta property='og:description' content='title: （Hive-03）Hive常用SQL date: 2023-09-18 16:36:40 tags: [Hive] categories: [Hive] description: Hive常用SQL（DDL操作、DML操作）
+一、DDL操作 1.1.1 创建数据库 CREATE DATABASE [IF NOT EXISTS] database_name[COMMENT database_comment][LOCATION hdfs_path][WITH DBPROPERTIES (property_name=property_value, ...)]; COMMENT：备注 LOCATION：数据库指定路径，若不指定路径，其默认路径为${hive.metastore.warehouse.dir}/database_name.db WITH DBPROPERTIES：数据库参数 示例：
+create database db_hive2 location &amp;#39;/db_hive2&amp;#39; with dbproperties(&amp;#39;create_date&amp;#39;=&amp;#39;2023-09-20&amp;#39;); image-20230920095746266image-202309200950366171.1.2 查询数据库 /*查询数据库*/ SHOW DATABASES [LIKE &amp;#39;identifier_with_wildcards&amp;#39;]; /*查看数据库信息*/ DESC DATABASE [EXTENDED] db_name; *like通配表达式说明：表示任意个任意字符，|表示或的关系。
+示例：
+/*查询数据库*/ show databases like &amp;#39;db_hive*&amp;#39;; /*查看数据库信息*/ desc database extended db_hive2; 1.1.3 修改数据库 /*修改dbproperties*/ ALTER DATABASE database_name SET DBPROPERTIES (property_name=property_value, .'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' />
+<meta name="twitter:title" content="">
+<meta name="twitter:description" content="title: （Hive-03）Hive常用SQL date: 2023-09-18 16:36:40 tags: [Hive] categories: [Hive] description: Hive常用SQL（DDL操作、DML操作）
+一、DDL操作 1.1.1 创建数据库 CREATE DATABASE [IF NOT EXISTS] database_name[COMMENT database_comment][LOCATION hdfs_path][WITH DBPROPERTIES (property_name=property_value, ...)]; COMMENT：备注 LOCATION：数据库指定路径，若不指定路径，其默认路径为${hive.metastore.warehouse.dir}/database_name.db WITH DBPROPERTIES：数据库参数 示例：
+create database db_hive2 location &amp;#39;/db_hive2&amp;#39; with dbproperties(&amp;#39;create_date&amp;#39;=&amp;#39;2023-09-20&amp;#39;); image-20230920095746266image-202309200950366171.1.2 查询数据库 /*查询数据库*/ SHOW DATABASES [LIKE &amp;#39;identifier_with_wildcards&amp;#39;]; /*查看数据库信息*/ DESC DATABASE [EXTENDED] db_name; *like通配表达式说明：表示任意个任意字符，|表示或的关系。
+示例：
+/*查询数据库*/ show databases like &amp;#39;db_hive*&amp;#39;; /*查看数据库信息*/ desc database extended db_hive2; 1.1.3 修改数据库 /*修改dbproperties*/ ALTER DATABASE database_name SET DBPROPERTIES (property_name=property_value, .">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <h2 class="article-title">
+        <a href="/p/"></a>
+    </h2>
+
+    
+
+    
+    <footer class="article-time">
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 4 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <p>title: （Hive-03）Hive常用SQL
+date: 2023-09-18 16:36:40
+tags: [Hive]
+categories: [Hive]
+description: Hive常用SQL（DDL操作、DML操作）</p>
+<h2 id="一ddl操作">一、DDL操作</h2>
+<h3 id="111-创建数据库">1.1.1 创建数据库</h3>
+<pre tabindex="0"><code>CREATE DATABASE [IF NOT EXISTS] database_name
+[COMMENT database_comment]
+[LOCATION hdfs_path]
+[WITH DBPROPERTIES (property_name=property_value, ...)];
+</code></pre><ul>
+<li>COMMENT：备注</li>
+<li>LOCATION：数据库指定路径，若不指定路径，其默认路径为${hive.metastore.warehouse.dir}/database_name.db</li>
+<li>WITH DBPROPERTIES：数据库参数</li>
+</ul>
+<p>示例：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">create database db_hive2 location <span class="s1">&#39;/db_hive2&#39;</span> with dbproperties<span class="o">(</span><span class="s1">&#39;create_date&#39;</span><span class="o">=</span><span class="s1">&#39;2023-09-20&#39;</span><span class="o">)</span><span class="p">;</span>
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/03-hive-03/image-20230920095746266.png" >
+		<img src="/../../images/03-hive-03/image-20230920095746266.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230920095746266">
+	</a>
+	
+	<figcaption>image-20230920095746266</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/03-hive-03/image-20230920095036617.png" >
+		<img src="/../../images/03-hive-03/image-20230920095036617.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230920095036617">
+	</a>
+	
+	<figcaption>image-20230920095036617</figcaption>
+	
+</figure></p>
+<h3 id="112-查询数据库">1.1.2 查询数据库</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="cm">/*查询数据库*/</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">SHOW</span><span class="w"> </span><span class="n">DATABASES</span><span class="w"> </span><span class="p">[</span><span class="k">LIKE</span><span class="w"> </span><span class="s1">&#39;identifier_with_wildcards&#39;</span><span class="p">];</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="cm">/*查看数据库信息*/</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">DESC</span><span class="w"> </span><span class="k">DATABASE</span><span class="w"> </span><span class="p">[</span><span class="n">EXTENDED</span><span class="p">]</span><span class="w"> </span><span class="n">db_name</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>*<em>like通配表达式说明：<em>表示任意个任意字符，|表示或的关系。</em></em></p>
+<p>示例：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="cm">/*查询数据库*/</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">show</span><span class="w"> </span><span class="n">databases</span><span class="w"> </span><span class="k">like</span><span class="w"> </span><span class="s1">&#39;db_hive*&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="cm">/*查看数据库信息*/</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">desc</span><span class="w"> </span><span class="k">database</span><span class="w"> </span><span class="n">extended</span><span class="w"> </span><span class="n">db_hive2</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><h3 id="113-修改数据库">1.1.3 修改数据库</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="cm">/*修改dbproperties*/</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">ALTER</span><span class="w"> </span><span class="k">DATABASE</span><span class="w"> </span><span class="n">database_name</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">DBPROPERTIES</span><span class="w"> </span><span class="p">(</span><span class="n">property_name</span><span class="o">=</span><span class="n">property_value</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="cm">/*修改location*/</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">ALTER</span><span class="w"> </span><span class="k">DATABASE</span><span class="w"> </span><span class="n">database_name</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="k">LOCATION</span><span class="w"> </span><span class="n">hdfs_path</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="cm">/*修改owner user*/</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">ALTER</span><span class="w"> </span><span class="k">DATABASE</span><span class="w"> </span><span class="n">database_name</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="k">OWNER</span><span class="w"> </span><span class="k">USER</span><span class="w"> </span><span class="n">user_name</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p><strong>修改数据库location，不会改变当前已有表的路径信息，而只是改变后续创建的新表的默认的父目录。</strong></p>
+<p>示例：</p>
+<pre tabindex="0"><code>ALTER DATABASE db_hive2 SET DBPROPERTIES (&#39;create_date&#39;=&#39;2022-11-20&#39;);
+</code></pre><h3 id="114-删除数据库">1.1.4 删除数据库</h3>
+<pre tabindex="0"><code>DROP DATABASE [IF EXISTS] database_name [RESTRICT|CASCADE];
+</code></pre><ul>
+<li>
+<p>RESTRICT：严格模式，若数据库不为空，则会删除失败，默认为该模式。</p>
+</li>
+<li>
+<p>CASCADE：级联模式，若数据库不为空，则会将库中的表一并删除。</p>
+<p><figure 
+	>
+	<a href="/../../images/03-hive-03/image-20231007112236359.png" >
+		<img src="/../../images/03-hive-03/image-20231007112236359.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231007112236359">
+	</a>
+	
+	<figcaption>image-20231007112236359</figcaption>
+	
+</figure></p>
+</li>
+</ul>
+<h3 id="115-切换当前数据库">1.1.5 切换当前数据库</h3>
+<pre tabindex="0"><code>USE database_name;
+</code></pre><h3 id="116-创建表">1.1.6 创建表</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="cm">/*方式一：*/</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">CREATE</span><span class="p">[</span><span class="k">TEMPORARY</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="k">EXTERNAL</span><span class="p">]</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="p">[</span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">db_name</span><span class="p">.]</span><span class="k">table_name</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">[(</span><span class="n">col_name</span><span class="w"> </span><span class="n">data_type</span><span class="w"> </span><span class="p">[</span><span class="k">COMMENT</span><span class="w"> </span><span class="n">col_comment</span><span class="p">],</span><span class="w"> </span><span class="p">...)]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">[</span><span class="k">COMMENT</span><span class="w"> </span><span class="n">table_comment</span><span class="p">]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">[</span><span class="n">PARTITIONED</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="p">(</span><span class="n">col_name</span><span class="w"> </span><span class="n">data_type</span><span class="w"> </span><span class="p">[</span><span class="k">COMMENT</span><span class="w"> </span><span class="n">col_comment</span><span class="p">],</span><span class="w"> </span><span class="p">...)]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">[</span><span class="n">CLUSTERED</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="p">(</span><span class="n">col_name</span><span class="p">,</span><span class="w"> </span><span class="n">col_name</span><span class="p">,</span><span class="w"> </span><span class="p">...)</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">[</span><span class="n">SORTED</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="p">(</span><span class="n">col_name</span><span class="w"> </span><span class="p">[</span><span class="k">ASC</span><span class="o">|</span><span class="k">DESC</span><span class="p">],</span><span class="w"> </span><span class="p">...)]</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">num_buckets</span><span class="w"> </span><span class="n">BUCKETS</span><span class="p">]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">[</span><span class="k">ROW</span><span class="w"> </span><span class="n">FORMAT</span><span class="w"> </span><span class="n">row_format</span><span class="p">]</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">[</span><span class="n">STORED</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">file_format</span><span class="p">]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">[</span><span class="k">LOCATION</span><span class="w"> </span><span class="n">hdfs_path</span><span class="p">]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">[</span><span class="n">TBLPROPERTIES</span><span class="w"> </span><span class="p">(</span><span class="n">property_name</span><span class="o">=</span><span class="n">property_value</span><span class="p">,</span><span class="w"> </span><span class="p">...)]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="cm">/*方式二：Create Table As Select语法，该语法允许用户利用select查询语句返回的结果，直接建表，表的结构和查询语句的结构保持一致，且保证包含select查询语句放回的内容。*/</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">CREATE</span><span class="w"> </span><span class="p">[</span><span class="k">TEMPORARY</span><span class="p">]</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="p">[</span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="p">]</span><span class="w"> </span><span class="k">table_name</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">[</span><span class="k">COMMENT</span><span class="w"> </span><span class="n">table_comment</span><span class="p">]</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">[</span><span class="k">ROW</span><span class="w"> </span><span class="n">FORMAT</span><span class="w"> </span><span class="n">row_format</span><span class="p">]</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">[</span><span class="n">STORED</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">file_format</span><span class="p">]</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">[</span><span class="k">LOCATION</span><span class="w"> </span><span class="n">hdfs_path</span><span class="p">]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">[</span><span class="n">TBLPROPERTIES</span><span class="w"> </span><span class="p">(</span><span class="n">property_name</span><span class="o">=</span><span class="n">property_value</span><span class="p">,</span><span class="w"> </span><span class="p">...)]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">[</span><span class="k">AS</span><span class="w"> </span><span class="n">select_statement</span><span class="p">]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="cm">/*方式三：Create Table Like语法，该语法允许用户复刻一张已经存在的表结构，与上述的CTAS语法不同，该语法创建出来的表中不包含数据。*/</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">CREATE</span><span class="w"> </span><span class="p">[</span><span class="k">TEMPORARY</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="k">EXTERNAL</span><span class="p">]</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="p">[</span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">db_name</span><span class="p">.]</span><span class="k">table_name</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">[</span><span class="k">LIKE</span><span class="w"> </span><span class="n">exist_table_name</span><span class="p">]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">[</span><span class="k">ROW</span><span class="w"> </span><span class="n">FORMAT</span><span class="w"> </span><span class="n">row_format</span><span class="p">]</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">[</span><span class="n">STORED</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">file_format</span><span class="p">]</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">[</span><span class="k">LOCATION</span><span class="w"> </span><span class="n">hdfs_path</span><span class="p">]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">[</span><span class="n">TBLPROPERTIES</span><span class="w"> </span><span class="p">(</span><span class="n">property_name</span><span class="o">=</span><span class="n">property_value</span><span class="p">,</span><span class="w"> </span><span class="p">...)]</span><span class="w">
+</span></span></span></code></pre></div><h4 id="1161-temporary-临时表">1.1.6.1 TEMPORARY 临时表</h4>
+<p>临时表，该表只在当前会话可见，会话结束，表会被删除。</p>
+<h4 id="1162-external-外部表">1.1.6.2 EXTERNAL 外部表</h4>
+<p>外部表，与之相对应的是内部表（管理表）。管理表意味着Hive会完全接管该表，包括元数据和HDFS中的数据。而外部表则意味着Hive只接管元数据，而不完全接管HDFS中的数据。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">create</span><span class="w"> </span><span class="k">external</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="k">exists</span><span class="w"> </span><span class="n">student</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">id</span><span class="w"> </span><span class="nb">int</span><span class="p">,</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">name</span><span class="w"> </span><span class="n">string</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">row</span><span class="w"> </span><span class="n">format</span><span class="w"> </span><span class="n">delimited</span><span class="w"> </span><span class="n">fields</span><span class="w"> </span><span class="n">terminated</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="s1">&#39;\t&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">location</span><span class="w"> </span><span class="s1">&#39;/user/hive/warehouse/student&#39;</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><h4 id="1163-data_type-数据类型隐式转换显示转换">1.1.6.3 data_type 数据类型、隐式转换、显示转换</h4>
+<p>Hive中的字段类型可分为基本数据类型和复杂数据类型。基本数据类型如下：</p>
+<table>
+<thead>
+<tr>
+<th>Hive</th>
+<th>说明</th>
+<th>定义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>tinyint</td>
+<td>1byte有符号整数</td>
+<td></td>
+</tr>
+<tr>
+<td>smallint</td>
+<td>2byte有符号整数</td>
+<td></td>
+</tr>
+<tr>
+<td>int</td>
+<td>4byte有符号整数</td>
+<td></td>
+</tr>
+<tr>
+<td>bigint</td>
+<td>8byte有符号整数</td>
+<td></td>
+</tr>
+<tr>
+<td>boolean</td>
+<td>布尔类型，true或者false</td>
+<td></td>
+</tr>
+<tr>
+<td>float</td>
+<td>单精度浮点数</td>
+<td></td>
+</tr>
+<tr>
+<td>double</td>
+<td>双精度浮点数</td>
+<td></td>
+</tr>
+<tr>
+<td>decimal</td>
+<td>十进制精准数字类型</td>
+<td>decimal(16,2)</td>
+</tr>
+<tr>
+<td>varchar</td>
+<td>字符序列，需指定最大长度，最大长度的范围是[1,65535]</td>
+<td>varchar(32)</td>
+</tr>
+<tr>
+<td>string</td>
+<td>字符串，无需指定最大长度</td>
+<td></td>
+</tr>
+<tr>
+<td>timestamp</td>
+<td>时间类型</td>
+<td></td>
+</tr>
+<tr>
+<td>binary</td>
+<td>二进制数据</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>复杂数据类型如下：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>说明</th>
+<th>定义</th>
+<th>取值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>array</td>
+<td>数组是一组相同类型的值的集合</td>
+<td>array<!-- raw HTML omitted --></td>
+<td>arr[0]</td>
+</tr>
+<tr>
+<td>map</td>
+<td>map是一组相同类型的键-值对集合</td>
+<td>map&lt;string, int&gt;</td>
+<td>map[&lsquo;key&rsquo;]</td>
+</tr>
+<tr>
+<td>struct</td>
+<td>结构体由多个属性组成，每个属性都有自己的属性名和数据类型</td>
+<td>struct&lt;id:int, name:string&gt;</td>
+<td>struct.id</td>
+</tr>
+</tbody>
+</table>
+<p>hive的基本数据类型可以做类型转换，转换的方式包括隐式转换以及显示转换。隐式转换规则如下：</p>
+<p><figure 
+	>
+	<a href="/../../images/03-hive-03/image-20230919164317223.png" >
+		<img src="/../../images/03-hive-03/image-20230919164317223.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230919164317223">
+	</a>
+	
+	<figcaption>image-20230919164317223</figcaption>
+	
+</figure></p>
+<p>显示转换规则：可以借助cast函数完成显示的类型转换。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="err">语法：</span><span class="k">cast</span><span class="p">(</span><span class="n">expr</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="o">&lt;</span><span class="k">type</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="err">示例：</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">select</span><span class="w"> </span><span class="s1">&#39;1&#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="k">cast</span><span class="p">(</span><span class="s1">&#39;1&#39;</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nb">int</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">_c0</span><span class="w">	   </span><span class="n">_c1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="mi">3</span><span class="p">.</span><span class="mi">0</span><span class="w">	    </span><span class="mi">3</span><span class="w">
+</span></span></span></code></pre></div><h4 id="1164-row-format-序列化">1.1.6.4 ROW FORMAT 序列化</h4>
+<p>指定<strong>SERDE</strong>，Hive使用SERDE序列化和反序列化每行数据。</p>
+<p><strong>语法一</strong>：DELIMITED关键字表示对文件中的每个字段按照特定分割符进行分割，其会使用<strong>默认的SERDE</strong>对每行数据进行序列化和反序列化。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">ROW</span><span class="w"> </span><span class="n">FORAMT</span><span class="w"> </span><span class="n">DELIMITED</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">[</span><span class="n">FIELDS</span><span class="w"> </span><span class="n">TERMINATED</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="nb">char</span><span class="p">]</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">[</span><span class="n">COLLECTION</span><span class="w"> </span><span class="n">ITEMS</span><span class="w"> </span><span class="n">TERMINATED</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="nb">char</span><span class="p">]</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">[</span><span class="k">MAP</span><span class="w"> </span><span class="n">KEYS</span><span class="w"> </span><span class="n">TERMINATED</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="nb">char</span><span class="p">]</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">[</span><span class="n">LINES</span><span class="w"> </span><span class="n">TERMINATED</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="nb">char</span><span class="p">]</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">[</span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFINED</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">char</span><span class="p">]</span><span class="w">
+</span></span></span></code></pre></div><ul>
+<li>fields terminated by ：列分隔符</li>
+<li>collection items terminated by ： map、struct和array中每个元素之间的分隔符</li>
+<li>map keys terminated by ：map中的key与value的分隔符</li>
+<li>lines terminated by ：行分隔符</li>
+</ul>
+<p><strong>语法二</strong>：SERDE关键字可用于指定其他内置的SERDE或者用户自定义的SERDE。例如JSON SERDE，可用于处理JSON字符串。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">ROW</span><span class="w"> </span><span class="n">FORMAT</span><span class="w"> </span><span class="n">SERDE</span><span class="w"> </span><span class="n">serde_name</span><span class="w"> </span><span class="p">[</span><span class="k">WITH</span><span class="w"> </span><span class="n">SERDEPROPERTIES</span><span class="w"> </span><span class="p">(</span><span class="n">property_name</span><span class="o">=</span><span class="n">property_value</span><span class="p">,</span><span class="n">property_name</span><span class="o">=</span><span class="n">property_value</span><span class="p">,</span><span class="w"> </span><span class="p">...)]</span><span class="w"> 
+</span></span></span></code></pre></div><p>示例：若现有如下格式的JSON文件需要由Hive进行分析处理，请考虑如何设计表？</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;dasongsong&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;friends&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;bingbing&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;lili&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;students&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;xiaohaihai&#34;</span><span class="p">:</span> <span class="mi">18</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;xiaoyangyang&#34;</span><span class="p">:</span> <span class="mi">16</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;address&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;street&#34;</span><span class="p">:</span> <span class="s2">&#34;hui long guan&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;city&#34;</span><span class="p">:</span> <span class="s2">&#34;beijing&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;postal_code&#34;</span><span class="p">:</span> <span class="mi">10010</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">create</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">teacher</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">name</span><span class="w">     </span><span class="n">string</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">friends</span><span class="w">  </span><span class="nb">array</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">students</span><span class="w"> </span><span class="k">map</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">address</span><span class="w">  </span><span class="n">struct</span><span class="o">&lt;</span><span class="n">city</span><span class="p">:</span><span class="n">string</span><span class="p">,</span><span class="n">street</span><span class="p">:</span><span class="n">string</span><span class="p">,</span><span class="n">postal_code</span><span class="p">:</span><span class="nb">int</span><span class="o">&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">row</span><span class="w"> </span><span class="n">format</span><span class="w"> </span><span class="n">serde</span><span class="w"> </span><span class="s1">&#39;org.apache.hadoop.hive.serde2.JsonSerDe&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">location</span><span class="w"> </span><span class="s1">&#39;/user/hive/warehouse/teacher&#39;</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">$ vim /opt/module/datas/teacher.txt
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">{</span><span class="s2">&#34;name&#34;</span>:<span class="s2">&#34;dasongsong&#34;</span>,<span class="s2">&#34;friends&#34;</span>:<span class="o">[</span><span class="s2">&#34;bingbing&#34;</span>,<span class="s2">&#34;lili&#34;</span><span class="o">]</span>,<span class="s2">&#34;students&#34;</span>:<span class="o">{</span><span class="s2">&#34;xiaohaihai&#34;</span>:18,<span class="s2">&#34;xiaoyangyang&#34;</span>:16<span class="o">}</span>,<span class="s2">&#34;address&#34;</span>:<span class="o">{</span><span class="s2">&#34;street&#34;</span>:<span class="s2">&#34;hui long guan&#34;</span>,<span class="s2">&#34;city&#34;</span>:<span class="s2">&#34;beijing&#34;</span>,<span class="s2">&#34;postal_code&#34;</span>:10010<span class="o">}}</span>
+</span></span></code></pre></div><p>上传文件到Hive表指定的路径Hive即可自动识别。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">$ hadoop fs -put teacher.txt /user/hive/warehouse/teacher
+</span></span></code></pre></div><p>也可以查询对应的数据了：<figure 
+	>
+	<a href="/../../images/03-hive-03/image-20230920111116521.png" >
+		<img src="/../../images/03-hive-03/image-20230920111116521.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230920111116521">
+	</a>
+	
+	<figcaption>image-20230920111116521</figcaption>
+	
+</figure></p>
+<h4 id="1165-stored-as-文件格式">1.1.6.5 STORED AS 文件格式</h4>
+<p>指定文件格式，常用的文件格式有，textfile（默认值），sequence file，orc file、parquet file等等。例如<code>textfile</code>对应TextInputFormat。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">create</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">textfile_table</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">(</span><span class="n">column_specs</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">stored</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">textfile</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>关于文件格式的内容，后面单独的章节讲解。</p>
+<h4 id="1166--location-表路径">1.1.6.6  LOCATION 表路径</h4>
+<p>指定表所对应的HDFS路径，若不指定路径，其默认值为：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="si">${</span><span class="nv">hive</span><span class="p">.metastore.warehouse.dir</span><span class="si">}</span>/db_name.db/table_name
+</span></span></code></pre></div><h3 id="117-查看修改表">1.1.7 查看、修改表</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="cm">/*展示表：like通配表达式说明：*表示任意个任意字符，|表示或的关系。*/</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">SHOW</span><span class="w"> </span><span class="n">TABLES</span><span class="w"> </span><span class="p">[</span><span class="k">IN</span><span class="w"> </span><span class="n">database_name</span><span class="p">]</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;identifier_with_wildcards&#39;</span><span class="p">];</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="cm">/*查看表信息：EXTENDED：展示详细信息，FORMATTED：对详细信息进行格式化的展示*/</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">DESC</span><span class="w">  </span><span class="p">[</span><span class="n">EXTENDED</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">FORMATTED</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">db_name</span><span class="p">.]</span><span class="k">table_name</span><span class="w">
+</span></span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="cm">/*重命名表*/</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="k">table_name</span><span class="w"> </span><span class="k">RENAME</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="n">new_table_name</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="cm">/*新增列，新增列的位置位于末尾*/</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="k">table_name</span><span class="w"> </span><span class="k">ADD</span><span class="w"> </span><span class="n">COLUMNS</span><span class="w"> </span><span class="p">(</span><span class="n">col_name</span><span class="w"> </span><span class="n">data_type</span><span class="w"> </span><span class="p">[</span><span class="k">COMMENT</span><span class="w"> </span><span class="n">col_comment</span><span class="p">],</span><span class="w"> </span><span class="p">...)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="cm">/*更新列，修改指定列的列名、数据类型、注释信息以及在表中的位置*/</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="k">table_name</span><span class="w"> </span><span class="n">CHANGE</span><span class="w"> </span><span class="p">[</span><span class="k">COLUMN</span><span class="p">]</span><span class="w"> </span><span class="n">col_old_name</span><span class="w"> </span><span class="n">col_new_name</span><span class="w"> </span><span class="n">column_type</span><span class="w"> </span><span class="p">[</span><span class="k">COMMENT</span><span class="w"> </span><span class="n">col_comment</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="k">FIRST</span><span class="o">|</span><span class="k">AFTER</span><span class="w"> </span><span class="k">column_name</span><span class="p">]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="cm">/*替换列，用新的列集替换表中原有的全部列*/</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="k">table_name</span><span class="w"> </span><span class="k">REPLACE</span><span class="w"> </span><span class="n">COLUMNS</span><span class="w"> </span><span class="p">(</span><span class="n">col_name</span><span class="w"> </span><span class="n">data_type</span><span class="w"> </span><span class="p">[</span><span class="k">COMMENT</span><span class="w"> </span><span class="n">col_comment</span><span class="p">],</span><span class="w"> </span><span class="p">...)</span><span class="w">
+</span></span></span></code></pre></div><p>示例：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="err">（</span><span class="mi">1</span><span class="err">）查询表结构</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">hive</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="k">desc</span><span class="w"> </span><span class="n">stu</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="err">（</span><span class="mi">2</span><span class="err">）添加列</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">hive</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="k">alter</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">stu</span><span class="w"> </span><span class="k">add</span><span class="w"> </span><span class="n">columns</span><span class="p">(</span><span class="n">age</span><span class="w"> </span><span class="nb">int</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="err">（</span><span class="mi">3</span><span class="err">）查询表结构</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">hive</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="k">desc</span><span class="w"> </span><span class="n">stu</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="err">（</span><span class="mi">4</span><span class="err">）更新列</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">hive</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="k">alter</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">stu</span><span class="w"> </span><span class="n">change</span><span class="w"> </span><span class="k">column</span><span class="w"> </span><span class="n">age</span><span class="w"> </span><span class="n">ages</span><span class="w"> </span><span class="n">double</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="err">（</span><span class="mi">6</span><span class="err">）替换列</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">hive</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="k">alter</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">stu</span><span class="w"> </span><span class="k">replace</span><span class="w"> </span><span class="n">columns</span><span class="p">(</span><span class="n">id</span><span class="w"> </span><span class="nb">int</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="n">string</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></div><h3 id="118-删除表">1.1.8 删除表</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="mi">1</span><span class="err">）语法</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">DROP</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="p">[</span><span class="k">IF</span><span class="w"> </span><span class="k">EXISTS</span><span class="p">]</span><span class="w"> </span><span class="k">table_name</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="mi">2</span><span class="err">）案例</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">hive</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="k">drop</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">stu</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><h3 id="119-清空表">1.1.9 清空表</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">TRUNCATE</span><span class="w"> </span><span class="p">[</span><span class="k">TABLE</span><span class="p">]</span><span class="w"> </span><span class="k">table_name</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">eg</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">hive</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="k">truncate</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">student</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p><strong>注意：truncate只能清空管理表，不能删除外部表中数据。</strong></p>
+<h2 id="二dml操作">二、DML操作</h2>
+<h3 id="21-load操作">2.1 Load操作</h3>
+<p>Load语句可将文件导入到Hive表中。</p>
+<pre tabindex="0"><code>hive&gt; LOAD DATA [LOCAL] INPATH &#39;filepath&#39; [OVERWRITE] INTO TABLE tablename [PARTITION (partcol1=val1, partcol2=val2 ...)];
+</code></pre><ul>
+<li>（1）local：表示从本地加载数据到Hive表；否则从HDFS加载数据到Hive表。<strong>注意：如果是通过hiveservce2访问，那么本地路径就是值hiveservce2服务器的路径，如果是通过客户端命令操作，则是指命令客户端所在服务器路径。</strong></li>
+<li>（2）overwrite：表示覆盖表中已有数据，否则表示追加。</li>
+<li>（3）partition：表示上传到指定分区，若目标是分区表，需指定分区。</li>
+</ul>
+<p>示例：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">create</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="k">exists</span><span class="w"> </span><span class="n">student</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">id</span><span class="w"> </span><span class="nb">int</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">name</span><span class="w"> </span><span class="n">string</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="cm">/*分隔符*/</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">row</span><span class="w"> </span><span class="n">format</span><span class="w"> </span><span class="n">delimited</span><span class="w"> </span><span class="n">fields</span><span class="w"> </span><span class="n">terminated</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="s1">&#39;\t&#39;</span><span class="w">
+</span></span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">$ vim /opt/module/student.txt
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">1001	student1
+</span></span><span class="line"><span class="cl">1002	student2
+</span></span><span class="line"><span class="cl">1003	student3
+</span></span><span class="line"><span class="cl">1004	student4
+</span></span><span class="line"><span class="cl">1005	student5
+</span></span><span class="line"><span class="cl">1006	student6
+</span></span><span class="line"><span class="cl">1007	student7
+</span></span><span class="line"><span class="cl">1008	student8
+</span></span><span class="line"><span class="cl">1009	student9
+</span></span><span class="line"><span class="cl">1010	student10
+</span></span><span class="line"><span class="cl">1011	student11
+</span></span><span class="line"><span class="cl">1012	student12
+</span></span><span class="line"><span class="cl">1013	student13
+</span></span><span class="line"><span class="cl">1014	student14
+</span></span><span class="line"><span class="cl">1015	student15
+</span></span><span class="line"><span class="cl">1016	student16
+</span></span></code></pre></div><p>加载本地文件到hive</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">load data <span class="nb">local</span> inpath <span class="s1">&#39;/opt/module/student.txt&#39;</span> into table student<span class="p">;</span>
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/03-hive-03/image-20230920170100991.png" >
+		<img src="/../../images/03-hive-03/image-20230920170100991.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230920170100991">
+	</a>
+	
+	<figcaption>image-20230920170100991</figcaption>
+	
+</figure></p>
+<p>上传文件到HDFS</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">hadoop fs -put /opt/module/student.txt /input
+</span></span></code></pre></div><p>追加HDFS文件到hive</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">load data inpath <span class="s1">&#39;/input/student.txt&#39;</span>  into table student<span class="p">;</span>
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/03-hive-03/image-20230920170720260.png" >
+		<img src="/../../images/03-hive-03/image-20230920170720260.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230920170720260">
+	</a>
+	
+	<figcaption>image-20230920170720260</figcaption>
+	
+</figure></p>
+<p>可以看到记录已经追加成功。</p>
+<p><strong>注意：如果是load HDFS的文件，那么执行后，原路径的文件就消失了，相当于复制到了新路径下。</strong></p>
+<h3 id="22-insert操作">2.2 insert操作</h3>
+<p>（1） <strong>将查询结果插入表中</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="err">语法</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">INSERT</span><span class="w"> </span><span class="p">(</span><span class="k">INTO</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">OVERWRITE</span><span class="p">)</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">tablename</span><span class="w"> </span><span class="p">[</span><span class="n">PARTITION</span><span class="w"> </span><span class="p">(</span><span class="n">partcol1</span><span class="o">=</span><span class="n">val1</span><span class="p">,</span><span class="w"> </span><span class="n">partcol2</span><span class="o">=</span><span class="n">val2</span><span class="w"> </span><span class="p">...)]</span><span class="w"> </span><span class="n">select_statement</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="err">关键字说明：</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="err">（</span><span class="mi">1</span><span class="err">）</span><span class="k">INTO</span><span class="err">：将结果追加到目标表</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="err">（</span><span class="mi">2</span><span class="err">）</span><span class="n">OVERWRITE</span><span class="err">：用结果覆盖原有数据</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">eg</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">insert</span><span class="w"> </span><span class="n">overwrite</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">student3</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">select</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">id</span><span class="p">,</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">name</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">from</span><span class="w"> </span><span class="n">student</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>(2)  <strong>将给定Values插入表中</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="mi">1</span><span class="err">）语法</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">INSERT</span><span class="w"> </span><span class="p">(</span><span class="k">INTO</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">OVERWRITE</span><span class="p">)</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">tablename</span><span class="w"> </span><span class="p">[</span><span class="n">PARTITION</span><span class="w"> </span><span class="p">(</span><span class="n">partcol1</span><span class="p">[</span><span class="o">=</span><span class="n">val1</span><span class="p">],</span><span class="w"> </span><span class="n">partcol2</span><span class="p">[</span><span class="o">=</span><span class="n">val2</span><span class="p">]</span><span class="w"> </span><span class="p">...)]</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="n">values_row</span><span class="w"> </span><span class="p">[,</span><span class="w"> </span><span class="n">values_row</span><span class="w"> </span><span class="p">...]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="mi">2</span><span class="err">）案例</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">hive</span><span class="w"> </span><span class="p">(</span><span class="k">default</span><span class="p">)</span><span class="o">&gt;</span><span class="w"> </span><span class="k">insert</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="k">table</span><span class="w">  </span><span class="n">student1</span><span class="w"> </span><span class="k">values</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;wangwu&#39;</span><span class="p">),(</span><span class="mi">2</span><span class="p">,</span><span class="s1">&#39;zhaoliu&#39;</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></div><p>(3)  <strong>将查询结果写入目标路径</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="mi">1</span><span class="err">）语法</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">INSERT</span><span class="w"> </span><span class="n">OVERWRITE</span><span class="w"> </span><span class="p">[</span><span class="k">LOCAL</span><span class="p">]</span><span class="w"> </span><span class="n">DIRECTORY</span><span class="w"> </span><span class="n">directory</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="p">[</span><span class="k">ROW</span><span class="w"> </span><span class="n">FORMAT</span><span class="w"> </span><span class="n">row_format</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">STORED</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">file_format</span><span class="p">]</span><span class="w"> </span><span class="n">select_statement</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="mi">2</span><span class="err">）案例</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">insert</span><span class="w"> </span><span class="n">overwrite</span><span class="w"> </span><span class="k">local</span><span class="w"> </span><span class="n">directory</span><span class="w"> </span><span class="s1">&#39;/opt/module/student1&#39;</span><span class="w"> </span><span class="k">ROW</span><span class="w"> </span><span class="n">FORMAT</span><span class="w"> </span><span class="n">SERDE</span><span class="w"> </span><span class="s1">&#39;org.apache.hadoop.hive.serde2.JsonSerDe&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">select</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="n">name</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">student</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p><strong>注意 ：LOCAL，会把结果保存到本地路径下，并且会覆盖路径下的所有内容，慎用。</strong></p>
+<h3 id="23-exportimport操作">2.3 Export&amp;Import操作</h3>
+<p>Export导出语句可将表的数据和元数据信息一并到处的HDFS路径，</p>
+<p>Import可将Export导出的内容导入Hive，表的数据和元数据信息都会恢复。</p>
+<p><strong>Export和Import可用于两个Hive实例之间的数据迁移。</strong></p>
+<pre tabindex="0"><code>1）语法
+--导出
+EXPORT TABLE tablename TO &#39;export_target_path&#39;
+
+--导入
+IMPORT [EXTERNAL] TABLE new_or_original_tablename FROM &#39;source_path&#39; [LOCATION &#39;import_target_path&#39;]
+
+2）案例
+--导出
+hive&gt;export table default.student to &#39;/user/hive/warehouse/export/student&#39;;
+
+--导入
+hive&gt;import table student2 from &#39;/user/hive/warehouse/export/student&#39;;
+</code></pre><p>Export导出时可以直接写一个不存在的路径,Hive自动在Hdfs上面创建这个目录,而且这个目录只能是Hdfs上面的,如果需要下载到本地,可以直接从Hdfs上面下载下来.</p>
+<h3 id="24-join语句">2.4 Join语句</h3>
+<p>Hive支持通常的sql join语句，但是<strong>只支持等值连接，不支持非等值连接</strong>。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#一ddl操作">一、DDL操作</a>
+      <ol>
+        <li><a href="#111-创建数据库">1.1.1 创建数据库</a></li>
+        <li><a href="#112-查询数据库">1.1.2 查询数据库</a></li>
+        <li><a href="#113-修改数据库">1.1.3 修改数据库</a></li>
+        <li><a href="#114-删除数据库">1.1.4 删除数据库</a></li>
+        <li><a href="#115-切换当前数据库">1.1.5 切换当前数据库</a></li>
+        <li><a href="#116-创建表">1.1.6 创建表</a>
+          <ol>
+            <li><a href="#1161-temporary-临时表">1.1.6.1 TEMPORARY 临时表</a></li>
+            <li><a href="#1162-external-外部表">1.1.6.2 EXTERNAL 外部表</a></li>
+            <li><a href="#1163-data_type-数据类型隐式转换显示转换">1.1.6.3 data_type 数据类型、隐式转换、显示转换</a></li>
+            <li><a href="#1164-row-format-序列化">1.1.6.4 ROW FORMAT 序列化</a></li>
+            <li><a href="#1165-stored-as-文件格式">1.1.6.5 STORED AS 文件格式</a></li>
+            <li><a href="#1166--location-表路径">1.1.6.6  LOCATION 表路径</a></li>
+          </ol>
+        </li>
+        <li><a href="#117-查看修改表">1.1.7 查看、修改表</a></li>
+        <li><a href="#118-删除表">1.1.8 删除表</a></li>
+        <li><a href="#119-清空表">1.1.9 清空表</a></li>
+      </ol>
+    </li>
+    <li><a href="#二dml操作">二、DML操作</a>
+      <ol>
+        <li><a href="#21-load操作">2.1 Load操作</a></li>
+        <li><a href="#22-insert操作">2.2 insert操作</a></li>
+        <li><a href="#23-exportimport操作">2.3 Export&amp;Import操作</a></li>
+        <li><a href="#24-join语句">2.4 Join语句</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='spring security oauth2 SSO 单点登录及自定义令牌配置'><title>spring security oauth2 SSO 单点登录及自定义令牌配置</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/spring-security-oauth2-sso-%E5%8D%95%E7%82%B9%E7%99%BB%E5%BD%95%E5%8F%8A%E8%87%AA%E5%AE%9A%E4%B9%89%E4%BB%A4%E7%89%8C%E9%85%8D%E7%BD%AE/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='spring security oauth2 SSO 单点登录及自定义令牌配置'>
+<meta property='og:description' content='spring security oauth2 SSO 单点登录及自定义令牌配置'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/spring-security-oauth2-sso-%E5%8D%95%E7%82%B9%E7%99%BB%E5%BD%95%E5%8F%8A%E8%87%AA%E5%AE%9A%E4%B9%89%E4%BB%A4%E7%89%8C%E9%85%8D%E7%BD%AE/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Spring-Security-OAuth2' /><meta property='article:published_time' content='2019-12-14T21:58:18&#43;00:00'/><meta property='article:modified_time' content='2019-12-14T21:58:18&#43;00:00'/>
+<meta name="twitter:title" content="spring security oauth2 SSO 单点登录及自定义令牌配置">
+<meta name="twitter:description" content="spring security oauth2 SSO 单点登录及自定义令牌配置">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/spring-security-oauth2/" >
+                Spring-Security-OAuth2
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/spring-security-oauth2-sso-%E5%8D%95%E7%82%B9%E7%99%BB%E5%BD%95%E5%8F%8A%E8%87%AA%E5%AE%9A%E4%B9%89%E4%BB%A4%E7%89%8C%E9%85%8D%E7%BD%AE/">spring security oauth2 SSO 单点登录及自定义令牌配置</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        spring security oauth2 SSO 单点登录及自定义令牌配置
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Dec 14, 2019</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 3 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <p>上一节 <a class="link" href="https://blog.gaoyp.cn/2019/12/10/spring-security-oauth2-02/"  target="_blank" rel="noopener"
+    >spring security oauth2 授权码模式、密码模式代码实践</a> 介绍了spring security oauth2 的3种模式。
+本节我们将在上一节的基础上实现SSO单点登录，及自定义自定义令牌配置。SSO单点登录的概念就不做解释了，请自行百度。</p>
+<h2 id="1自定义令牌配置">1、自定义令牌配置</h2>
+<p>上一节我们在认证服务器 spring-security-oauth2 的资源配置类 KikiAuthorizationServerConfigurer 中定义了 ClientDetails：</p>
+<pre tabindex="0"><code>    @Override
+    public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
+        clients.inMemory()
+                .withClient(&#34;kiki&#34;)
+                .secret(passwordEncoder.encode(&#34;123456&#34;))
+                .authorizedGrantTypes(&#34;password&#34;, &#34;refresh_token&#34;,&#34;authorization_code&#34;,&#34;client_credentials&#34;)
+                .autoApprove(true)
+                .scopes(&#34;all&#34;)
+                .redirectUris(&#34;http://localhost:8001/getCode&#34;);
+    }
+</code></pre><p>指定了 client-id为kiki ，client-secret为123456，scopes范围为all,以及redirectUris。并且配置了它支持的认证类型：</p>
+<ul>
+<li>&ldquo;authorization_code&rdquo;：授权码模式</li>
+<li>&ldquo;password&rdquo;：密码模式</li>
+<li>client_credentials:客户端模式</li>
+<li>&ldquo;refresh_token&rdquo;：刷新token</li>
+</ul>
+<p>现在我们修改认证服务器 KikiAuthorizationServerConfigurer如下：</p>
+<pre tabindex="0"><code>clients.inMemory()
+            .withClient(&#34;kiki&#34;)
+            .secret(passwordEncoder.encode(&#34;123456&#34;))
+            .authorizedGrantTypes(&#34;password&#34;, &#34;refresh_token&#34;,&#34;authorization_code&#34;,&#34;client_credentials&#34;)
+            .autoApprove(true)
+            .scopes(&#34;all&#34;)
+            .redirectUris(&#34;http://localhost:8001/getCode&#34;)
+            .resourceIds(&#34;kiki-resource&#34;)
+        .and()
+            .withClient(&#34;client1&#34;)
+            .secret(passwordEncoder.encode(&#34;123456&#34;))
+            .authorizedGrantTypes(&#34;authorization_code&#34;, &#34;password&#34;,&#34;refresh_token&#34;)
+            .autoApprove(true)
+            .scopes(&#34;read&#34;)
+            .redirectUris(&#34;http://localhost:8002/one/login&#34;)
+            .resourceIds(&#34;client1-resource&#34;)
+        .and()
+            .withClient(&#34;client2&#34;)
+            .secret(passwordEncoder.encode(&#34;123456&#34;))
+            .authorizedGrantTypes(&#34;authorization_code&#34;,&#34;password&#34;, &#34;refresh_token&#34;)
+            .autoApprove(true)
+            .scopes(&#34;read&#34;,&#34;write&#34;)
+            .redirectUris(&#34;http://localhost:8003/two/login&#34;)
+            .resourceIds(&#34;client2-resource&#34;);
+</code></pre><p>可以看到，我们新增了2个 Client，分别为client1，client2.并指定它们的认证类型为：&ldquo;authorization_code&rdquo;,&ldquo;password&rdquo;, &ldquo;refresh_token&rdquo;。</p>
+<ul>
+<li>autoApprove(true)：表示在授权码模式中，用户无需进入授权页面手动点击授权按钮（Authorize）,直接返回code。</li>
+<li>scopes：指定了Client所能访问的范围。client1可以访问带有@PreAuthorize(&quot;#oauth2.hasScope(&lsquo;read&rsquo;)&quot;)的资源，client2可以访问带有@PreAuthorize(&quot;#oauth2.hasScope(&lsquo;read&rsquo;)&quot;)和
+@PreAuthorize(&quot;#oauth2.hasScope(&lsquo;write&rsquo;)&quot;)的资源。如果没有@PreAuthorize，则都可以访问。</li>
+<li>redirectUris：配置了重定向URL，否则授权码模式输入用户名密码后会报错：error=&ldquo;invalid_request&rdquo;, error_description=&ldquo;At least one redirect_uri must be registered with the client.&rdquo;</li>
+<li>resourceIds：指定了Client 所能访问的资源ID。client1可以访问带有resourceId为client1-resource的资源，client2可以访问带有resourceId为client2-resource的资源，</li>
+</ul>
+<p>对于scopes和resourceIds不熟悉的，可以参考 <a class="link" href="https://blog.gaoyp.cn/2019/12/08/spring-security-oauth2-01/"  target="_blank" rel="noopener"
+    >https://blog.gaoyp.cn/2019/12/08/spring-security-oauth2-01/</a></p>
+<h2 id="2新建2个资源服务器">2、新建2个资源服务器</h2>
+<p>为了实现功能，我们需要新建2个资源服务器。现约定如下（于认证服务器的clients配置相对应）：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">系统名称</th>
+<th style="text-align:center">端口</th>
+<th style="text-align:center">client-id</th>
+<th style="text-align:center">client-secret</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">sso-resource-one</td>
+<td style="text-align:center">8002</td>
+<td style="text-align:center">client1</td>
+<td style="text-align:center">123456</td>
+</tr>
+<tr>
+<td style="text-align:center">sso-resource-two</td>
+<td style="text-align:center">8003</td>
+<td style="text-align:center">client2</td>
+<td style="text-align:center">123456</td>
+</tr>
+</tbody>
+</table>
+<h3 id="11-新建资源服务器sso-resource-one">1.1 新建资源服务器sso-resource-one：</h3>
+<p>新建一个module，pom.xml如下:</p>
+<pre tabindex="0"><code>&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;
+&lt;project xmlns=&#34;http://maven.apache.org/POM/4.0.0&#34; xmlns:xsi=&#34;http://www.w3.org/2001/XMLSchema-instance&#34;
+         xsi:schemaLocation=&#34;http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd&#34;&gt;
+    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+    &lt;parent&gt;
+        &lt;groupId&gt;com.sxdx&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-all&lt;/artifactId&gt;
+        &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
+        &lt;relativePath&gt;../spring-all/pom.xml&lt;/relativePath&gt;
+    &lt;/parent&gt;
+    &lt;groupId&gt;com.sxdx&lt;/groupId&gt;
+    &lt;artifactId&gt;sso-resource-one&lt;/artifactId&gt;
+    &lt;version&gt;0.0.1-SNAPSHOT&lt;/version&gt;
+    &lt;name&gt;sso-resource-one&lt;/name&gt;
+    &lt;description&gt;资源服务器和sso客户端&lt;/description&gt;
+
+    &lt;properties&gt;
+        &lt;java.version&gt;1.8&lt;/java.version&gt;
+    &lt;/properties&gt;
+
+    &lt;dependencies&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.projectlombok&lt;/groupId&gt;
+            &lt;artifactId&gt;lombok&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-starter&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-starter-oauth2&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-starter-security&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.apache.commons&lt;/groupId&gt;
+            &lt;artifactId&gt;commons-lang3&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-actuator&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;
+            &lt;scope&gt;test&lt;/scope&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+
+    &lt;build&gt;
+        &lt;plugins&gt;
+            &lt;plugin&gt;
+                &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+                &lt;artifactId&gt;spring-boot-maven-plugin&lt;/artifactId&gt;
+            &lt;/plugin&gt;
+        &lt;/plugins&gt;
+    &lt;/build&gt;
+
+&lt;/project&gt;
+</code></pre><p>再贴出sso-resource-one的application.yaml：</p>
+<pre tabindex="0"><code>server:
+  port: 8002
+  servlet:
+    context-path: /one
+    session:
+      cookie:
+        name: ONESESSION
+
+security:
+  oauth2:
+    client:
+      client-id: client1 #指定了客户端id
+      client-secret: 123456 # 指定了客户端密码
+      user-authorization-uri: http://127.0.0.1:8001/oauth/authorize #指定为认证服务器的/oauth/authorize地址
+      access-token-uri: http://127.0.0.1:8001/oauth/token # 指定认证服务器的/oauth/token地址
+    resource:
+      token-info-uri: http://127.0.0.1:8001/oauth/check_token #sso客户端token验证，资源服务器就是通过这个向认证服务器校验token是否有效，是否可以访问本resource资源
+      user-info-uri: http://127.0.0.1:8001/authentication #sso客户端获取当前用户信息
+</code></pre><h4 id="添加enableoauth2sso">添加@EnableOAuth2Sso</h4>
+<p>在启动类上添加@EnableOAuth2Sso，表面这是一个SSO客户端，开启SSO的支持。</p>
+<pre tabindex="0"><code>package com.sxdx.sso.resource.one;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.security.oauth2.client.EnableOAuth2Sso;
+
+@EnableOAuth2Sso
+@SpringBootApplication
+public class SsoResourceOneApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(SsoResourceOneApplication.class, args);
+    }
+}
+</code></pre><h4 id="新建websecurity配置类">新建WebSecurity配置类</h4>
+<p>新建config包，在新建config包下新建WebSecurityConfigurer类</p>
+<pre tabindex="0"><code>package com.sxdx.sso.resource.one.config;
+
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+
+@Order(101)
+@Configuration
+@EnableGlobalMethodSecurity(prePostEnabled = true)
+public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
+    @Override
+    public void configure(HttpSecurity http) throws Exception {
+        http.requestMatchers()
+                .antMatchers(&#34;/**&#34;)
+                .and()
+                .authorizeRequests()
+                .antMatchers(&#34;/**&#34;).authenticated()
+                .and()
+                .csrf().disable()
+                .formLogin().permitAll();
+    }
+}
+</code></pre><ul>
+<li>设置了资源服务的WebSecurity配置，所有请求均需要认证后才可访问。此处配置了 @Order(101)，否则会报错</li>
+</ul>
+<pre tabindex="0"><code>Caused by: java.lang.IllegalStateException: @Order on WebSecurityConfigurers must be unique. Order of 100 was already used on com.sxdx.sso.resource.one.config.WebSecurityConfigurer$$EnhancerBySpringCGLIB$$2b177f7a@48bc2fce, so it cannot be used on org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2SsoDefaultConfiguration$$EnhancerBySpringCGLIB$$ff13e17c@1eca3ea7 too.
+	at org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration.setFilterChainProxySecurityConfigurer(WebSecurityConfiguration.java:148) ~[spring-security-config-5.1.5.RELEASE.jar:5.1.5.RELEASE]
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[na:1.8.0_171]
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62) ~[na:1.8.0_171]
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[na:1.8.0_171]
+	at java.lang.reflect.Method.invoke(Method.java:498) ~[na:1.8.0_171]
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredMethodElement.inject(AutowiredAnnotationBeanPostProcessor.java:708) ~[spring-beans-5.1.8.RELEASE.jar:5.1.8.RELEASE]
+	at org.springframework.beans.factory.annotation.InjectionMetadata.inject(InjectionMetadata.java:90) ~[spring-beans-5.1.8.RELEASE.jar:5.1.8.RELEASE]
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.postProcessProperties(AutowiredAnnotationBeanPostProcessor.java:374) ~[spring-beans-5.1.8.RELEASE.jar:5.1.8.RELEASE]
+	... 17 common frames omitted
+</code></pre><p>这是因为认证服务器的WebSecurityConfigurers已经默认使用了@Order(100)，其实我们在认证服务器中已经改为 @Order(2)，但这里还是不能使用 @Order(100)。具体原因不明。反正改为@Order(101)就好了。</p>
+<ul>
+<li>@EnableGlobalMethodSecurity(prePostEnabled = true)，开启权限注解，否则无法使用@PreAuthorize。</li>
+</ul>
+<h4 id="新建resourceserverconfig资源配置类">新建ResourceServerConfig资源配置类</h4>
+<p>在config包下，新建ResourceServerConfig：</p>
+<pre tabindex="0"><code>package com.sxdx.sso.resource.one.config;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
+import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
+import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
+
+
+@Configuration
+@EnableResourceServer
+public class ResourceServerConfig extends ResourceServerConfigurerAdapter{
+
+    @Override
+    public void configure(ResourceServerSecurityConfigurer resources) throws Exception {
+        resources.resourceId(&#34;client1-resource&#34;).stateless(true); //重点，设置资源id
+    }
+
+    public void configure(HttpSecurity http) throws Exception {
+        http.requestMatchers().antMatchers(&#34;/**&#34;)
+                .and()
+                .authorizeRequests()
+                .anyRequest().authenticated()
+                .antMatchers(&#34;/login/**&#34;).permitAll();
+        ;
+    }
+}
+</code></pre><ul>
+<li>@EnableResourceServer 开启资源服务器配置</li>
+<li>定义了本服务的resourceId为client1-resource</li>
+<li>定义了资源访问规则。</li>
+</ul>
+<h4 id="新建测试类">新建测试类</h4>
+<p>新建OneController：</p>
+<pre tabindex="0"><code>package com.sxdx.sso.resource.one.controller;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+import java.security.Principal;
+import java.util.HashMap;
+import java.util.Map;
+
+@RestController
+public class OneController {
+
+    @PreAuthorize(&#34;#oauth2.hasScope(&#39;write&#39;)&#34;)
+    @GetMapping(&#34;/index&#34;)
+    public Map&lt;String,String&gt; index(){
+        Map&lt;String,String&gt; mp = new HashMap&lt;&gt;();
+        mp.put(&#34;key&#34;,&#34;/index&#34;);
+        return mp;
+    }
+
+    @PreAuthorize(&#34;hasAuthority(&#39;user:add&#39;) and #oauth2.hasScope(&#39;read&#39;)&#34;)
+    @GetMapping(&#34;/user&#34;)
+    public Principal user(Principal principal) {
+        return principal;
+    }
+}
+</code></pre><ul>
+<li>@PreAuthorize(&quot;#oauth2.hasScope(&lsquo;read&rsquo;)&quot;):只有scope包含read才有权访问。</li>
+<li>@PreAuthorize(&ldquo;hasAuthority(&lsquo;user:add&rsquo;) and #oauth2.hasScope(&lsquo;read&rsquo;)&rdquo;):只有scope包含read，并且用户角色为 user:add 才有权访问。
+认证服务器中KikiUserDetailService定义了所有登录用户，均有user:add权限</li>
+</ul>
+<pre tabindex="0"><code> @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        KikiSecurityUser user = new KikiSecurityUser();
+        user.setUsername(username);
+        user.setPassword(this.passwordEncoder.encode(&#34;123456&#34;));
+
+        return new User(username, user.getPassword(), user.isEnabled(),
+                user.isAccountNonExpired(), user.isCredentialsNonExpired(),
+                user.isAccountNonLocked(), AuthorityUtils.commaSeparatedStringToAuthorityList(&#34;user:add&#34;));
+    }
+</code></pre><p>至此资源服务器sso-resource-one搭建完成</p>
+<h3 id="12-新建资源服务器modulesso-resource-two">1.2 新建资源服务器module：sso-resource-two</h3>
+<p>仿照sso-resource-one,新建sso-resource-two即可。不再贴出代码。</p>
+<h2 id="3演示">3、演示</h2>
+<h3 id="resourceids-作用演示">resourceIds 作用演示</h3>
+<p>查询 http://127.0.0.1:8002/one/user。</p>
+<p><figure 
+	>
+	<a href="/images/spring-security-oauth2-03/%e8%8e%b7%e5%8f%96client1%e7%9a%84%e8%b5%84%e6%ba%90.png" >
+		<img src="/images/spring-security-oauth2-03/%e8%8e%b7%e5%8f%96client1%e7%9a%84%e8%b5%84%e6%ba%90.png"
+			
+			
+			
+			loading="lazy"
+			alt="获取client1的资源.png">
+	</a>
+	
+	<figcaption>获取client1的资源.png</figcaption>
+	
+</figure></p>
+<p>我们通过postman 密码模式获取token</p>
+<p><figure 
+	>
+	<a href="/images/spring-security-oauth2-03/%e8%8e%b7%e5%8f%96client1%e7%9a%84token.png" >
+		<img src="/images/spring-security-oauth2-03/%e8%8e%b7%e5%8f%96client1%e7%9a%84token.png"
+			
+			
+			
+			loading="lazy"
+			alt="获取client1的token.png">
+	</a>
+	
+	<figcaption>获取client1的token.png</figcaption>
+	
+</figure></p>
+<p>点击Send访问，记着添加请求头（client1:123456 base64编码）：</p>
+<p><figure 
+	>
+	<a href="/images/spring-security-oauth2-03/client1%e7%9a%84%e8%b5%84%e6%ba%90.png" >
+		<img src="/images/spring-security-oauth2-03/client1%e7%9a%84%e8%b5%84%e6%ba%90.png"
+			
+			
+			
+			loading="lazy"
+			alt="client1的资源.png">
+	</a>
+	
+	<figcaption>client1的资源.png</figcaption>
+	
+</figure></p>
+<p>可以看到可以获取到对应资源。因为client1对应的resourceID为client1-resource。而 http://127.0.0.1:8002/one/user 就是属于client1-resource的资源。</p>
+<p>现在我们再次获取请求资源，不同的是把URl 改为 http://127.0.0.1:8003/two/user 。来验证client1是否可以获取client2-resource的资源。
+返回结果：</p>
+<pre tabindex="0"><code>{
+    &#34;error&#34;: &#34;access_denied&#34;,
+    &#34;error_description&#34;: &#34;Invalid token does not contain resource id (client2-resource)&#34;
+}
+</code></pre><p>无权访问client2-resource。我们修改client1的resourceIds，并重启服务。</p>
+<pre tabindex="0"><code>.and()
+.withClient(&#34;client1&#34;)
+.secret(passwordEncoder.encode(&#34;123456&#34;))
+.authorizedGrantTypes(&#34;authorization_code&#34;,&#34;password&#34;, &#34;refresh_token&#34;)
+.autoApprove(true)
+.scopes(&#34;read&#34;,&#34;write&#34;)
+.redirectUris(&#34;http://localhost:8003/two/login&#34;)
+.resourceIds(&#34;client2-resource&#34;,&#34;client1-resource&#34;)
+</code></pre><p>resourceIds(&ldquo;client2-resource&rdquo;,&ldquo;client1-resource&rdquo;)表示client1可以访问sso-resource-one和sso-resource-two的资源。</p>
+<p>访问http://127.0.0.1:8002/one/user ，发现可以获取资源。修改URL为http://127.0.0.1:8003/two/user.也可以获取到资源。</p>
+<h3 id="scopes-作用演示">scopes 作用演示</h3>
+<p>再次修改URL为http://127.0.0.1:8002/one/index,
+返回：</p>
+<pre tabindex="0"><code>{
+    &#34;error&#34;: &#34;access_denied&#34;,
+    &#34;error_description&#34;: &#34;不允许访问&#34;
+}
+</code></pre><p>因为client1 的scope为read,而/one/index 需要 write.</p>
+<h3 id="sso-单点登录">SSO 单点登录</h3>
+<p>其实上面的演示过程已经实现了单点登录，我们通过token可以同时获取到sso-resource-one和sso-resource-two的资源,不过这个只适合密码模式。
+浏览器直接访问 http://127.0.0.1:8002/one/user 会报Full authentication is required to access this resource。</p>
+<p>现在我们把sso-resource-one和sso-resource-two的 ResourceServerConfig类的 @EnableResourceServer注解去掉。
+浏览器访问 http://127.0.0.1:8002/one/user,浏览器会重定向到 http://127.0.0.1:8001/login:</p>
+<p><figure 
+	>
+	<a href="/images/spring-security-oauth2-03/SSO%e7%99%bb%e5%bd%95.png" >
+		<img src="/images/spring-security-oauth2-03/SSO%e7%99%bb%e5%bd%95.png"
+			
+			
+			
+			loading="lazy"
+			alt="SSO登录.png">
+	</a>
+	
+	<figcaption>SSO登录.png</figcaption>
+	
+</figure></p>
+<p>输入garnett 123456 点击 “Sign in”</p>
+<p><figure 
+	>
+	<a href="/images/spring-security-oauth2-03/SSO-client1.png" >
+		<img src="/images/spring-security-oauth2-03/SSO-client1.png"
+			
+			
+			
+			loading="lazy"
+			alt="SSO-client1.png">
+	</a>
+	
+	<figcaption>SSO-client1.png</figcaption>
+	
+</figure></p>
+<p>可以看到浏览器返回了http://127.0.0.1:8002/one/user对应的资源。接下来我们新开一个页面访问 http://127.0.0.1:8003/two/user</p>
+<p><figure 
+	>
+	<a href="/images/spring-security-oauth2-03/%e8%ae%bf%e9%97%aesso-client2.png" >
+		<img src="/images/spring-security-oauth2-03/%e8%ae%bf%e9%97%aesso-client2.png"
+			
+			
+			
+			loading="lazy"
+			alt="访问sso-client2.png">
+	</a>
+	
+	<figcaption>访问sso-client2.png</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/spring-security-oauth2-03/sso-client2.png" >
+		<img src="/images/spring-security-oauth2-03/sso-client2.png"
+			
+			
+			
+			loading="lazy"
+			alt="sso-client2.png">
+	</a>
+	
+	<figcaption>sso-client2.png</figcaption>
+	
+</figure></p>
+<p>我们发现，我没要求输入用户名密码，即可获取到对应资源。</p>
+<p>我们再访问 http://127.0.0.1:8002/one/index，会报403异常,不是很理解。发现将client1的 scopes改为 (&ldquo;read&rdquo;,&ldquo;write&rdquo;)后就可以访问了。
+哪位知道为啥还请不吝赐教！</p>
+<p><figure 
+	>
+	<a href="/images/spring-security-oauth2-03/sso-403.png" >
+		<img src="/images/spring-security-oauth2-03/sso-403.png"
+			
+			
+			
+			loading="lazy"
+			alt="sso-403.png">
+	</a>
+	
+	<figcaption>sso-403.png</figcaption>
+	
+</figure></p>
+<p>访问 http://127.0.0.1:8003/two/index ，返回结果： {&ldquo;key&rdquo;:&quot;/index&quot;}</p>
+<p>参考：
+<a class="link" href="https://mrbird.cc/Spring-Security-OAuth2-SSO.html"  target="_blank" rel="noopener"
+    >https://mrbird.cc/Spring-Security-OAuth2-SSO.html</a>
+<a class="link" href="http://www.it1352.com/983633.html"  target="_blank" rel="noopener"
+    >http://www.it1352.com/983633.html</a></p>
+<hr>
+<p>学然后知不足,教然后知困。知不足,然后能自反也;知困,然后能自强也。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/spring-security-oauth2/">Spring-Security-OAuth2</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/activiti30-%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AD%98%E5%82%A8codeclient%E4%BF%A1%E6%81%AF/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（30） 数据库存储Code,Client信息</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti29-%E6%B7%BB%E5%8A%A0jwt%E6%94%AF%E6%8C%81/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（29） 添加JWT支持</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti28-%E6%90%AD%E5%BB%BA%E8%B5%84%E6%BA%90%E6%9C%8D%E5%8A%A1%E5%99%A8/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（28） 搭建资源服务器</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti27-%E6%90%AD%E5%BB%BA%E8%AE%A4%E8%AF%81%E6%9C%8D%E5%8A%A1%E5%99%A8/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（27） 搭建认证服务器</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti26-spring-security-oauth2%E7%AE%80%E4%BB%8B/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（26） Spring-Security-OAuth2简介</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#1自定义令牌配置">1、自定义令牌配置</a></li>
+    <li><a href="#2新建2个资源服务器">2、新建2个资源服务器</a>
+      <ol>
+        <li><a href="#11-新建资源服务器sso-resource-one">1.1 新建资源服务器sso-resource-one：</a>
+          <ol>
+            <li><a href="#添加enableoauth2sso">添加@EnableOAuth2Sso</a></li>
+            <li><a href="#新建websecurity配置类">新建WebSecurity配置类</a></li>
+            <li><a href="#新建resourceserverconfig资源配置类">新建ResourceServerConfig资源配置类</a></li>
+            <li><a href="#新建测试类">新建测试类</a></li>
+          </ol>
+        </li>
+        <li><a href="#12-新建资源服务器modulesso-resource-two">1.2 新建资源服务器module：sso-resource-two</a></li>
+      </ol>
+    </li>
+    <li><a href="#3演示">3、演示</a>
+      <ol>
+        <li><a href="#resourceids-作用演示">resourceIds 作用演示</a></li>
+        <li><a href="#scopes-作用演示">scopes 作用演示</a></li>
+        <li><a href="#sso-单点登录">SSO 单点登录</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

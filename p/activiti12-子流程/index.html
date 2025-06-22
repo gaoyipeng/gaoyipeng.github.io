@@ -1,0 +1,1689 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Activiti（12） 子流程'><title>Activiti（12） 子流程</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/activiti12-%E5%AD%90%E6%B5%81%E7%A8%8B/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Activiti（12） 子流程'>
+<meta property='og:description' content='Activiti（12） 子流程'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/activiti12-%E5%AD%90%E6%B5%81%E7%A8%8B/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Activiti' /><meta property='article:published_time' content='2020-07-10T09:02:12&#43;00:00'/><meta property='article:modified_time' content='2020-07-10T09:02:12&#43;00:00'/>
+<meta name="twitter:title" content="Activiti（12） 子流程">
+<meta name="twitter:description" content="Activiti（12） 子流程">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/activiti/" >
+                Activiti
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/activiti12-%E5%AD%90%E6%B5%81%E7%A8%8B/">Activiti（12） 子流程</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        Activiti（12） 子流程
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jul 10, 2020</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 9 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <h1 id="1基本概念">1、基本概念</h1>
+<p>​		<strong>子流程</strong>和<strong>调用活动</strong>的设计思想就是为了使流程设计更合理，更方便。在代码中，一个方法过多时会拆分为多个方法。流程设计也是如此。</p>
+<p>​		把不同阶段的流程任务抽取出来作为一个<strong>子流程（Subprocess）</strong>，这样当业务发生变化时只需要聚焦在不同的子流程即可，主流程负责串联多个子流程。</p>
+<p>​		除了子流程，还有一个<strong>事件子流程</strong>，它和子流程类似，把一系列的活动归结到一起处理，不同的是事件子流程不能直接启动，而要“被动”的由其它事件触发启动。</p>
+<p>​		此时产生了一个问题，如果这 个子流程功能很通用，在多个流程中都用到了，难道我们每个流程都定义一次吗？如果后期子流程业务改动，需要修改所有流程中的子流程，这样非常不利于后期的修改维护。</p>
+<p>​	  **调用活动（Call Activiti）**就是用来解决流程业务中重复设计的问题，只需要设计一个通用流程供其他的流程调用即可。这样当这个公共的部分发生变化时，无需大范围改动，只修改这个公用部分即可。</p>
+<p>​	如果说子流程是一个类中的private方法，只能当前类调用。那么调用活动就是把一个通用方法提取到一个单独的类中供所有类使用。</p>
+<h1 id="2子流程">2、子流程</h1>
+<p>我们使用《Activiti实战》中的办公用品采购流程来走一遍子流程。眼过千遍不如手过一遍。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-12/image-20200725204524077.png" >
+		<img src="/images/activiti6-12/image-20200725204524077.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200725204524077">
+	</a>
+	
+	<figcaption>image-20200725204524077</figcaption>
+	
+</figure></p>
+<h2 id="21-流程定义">2.1 流程定义</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="cp">&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;definitions</span> <span class="na">xmlns=</span><span class="s">&#34;http://www.omg.org/spec/BPMN/20100524/MODEL&#34;</span> <span class="na">xmlns:xsi=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span> <span class="na">xmlns:xsd=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema&#34;</span> <span class="na">xmlns:activiti=</span><span class="s">&#34;http://activiti.org/bpmn&#34;</span> <span class="na">xmlns:bpmndi=</span><span class="s">&#34;http://www.omg.org/spec/BPMN/20100524/DI&#34;</span> <span class="na">xmlns:omgdc=</span><span class="s">&#34;http://www.omg.org/spec/DD/20100524/DC&#34;</span> <span class="na">xmlns:omgdi=</span><span class="s">&#34;http://www.omg.org/spec/DD/20100524/DI&#34;</span> <span class="na">typeLanguage=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema&#34;</span> <span class="na">expressionLanguage=</span><span class="s">&#34;http://www.w3.org/1999/XPath&#34;</span> <span class="na">targetNamespace=</span><span class="s">&#34;http://www.kafeitu.me/activiti&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;process</span> <span class="na">id=</span><span class="s">&#34;purchase-subprocess&#34;</span> <span class="na">name=</span><span class="s">&#34;办公用品采购&#34;</span> <span class="na">isExecutable=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;startEvent</span> <span class="na">id=</span><span class="s">&#34;startevent1&#34;</span> <span class="na">name=</span><span class="s">&#34;startevent1&#34;</span> <span class="na">activiti:initiator=</span><span class="s">&#34;applyUserId&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;dueDate&#34;</span> <span class="na">name=</span><span class="s">&#34;到货期限&#34;</span> <span class="na">type=</span><span class="s">&#34;date&#34;</span> <span class="na">datePattern=</span><span class="s">&#34;yyyy-MM-dd&#34;</span> <span class="na">required=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;listing&#34;</span> <span class="na">name=</span><span class="s">&#34;物品清单&#34;</span> <span class="na">type=</span><span class="s">&#34;bigtext&#34;</span> <span class="na">required=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;amountMoney&#34;</span> <span class="na">name=</span><span class="s">&#34;总金额&#34;</span> <span class="na">type=</span><span class="s">&#34;double&#34;</span> <span class="na">required=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/startEvent&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;userTask</span> <span class="na">id=</span><span class="s">&#34;deptLeaderAudit&#34;</span> <span class="na">name=</span><span class="s">&#34;领导审批&#34;</span> <span class="na">activiti:candidateGroups=</span><span class="s">&#34;deptLeader&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;applyUser&#34;</span> <span class="na">name=</span><span class="s">&#34;申请人&#34;</span> <span class="na">type=</span><span class="s">&#34;string&#34;</span> <span class="na">variable=</span><span class="s">&#34;applyUserId&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;dueDate&#34;</span> <span class="na">name=</span><span class="s">&#34;到货期限&#34;</span> <span class="na">type=</span><span class="s">&#34;date&#34;</span> <span class="na">datePattern=</span><span class="s">&#34;yyyy-MM-dd&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;listing&#34;</span> <span class="na">name=</span><span class="s">&#34;物品清单&#34;</span> <span class="na">type=</span><span class="s">&#34;bigtext&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;amountMoney&#34;</span> <span class="na">name=</span><span class="s">&#34;总金额&#34;</span> <span class="na">type=</span><span class="s">&#34;double&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;deptLeaderApproved&#34;</span> <span class="na">name=</span><span class="s">&#34;是否同意&#34;</span> <span class="na">type=</span><span class="s">&#34;enum&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&lt;activiti:value</span> <span class="na">id=</span><span class="s">&#34;true&#34;</span> <span class="na">name=</span><span class="s">&#34;同意&#34;</span><span class="nt">&gt;&lt;/activiti:value&gt;</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&lt;activiti:value</span> <span class="na">id=</span><span class="s">&#34;false&#34;</span> <span class="na">name=</span><span class="s">&#34;驳回&#34;</span><span class="nt">&gt;&lt;/activiti:value&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/userTask&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;exclusiveGateway</span> <span class="na">id=</span><span class="s">&#34;exclusivegateway1&#34;</span> <span class="na">name=</span><span class="s">&#34;Exclusive Gateway&#34;</span><span class="nt">&gt;&lt;/exclusiveGateway&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow2&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;deptLeaderAudit&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;exclusivegateway1&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;userTask</span> <span class="na">id=</span><span class="s">&#34;contactSupplier&#34;</span> <span class="na">name=</span><span class="s">&#34;联系供货方&#34;</span> <span class="na">activiti:candidateGroups=</span><span class="s">&#34;supportCrew&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;applyUser&#34;</span> <span class="na">name=</span><span class="s">&#34;申请人&#34;</span> <span class="na">type=</span><span class="s">&#34;string&#34;</span> <span class="na">variable=</span><span class="s">&#34;applyUserId&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;dueDate&#34;</span> <span class="na">name=</span><span class="s">&#34;到货期限&#34;</span> <span class="na">type=</span><span class="s">&#34;date&#34;</span> <span class="na">datePattern=</span><span class="s">&#34;yyyy-MM-dd&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;listing&#34;</span> <span class="na">name=</span><span class="s">&#34;物品清单&#34;</span> <span class="na">type=</span><span class="s">&#34;bigtext&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;amountMoney&#34;</span> <span class="na">name=</span><span class="s">&#34;总金额&#34;</span> <span class="na">type=</span><span class="s">&#34;double&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;supplier&#34;</span> <span class="na">name=</span><span class="s">&#34;供货方&#34;</span> <span class="na">type=</span><span class="s">&#34;string&#34;</span> <span class="na">required=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;bankName&#34;</span> <span class="na">name=</span><span class="s">&#34;开户行&#34;</span> <span class="na">type=</span><span class="s">&#34;string&#34;</span> <span class="na">required=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;bankAccount&#34;</span> <span class="na">name=</span><span class="s">&#34;银行账号&#34;</span> <span class="na">type=</span><span class="s">&#34;string&#34;</span> <span class="na">required=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;planDate&#34;</span> <span class="na">name=</span><span class="s">&#34;预计交货日期&#34;</span> <span class="na">type=</span><span class="s">&#34;date&#34;</span> <span class="na">datePattern=</span><span class="s">&#34;yyyy-MM-dd&#34;</span> <span class="na">required=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/userTask&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow3&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;exclusivegateway1&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;contactSupplier&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;conditionExpression</span> <span class="na">xsi:type=</span><span class="s">&#34;tFormalExpression&#34;</span><span class="nt">&gt;</span><span class="cp">&lt;![CDATA[${deptLeaderApproved == &#39;true&#39;}]]&gt;</span><span class="nt">&lt;/conditionExpression&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;subProcess</span> <span class="na">id=</span><span class="s">&#34;subprocessPay&#34;</span> <span class="na">name=</span><span class="s">&#34;付费子流程&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;startEvent</span> <span class="na">id=</span><span class="s">&#34;startevent2&#34;</span> <span class="na">name=</span><span class="s">&#34;Start&#34;</span><span class="nt">&gt;&lt;/startEvent&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;exclusiveGateway</span> <span class="na">id=</span><span class="s">&#34;exclusivegateway2&#34;</span> <span class="na">name=</span><span class="s">&#34;Exclusive Gateway&#34;</span><span class="nt">&gt;&lt;/exclusiveGateway&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow5&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;treasurerAudit&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;exclusivegateway5&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;userTask</span> <span class="na">id=</span><span class="s">&#34;generalManagerAudit&#34;</span> <span class="na">name=</span><span class="s">&#34;总经理审批&#34;</span> <span class="na">activiti:candidateGroups=</span><span class="s">&#34;generalManager&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;applyUser&#34;</span> <span class="na">name=</span><span class="s">&#34;申请人&#34;</span> <span class="na">type=</span><span class="s">&#34;string&#34;</span> <span class="na">variable=</span><span class="s">&#34;applyUserId&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;usage&#34;</span> <span class="na">name=</span><span class="s">&#34;用途&#34;</span> <span class="na">type=</span><span class="s">&#34;bigtext&#34;</span> <span class="na">expression=</span><span class="s">&#34;${usage}&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;amountMoney&#34;</span> <span class="na">name=</span><span class="s">&#34;总金额&#34;</span> <span class="na">type=</span><span class="s">&#34;double&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;generalManagerApproved&#34;</span> <span class="na">name=</span><span class="s">&#34;是否同意&#34;</span> <span class="na">type=</span><span class="s">&#34;enum&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;activiti:value</span> <span class="na">id=</span><span class="s">&#34;true&#34;</span> <span class="na">name=</span><span class="s">&#34;同意&#34;</span><span class="nt">&gt;&lt;/activiti:value&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;activiti:value</span> <span class="na">id=</span><span class="s">&#34;false&#34;</span> <span class="na">name=</span><span class="s">&#34;驳回&#34;</span><span class="nt">&gt;&lt;/activiti:value&gt;</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/userTask&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow6&#34;</span> <span class="na">name=</span><span class="s">&#34;金额 &amp;gt;= 1万元&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;exclusivegateway2&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;generalManagerAudit&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;conditionExpression</span> <span class="na">xsi:type=</span><span class="s">&#34;tFormalExpression&#34;</span><span class="nt">&gt;</span><span class="cp">&lt;![CDATA[${amountMoney &gt;= 10000}]]&gt;</span><span class="nt">&lt;/conditionExpression&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;exclusiveGateway</span> <span class="na">id=</span><span class="s">&#34;exclusivegateway3&#34;</span> <span class="na">name=</span><span class="s">&#34;Exclusive Gateway&#34;</span><span class="nt">&gt;&lt;/exclusiveGateway&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow7&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;generalManagerAudit&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;exclusivegateway3&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;userTask</span> <span class="na">id=</span><span class="s">&#34;pay&#34;</span> <span class="na">name=</span><span class="s">&#34;出纳付款&#34;</span> <span class="na">activiti:candidateGroups=</span><span class="s">&#34;cashier&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;applyUser&#34;</span> <span class="na">name=</span><span class="s">&#34;申请人&#34;</span> <span class="na">type=</span><span class="s">&#34;string&#34;</span> <span class="na">variable=</span><span class="s">&#34;applyUserId&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;usage&#34;</span> <span class="na">name=</span><span class="s">&#34;用途&#34;</span> <span class="na">type=</span><span class="s">&#34;bigtext&#34;</span> <span class="na">expression=</span><span class="s">&#34;${usage}&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;supplier&#34;</span> <span class="na">name=</span><span class="s">&#34;受款方&#34;</span> <span class="na">type=</span><span class="s">&#34;string&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;bankName&#34;</span> <span class="na">name=</span><span class="s">&#34;开户行&#34;</span> <span class="na">type=</span><span class="s">&#34;string&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;bankAccount&#34;</span> <span class="na">name=</span><span class="s">&#34;银行账号&#34;</span> <span class="na">type=</span><span class="s">&#34;string&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/userTask&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow8&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;exclusivegateway3&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;pay&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;conditionExpression</span> <span class="na">xsi:type=</span><span class="s">&#34;tFormalExpression&#34;</span><span class="nt">&gt;</span><span class="cp">&lt;![CDATA[${generalManagerApproved == &#39;true&#39;}]]&gt;</span><span class="nt">&lt;/conditionExpression&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;endEvent</span> <span class="na">id=</span><span class="s">&#34;endevent1&#34;</span> <span class="na">name=</span><span class="s">&#34;End&#34;</span><span class="nt">&gt;&lt;/endEvent&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow9&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;pay&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;endevent1&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow10&#34;</span> <span class="na">name=</span><span class="s">&#34;总经理不同意&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;exclusivegateway3&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;errorendevent1&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;conditionExpression</span> <span class="na">xsi:type=</span><span class="s">&#34;tFormalExpression&#34;</span><span class="nt">&gt;</span><span class="cp">&lt;![CDATA[${generalManagerApproved == &#39;false&#39;}]]&gt;</span><span class="nt">&lt;/conditionExpression&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;endEvent</span> <span class="na">id=</span><span class="s">&#34;errorendevent1&#34;</span> <span class="na">name=</span><span class="s">&#34;TerminateEndEvent&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;errorEventDefinition</span> <span class="na">errorRef=</span><span class="s">&#34;PAYMENT_REJECT&#34;</span><span class="nt">&gt;&lt;/errorEventDefinition&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/endEvent&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow18&#34;</span> <span class="na">name=</span><span class="s">&#34;金额 &amp;lt; 1万&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;exclusivegateway2&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;pay&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;conditionExpression</span> <span class="na">xsi:type=</span><span class="s">&#34;tFormalExpression&#34;</span><span class="nt">&gt;</span><span class="cp">&lt;![CDATA[${amountMoney &lt; 10000}]]&gt;</span><span class="nt">&lt;/conditionExpression&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;userTask</span> <span class="na">id=</span><span class="s">&#34;treasurerAudit&#34;</span> <span class="na">name=</span><span class="s">&#34;财务审批&#34;</span> <span class="na">activiti:candidateGroups=</span><span class="s">&#34;treasurer&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;applyUser&#34;</span> <span class="na">name=</span><span class="s">&#34;申请人&#34;</span> <span class="na">type=</span><span class="s">&#34;string&#34;</span> <span class="na">variable=</span><span class="s">&#34;applyUserId&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;usage&#34;</span> <span class="na">name=</span><span class="s">&#34;用途&#34;</span> <span class="na">type=</span><span class="s">&#34;bigtext&#34;</span> <span class="na">expression=</span><span class="s">&#34;${usage}&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;amountMoney&#34;</span> <span class="na">name=</span><span class="s">&#34;总金额&#34;</span> <span class="na">type=</span><span class="s">&#34;double&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;treasurerApproved&#34;</span> <span class="na">name=</span><span class="s">&#34;是否同意&#34;</span> <span class="na">type=</span><span class="s">&#34;enum&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;activiti:value</span> <span class="na">id=</span><span class="s">&#34;true&#34;</span> <span class="na">name=</span><span class="s">&#34;同意&#34;</span><span class="nt">&gt;&lt;/activiti:value&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;activiti:value</span> <span class="na">id=</span><span class="s">&#34;false&#34;</span> <span class="na">name=</span><span class="s">&#34;驳回&#34;</span><span class="nt">&gt;&lt;/activiti:value&gt;</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/userTask&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow25&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;startevent2&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;treasurerAudit&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;exclusiveGateway</span> <span class="na">id=</span><span class="s">&#34;exclusivegateway5&#34;</span> <span class="na">name=</span><span class="s">&#34;Exclusive Gateway&#34;</span><span class="nt">&gt;&lt;/exclusiveGateway&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow26&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;exclusivegateway5&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;exclusivegateway2&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;conditionExpression</span> <span class="na">xsi:type=</span><span class="s">&#34;tFormalExpression&#34;</span><span class="nt">&gt;</span><span class="cp">&lt;![CDATA[${treasurerApproved == &#39;true&#39;}]]&gt;</span><span class="nt">&lt;/conditionExpression&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow27&#34;</span> <span class="na">name=</span><span class="s">&#34;财务不同意&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;exclusivegateway5&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;errorendevent2&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;conditionExpression</span> <span class="na">xsi:type=</span><span class="s">&#34;tFormalExpression&#34;</span><span class="nt">&gt;</span><span class="cp">&lt;![CDATA[${treasurerApproved == &#39;false&#39;}]]&gt;</span><span class="nt">&lt;/conditionExpression&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;endEvent</span> <span class="na">id=</span><span class="s">&#34;errorendevent2&#34;</span> <span class="na">name=</span><span class="s">&#34;End&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;errorEventDefinition</span> <span class="na">errorRef=</span><span class="s">&#34;PAYMENT_REJECT&#34;</span><span class="nt">&gt;&lt;/errorEventDefinition&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/endEvent&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/subProcess&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;boundaryEvent</span> <span class="na">id=</span><span class="s">&#34;boundaryerror1&#34;</span> <span class="na">name=</span><span class="s">&#34;Error&#34;</span> <span class="na">attachedToRef=</span><span class="s">&#34;subprocessPay&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;errorEventDefinition</span> <span class="na">errorRef=</span><span class="s">&#34;PAYMENT_REJECT&#34;</span><span class="nt">&gt;&lt;/errorEventDefinition&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/boundaryEvent&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;userTask</span> <span class="na">id=</span><span class="s">&#34;modifyApply&#34;</span> <span class="na">name=</span><span class="s">&#34;调整申请&#34;</span> <span class="na">activiti:assignee=</span><span class="s">&#34;${applyUserId}&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;dueDate&#34;</span> <span class="na">name=</span><span class="s">&#34;到货期限&#34;</span> <span class="na">type=</span><span class="s">&#34;date&#34;</span> <span class="na">expression=</span><span class="s">&#34;${dueDate}&#34;</span> <span class="na">datePattern=</span><span class="s">&#34;yyyy-MM-dd&#34;</span> <span class="na">required=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;listing&#34;</span> <span class="na">name=</span><span class="s">&#34;物品清单&#34;</span> <span class="na">type=</span><span class="s">&#34;bigtext&#34;</span> <span class="na">expression=</span><span class="s">&#34;${listing}&#34;</span> <span class="na">required=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;amountMoney&#34;</span> <span class="na">name=</span><span class="s">&#34;总金额&#34;</span> <span class="na">type=</span><span class="s">&#34;double&#34;</span> <span class="na">expression=</span><span class="s">&#34;${amountMoney}&#34;</span> <span class="na">required=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/userTask&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;exclusiveGateway</span> <span class="na">id=</span><span class="s">&#34;exclusivegateway4&#34;</span> <span class="na">name=</span><span class="s">&#34;Exclusive Gateway&#34;</span><span class="nt">&gt;&lt;/exclusiveGateway&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow15&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;modifyApply&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;exclusivegateway4&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow16&#34;</span> <span class="na">name=</span><span class="s">&#34;调整后重新申请&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;exclusivegateway4&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;deptLeaderAudit&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;conditionExpression</span> <span class="na">xsi:type=</span><span class="s">&#34;tFormalExpression&#34;</span><span class="nt">&gt;</span><span class="cp">&lt;![CDATA[${reApply == &#39;true&#39;}]]&gt;</span><span class="nt">&lt;/conditionExpression&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;endEvent</span> <span class="na">id=</span><span class="s">&#34;endevent2&#34;</span> <span class="na">name=</span><span class="s">&#34;End&#34;</span><span class="nt">&gt;&lt;/endEvent&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow17&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;exclusivegateway4&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;endevent2&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;conditionExpression</span> <span class="na">xsi:type=</span><span class="s">&#34;tFormalExpression&#34;</span><span class="nt">&gt;</span><span class="cp">&lt;![CDATA[${reApply == &#39;false&#39;}]]&gt;</span><span class="nt">&lt;/conditionExpression&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow19&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;exclusivegateway1&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;modifyApply&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;conditionExpression</span> <span class="na">xsi:type=</span><span class="s">&#34;tFormalExpression&#34;</span><span class="nt">&gt;</span><span class="cp">&lt;![CDATA[${deptLeaderApproved == &#39;false&#39;}]]&gt;</span><span class="nt">&lt;/conditionExpression&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow20&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;startevent1&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;deptLeaderAudit&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow21&#34;</span> <span class="na">name=</span><span class="s">&#34;捕获子流程的异常事件&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;boundaryerror1&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;modifyApply&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow22&#34;</span> <span class="na">name=</span><span class="s">&#34;进入付费子流程&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;contactSupplier&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;subprocessPay&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:executionListener</span> <span class="na">event=</span><span class="s">&#34;take&#34;</span> <span class="na">expression=</span><span class="s">&#34;${execution.setVariable(&#39;usage&#39;, listing)}&#34;</span><span class="nt">&gt;&lt;/activiti:executionListener&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;userTask</span> <span class="na">id=</span><span class="s">&#34;confirmReceipt&#34;</span> <span class="na">name=</span><span class="s">&#34;收货确认&#34;</span> <span class="na">activiti:assignee=</span><span class="s">&#34;${applyUserId}&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;applyUser&#34;</span> <span class="na">name=</span><span class="s">&#34;申请人&#34;</span> <span class="na">type=</span><span class="s">&#34;string&#34;</span> <span class="na">variable=</span><span class="s">&#34;applyUserId&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;dueDate&#34;</span> <span class="na">name=</span><span class="s">&#34;到货期限&#34;</span> <span class="na">type=</span><span class="s">&#34;date&#34;</span> <span class="na">datePattern=</span><span class="s">&#34;yyyy-MM-dd&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;listing&#34;</span> <span class="na">name=</span><span class="s">&#34;物品清单&#34;</span> <span class="na">type=</span><span class="s">&#34;bigtext&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;amountMoney&#34;</span> <span class="na">name=</span><span class="s">&#34;总金额&#34;</span> <span class="na">type=</span><span class="s">&#34;double&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;supplier&#34;</span> <span class="na">name=</span><span class="s">&#34;供货方&#34;</span> <span class="na">type=</span><span class="s">&#34;string&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;bankName&#34;</span> <span class="na">name=</span><span class="s">&#34;开户行&#34;</span> <span class="na">type=</span><span class="s">&#34;string&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;bankAccount&#34;</span> <span class="na">name=</span><span class="s">&#34;银行账号&#34;</span> <span class="na">type=</span><span class="s">&#34;string&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;planDate&#34;</span> <span class="na">name=</span><span class="s">&#34;预计交货日期&#34;</span> <span class="na">type=</span><span class="s">&#34;date&#34;</span> <span class="na">datePattern=</span><span class="s">&#34;yyyy-MM-dd&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/userTask&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;endEvent</span> <span class="na">id=</span><span class="s">&#34;endevent3&#34;</span> <span class="na">name=</span><span class="s">&#34;End&#34;</span><span class="nt">&gt;&lt;/endEvent&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow23&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;confirmReceipt&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;endevent3&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow24&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;subprocessPay&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;confirmReceipt&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;/process&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;bpmndi:BPMNDiagram</span> <span class="na">id=</span><span class="s">&#34;BPMNDiagram_purchase-subprocess&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;bpmndi:BPMNPlane</span> <span class="na">bpmnElement=</span><span class="s">&#34;purchase-subprocess&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNPlane_purchase-subprocess&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">       //位置信息省略
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/bpmndi:BPMNPlane&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;/bpmndi:BPMNDiagram&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/definitions&gt;</span>
+</span></span></code></pre></div><h2 id="22-初始化人员">2.2 初始化人员</h2>
+<p>新添加角色：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">角色名称</th>
+<th style="text-align:center">角色 ID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">财务人员</td>
+<td style="text-align:center">treasurer</td>
+</tr>
+<tr>
+<td style="text-align:center">出纳员</td>
+<td style="text-align:center">cashier</td>
+</tr>
+<tr>
+<td style="text-align:center">后勤人员</td>
+<td style="text-align:center">supportCrew</td>
+</tr>
+<tr>
+<td style="text-align:center">总经理</td>
+<td style="text-align:center">generalManager</td>
+</tr>
+</tbody>
+</table>
+<p>新添加的用户：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">用户名称</th>
+<th style="text-align:center">用户id</th>
+<th style="text-align:center">分配角色</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">Tony Zhang</td>
+<td style="text-align:center">treasurer</td>
+<td style="text-align:center">treasurer,cashier</td>
+</tr>
+<tr>
+<td style="text-align:center">Thomas Wang</td>
+<td style="text-align:center">thomas</td>
+<td style="text-align:center">supportCrew</td>
+</tr>
+<tr>
+<td style="text-align:center">Manager Li</td>
+<td style="text-align:center">manager</td>
+<td style="text-align:center">generalManager</td>
+</tr>
+</tbody>
+</table>
+<p>我们直接使用代码来注入:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">* 初始化审批人 act_id_user
+</span></span></span><span class="line"><span class="cl"><span class="cm">*/</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@Test</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kt">void</span> <span class="nf">initUser</span><span class="o">(){</span>
+</span></span><span class="line"><span class="cl">    <span class="n">User</span> <span class="n">treasurer</span> <span class="o">=</span> <span class="n">identityService</span><span class="o">.</span><span class="na">newUser</span><span class="o">(</span><span class="s">&#34;treasurer&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">treasurer</span><span class="o">.</span><span class="na">setFirstName</span><span class="o">(</span><span class="s">&#34;Tony Zhang&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">identityService</span><span class="o">.</span><span class="na">saveUser</span><span class="o">(</span><span class="n">treasurer</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">User</span> <span class="n">thomas</span> <span class="o">=</span> <span class="n">identityService</span><span class="o">.</span><span class="na">newUser</span><span class="o">(</span><span class="s">&#34;thomas&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">thomas</span><span class="o">.</span><span class="na">setFirstName</span><span class="o">(</span><span class="s">&#34;Thomas Wang&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">identityService</span><span class="o">.</span><span class="na">saveUser</span><span class="o">(</span><span class="n">thomas</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="n">User</span> <span class="n">thomas</span> <span class="o">=</span> <span class="n">identityService</span><span class="o">.</span><span class="na">newUser</span><span class="o">(</span><span class="s">&#34;manager&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">thomas</span><span class="o">.</span><span class="na">setFirstName</span><span class="o">(</span><span class="s">&#34;Manager Li&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">identityService</span><span class="o">.</span><span class="na">saveUser</span><span class="o">(</span><span class="n">thomas</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * 初始化组 act_id_group
+</span></span></span><span class="line"><span class="cl"><span class="cm">*/</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@Test</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kt">void</span> <span class="nf">initGroup</span><span class="o">(){</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Group</span> <span class="n">treasurer</span> <span class="o">=</span> <span class="n">identityService</span><span class="o">.</span><span class="na">newGroup</span><span class="o">(</span><span class="s">&#34;treasurer&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">treasurer</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="s">&#34;财务人员&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">treasurer</span><span class="o">.</span><span class="na">setType</span><span class="o">(</span><span class="s">&#34;assignment&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">identityService</span><span class="o">.</span><span class="na">saveGroup</span><span class="o">(</span><span class="n">treasurer</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">Group</span> <span class="n">cashier</span> <span class="o">=</span> <span class="n">identityService</span><span class="o">.</span><span class="na">newGroup</span><span class="o">(</span><span class="s">&#34;cashier&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cashier</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="s">&#34;出纳员&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cashier</span><span class="o">.</span><span class="na">setType</span><span class="o">(</span><span class="s">&#34;assignment&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">identityService</span><span class="o">.</span><span class="na">saveGroup</span><span class="o">(</span><span class="n">cashier</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">Group</span> <span class="n">supportCrew</span> <span class="o">=</span> <span class="n">identityService</span><span class="o">.</span><span class="na">newGroup</span><span class="o">(</span><span class="s">&#34;supportCrew&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">supportCrew</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="s">&#34;后勤人员&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">supportCrew</span><span class="o">.</span><span class="na">setType</span><span class="o">(</span><span class="s">&#34;assignment&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">identityService</span><span class="o">.</span><span class="na">saveGroup</span><span class="o">(</span><span class="n">supportCrew</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="n">Group</span> <span class="n">generalManager</span> <span class="o">=</span> <span class="n">identityService</span><span class="o">.</span><span class="na">newGroup</span><span class="o">(</span><span class="s">&#34;generalManager&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">generalManager</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="s">&#34;总经理&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">generalManager</span><span class="o">.</span><span class="na">setType</span><span class="o">(</span><span class="s">&#34;assignment&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">identityService</span><span class="o">.</span><span class="na">saveGroup</span><span class="o">(</span><span class="n">supportCrew</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * 初始化人员、组的关系
+</span></span></span><span class="line"><span class="cl"><span class="cm"> */</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@Test</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kt">void</span> <span class="nf">initMemberShip</span><span class="o">(){</span>
+</span></span><span class="line"><span class="cl">    <span class="n">identityService</span><span class="o">.</span><span class="na">createMembership</span><span class="o">(</span><span class="s">&#34;treasurer&#34;</span><span class="o">,</span><span class="s">&#34;treasurer&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">identityService</span><span class="o">.</span><span class="na">createMembership</span><span class="o">(</span><span class="s">&#34;treasurer&#34;</span><span class="o">,</span><span class="s">&#34;cashier&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">identityService</span><span class="o">.</span><span class="na">createMembership</span><span class="o">(</span><span class="s">&#34;thomas&#34;</span><span class="o">,</span><span class="s">&#34;supportCrew&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">identityService</span><span class="o">.</span><span class="na">createMembership</span><span class="o">(</span><span class="s">&#34;manager&#34;</span><span class="o">,</span><span class="s">&#34;generalManager&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><h2 id="23-部署流程定义">2.3 部署流程定义</h2>
+<p>这个就不介绍了，前面已经演示过好几次了。</p>
+<h2 id="24-发起流程">2.4 发起流程</h2>
+<p>启动节点：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;startEvent</span> <span class="na">id=</span><span class="s">&#34;startevent1&#34;</span> <span class="na">name=</span><span class="s">&#34;startevent1&#34;</span> <span class="na">activiti:initiator=</span><span class="s">&#34;applyUserId&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;dueDate&#34;</span> <span class="na">name=</span><span class="s">&#34;到货期限&#34;</span> <span class="na">type=</span><span class="s">&#34;date&#34;</span> <span class="na">datePattern=</span><span class="s">&#34;yyyy-MM-dd&#34;</span> <span class="na">required=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;listing&#34;</span> <span class="na">name=</span><span class="s">&#34;物品清单&#34;</span> <span class="na">type=</span><span class="s">&#34;bigtext&#34;</span> <span class="na">required=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;amountMoney&#34;</span> <span class="na">name=</span><span class="s">&#34;总金额&#34;</span> <span class="na">type=</span><span class="s">&#34;double&#34;</span> <span class="na">required=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/startEvent&gt;</span>
+</span></span></code></pre></div><h3 id="241--自定义表单类型">2.4.1  自定义表单类型</h3>
+<p><code>bigtext</code>和<code>double</code>都不是表单默认类型，需要我们自定义，这个在上一节已经介绍过，我们直接贴出代码：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.workflow.activiti.rest.entity.formTypes</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.activiti.engine.impl.form.StringFormType</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.stereotype.Component</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * 大文本、即html的textarea，集成自引擎默认支持的string类型的实现
+</span></span></span><span class="line"><span class="cl"><span class="cm"> */</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@Component</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">BigtextFormType</span> <span class="kd">extends</span> <span class="n">StringFormType</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getName</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="s">&#34;bigtext&#34;</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">---------------------------------------------------------------------------------</span>
+</span></span><span class="line"><span class="cl"> <span class="kn">package</span> <span class="nn">com.sxdx.workflow.activiti.rest.entity.formTypes</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">cn.hutool.core.util.ObjectUtil</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.activiti.engine.form.AbstractFormType</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.stereotype.Component</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nd">@Component</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">DoubleFormType</span> <span class="kd">extends</span> <span class="n">AbstractFormType</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">Object</span> <span class="nf">convertFormValueToModelValue</span><span class="o">(</span><span class="n">String</span> <span class="n">s</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="k">new</span> <span class="n">Double</span><span class="o">(</span><span class="n">s</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">String</span> <span class="nf">convertModelValueToFormValue</span><span class="o">(</span><span class="n">Object</span> <span class="n">o</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">ObjectUtil</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">o</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getName</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="s">&#34;double&#34;</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">----------------------------------------------------------------------------</span>
+</span></span><span class="line"><span class="cl"> <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 自定义表单字段类型
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @return
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Bean</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">BeanPostProcessor</span> <span class="nf">activitiConfigurer</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="k">new</span> <span class="n">BeanPostProcessor</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">public</span> <span class="n">Object</span> <span class="nf">postProcessBeforeInitialization</span><span class="o">(</span><span class="n">Object</span> <span class="n">bean</span><span class="o">,</span> <span class="n">String</span> <span class="n">beanName</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">BeansException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="o">(</span><span class="n">bean</span> <span class="k">instanceof</span> <span class="n">SpringProcessEngineConfiguration</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">List</span><span class="o">&lt;</span><span class="n">AbstractFormType</span><span class="o">&gt;</span> <span class="n">customFormTypes</span> <span class="o">=</span> <span class="n">Arrays</span><span class="o">.&lt;</span><span class="n">AbstractFormType</span><span class="o">&gt;</span><span class="n">asList</span><span class="o">(</span><span class="n">javascriptFormType</span><span class="o">,</span><span class="n">kikiUserFormType</span><span class="o">,</span><span class="n">bigtextFormType</span><span class="o">,</span><span class="n">doubleFormType</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">                <span class="o">((</span><span class="n">SpringProcessEngineConfiguration</span><span class="o">)</span><span class="n">bean</span><span class="o">).</span><span class="na">setCustomFormTypes</span><span class="o">(</span><span class="n">customFormTypes</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="n">bean</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">public</span> <span class="n">Object</span> <span class="nf">postProcessAfterInitialization</span><span class="o">(</span><span class="n">Object</span> <span class="n">bean</span><span class="o">,</span> <span class="n">String</span> <span class="n">beanName</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">BeansException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="n">bean</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><h3 id="242-获取启动节点表单信息">2.4.2 获取启动节点表单信息</h3>
+<p><figure 
+	>
+	<a href="/images/activiti6-12/image-20200713113501020.png" >
+		<img src="/images/activiti6-12/image-20200713113501020.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200713113501020">
+	</a>
+	
+	<figcaption>image-20200713113501020</figcaption>
+	
+</figure></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;code&#34;</span><span class="p">:</span> <span class="s2">&#34;0000&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;data&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;form&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;formKey&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;deploymentId&#34;</span><span class="p">:</span> <span class="s2">&#34;20005&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;formProperties&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="s2">&#34;dueDate&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;到货期限&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;date&#34;</span>
+</span></span><span class="line"><span class="cl">          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;value&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;readable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;writable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;required&#34;</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="s2">&#34;listing&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;物品清单&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;bigtext&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;mimeType&#34;</span><span class="p">:</span> <span class="s2">&#34;text/plain&#34;</span>
+</span></span><span class="line"><span class="cl">          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;value&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;readable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;writable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;required&#34;</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="s2">&#34;amountMoney&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;总金额&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;double&#34;</span>
+</span></span><span class="line"><span class="cl">          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;value&#34;</span><span class="p">:</span> <span class="s2">&#34;null&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;readable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;writable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;required&#34;</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">      <span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;processDefinition&#34;</span><span class="p">:</span> <span class="kc">null</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;message&#34;</span><span class="p">:</span> <span class="s2">&#34;获取启动节点&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><h3 id="243-发起流程">2.4.3 发起流程</h3>
+<p>使用<code>kafeitu</code>发起流程</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-12/image-20200713111942450.png" >
+		<img src="/images/activiti6-12/image-20200713111942450.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200713111942450">
+	</a>
+	
+	<figcaption>image-20200713111942450</figcaption>
+	
+</figure></p>
+<h2 id="25-部门领导审批">2.5 部门领导审批</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;userTask</span> <span class="na">id=</span><span class="s">&#34;deptLeaderAudit&#34;</span> <span class="na">name=</span><span class="s">&#34;领导审批&#34;</span> <span class="na">activiti:candidateGroups=</span><span class="s">&#34;deptLeader&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;applyUser&#34;</span> <span class="na">name=</span><span class="s">&#34;申请人&#34;</span> <span class="na">type=</span><span class="s">&#34;string&#34;</span> <span class="na">variable=</span><span class="s">&#34;applyUserId&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;dueDate&#34;</span> <span class="na">name=</span><span class="s">&#34;到货期限&#34;</span> <span class="na">type=</span><span class="s">&#34;date&#34;</span> <span class="na">datePattern=</span><span class="s">&#34;yyyy-MM-dd&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;listing&#34;</span> <span class="na">name=</span><span class="s">&#34;物品清单&#34;</span> <span class="na">type=</span><span class="s">&#34;bigtext&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;amountMoney&#34;</span> <span class="na">name=</span><span class="s">&#34;总金额&#34;</span> <span class="na">type=</span><span class="s">&#34;double&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;deptLeaderApproved&#34;</span> <span class="na">name=</span><span class="s">&#34;是否同意&#34;</span> <span class="na">type=</span><span class="s">&#34;enum&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;activiti:value</span> <span class="na">id=</span><span class="s">&#34;true&#34;</span> <span class="na">name=</span><span class="s">&#34;同意&#34;</span><span class="nt">&gt;&lt;/activiti:value&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;activiti:value</span> <span class="na">id=</span><span class="s">&#34;false&#34;</span> <span class="na">name=</span><span class="s">&#34;驳回&#34;</span><span class="nt">&gt;&lt;/activiti:value&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/userTask&gt;</span>
+</span></span></code></pre></div><h3 id="251-获取待办">2.5.1 获取待办</h3>
+<p><figure 
+	>
+	<a href="/images/activiti6-12/image-20200713122918528.png" >
+		<img src="/images/activiti6-12/image-20200713122918528.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200713122918528">
+	</a>
+	
+	<figcaption>image-20200713122918528</figcaption>
+	
+</figure></p>
+<h3 id="252-签收任务">2.5.2 签收任务</h3>
+<p><figure 
+	>
+	<a href="/images/activiti6-12/image-20200713123043055.png" >
+		<img src="/images/activiti6-12/image-20200713123043055.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200713123043055">
+	</a>
+	
+	<figcaption>image-20200713123043055</figcaption>
+	
+</figure></p>
+<h3 id="253-获取任务表单">2.5.3 获取任务表单</h3>
+<p><figure 
+	>
+	<a href="/images/activiti6-12/image-20200713140059325.png" >
+		<img src="/images/activiti6-12/image-20200713140059325.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200713140059325">
+	</a>
+	
+	<figcaption>image-20200713140059325</figcaption>
+	
+</figure></p>
+<h3 id="254-完成任务">2.5.4 完成任务</h3>
+<p><figure 
+	>
+	<a href="/images/activiti6-12/image-20200713140358468.png" >
+		<img src="/images/activiti6-12/image-20200713140358468.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200713140358468">
+	</a>
+	
+	<figcaption>image-20200713140358468</figcaption>
+	
+</figure></p>
+<p>现阶段流程图：<figure 
+	>
+	<a href="/images/activiti6-12/image-20200713140600734.png" >
+		<img src="/images/activiti6-12/image-20200713140600734.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200713140600734">
+	</a>
+	
+	<figcaption>image-20200713140600734</figcaption>
+	
+</figure></p>
+<h2 id="26--联系供货方">2.6  联系供货方</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;userTask</span> <span class="na">id=</span><span class="s">&#34;contactSupplier&#34;</span> <span class="na">name=</span><span class="s">&#34;联系供货方&#34;</span> <span class="na">activiti:candidateGroups=</span><span class="s">&#34;supportCrew&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;applyUser&#34;</span> <span class="na">name=</span><span class="s">&#34;申请人&#34;</span> <span class="na">type=</span><span class="s">&#34;string&#34;</span> <span class="na">variable=</span><span class="s">&#34;applyUserId&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;dueDate&#34;</span> <span class="na">name=</span><span class="s">&#34;到货期限&#34;</span> <span class="na">type=</span><span class="s">&#34;date&#34;</span> <span class="na">datePattern=</span><span class="s">&#34;yyyy-MM-dd&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;listing&#34;</span> <span class="na">name=</span><span class="s">&#34;物品清单&#34;</span> <span class="na">type=</span><span class="s">&#34;bigtext&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;amountMoney&#34;</span> <span class="na">name=</span><span class="s">&#34;总金额&#34;</span> <span class="na">type=</span><span class="s">&#34;double&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;supplier&#34;</span> <span class="na">name=</span><span class="s">&#34;供货方&#34;</span> <span class="na">type=</span><span class="s">&#34;string&#34;</span> <span class="na">required=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;bankName&#34;</span> <span class="na">name=</span><span class="s">&#34;开户行&#34;</span> <span class="na">type=</span><span class="s">&#34;string&#34;</span> <span class="na">required=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;bankAccount&#34;</span> <span class="na">name=</span><span class="s">&#34;银行账号&#34;</span> <span class="na">type=</span><span class="s">&#34;string&#34;</span> <span class="na">required=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;planDate&#34;</span> <span class="na">name=</span><span class="s">&#34;预计交货日期&#34;</span> <span class="na">type=</span><span class="s">&#34;date&#34;</span> <span class="na">datePattern=</span><span class="s">&#34;yyyy-MM-dd&#34;</span> <span class="na">required=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/userTask&gt;</span>
+</span></span></code></pre></div><p>进入付款子流程,<code>subprocessPay</code>就是子流程的id。可以看到，后勤人员完成任务就，直接就进入子流程中了。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-12/image-20200713165937682.png" >
+		<img src="/images/activiti6-12/image-20200713165937682.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200713165937682">
+	</a>
+	
+	<figcaption>image-20200713165937682</figcaption>
+	
+</figure></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow22&#34;</span> <span class="na">name=</span><span class="s">&#34;进入付费子流程&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;contactSupplier&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;subprocessPay&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:executionListener</span> <span class="na">event=</span><span class="s">&#34;take&#34;</span> <span class="na">expression=</span><span class="s">&#34;${execution.setVariable(&#39;usage&#39;, listing)}&#34;</span><span class="nt">&gt;&lt;/activiti:executionListener&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/sequenceFlow&gt;</span>
+</span></span></code></pre></div><h3 id="261-设置当前操作人">2.6.1 设置当前操作人</h3>
+<p>设置<code>thomas</code>为当前操作人。前面我们都是通过硬编码的方式设置当前操作人。为了方便，我们把这个写成配置文件形式。</p>
+<p>yaml文件添加配置</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="c"># 项目相关配置</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">workflow</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="c"># 名称</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">workflow-activiti-rest</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="c"># 版本</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="m">1.0.0</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="c"># 版权年份</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">copyrightYear</span><span class="p">:</span><span class="w"> </span><span class="m">2020</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="c"># 文件路径 示例（ Windows配置D:/ruoyi/uploadPath，Linux配置 /home/uploadPath）</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">profile</span><span class="p">:</span><span class="w"> </span><span class="l">D:/workflow/uploadPath</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="c"># 当前操作人</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l">thomas</span><span class="w">
+</span></span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.common.config</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.boot.context.properties.ConfigurationProperties</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.stereotype.Component</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * 全局配置类
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * 
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @author ruoyi
+</span></span></span><span class="line"><span class="cl"><span class="cm"> */</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@Component</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@ConfigurationProperties</span><span class="o">(</span><span class="n">prefix</span> <span class="o">=</span> <span class="s">&#34;workflow&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">GlobalConfig</span>
+</span></span><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl">   <span class="c1">//省略其他代码
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kd">private</span> <span class="kd">static</span> <span class="n">String</span> <span class="n">operator</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kd">static</span> <span class="n">String</span> <span class="nf">getOperator</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">operator</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">setOperator</span><span class="o">(</span><span class="n">String</span> <span class="n">operator</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">GlobalConfig</span><span class="o">.</span><span class="na">operator</span> <span class="o">=</span> <span class="n">operator</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kd">static</span> <span class="n">String</span> <span class="nf">getOperator</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">operator</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setOperator</span><span class="o">(</span><span class="n">String</span> <span class="n">operator</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">GlobalConfig</span><span class="o">.</span><span class="na">operator</span> <span class="o">=</span> <span class="n">operator</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>下面这些地方都需要改</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-12/image-20200713161444573.png" >
+		<img src="/images/activiti6-12/image-20200713161444573.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200713161444573">
+	</a>
+	
+	<figcaption>image-20200713161444573</figcaption>
+	
+</figure></p>
+<h3 id="262--获取待办">2.6.2  获取待办</h3>
+<p><figure 
+	>
+	<a href="/images/activiti6-12/image-20200713163646892.png" >
+		<img src="/images/activiti6-12/image-20200713163646892.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200713163646892">
+	</a>
+	
+	<figcaption>image-20200713163646892</figcaption>
+	
+</figure></p>
+<h3 id="263-签收任务">2.6.3 签收任务</h3>
+<p><figure 
+	>
+	<a href="/images/activiti6-12/image-20200713163732864.png" >
+		<img src="/images/activiti6-12/image-20200713163732864.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200713163732864">
+	</a>
+	
+	<figcaption>image-20200713163732864</figcaption>
+	
+</figure></p>
+<h3 id="264--获取任务表单">2.6.4  获取任务表单</h3>
+<p><figure 
+	>
+	<a href="/images/activiti6-12/image-20200713165301891.png" >
+		<img src="/images/activiti6-12/image-20200713165301891.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200713165301891">
+	</a>
+	
+	<figcaption>image-20200713165301891</figcaption>
+	
+</figure></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;code&#34;</span><span class="p">:</span> <span class="s2">&#34;0000&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;data&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;taskFormData&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;formKey&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;deploymentId&#34;</span><span class="p">:</span> <span class="s2">&#34;20005&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;formProperties&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="s2">&#34;applyUser&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;申请人&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;string&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;mimeType&#34;</span><span class="p">:</span> <span class="s2">&#34;text/plain&#34;</span>
+</span></span><span class="line"><span class="cl">          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;value&#34;</span><span class="p">:</span> <span class="s2">&#34;kafeitu&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;readable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;writable&#34;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;required&#34;</span><span class="p">:</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="s2">&#34;dueDate&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;到货期限&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;date&#34;</span>
+</span></span><span class="line"><span class="cl">          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;value&#34;</span><span class="p">:</span> <span class="s2">&#34;2020-02-03&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;readable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;writable&#34;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;required&#34;</span><span class="p">:</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="s2">&#34;listing&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;物品清单&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;bigtext&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;mimeType&#34;</span><span class="p">:</span> <span class="s2">&#34;text/plain&#34;</span>
+</span></span><span class="line"><span class="cl">          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;value&#34;</span><span class="p">:</span> <span class="s2">&#34;计算机1000000台&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;readable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;writable&#34;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;required&#34;</span><span class="p">:</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="s2">&#34;amountMoney&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;总金额&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;double&#34;</span>
+</span></span><span class="line"><span class="cl">          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;value&#34;</span><span class="p">:</span> <span class="s2">&#34;100000.0&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;readable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;writable&#34;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;required&#34;</span><span class="p">:</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="s2">&#34;supplier&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;供货方&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;string&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;mimeType&#34;</span><span class="p">:</span> <span class="s2">&#34;text/plain&#34;</span>
+</span></span><span class="line"><span class="cl">          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;value&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;readable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;writable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;required&#34;</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="s2">&#34;bankName&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;开户行&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;string&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;mimeType&#34;</span><span class="p">:</span> <span class="s2">&#34;text/plain&#34;</span>
+</span></span><span class="line"><span class="cl">          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;value&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;readable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;writable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;required&#34;</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="s2">&#34;bankAccount&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;银行账号&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;string&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;mimeType&#34;</span><span class="p">:</span> <span class="s2">&#34;text/plain&#34;</span>
+</span></span><span class="line"><span class="cl">          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;value&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;readable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;writable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;required&#34;</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="s2">&#34;planDate&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;预计交货日期&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;date&#34;</span>
+</span></span><span class="line"><span class="cl">          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;value&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;readable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;writable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;required&#34;</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">      <span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;task&#34;</span><span class="p">:</span> <span class="kc">null</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;message&#34;</span><span class="p">:</span> <span class="s2">&#34;读取Task的表单成功&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><h3 id="265--完成任务">2.6.5  完成任务</h3>
+<p><figure 
+	>
+	<a href="/images/activiti6-12/image-20200713182502072.png" >
+		<img src="/images/activiti6-12/image-20200713182502072.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200713182502072">
+	</a>
+	
+	<figcaption>image-20200713182502072</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-12/image-20200714160539663.png" >
+		<img src="/images/activiti6-12/image-20200714160539663.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200714160539663">
+	</a>
+	
+	<figcaption>image-20200714160539663</figcaption>
+	
+</figure></p>
+<p>以上可以看到，已经顺利进入子流程中了。</p>
+<h2 id="27--财务审批">2.7  财务审批</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;userTask</span> <span class="na">id=</span><span class="s">&#34;treasurerAudit&#34;</span> <span class="na">name=</span><span class="s">&#34;财务审批&#34;</span> <span class="na">activiti:candidateGroups=</span><span class="s">&#34;treasurer&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;applyUser&#34;</span> <span class="na">name=</span><span class="s">&#34;申请人&#34;</span> <span class="na">type=</span><span class="s">&#34;string&#34;</span> <span class="na">variable=</span><span class="s">&#34;applyUserId&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;usage&#34;</span> <span class="na">name=</span><span class="s">&#34;用途&#34;</span> <span class="na">type=</span><span class="s">&#34;bigtext&#34;</span> <span class="na">expression=</span><span class="s">&#34;${usage}&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;amountMoney&#34;</span> <span class="na">name=</span><span class="s">&#34;总金额&#34;</span> <span class="na">type=</span><span class="s">&#34;double&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;treasurerApproved&#34;</span> <span class="na">name=</span><span class="s">&#34;是否同意&#34;</span> <span class="na">type=</span><span class="s">&#34;enum&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;activiti:value</span> <span class="na">id=</span><span class="s">&#34;true&#34;</span> <span class="na">name=</span><span class="s">&#34;同意&#34;</span><span class="nt">&gt;&lt;/activiti:value&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;activiti:value</span> <span class="na">id=</span><span class="s">&#34;false&#34;</span> <span class="na">name=</span><span class="s">&#34;驳回&#34;</span><span class="nt">&gt;&lt;/activiti:value&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/userTask&gt;</span>
+</span></span></code></pre></div><h3 id="271-设置当前操作人">2.7.1 设置当前操作人</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="c"># 项目相关配置</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">workflow</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="c"># 当前操作人</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l">treasurer</span><span class="w">
+</span></span></span></code></pre></div><h3 id="272-获取待办">2.7.2 获取待办</h3>
+<p><figure 
+	>
+	<a href="/images/activiti6-12/image-20200714165446194.png" >
+		<img src="/images/activiti6-12/image-20200714165446194.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200714165446194">
+	</a>
+	
+	<figcaption>image-20200714165446194</figcaption>
+	
+</figure></p>
+<h3 id="273--签收任务">2.7.3  签收任务</h3>
+<p><figure 
+	>
+	<a href="/images/activiti6-12/image-20200714165738486.png" >
+		<img src="/images/activiti6-12/image-20200714165738486.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200714165738486">
+	</a>
+	
+	<figcaption>image-20200714165738486</figcaption>
+	
+</figure></p>
+<h3 id="274--获取任务表单">2.7.4  获取任务表单</h3>
+<p><figure 
+	>
+	<a href="/images/activiti6-12/image-20200714165812538.png" >
+		<img src="/images/activiti6-12/image-20200714165812538.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200714165812538">
+	</a>
+	
+	<figcaption>image-20200714165812538</figcaption>
+	
+</figure></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;code&#34;</span><span class="p">:</span> <span class="s2">&#34;0000&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;data&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;treasurerApproved&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;true&#34;</span><span class="p">:</span> <span class="s2">&#34;同意&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;false&#34;</span><span class="p">:</span> <span class="s2">&#34;驳回&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;taskFormData&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;formKey&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;deploymentId&#34;</span><span class="p">:</span> <span class="s2">&#34;20005&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;formProperties&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="s2">&#34;applyUser&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;申请人&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;string&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;mimeType&#34;</span><span class="p">:</span> <span class="s2">&#34;text/plain&#34;</span>
+</span></span><span class="line"><span class="cl">          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;value&#34;</span><span class="p">:</span> <span class="s2">&#34;kafeitu&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;readable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;writable&#34;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;required&#34;</span><span class="p">:</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="s2">&#34;usage&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;用途&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;bigtext&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;mimeType&#34;</span><span class="p">:</span> <span class="s2">&#34;text/plain&#34;</span>
+</span></span><span class="line"><span class="cl">          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;value&#34;</span><span class="p">:</span> <span class="s2">&#34;计算机1000000台&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;readable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;writable&#34;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;required&#34;</span><span class="p">:</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="s2">&#34;amountMoney&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;总金额&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;double&#34;</span>
+</span></span><span class="line"><span class="cl">          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;value&#34;</span><span class="p">:</span> <span class="s2">&#34;100000.0&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;readable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;writable&#34;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;required&#34;</span><span class="p">:</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="s2">&#34;treasurerApproved&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;是否同意&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;enum&#34;</span>
+</span></span><span class="line"><span class="cl">          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;value&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;readable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;writable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;required&#34;</span><span class="p">:</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">      <span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;task&#34;</span><span class="p">:</span> <span class="kc">null</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;message&#34;</span><span class="p">:</span> <span class="s2">&#34;读取Task的表单成功&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>可以看到<code>usage</code>字段也有了值，说明<code>进入付费子流程</code>的执行监听器成功执行了。</p>
+<h3 id="275-完成任务">2.7.5 完成任务</h3>
+<p><figure 
+	>
+	<a href="/images/activiti6-12/image-20200714170624219.png" >
+		<img src="/images/activiti6-12/image-20200714170624219.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200714170624219">
+	</a>
+	
+	<figcaption>image-20200714170624219</figcaption>
+	
+</figure></p>
+<p>实时流程图：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-12/image-20200714170704402.png" >
+		<img src="/images/activiti6-12/image-20200714170704402.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200714170704402">
+	</a>
+	
+	<figcaption>image-20200714170704402</figcaption>
+	
+</figure></p>
+<h2 id="28-总经理审批">2.8 总经理审批</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;userTask</span> <span class="na">id=</span><span class="s">&#34;generalManagerAudit&#34;</span> <span class="na">name=</span><span class="s">&#34;总经理审批&#34;</span> <span class="na">activiti:candidateGroups=</span><span class="s">&#34;generalManager&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;applyUser&#34;</span> <span class="na">name=</span><span class="s">&#34;申请人&#34;</span> <span class="na">type=</span><span class="s">&#34;string&#34;</span> <span class="na">variable=</span><span class="s">&#34;applyUserId&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;usage&#34;</span> <span class="na">name=</span><span class="s">&#34;用途&#34;</span> <span class="na">type=</span><span class="s">&#34;bigtext&#34;</span> <span class="na">expression=</span><span class="s">&#34;${usage}&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;amountMoney&#34;</span> <span class="na">name=</span><span class="s">&#34;总金额&#34;</span> <span class="na">type=</span><span class="s">&#34;double&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;generalManagerApproved&#34;</span> <span class="na">name=</span><span class="s">&#34;是否同意&#34;</span> <span class="na">type=</span><span class="s">&#34;enum&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;activiti:value</span> <span class="na">id=</span><span class="s">&#34;true&#34;</span> <span class="na">name=</span><span class="s">&#34;同意&#34;</span><span class="nt">&gt;&lt;/activiti:value&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;activiti:value</span> <span class="na">id=</span><span class="s">&#34;false&#34;</span> <span class="na">name=</span><span class="s">&#34;驳回&#34;</span><span class="nt">&gt;&lt;/activiti:value&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/userTask&gt;</span>
+</span></span></code></pre></div><h3 id="281-设置当前操作人">2.8.1 设置当前操作人</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="c"># 项目相关配置</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">workflow</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="c"># 当前操作人</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l">manager</span><span class="w">
+</span></span></span></code></pre></div><h3 id="282-获取待办">2.8.2 获取待办</h3>
+<p><figure 
+	>
+	<a href="/images/activiti6-12/image-20200714182634566.png" >
+		<img src="/images/activiti6-12/image-20200714182634566.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200714182634566">
+	</a>
+	
+	<figcaption>image-20200714182634566</figcaption>
+	
+</figure></p>
+<h3 id="283-签收任务">2.8.3 签收任务</h3>
+<p><figure 
+	>
+	<a href="/images/activiti6-12/image-20200714183124821.png" >
+		<img src="/images/activiti6-12/image-20200714183124821.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200714183124821">
+	</a>
+	
+	<figcaption>image-20200714183124821</figcaption>
+	
+</figure></p>
+<h3 id="284-获取任务表单">2.8.4 获取任务表单</h3>
+<p><figure 
+	>
+	<a href="/images/activiti6-12/image-20200714183153777.png" >
+		<img src="/images/activiti6-12/image-20200714183153777.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200714183153777">
+	</a>
+	
+	<figcaption>image-20200714183153777</figcaption>
+	
+</figure></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;code&#34;</span><span class="p">:</span> <span class="s2">&#34;0000&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;data&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;taskFormData&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;formKey&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;deploymentId&#34;</span><span class="p">:</span> <span class="s2">&#34;20005&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;formProperties&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="s2">&#34;applyUser&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;申请人&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;string&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;mimeType&#34;</span><span class="p">:</span> <span class="s2">&#34;text/plain&#34;</span>
+</span></span><span class="line"><span class="cl">          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;value&#34;</span><span class="p">:</span> <span class="s2">&#34;kafeitu&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;readable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;writable&#34;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;required&#34;</span><span class="p">:</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="s2">&#34;usage&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;用途&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;bigtext&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;mimeType&#34;</span><span class="p">:</span> <span class="s2">&#34;text/plain&#34;</span>
+</span></span><span class="line"><span class="cl">          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;value&#34;</span><span class="p">:</span> <span class="s2">&#34;计算机1000000台&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;readable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;writable&#34;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;required&#34;</span><span class="p">:</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="s2">&#34;amountMoney&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;总金额&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;double&#34;</span>
+</span></span><span class="line"><span class="cl">          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;value&#34;</span><span class="p">:</span> <span class="s2">&#34;100000.0&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;readable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;writable&#34;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;required&#34;</span><span class="p">:</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="s2">&#34;generalManagerApproved&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;是否同意&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;enum&#34;</span>
+</span></span><span class="line"><span class="cl">          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;value&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;readable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;writable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;required&#34;</span><span class="p">:</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">      <span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;task&#34;</span><span class="p">:</span> <span class="kc">null</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;generalManagerApproved&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;true&#34;</span><span class="p">:</span> <span class="s2">&#34;同意&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;false&#34;</span><span class="p">:</span> <span class="s2">&#34;驳回&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;message&#34;</span><span class="p">:</span> <span class="s2">&#34;读取Task的表单成功&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><h3 id="285-完成审批">2.8.5 完成审批</h3>
+<p><figure 
+	>
+	<a href="/images/activiti6-12/image-20200714183600557.png" >
+		<img src="/images/activiti6-12/image-20200714183600557.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200714183600557">
+	</a>
+	
+	<figcaption>image-20200714183600557</figcaption>
+	
+</figure></p>
+<h2 id="29--出纳付款">2.9  出纳付款</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"> <span class="nt">&lt;userTask</span> <span class="na">id=</span><span class="s">&#34;pay&#34;</span> <span class="na">name=</span><span class="s">&#34;出纳付款&#34;</span> <span class="na">activiti:candidateGroups=</span><span class="s">&#34;cashier&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">     <span class="nt">&lt;extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">         <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;applyUser&#34;</span> <span class="na">name=</span><span class="s">&#34;申请人&#34;</span> <span class="na">type=</span><span class="s">&#34;string&#34;</span> <span class="na">variable=</span><span class="s">&#34;applyUserId&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">         <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;usage&#34;</span> <span class="na">name=</span><span class="s">&#34;用途&#34;</span> <span class="na">type=</span><span class="s">&#34;bigtext&#34;</span> <span class="na">expression=</span><span class="s">&#34;${usage}&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">         <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;supplier&#34;</span> <span class="na">name=</span><span class="s">&#34;受款方&#34;</span> <span class="na">type=</span><span class="s">&#34;string&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">         <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;bankName&#34;</span> <span class="na">name=</span><span class="s">&#34;开户行&#34;</span> <span class="na">type=</span><span class="s">&#34;string&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">         <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;bankAccount&#34;</span> <span class="na">name=</span><span class="s">&#34;银行账号&#34;</span> <span class="na">type=</span><span class="s">&#34;string&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">     <span class="nt">&lt;/extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/userTask&gt;</span>
+</span></span></code></pre></div><p>审批流程和前面步骤是一样的。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-12/image-20200714184446203.png" >
+		<img src="/images/activiti6-12/image-20200714184446203.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200714184446203">
+	</a>
+	
+	<figcaption>image-20200714184446203</figcaption>
+	
+</figure></p>
+<h2 id="210--收货确认">2.10  收货确认</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;userTask</span> <span class="na">id=</span><span class="s">&#34;confirmReceipt&#34;</span> <span class="na">name=</span><span class="s">&#34;收货确认&#34;</span> <span class="na">activiti:assignee=</span><span class="s">&#34;${applyUserId}&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;applyUser&#34;</span> <span class="na">name=</span><span class="s">&#34;申请人&#34;</span> <span class="na">type=</span><span class="s">&#34;string&#34;</span> <span class="na">variable=</span><span class="s">&#34;applyUserId&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;dueDate&#34;</span> <span class="na">name=</span><span class="s">&#34;到货期限&#34;</span> <span class="na">type=</span><span class="s">&#34;date&#34;</span> <span class="na">datePattern=</span><span class="s">&#34;yyyy-MM-dd&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;listing&#34;</span> <span class="na">name=</span><span class="s">&#34;物品清单&#34;</span> <span class="na">type=</span><span class="s">&#34;bigtext&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;amountMoney&#34;</span> <span class="na">name=</span><span class="s">&#34;总金额&#34;</span> <span class="na">type=</span><span class="s">&#34;double&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;supplier&#34;</span> <span class="na">name=</span><span class="s">&#34;供货方&#34;</span> <span class="na">type=</span><span class="s">&#34;string&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;bankName&#34;</span> <span class="na">name=</span><span class="s">&#34;开户行&#34;</span> <span class="na">type=</span><span class="s">&#34;string&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;bankAccount&#34;</span> <span class="na">name=</span><span class="s">&#34;银行账号&#34;</span> <span class="na">type=</span><span class="s">&#34;string&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;planDate&#34;</span> <span class="na">name=</span><span class="s">&#34;预计交货日期&#34;</span> <span class="na">type=</span><span class="s">&#34;date&#34;</span> <span class="na">datePattern=</span><span class="s">&#34;yyyy-MM-dd&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/userTask&gt;</span>
+</span></span></code></pre></div><p>发起人收货确认即可，和前几步一样，最后结果：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-12/image-20200714184823599.png" >
+		<img src="/images/activiti6-12/image-20200714184823599.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200714184823599">
+	</a>
+	
+	<figcaption>image-20200714184823599</figcaption>
+	
+</figure></p>
+<h1 id="3数据分析">3、数据分析</h1>
+<p>我们来看一下本条流程产生了哪些数据。</p>
+<p>流程实例：1条
+<figure 
+	>
+	<a href="/images/activiti6-12/image-20200714185652172.png" >
+		<img src="/images/activiti6-12/image-20200714185652172.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200714185652172">
+	</a>
+	
+	<figcaption>image-20200714185652172</figcaption>
+	
+</figure></p>
+<p>执行实例：2条</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-12/image-20200714185851278.png" >
+		<img src="/images/activiti6-12/image-20200714185851278.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200714185851278">
+	</a>
+	
+	<figcaption>image-20200714185851278</figcaption>
+	
+</figure></p>
+<p>另外需要注意的就是“共享”变量。子流程可以获取流程发起人提供的<code>amountMoney</code>字段。这个字段是在子流程外赋值的，说明<strong>子流程可以共享主流程所有变量</strong>。</p>
+<p>而且，子流程设置的变量也以主流程的执行实例ID为依据。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-12/image-20200715104229923.png" >
+		<img src="/images/activiti6-12/image-20200715104229923.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200715104229923">
+	</a>
+	
+	<figcaption>image-20200715104229923</figcaption>
+	
+</figure></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/activiti/">Activiti</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/activiti6%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%B3%BB%E7%BB%9F%E6%90%AD%E5%BB%BA%E6%95%99%E7%A8%8B/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti6工作流系统搭建教程</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti33-spring-security%E8%8E%B7%E5%8F%96%E5%BD%93%E5%89%8D%E6%93%8D%E4%BD%9C%E4%BA%BA%E4%BF%A1%E6%81%AF/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（33） Spring-Security获取当前操作人信息</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti34-%E4%BD%BF%E7%94%A8swagger%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（34） 使用Swagger生成静态接口文档</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti35-%E4%BD%BF%E7%94%A8swagger%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（35） 使用Swagger生成静态接口文档</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti32-%E6%9B%BF%E6%8D%A2activiti%E7%94%A8%E6%88%B7%E5%92%8C%E7%94%A8%E6%88%B7%E7%BB%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（32） 替换Activiti用户和用户组</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#21-流程定义">2.1 流程定义</a></li>
+    <li><a href="#22-初始化人员">2.2 初始化人员</a></li>
+    <li><a href="#23-部署流程定义">2.3 部署流程定义</a></li>
+    <li><a href="#24-发起流程">2.4 发起流程</a>
+      <ol>
+        <li><a href="#241--自定义表单类型">2.4.1  自定义表单类型</a></li>
+        <li><a href="#242-获取启动节点表单信息">2.4.2 获取启动节点表单信息</a></li>
+        <li><a href="#243-发起流程">2.4.3 发起流程</a></li>
+      </ol>
+    </li>
+    <li><a href="#25-部门领导审批">2.5 部门领导审批</a>
+      <ol>
+        <li><a href="#251-获取待办">2.5.1 获取待办</a></li>
+        <li><a href="#252-签收任务">2.5.2 签收任务</a></li>
+        <li><a href="#253-获取任务表单">2.5.3 获取任务表单</a></li>
+        <li><a href="#254-完成任务">2.5.4 完成任务</a></li>
+      </ol>
+    </li>
+    <li><a href="#26--联系供货方">2.6  联系供货方</a>
+      <ol>
+        <li><a href="#261-设置当前操作人">2.6.1 设置当前操作人</a></li>
+        <li><a href="#262--获取待办">2.6.2  获取待办</a></li>
+        <li><a href="#263-签收任务">2.6.3 签收任务</a></li>
+        <li><a href="#264--获取任务表单">2.6.4  获取任务表单</a></li>
+        <li><a href="#265--完成任务">2.6.5  完成任务</a></li>
+      </ol>
+    </li>
+    <li><a href="#27--财务审批">2.7  财务审批</a>
+      <ol>
+        <li><a href="#271-设置当前操作人">2.7.1 设置当前操作人</a></li>
+        <li><a href="#272-获取待办">2.7.2 获取待办</a></li>
+        <li><a href="#273--签收任务">2.7.3  签收任务</a></li>
+        <li><a href="#274--获取任务表单">2.7.4  获取任务表单</a></li>
+        <li><a href="#275-完成任务">2.7.5 完成任务</a></li>
+      </ol>
+    </li>
+    <li><a href="#28-总经理审批">2.8 总经理审批</a>
+      <ol>
+        <li><a href="#281-设置当前操作人">2.8.1 设置当前操作人</a></li>
+        <li><a href="#282-获取待办">2.8.2 获取待办</a></li>
+        <li><a href="#283-签收任务">2.8.3 签收任务</a></li>
+        <li><a href="#284-获取任务表单">2.8.4 获取任务表单</a></li>
+        <li><a href="#285-完成审批">2.8.5 完成审批</a></li>
+      </ol>
+    </li>
+    <li><a href="#29--出纳付款">2.9  出纳付款</a></li>
+    <li><a href="#210--收货确认">2.10  收货确认</a></li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

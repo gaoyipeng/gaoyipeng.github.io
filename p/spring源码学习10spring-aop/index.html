@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Spring源码学习（10）：Spring AOP'><title>Spring源码学习（10）：Spring AOP</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A010spring-aop/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Spring源码学习（10）：Spring AOP'>
+<meta property='og:description' content='Spring源码学习（10）：Spring AOP'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A010spring-aop/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Spring' /><meta property='article:published_time' content='2020-04-24T10:10:09&#43;00:00'/><meta property='article:modified_time' content='2020-04-24T10:10:09&#43;00:00'/>
+<meta name="twitter:title" content="Spring源码学习（10）：Spring AOP">
+<meta name="twitter:description" content="Spring源码学习（10）：Spring AOP">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/spring/" >
+                Spring
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A010spring-aop/">Spring源码学习（10）：Spring AOP</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        Spring源码学习（10）：Spring AOP
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Apr 24, 2020</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 4 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <h1 id="spring-aop-和aspectj">Spring AOP 和AspectJ</h1>
+<p>AOP的常见框架有2种：<strong>Spring AOP 、AspectJ</strong>，他俩经常放在一起比较。</p>
+<p>AspectJ 是原始的 AOP 技术, 提供完整的Java AOP 解决方案。它更健壮, 但也比 Spring AOP 复杂得多。</p>
+<p>Spring AOP依赖的Spring 框架。它支持在运行期基于动态代理的方式将aspect织入目标代码中来实现AOP。但是Spring AOP的切入点支持有限，而且对于static方法和final方法都无法支持aop（因为此类方法无法生成代理类）</p>
+<p>同时Spring借鉴了AspectJ，使得在Spring体系中可以使用类似AspectJ的注解来实现AOP功能。但是这并不意味着使用了AspectJ的核心代码。AOP功能的具体实现，还是Spring AOP自己实现的。</p>
+<p>Spring AOP和AscpectJ之间的关系：Spring使用了和AscpectJ一样的注解，并使用Aspectj来做切入点解析和匹配。但是spring AOP运行时仍旧是纯的spring AOP,并不依赖于Aspectj的编译器或者织入器。</p>
+<p>网上发现一张图，比较全面：</p>
+<p><figure 
+	>
+	<a href="/images/spring-study-10/aop.png" >
+		<img src="/images/spring-study-10/aop.png"
+			
+			
+			
+			loading="lazy"
+			alt="aop.png">
+	</a>
+	
+	<figcaption>aop.png</figcaption>
+	
+</figure></p>
+<p>一般来说，直接使用Spring AOP就可以实现我们大部分的需求了。</p>
+<h1 id="spring-aop">Spring AOP</h1>
+<p>Spring AOP有2中配置方法：</p>
+<ul>
+<li>
+<p>基于XML Schema的配置文件定义,</p>
+</li>
+<li>
+<p>基于@Aspect系列标注定义。</p>
+</li>
+</ul>
+<h2 id="基于-xml-schema-的aop">基于 XML Schema 的AOP</h2>
+<p>基于XML Schema也有2中方式配置AOP的实现，我们都来了解一下。</p>
+<ul>
+<li>
+<p><code>&lt;aop:aspect&gt;</code>允许我们在自定义增强方法。（常用）</p>
+</li>
+<li>
+<p><code>&lt;aop:advisor&gt;</code>需要实现Spring提供的Advice接口，使用的较少。反正我记不清那么多接口名称~~</p>
+</li>
+</ul>
+<h3 id="aopaspect方式配置"><code>&lt;aop:aspect&gt;</code>方式配置</h3>
+<ul>
+<li>
+<p>目标对象</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Java" data-lang="Java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.service</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">com.sxdx.entity.User</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">UserService</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">//添加 user
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">addUser</span><span class="o">(</span><span class="n">User</span> <span class="n">user</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">//删除 user
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">deleteUser</span><span class="o">(</span><span class="n">User</span> <span class="n">user</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Java" data-lang="Java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.service.impl</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">com.sxdx.entity.User</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">com.sxdx.service.UserService</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.stereotype.Service</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nd">@Service</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">UserServiceImpl</span> <span class="kd">implements</span> <span class="n">UserService</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">addUser</span><span class="o">(</span><span class="n">User</span> <span class="n">user</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;添加 user&#34;</span><span class="o">+</span><span class="n">user</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">deleteUser</span><span class="o">(</span><span class="n">User</span> <span class="n">user</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;删除 user&#34;</span><span class="o">+</span><span class="n">user</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;==抛出异常：&#34;</span> <span class="o">+</span> <span class="n">1</span> <span class="o">/</span> <span class="n">0</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div></li>
+<li>
+<p>增强代码</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.aspect</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">com.sxdx.entity.User</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.aspectj.lang.ProceedingJoinPoint</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @program: spring
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @description:
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @author: garnett
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @create: 2020-04-24 17:11
+</span></span></span><span class="line"><span class="cl"><span class="cm"> **/</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">UserAspect</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * 前置增强
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 */</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">beforeAdvice</span><span class="o">(</span><span class="n">User</span> <span class="n">user</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;==前置增强，id：&#34;</span> <span class="o">+</span> <span class="n">user</span><span class="o">.</span><span class="na">getId</span><span class="o">()</span> <span class="o">+</span> <span class="s">&#34;，name：&#34;</span> <span class="o">+</span> <span class="n">user</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * 后置异常增强
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 */</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">afterExceptionAdvice</span><span class="o">(</span><span class="n">User</span> <span class="n">user</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;==后置异常增强，id：&#34;</span> <span class="o">+</span> <span class="n">user</span><span class="o">.</span><span class="na">getId</span><span class="o">()</span> <span class="o">+</span> <span class="s">&#34;，name：&#34;</span> <span class="o">+</span> <span class="n">user</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * 后置返回增强
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 */</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">afterReturningAdvice</span><span class="o">(</span><span class="n">User</span> <span class="n">user</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;==后置返回增强，id：&#34;</span> <span class="o">+</span> <span class="n">user</span><span class="o">.</span><span class="na">getId</span><span class="o">()</span> <span class="o">+</span> <span class="s">&#34;，name：&#34;</span> <span class="o">+</span> <span class="n">user</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * 后置最终增强
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 */</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">afterAdvice</span><span class="o">(</span><span class="n">User</span> <span class="n">user</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;==后置最终增强，id：&#34;</span> <span class="o">+</span> <span class="n">user</span><span class="o">.</span><span class="na">getId</span><span class="o">()</span> <span class="o">+</span> <span class="s">&#34;，name：&#34;</span> <span class="o">+</span> <span class="n">user</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * 环绕增强
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * 注意: 如果环绕增强里通过try catch对异常做了处理,所以当业务方法抛出异常时,后置异常增强不会被执行.
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 */</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="n">Object</span> <span class="nf">roundAdvice</span><span class="o">(</span><span class="n">ProceedingJoinPoint</span> <span class="n">p</span><span class="o">,</span> <span class="n">User</span> <span class="n">user</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Throwable</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;==环绕增强开始，id：&#34;</span> <span class="o">+</span> <span class="n">user</span><span class="o">.</span><span class="na">getId</span><span class="o">()</span> <span class="o">+</span> <span class="s">&#34;，name：&#34;</span> <span class="o">+</span> <span class="n">user</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">		<span class="n">Object</span> <span class="n">o</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">         <span class="n">o</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="na">proceed</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;==环绕增强结束，id：&#34;</span> <span class="o">+</span> <span class="n">user</span><span class="o">.</span><span class="na">getId</span><span class="o">()</span> <span class="o">+</span> <span class="s">&#34;，name：&#34;</span> <span class="o">+</span> <span class="n">user</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="n">o</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div></li>
+<li>
+<p>XML Schema的配置</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="cp">&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;beans</span> <span class="na">xmlns=</span><span class="s">&#34;http://www.springframework.org/schema/beans&#34;</span>
+</span></span><span class="line"><span class="cl">	   <span class="na">xmlns:xsi=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span> <span class="na">xmlns:aop=</span><span class="s">&#34;http://www.springframework.org/schema/aop&#34;</span>
+</span></span><span class="line"><span class="cl">	   <span class="na">xmlns:tx=</span><span class="s">&#34;http://www.springframework.org/schema/tx&#34;</span> <span class="na">xmlns:jdbc=</span><span class="s">&#34;http://www.springframework.org/schema/jdbc&#34;</span>
+</span></span><span class="line"><span class="cl">	   <span class="na">xmlns:context=</span><span class="s">&#34;http://www.springframework.org/schema/context&#34;</span>
+</span></span><span class="line"><span class="cl">	   <span class="na">xsi:schemaLocation=</span><span class="s">&#34;http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+</span></span></span><span class="line"><span class="cl"><span class="s">     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+</span></span></span><span class="line"><span class="cl"><span class="s">     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+</span></span></span><span class="line"><span class="cl"><span class="s">     http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nt">&lt;context:component-scan</span> <span class="na">base-package=</span><span class="s">&#34;com.sxdx&#34;</span> <span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&#34;userAspect&#34;</span> <span class="na">class=</span><span class="s">&#34;com.sxdx.aspect.UserAspect&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="c">&lt;!--AOP配置（一）proxy-target-class=&#34;true&#34; 表示使用cglib代理，否则默认jdk代理 --&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="nt">&lt;aop:config</span> <span class="na">proxy-target-class=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="c">&lt;!-- 切入点--&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="nt">&lt;aop:pointcut</span> <span class="na">id=</span><span class="s">&#34;pointcut&#34;</span> <span class="na">expression=</span><span class="s">&#34;execution(* com.sxdx.service.impl.UserServiceImpl.*(..)) and args(user)&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="nt">&lt;aop:aspect</span> <span class="na">ref=</span><span class="s">&#34;userAspect&#34;</span> <span class="na">order=</span><span class="s">&#34;0&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="c">&lt;!--前置增强，在切入点选择的方法之前执行--&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;aop:before</span> <span class="na">method=</span><span class="s">&#34;beforeAdvice&#34;</span> <span class="na">pointcut-ref=</span><span class="s">&#34;pointcut&#34;</span> <span class="na">arg-names=</span><span class="s">&#34;user&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="c">&lt;!--后置异常增强，在切入点选择的方法抛出异常时执行--&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;aop:after-throwing</span> <span class="na">method=</span><span class="s">&#34;afterExceptionAdvice&#34;</span> <span class="na">pointcut-ref=</span><span class="s">&#34;pointcut&#34;</span> <span class="na">arg-names=</span><span class="s">&#34;user&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="c">&lt;!--后置返回增强，在切入点选择的方法正常返回时执行--&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;aop:after-returning</span> <span class="na">method=</span><span class="s">&#34;afterReturningAdvice&#34;</span> <span class="na">pointcut-ref=</span><span class="s">&#34;pointcut&#34;</span> <span class="na">arg-names=</span><span class="s">&#34;user&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="c">&lt;!--后置最终增强，在切入点选择的方法返回时执行，不管是正常返回还是抛出异常都执行--&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;aop:after</span> <span class="na">method=</span><span class="s">&#34;afterAdvice&#34;</span> <span class="na">pointcut-ref=</span><span class="s">&#34;pointcut&#34;</span> <span class="na">arg-names=</span><span class="s">&#34;user&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="c">&lt;!--
+</span></span></span><span class="line"><span class="cl"><span class="c">				环绕增强，环绕着在切入点选择的连接点处的方法所执行的通知，可以决定目标方法是否执行，
+</span></span></span><span class="line"><span class="cl"><span class="c">				什么时候执行，执行时是否需要替换方法参数，执行完毕是否需要替换返回值
+</span></span></span><span class="line"><span class="cl"><span class="c">			--&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;aop:around</span> <span class="na">method=</span><span class="s">&#34;roundAdvice&#34;</span> <span class="na">pointcut-ref=</span><span class="s">&#34;pointcut&#34;</span> <span class="na">arg-names=</span><span class="s">&#34;p,user&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="nt">&lt;/aop:aspect&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="nt">&lt;/aop:config&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/beans&gt;</span>
+</span></span></code></pre></div></li>
+<li>
+<p>测试</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl">	<span class="nd">@Test</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">test2</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">UserService</span> <span class="n">userService</span> <span class="o">=</span> <span class="n">applicationContext</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="s">&#34;userServiceImpl&#34;</span><span class="o">,</span> <span class="n">UserServiceImpl</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">User</span> <span class="n">user</span> <span class="o">=</span> <span class="k">new</span> <span class="n">User</span><span class="o">(</span><span class="n">1</span><span class="o">,</span><span class="s">&#34;二狗子&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">userService</span><span class="o">.</span><span class="na">addUser</span><span class="o">(</span><span class="n">user</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span></code></pre></div><pre tabindex="0"><code>========测试方法开始=======
+
+==前置增强，id：1，name：二狗子
+==环绕增强开始，id：1，name：二狗子
+添加 user二狗子
+==环绕增强参数值：com.sxdx.entity.User@173b9122
+==环绕增强结束，id：1，name：二狗子
+==后置最终增强，id：1，name：二狗子
+==后置返回增强，id：1，name：二狗子
+
+========测试方法结束=======
+</code></pre><p>OK，我们可以从打印内容中看出各种通知的执行顺序：</p>
+<p>前置增强(beforeAdvice) &gt; 环绕增强(roundAdvice) &gt; 后置最终增强(afterAdvice) &gt;后置返回增强(afterReturningAdvice)</p>
+</li>
+<li>
+<p>程序异常情况下的执行顺序</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl">	<span class="nd">@Test</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">test2</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">UserService</span> <span class="n">userService</span> <span class="o">=</span> <span class="n">applicationContext</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="s">&#34;userServiceImpl&#34;</span><span class="o">,</span> <span class="n">UserServiceImpl</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">User</span> <span class="n">user</span> <span class="o">=</span> <span class="k">new</span> <span class="n">User</span><span class="o">(</span><span class="n">1</span><span class="o">,</span><span class="s">&#34;二狗子&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">userService</span><span class="o">.</span><span class="na">deleteUser</span><span class="o">(</span><span class="n">user</span><span class="o">);</span><span class="c1">//有java.lang.ArithmeticException异常
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="o">}</span>
+</span></span></code></pre></div><pre tabindex="0"><code>========测试方法开始=======
+
+==前置增强，id：1，name：二狗子
+==环绕增强开始，id：1，name：二狗子
+删除 user二狗子
+==后置最终增强，id：1，name：二狗子
+==后置异常增强，id：1，name：二狗子
+
+========测试方法结束=======
+
+
+Disconnected from the target VM, address: &#39;127.0.0.1:56159&#39;, transport: &#39;socket&#39;
+
+java.lang.ArithmeticException: / by zero
+.....
+</code></pre><p>此时的执行情况也是一目了然的，就不做介绍了。</p>
+</li>
+</ul>
+<h3 id="aopadvisor方式配置"><code>&lt;aop:advisor&gt;</code>方式配置</h3>
+<p><strong>上面我们使用了<code>&lt;aop:aspect&gt;</code>来配置自定义切面，除此之外我们还可以使用<code>&lt;aop:advisor&gt;</code>来定义。</strong></p>
+<ul>
+<li>实现接口</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.aspect</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.aop.AfterReturningAdvice</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.aop.MethodBeforeAdvice</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.lang.reflect.Method</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @program: spring
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @description: advisor
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @author: garnett
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @create: 2020-05-10 17:10
+</span></span></span><span class="line"><span class="cl"><span class="cm"> **/</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">UserAspectAdvisor</span> <span class="kd">implements</span> <span class="n">MethodBeforeAdvice</span> <span class="o">,</span> <span class="n">AfterReturningAdvice</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">before</span><span class="o">(</span><span class="n">Method</span> <span class="n">method</span><span class="o">,</span> <span class="n">Object</span><span class="o">[]</span> <span class="n">args</span><span class="o">,</span> <span class="n">Object</span> <span class="n">target</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Throwable</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;==前置增强，方法名为&#34;</span> <span class="o">+</span> <span class="n">method</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">afterReturning</span><span class="o">(</span><span class="n">Object</span> <span class="n">returnValue</span><span class="o">,</span> <span class="n">Method</span> <span class="n">method</span><span class="o">,</span> <span class="n">Object</span><span class="o">[]</span> <span class="n">args</span><span class="o">,</span> <span class="n">Object</span> <span class="n">target</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Throwable</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;==后置增强，方法名为&#34;</span> <span class="o">+</span> <span class="n">method</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><ul>
+<li>配置xml</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl">	<span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&#34;userAspectAdvisor&#34;</span> <span class="na">class=</span><span class="s">&#34;com.sxdx.aspect.UserAspectAdvisor&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="nt">&lt;aop:config</span> <span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="c">&lt;!-- 切入点--&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="nt">&lt;aop:pointcut</span> <span class="na">id=</span><span class="s">&#34;pointcut&#34;</span> <span class="na">expression=</span><span class="s">&#34;execution(* com.sxdx.service.impl.UserServiceImpl.*(..)) &#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="nt">&lt;aop:advisor</span> <span class="na">advice-ref=</span><span class="s">&#34;userAspectAdvisor&#34;</span> <span class="na">pointcut-ref=</span><span class="s">&#34;pointcut&#34;</span><span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="nt">&lt;/aop:config&gt;</span>
+</span></span></code></pre></div><ul>
+<li>测试</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl">	<span class="nd">@Test</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">test3</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">UserService</span> <span class="n">userService</span> <span class="o">=</span> <span class="o">(</span><span class="n">UserService</span><span class="o">)</span> <span class="n">applicationContext</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="s">&#34;userServiceImpl&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">User</span> <span class="n">user</span> <span class="o">=</span> <span class="k">new</span> <span class="n">User</span><span class="o">(</span><span class="n">1</span><span class="o">,</span><span class="s">&#34;二狗子&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">userService</span><span class="o">.</span><span class="na">addUser</span><span class="o">(</span><span class="n">user</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span></code></pre></div><ul>
+<li>返回值</li>
+</ul>
+<pre tabindex="0"><code>==前置增强，方法名为addUser
+添加 user二狗子
+==后置增强，方法名为addUser
+</code></pre><p><strong>它们的区别：</strong></p>
+<ul>
+<li><code>&lt;aop:aspect&gt;</code>允许我们在自定义增强方法。例如</li>
+</ul>
+<p>​       &lt;aop:before method=&ldquo;beforeAdvice&rdquo; pointcut-ref=&ldquo;pointcut&rdquo; arg-names=&ldquo;user&rdquo;/&gt;</p>
+<ul>
+<li><code>&lt;aop:advisor&gt;</code>需要实现Spring提供的Advice接口，使用的较少。反正我记不清那么多接口名称~~</li>
+</ul>
+<h2 id="基于aspect的aop">基于@Aspect的AOP</h2>
+<p>声明式AOP是现在的主流，相对于xml配置文件实现方式，更加的优雅。</p>
+<ul>
+<li>
+<p>开启@Aspect注解支持</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;aop:aspectj-autoproxy/&gt;</span>
+</span></span></code></pre></div></li>
+<li>
+<p>配置类</p>
+<ul>
+<li>
+<p>使用@Aspect代替xml 中的&lt;aop:config &gt;</p>
+</li>
+<li>
+<p>使用@Before、@AfterThrowing  注解代替xml中的  <code>&lt;aop:before/&gt;</code>  <code>&lt;aop:after-throwing/&gt;</code></p>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.aspect</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">com.sxdx.entity.User</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.aspectj.lang.ProceedingJoinPoint</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.aspectj.lang.annotation.*</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.stereotype.Component</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nd">@Aspect</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@Component</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">UserAspectAnno</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * 前置增强
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 */</span>
+</span></span><span class="line"><span class="cl">	<span class="nd">@Before</span><span class="o">(</span><span class="s">&#34;execution(* com.sxdx.service.impl.UserServiceImpl.*(..)) and args(user)&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">beforeAdvice</span><span class="o">(</span><span class="n">User</span> <span class="n">user</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;==前置增强，id：&#34;</span> <span class="o">+</span> <span class="n">user</span><span class="o">.</span><span class="na">getId</span><span class="o">()</span> <span class="o">+</span> <span class="s">&#34;，name：&#34;</span> <span class="o">+</span> <span class="n">user</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * 后置异常增强
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 */</span>
+</span></span><span class="line"><span class="cl">	<span class="nd">@AfterThrowing</span><span class="o">(</span><span class="s">&#34;execution(* com.sxdx.service.impl.UserServiceImpl.*(..)) and args(user)&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">afterExceptionAdvice</span><span class="o">(</span><span class="n">User</span> <span class="n">user</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;==后置异常增强，id：&#34;</span> <span class="o">+</span> <span class="n">user</span><span class="o">.</span><span class="na">getId</span><span class="o">()</span> <span class="o">+</span> <span class="s">&#34;，name：&#34;</span> <span class="o">+</span> <span class="n">user</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * 后置返回增强
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 */</span>
+</span></span><span class="line"><span class="cl">	<span class="nd">@AfterReturning</span><span class="o">(</span><span class="s">&#34;execution(* com.sxdx.service.impl.UserServiceImpl.*(..)) and args(user)&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">afterReturningAdvice</span><span class="o">(</span><span class="n">User</span> <span class="n">user</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;==后置返回增强，id：&#34;</span> <span class="o">+</span> <span class="n">user</span><span class="o">.</span><span class="na">getId</span><span class="o">()</span> <span class="o">+</span> <span class="s">&#34;，name：&#34;</span> <span class="o">+</span> <span class="n">user</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * 后置最终增强
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 */</span>
+</span></span><span class="line"><span class="cl">	<span class="nd">@After</span><span class="o">(</span><span class="s">&#34;execution(* com.sxdx.service.impl.UserServiceImpl.*(..)) and args(user)&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">afterAdvice</span><span class="o">(</span><span class="n">User</span> <span class="n">user</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;==后置最终增强，id：&#34;</span> <span class="o">+</span> <span class="n">user</span><span class="o">.</span><span class="na">getId</span><span class="o">()</span> <span class="o">+</span> <span class="s">&#34;，name：&#34;</span> <span class="o">+</span> <span class="n">user</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * 环绕增强
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * 注意: 如果环绕增强里通过try catch对异常做了处理,所以当业务方法抛出异常时,后置异常增强不会被执行.
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 */</span>
+</span></span><span class="line"><span class="cl">	<span class="nd">@Around</span><span class="o">(</span><span class="s">&#34;execution(* com.sxdx.service.impl.UserServiceImpl.*(..)) and args(user)&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="n">Object</span> <span class="nf">roundAdvice</span><span class="o">(</span><span class="n">ProceedingJoinPoint</span> <span class="n">p</span><span class="o">,</span> <span class="n">User</span> <span class="n">user</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Throwable</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;==环绕增强开始，id：&#34;</span> <span class="o">+</span> <span class="n">user</span><span class="o">.</span><span class="na">getId</span><span class="o">()</span> <span class="o">+</span> <span class="s">&#34;，name：&#34;</span> <span class="o">+</span> <span class="n">user</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">		<span class="n">Object</span> <span class="n">o</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">         <span class="n">o</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="na">proceed</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;==环绕增强结束，id：&#34;</span> <span class="o">+</span> <span class="n">user</span><span class="o">.</span><span class="na">getId</span><span class="o">()</span> <span class="o">+</span> <span class="s">&#34;，name：&#34;</span> <span class="o">+</span> <span class="n">user</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="n">o</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><ul>
+<li>测试类</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl">	<span class="nd">@Test</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">test3</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">UserService</span> <span class="n">userService</span> <span class="o">=</span> <span class="o">(</span><span class="n">UserService</span><span class="o">)</span> <span class="n">applicationContext</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="s">&#34;userServiceImpl&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">User</span> <span class="n">user</span> <span class="o">=</span> <span class="k">new</span> <span class="n">User</span><span class="o">(</span><span class="n">1</span><span class="o">,</span><span class="s">&#34;二狗子&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">userService</span><span class="o">.</span><span class="na">addUser</span><span class="o">(</span><span class="n">user</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span></code></pre></div><ul>
+<li>测试结果</li>
+</ul>
+<pre tabindex="0"><code>==环绕增强开始，id：1，name：二狗子
+==前置增强，id：1，name：二狗子
+添加 user二狗子
+==环绕增强结束，id：1，name：二狗子
+==后置最终增强，id：1，name：二狗子
+==后置返回增强，id：1，name：二狗子
+</code></pre></li>
+</ul>
+<p>OK，关于AOP就记录到这里。</p>
+<p>参考：</p>
+<p><a class="link" href="https://blog.csdn.net/lyc_liyanchao/article/details/83751392"  target="_blank" rel="noopener"
+    >https://blog.csdn.net/lyc_liyanchao/article/details/83751392</a></p>
+<p><a class="link" href="https://blog.csdn.net/a128953ad/article/details/50509437"  target="_blank" rel="noopener"
+    >https://blog.csdn.net/a128953ad/article/details/50509437</a></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/spring/">Spring</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A011spring-%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Spring源码学习（11）：Spring 事务管理</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A09%E9%9D%A2%E5%90%91%E5%88%87%E9%9D%A2%E7%BC%96%E7%A8%8Baop%E6%A6%82%E5%BF%B5%E5%BC%95%E5%85%A5/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Spring源码学习（9）：面向切面编程（AOP）概念引入</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A08spring%E4%B8%AD%E7%9A%84%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Spring源码学习（8）：Spring中的代理模式</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A07bean%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Spring源码学习（7）：Bean的生命周期</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A06beanfactory%E5%92%8Cfactorybean/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Spring源码学习（6）：BeanFactory和FactoryBean</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#基于-xml-schema-的aop">基于 XML Schema 的AOP</a>
+      <ol>
+        <li><a href="#aopaspect方式配置"><code>&lt;aop:aspect&gt;</code>方式配置</a></li>
+        <li><a href="#aopadvisor方式配置"><code>&lt;aop:advisor&gt;</code>方式配置</a></li>
+      </ol>
+    </li>
+    <li><a href="#基于aspect的aop">基于@Aspect的AOP</a></li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

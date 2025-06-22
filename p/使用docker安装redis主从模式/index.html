@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='使用docker安装redis 主从模式'><title>使用docker安装redis主从模式</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/%E4%BD%BF%E7%94%A8docker%E5%AE%89%E8%A3%85redis%E4%B8%BB%E4%BB%8E%E6%A8%A1%E5%BC%8F/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='使用docker安装redis主从模式'>
+<meta property='og:description' content='使用docker安装redis 主从模式'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/%E4%BD%BF%E7%94%A8docker%E5%AE%89%E8%A3%85redis%E4%B8%BB%E4%BB%8E%E6%A8%A1%E5%BC%8F/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Docker' /><meta property='article:tag' content='Redis' /><meta property='article:published_time' content='2020-02-09T16:26:11&#43;00:00'/><meta property='article:modified_time' content='2020-02-09T16:26:11&#43;00:00'/>
+<meta name="twitter:title" content="使用docker安装redis主从模式">
+<meta name="twitter:description" content="使用docker安装redis 主从模式">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/docker/" >
+                Docker
+            </a>
+        
+            <a href="/categories/redis/" >
+                Redis
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/%E4%BD%BF%E7%94%A8docker%E5%AE%89%E8%A3%85redis%E4%B8%BB%E4%BB%8E%E6%A8%A1%E5%BC%8F/">使用docker安装redis主从模式</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        使用docker安装redis 主从模式
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Feb 09, 2020</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 2 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <h2 id="redis主从复制">redis主从复制</h2>
+<p>前一节我们搭建了单体redis应用，假设我们生产环境使用了一台redis，redis挂了怎么办？
+<!-- raw HTML omitted -->redis主从复制<!-- raw HTML omitted -->：是备份关系，我们操作主库，数据会同步到从库。</p>
+<p>那么redis主从复制有什么作用呢？</p>
+<ul>
+<li>数据冗余：主从复制实现了数据的热备份，是持久化之外的一种数据冗余方式。</li>
+<li>读写分离：可以用于实现读写分离，主库写、从库读，读写分离不仅可以提高服务器的负载能力，同时可根据需求的变化，改变从库的数量；</li>
+<li>负载均衡：可以在主从复制的基础上，配合读写分离，由主节点负责写，从节点负责读取数据，从而分担服务器的负载压力，大大提高redis的并发量。</li>
+<li>高可用基石：除了上述作用以外，主从复制还是哨兵和集群能够实施的基础，因此说主从复制是Redis高可用的基础。</li>
+</ul>
+<p>本节我们搭建redis 一主二从，读写分离。redis主从是实现redis集群和redis哨兵高可用的基础.</p>
+<h3 id="创建工作目录">创建工作目录</h3>
+<pre tabindex="0"><code>mkdir -p /usr/local/redis/master-slaver/master/conf
+mkdir -p /usr/local/redis/master-slaver/master/data
+mkdir -p /usr/local/redis/master-slaver/slaver/conf
+mkdir -p /usr/local/redis/master-slaver/slaver/data
+mkdir -p /usr/local/redis/master-slaver/slaver1/conf
+mkdir -p /usr/local/redis/master-slaver/slaver1/data
+</code></pre><h3 id="端口约定">端口约定</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">角色</th>
+<th style="text-align:center">端口</th>
+<th style="text-align:right">密码</th>
+<th style="text-align:right">容器名称</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">master</td>
+<td style="text-align:center">6380</td>
+<td style="text-align:right">123456</td>
+<td style="text-align:right">redis-6380</td>
+</tr>
+<tr>
+<td style="text-align:left">slaver</td>
+<td style="text-align:center">6381</td>
+<td style="text-align:right">123456</td>
+<td style="text-align:right">redis-6381</td>
+</tr>
+<tr>
+<td style="text-align:left">slaver</td>
+<td style="text-align:center">6382</td>
+<td style="text-align:right">123456</td>
+<td style="text-align:right">redis-6382</td>
+</tr>
+</tbody>
+</table>
+<h3 id="准备redisconf">准备redis.conf</h3>
+<ol>
+<li>准备一份redis.conf文件 <a class="link" href="https://redis.io/download"  target="_blank" rel="noopener"
+    >https://redis.io/download</a>。复制3份，分别存放到：
+/usr/local/redis/master-slave/master/conf
+/usr/local/redis/master-slave/slaver/conf
+/usr/local/redis/master-slave/slaver/conf</li>
+</ol>
+<p>2.创建自定义网桥</p>
+<pre tabindex="0"><code>docker network inspect redis-master-slaver
+</code></pre><p>这样我们容器间就可以使用容器名来通信了，避免出现ip变化后主从容器无法通信问题。</p>
+<ol start="3">
+<li>分别修改这3份redis.conf的以下内容
+master:</li>
+</ol>
+<pre tabindex="0"><code>requirepass 123456 #给redis设置密码
+bind 0.0.0.0 # 表示任意ip可连
+appendonly yes #开启redis aof持久化
+</code></pre><p>slaver:</p>
+<pre tabindex="0"><code>requirepass 123456 #给redis设置密码
+bind 0.0.0.0 # 表示任意ip可连
+appendonly yes #开启redis aof持久化
+slaveof redis-6380 6379 #master容器内的ip端口
+masterauth 123456 #master节点的密码
+</code></pre><p>slaver1:</p>
+<pre tabindex="0"><code>requirepass 123456 #给redis设置密码
+bind 0.0.0.0 # 表示任意ip可连
+appendonly yes #开启redis aof持久化
+slaveof redis-6380 6379 #master容器内的ip端口
+masterauth 123456 #master节点的密码
+</code></pre><p>注意：</p>
+<ul>
+<li>slaveof redis-6380 6379 这里指定的master端口6379是容器内的端口，不能指定为6380，否则slaver无法连接master。</li>
+<li>daemonize 不能设置为yes，否则无法启动。参考:<a class="link" href="https://blog.csdn.net/Mr_Yang__/article/details/81906691"  target="_blank" rel="noopener"
+    >https://blog.csdn.net/Mr_Yang__/article/details/81906691</a></li>
+</ul>
+<h3 id="创建redis容器">创建redis容器</h3>
+<ul>
+<li>master 主库</li>
+</ul>
+<pre tabindex="0"><code>docker run -d -p 6380:6379 --name redis-6380 --net=redis-master-slaver \
+-v /usr/local/redis/master-slaver/master/conf/redis.conf:/etc/redis/redis.conf \
+-v /usr/local/redis/master-slaver/master/data:/data redis:5.0.7 \
+redis-server /etc/redis/redis.conf
+</code></pre><ul>
+<li>slaver 从库</li>
+</ul>
+<pre tabindex="0"><code>docker run -d -p 6381:6379 --name redis-6381 --net=redis-master-slaver \
+-v /usr/local/redis/master-slaver/slaver/conf/redis.conf:/etc/redis/redis.conf \
+-v /usr/local/redis/master-slaver/slaver/data:/data redis:5.0.7 \
+redis-server /etc/redis/redis.conf
+</code></pre><ul>
+<li>slaver1 从库</li>
+</ul>
+<pre tabindex="0"><code>docker run -d -p 6382:6379 --name redis-6382 --net=redis-master-slaver \
+-v /usr/local/redis/master-slaver/slaver1/conf/redis.conf:/etc/redis/redis.conf \
+-v /usr/local/redis/master-slaver/slaver1/data:/data redis:5.0.7 \
+redis-server /etc/redis/redis.conf
+</code></pre><h3 id="检验功能">检验功能</h3>
+<h4 id="查看master容器">查看master容器</h4>
+<p><figure 
+	>
+	<a href="/images/redis-02/redis-6380-info.png" >
+		<img src="/images/redis-02/redis-6380-info.png"
+			
+			
+			
+			loading="lazy"
+			alt="redis-6380-info.png">
+	</a>
+	
+	<figcaption>redis-6380-info.png</figcaption>
+	
+</figure></p>
+<p>可以看到role:master，以及2个slaver。我们添加一个String 类型的键值对</p>
+<h4 id="查看slaver1容器">查看slaver1容器</h4>
+<p><figure 
+	>
+	<a href="/images/redis-02/redis-6381-info.png" >
+		<img src="/images/redis-02/redis-6381-info.png"
+			
+			
+			
+			loading="lazy"
+			alt="redis-6381-info.png">
+	</a>
+	
+	<figcaption>redis-6381-info.png</figcaption>
+	
+</figure></p>
+<p>可以看到role:slave，可以看到master节点信息。
+通过 get s1 命令可以获取到1234qwer ,说明我们同步了master主节点数据。
+通过 set s2 123 时，报(error) READONLY You can&rsquo;t write against a read only replica.说明从节点是只读的。</p>
+<h4 id="查看slaver1容器-1">查看slaver1容器</h4>
+<p><figure 
+	>
+	<a href="/images/redis-02/redis-6382-info.png" >
+		<img src="/images/redis-02/redis-6382-info.png"
+			
+			
+			
+			loading="lazy"
+			alt="redis-6382-info.png">
+	</a>
+	
+	<figcaption>redis-6382-info.png</figcaption>
+	
+</figure>
+slaver2和slaver1相同。</p>
+<h3 id="树结构">树结构</h3>
+<p>我们来查看一下目前的树结构,可以看到主从3个redis容器的配置文件，及产生的持久化文件。</p>
+<pre tabindex="0"><code>[root@localhost master-slaver]# tree
+.
+├── master
+│   ├── conf
+│   │   └── redis.conf
+│   └── data
+│       ├── appendonly.aof
+│       └── dump.rdb
+├── slaver
+│   ├── conf
+│   │   └── redis.conf
+│   └── data
+│       ├── appendonly.aof
+│       └── dump.rdb
+└── slaver1
+    ├── conf
+    │   └── redis.conf
+    └── data
+        ├── appendonly.aof
+        └── dump.rdb
+
+9 directories, 9 files
+</code></pre><h3 id="异常情况">异常情况</h3>
+<p>我们这里模拟下可能发生的异常情况。</p>
+<h4 id="master节点损坏">master节点损坏</h4>
+<p>我们关掉master：redis-6380，模式主节点损坏情况，此时运维人员准备先将redis-6381，设置为主节点</p>
+<pre tabindex="0"><code>docker stop redis-6380
+</code></pre><p>修改redis-6381的redis.conf文件,注释掉下面2行</p>
+<pre tabindex="0"><code># slaveof redis-6380 6379 
+# masterauth 123456 
+</code></pre><p>此时我们修改redis-6382的redis.conf文件的以下内容</p>
+<pre tabindex="0"><code>slaveof redis-6381 6379
+</code></pre><p>重新启动redis-6381、redis-6382</p>
+<pre tabindex="0"><code>docker restart redis-6381
+docker restart redis-6382
+</code></pre><h4 id="查看redis-6381">查看redis-6381</h4>
+<p><figure 
+	>
+	<a href="/images/redis-02/master-6381-info.png" >
+		<img src="/images/redis-02/master-6381-info.png"
+			
+			
+			
+			loading="lazy"
+			alt="master-6381-info.png">
+	</a>
+	
+	<figcaption>master-6381-info.png</figcaption>
+	
+</figure></p>
+<p>可以看到redis-6381已经升级为 master节点。</p>
+<h4 id="查看redis-6382">查看redis-6382</h4>
+<p><figure 
+	>
+	<a href="/images/redis-02/slaver-6382-info.png" >
+		<img src="/images/redis-02/slaver-6382-info.png"
+			
+			
+			
+			loading="lazy"
+			alt="slaver-6382-info.png">
+	</a>
+	
+	<figcaption>slaver-6382-info.png</figcaption>
+	
+</figure></p>
+<p>这样我们就实现了redis主从复制，读写分离。主从模式保证了数据备份，发生故障依然需要运维人员施工。</p>
+<p>参考：
+<a class="link" href="https://blog.csdn.net/qq_28804275/article/details/80907796"  target="_blank" rel="noopener"
+    >https://blog.csdn.net/qq_28804275/article/details/80907796</a>
+<a class="link" href="https://www.cnblogs.com/demingblog/p/10295236.html"  target="_blank" rel="noopener"
+    >https://www.cnblogs.com/demingblog/p/10295236.html</a></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/docker/">Docker</a>
+        
+            <a href="/tags/redis/">Redis</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/%E4%BD%BF%E7%94%A8docker%E5%AE%89%E8%A3%85redis%E5%93%A8%E5%85%B5sentinel/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">使用docker安装redis哨兵(sentinel)</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BD%BF%E7%94%A8docker%E5%AE%89%E8%A3%85%E5%8D%95%E7%82%B9redis/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">使用docker安装单点redis</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BD%BF%E7%94%A8docker%E5%88%9B%E5%BB%BAnginx%E5%B9%B6%E9%83%A8%E7%BD%B2vue%E9%A1%B9%E7%9B%AE%E5%90%8C%E6%97%B6%E5%AE%9E%E7%8E%B0nginx%E6%97%A5%E5%BF%97%E5%88%86%E5%89%B2/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">使用Docker创建Nginx，并部署Vue项目，同时实现Nginx日志分割</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/docker-%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%E7%AC%94%E8%AE%B0/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">docker 数据存储笔记</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/docker%E7%BD%91%E7%BB%9C%E9%85%8D%E7%BD%AE%E7%AC%94%E8%AE%B0/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Docker网络配置笔记</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#redis主从复制">redis主从复制</a>
+      <ol>
+        <li><a href="#创建工作目录">创建工作目录</a></li>
+        <li><a href="#端口约定">端口约定</a></li>
+        <li><a href="#准备redisconf">准备redis.conf</a></li>
+        <li><a href="#创建redis容器">创建redis容器</a></li>
+        <li><a href="#检验功能">检验功能</a>
+          <ol>
+            <li><a href="#查看master容器">查看master容器</a></li>
+            <li><a href="#查看slaver1容器">查看slaver1容器</a></li>
+            <li><a href="#查看slaver1容器-1">查看slaver1容器</a></li>
+          </ol>
+        </li>
+        <li><a href="#树结构">树结构</a></li>
+        <li><a href="#异常情况">异常情况</a>
+          <ol>
+            <li><a href="#master节点损坏">master节点损坏</a></li>
+            <li><a href="#查看redis-6381">查看redis-6381</a></li>
+            <li><a href="#查看redis-6382">查看redis-6382</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

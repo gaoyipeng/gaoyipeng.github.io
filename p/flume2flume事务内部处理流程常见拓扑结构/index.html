@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Flume事务、内部处理流程、常见拓扑结构'><title>（Flume2）Flume事务、内部处理流程、常见拓扑结构</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/flume2flume%E4%BA%8B%E5%8A%A1%E5%86%85%E9%83%A8%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B%E5%B8%B8%E8%A7%81%E6%8B%93%E6%89%91%E7%BB%93%E6%9E%84/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='（Flume2）Flume事务、内部处理流程、常见拓扑结构'>
+<meta property='og:description' content='Flume事务、内部处理流程、常见拓扑结构'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/flume2flume%E4%BA%8B%E5%8A%A1%E5%86%85%E9%83%A8%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B%E5%B8%B8%E8%A7%81%E6%8B%93%E6%89%91%E7%BB%93%E6%9E%84/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Flume' /><meta property='article:published_time' content='2023-11-01T15:36:40&#43;00:00'/><meta property='article:modified_time' content='2023-11-01T15:36:40&#43;00:00'/>
+<meta name="twitter:title" content="（Flume2）Flume事务、内部处理流程、常见拓扑结构">
+<meta name="twitter:description" content="Flume事务、内部处理流程、常见拓扑结构">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/flume/" >
+                Flume
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/flume2flume%E4%BA%8B%E5%8A%A1%E5%86%85%E9%83%A8%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B%E5%B8%B8%E8%A7%81%E6%8B%93%E6%89%91%E7%BB%93%E6%9E%84/">（Flume2）Flume事务、内部处理流程、常见拓扑结构</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        Flume事务、内部处理流程、常见拓扑结构
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Nov 01, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 1 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <h2 id="一flume事务">一、Flume事务</h2>
+<p>Flume事务分为2部分：Put事务（Source 推送数据到Channel）、Take事务（Sink从Channel拉取数据）</p>
+<p><figure 
+	>
+	<a href="/../../images/02-flume-02/image-20231102084701759.png" >
+		<img src="/../../images/02-flume-02/image-20231102084701759.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231102084701759">
+	</a>
+	
+	<figcaption>image-20231102084701759</figcaption>
+	
+</figure></p>
+<h2 id="二flume内部处理流程">二、Flume内部处理流程</h2>
+<p><figure 
+	>
+	<a href="/../../images/02-flume-02/image-20231102090406457.png" >
+		<img src="/../../images/02-flume-02/image-20231102090406457.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231102090406457">
+	</a>
+	
+	<figcaption>image-20231102090406457</figcaption>
+	
+</figure></p>
+<p><strong>1）Channel Selector</strong></p>
+<p>Channel Selector 的作用就是选出 Event 将要被发往哪个 Channel。其共有两种类型，分别是 <strong>Replicating</strong>（复制）和 <strong>Multiplexing</strong>（多路复用）。</p>
+<ul>
+<li>Replicating Selector 会将同一个 Event 发往所有的 Channel。</li>
+<li>Multiplexing 会根据相应的原则，将不同的 Event 发往不同的 Channel。</li>
+</ul>
+<p><strong>2）Sink Processor</strong></p>
+<p>Sink Processor 共有三种类型，分别是<strong>Default SinkProcessor 、LoadBalancing SinkProcessor 和 Failover SinkProcessor</strong>。</p>
+<ul>
+<li>Default SinkProcessor 对应的是单个的 Sink</li>
+<li>LoadBalancing SinkProcessor 和Failover SinkProcessor 对应的是 Sink Group</li>
+<li>LoadBalancing SinkProcessor 可以实现<strong>负载均衡</strong>的功能，Failover SinkProcessor 可以实现<strong>故障转移</strong>的功能。</li>
+</ul>
+<h2 id="三flume常见拓扑结构">三、Flume常见拓扑结构</h2>
+<h3 id="31-简单串联">3.1 简单串联</h3>
+<p><figure 
+	>
+	<a href="/../../images/02-flume-02/image-20231103102834406.png" >
+		<img src="/../../images/02-flume-02/image-20231103102834406.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231103102834406">
+	</a>
+	
+	<figcaption>image-20231103102834406</figcaption>
+	
+</figure></p>
+<p>将多个 flume 顺序连接起来了，从最初的 source 开始到最终 sink 传送的目的存储系统。此模式不建议桥接过多的 flume 数量， flume 数量过多不仅会影响传输速率，而且一旦传输过程中某个节点 flume 宕机，会影响整个传输系统。</p>
+<p>注意：Sink只能是avro类型。avro是一个轻量的RPC框架。</p>
+<h3 id="32-复制和多路复用">3.2 复制和多路复用</h3>
+<p><figure 
+	>
+	<a href="/../../images/02-flume-02/image-20231103102938559.png" >
+		<img src="/../../images/02-flume-02/image-20231103102938559.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231103102938559">
+	</a>
+	
+	<figcaption>image-20231103102938559</figcaption>
+	
+</figure></p>
+<p>Flume 支持将事件流向一个或者多个目的地。这种模式可以将相同数据复制到多个channel 中，或者将不同数据分发到不同的 channel 中，sink 可以选择传送到不同的目的地。其中Channel:Sink=1:1</p>
+<h3 id="33-负载均衡和故障转移">3.3 负载均衡和故障转移</h3>
+<p><figure 
+	>
+	<a href="/../../images/02-flume-02/image-20231103103058194.png" >
+		<img src="/../../images/02-flume-02/image-20231103103058194.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231103103058194">
+	</a>
+	
+	<figcaption>image-20231103103058194</figcaption>
+	
+</figure></p>
+<p>Flume支持使用将多个sink逻辑上分到一个sink组，sink组配合不同的SinkProcessor可以实现负载均衡和错误恢复的功能。</p>
+<h3 id="34-聚合">3.4 聚合</h3>
+<p><figure 
+	>
+	<a href="/../../images/02-flume-02/image-20231103103149588.png" >
+		<img src="/../../images/02-flume-02/image-20231103103149588.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231103103149588">
+	</a>
+	
+	<figcaption>image-20231103103149588</figcaption>
+	
+</figure></p>
+<p>这种模式是我们最常见的，也非常实用，日常 web 应用通常分布在上百个服务器，大者甚至上千个、上万个服务器。产生的日志，处理起来也非常麻烦。用 flume 的这种组合方式能很好的解决这一问题，每台服务器部署一个 flume 采集日志，传送到一个集中收集日志的flume，再由此 flume 上传到 hdfs、hive、hbase 等，进行日志分析。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/flume/">Flume</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/flume7%E5%AE%89%E8%A3%85ganglia%E7%9B%91%E6%8E%A7flume/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Flume7）安装Ganglia监控Flume</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/flume6%E8%87%AA%E5%AE%9A%E4%B9%89source%E8%87%AA%E5%AE%9A%E4%B9%89sink/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Flume6）自定义Source、自定义sink</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/flume5flume-%E8%81%9A%E5%90%88/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Flume5）Flume 聚合</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/flume4%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E5%92%8C%E6%95%85%E9%9A%9C%E8%BD%AC%E7%A7%BB/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Flume4）负载均衡和故障转移</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/flume3flume%E5%A4%8D%E5%88%B6%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89%E6%8B%A6%E6%88%AA%E5%99%A8interceptor/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Flume3）Flume复制、多路复用、自定义拦截器Interceptor</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#一flume事务">一、Flume事务</a></li>
+    <li><a href="#二flume内部处理流程">二、Flume内部处理流程</a></li>
+    <li><a href="#三flume常见拓扑结构">三、Flume常见拓扑结构</a>
+      <ol>
+        <li><a href="#31-简单串联">3.1 简单串联</a></li>
+        <li><a href="#32-复制和多路复用">3.2 复制和多路复用</a></li>
+        <li><a href="#33-负载均衡和故障转移">3.3 负载均衡和故障转移</a></li>
+        <li><a href="#34-聚合">3.4 聚合</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

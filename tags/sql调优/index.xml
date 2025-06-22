@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>sql调优 on 十一爸爸的博客</title>
+    <link>https://garnettboy.gitee.io/tags/sql%E8%B0%83%E4%BC%98/</link>
+    <description>Recent content in sql调优 on 十一爸爸的博客</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Sun, 01 Mar 2020 16:37:15 +0000</lastBuildDate><atom:link href="https://garnettboy.gitee.io/tags/sql%E8%B0%83%E4%BC%98/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>SQL 调优</title>
+      <link>https://garnettboy.gitee.io/p/sql-%E8%B0%83%E4%BC%98/</link>
+      <pubDate>Sun, 01 Mar 2020 16:37:15 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/sql-%E8%B0%83%E4%BC%98/</guid>
+      <description>SQL优化方式 小表驱动大表 sql-exist.pngOrder by 优化 Order by 语句应该符合最佳左前缀原则。尽可能在索引列上完成排序 eg: 索引：index idx_n_a(name,age) select name,age from user age&amp;gt;20 order by name,age (√) select name,age from user age&amp;gt;20 order by name (√) select name,age from user age&amp;gt;20 order by age (×) select name,age from user age&amp;gt;20 order by age,name (×) 注意，当索引idx_n_a的第一个列 name为常量时，order by age也可以使用索引 select name,age from user age=20 order by age (√)
+使用Order by 时最好不要使用select * ，使用select colume1,colume2,&amp;hellip;.from table Order by colume1，colume2&amp;hellip; 使用Order by 查询慢，可以尝试提高系统参数 sort_buffer_size 的值 使用Order by 查询慢，可以尝试提高系统参数 max_length_for_sort_data 的值 group by 优化 与order by 的优化方式基本一致。主要注意的点：</description>
+    </item>
+    
+  </channel>
+</rss>

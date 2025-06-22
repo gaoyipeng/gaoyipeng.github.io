@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='数据库索引'><title>数据库索引</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/%E6%95%B0%E6%8D%AE%E5%BA%93%E7%B4%A2%E5%BC%95/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='数据库索引'>
+<meta property='og:description' content='数据库索引'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/%E6%95%B0%E6%8D%AE%E5%BA%93%E7%B4%A2%E5%BC%95/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='数据库' /><meta property='article:tag' content='Mysql' /><meta property='article:tag' content='面试' /><meta property='article:published_time' content='2020-02-27T00:08:15&#43;00:00'/><meta property='article:modified_time' content='2020-02-27T00:08:15&#43;00:00'/>
+<meta name="twitter:title" content="数据库索引">
+<meta name="twitter:description" content="数据库索引">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/" >
+                数据库
+            </a>
+        
+            <a href="/categories/mysql/" >
+                Mysql
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/%E6%95%B0%E6%8D%AE%E5%BA%93%E7%B4%A2%E5%BC%95/">数据库索引</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        数据库索引
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Feb 27, 2020</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 2 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <p>{% note info %}
+MySQL官方对索引的定义为：索引（Index）是帮助MySQL高效获取数据的数据结构。即索引的本质：索引是数据结构。
+但方法都是有利有弊，索引在方便你查询的时候，也要牺牲磁盘的空间为代价。
+数据库索引可以协助快速查询,更新数据库中表的数据.索引的实现通常使用B树和变种的B+树(mysql常用的索引就是B+树){% endnote %}</p>
+<h2 id="索引结构分类">索引结构分类</h2>
+<p>Mysql目前主要有以下几种索引结构：HASH，BTREE，RTREE</p>
+<ul>
+<li>
+<p>BTREE
+BTREE索引就是一种将索引值按一定的算法，存入一个树形的数据结构中（二叉树），每次查询都是从树的入口root开始，依次遍历node，获取leaf。
+<!-- raw HTML omitted -->BTREE是MySQL里默认和最常用的索引类型<!-- raw HTML omitted --></p>
+</li>
+<li>
+<p>HASH
+由于HASH的唯一（几乎100%的唯一）及类似键值对的形式，很适合作为索引。
+HASH索引可以一次定位，不需要像树形索引那样逐层查找,因此具有极高的效率。但是，这种高效是有条件的，即只在“=”和“in”条件下高效，对于范围查询、排序及组合索引仍然效率不高。</p>
+</li>
+<li>
+<p>RTREE
+RTREE在MySQL很少使用，仅支持geometry数据类型，支持该类型的存储引擎只有MyISAM、BDb、InnoDb、NDb、Archive几种。
+相对于BTREE，RTREE的优势在于范围查找。</p>
+</li>
+</ul>
+<h2 id="索引类型">索引类型</h2>
+<p>mysql 索引有2种分类标准</p>
+<ol>
+<li>从物理存储角度分为：聚簇索引、非聚簇索引</li>
+<li>从逻辑存储角度分为：普通索引、唯一索引、主键索引、组合索引、全文索引</li>
+</ol>
+<h3 id="聚簇索引和非聚簇索引">聚簇索引和非聚簇索引</h3>
+<ul>
+<li>
+<p>聚簇索引：是对磁盘上实际数据重新组织以按指定的一个或多个列的值排序的算法。特点是存储数据的顺序和索引顺序一致。
+<!-- raw HTML omitted -->一个表只能有一个聚簇索引。主键索引一般都是聚簇索引<!-- raw HTML omitted --></p>
+</li>
+<li>
+<p>非聚簇索引：表数据存储顺序与索引顺序无关。对于非聚簇索引，叶结点包含索引字段值及指向数据页数据行的逻辑指针，其行数量与数据表行数据量一致。非聚簇索引记录的物理顺序与逻辑顺序没有必然的联系，与数据的存储物理结构没有关系；一个表对应的非聚簇索引可以有多条，根据不同列的约束可以建立不同要求的非聚簇索引；</p>
+</li>
+</ul>
+<p>建立聚簇索引的语句：</p>
+<pre tabindex="0"><code>CREATE CLUSTER INDEX index_name ON table_name(column_name1,...);
+</code></pre><h4 id="聚簇索引-vs-非聚簇索引">聚簇索引 VS 非聚簇索引</h4>
+<ul>
+<li>聚簇索引的叶子节点就是数据节点（Innodb的B+树的主键对应的数据节点），非聚簇索引的叶子节点仍然是索引节点，只不过有指向对应数据块的指针。</li>
+<li>聚簇索引主键的插入速度要比非聚簇索引主键的插入速度慢很多。聚簇索引适合排序，非聚簇索引不适合用在排序的场合。因为聚簇索引本身已经是按照物理顺序放置的，排序很快。非聚簇索引则没有按序存放，需要额外消耗资源来排序。</li>
+</ul>
+<h3 id="普通索引唯一索引主键索引组合索引全文索引">普通索引、唯一索引、主键索引、组合索引、全文索引</h3>
+<h4 id="普通索引normal">普通索引（NORMAL）</h4>
+<blockquote>
+<p>仅加速查询,无限制</p>
+</blockquote>
+<h4 id="唯一索引unique">唯一索引（UNIQUE）</h4>
+<blockquote>
+<p>加速查询 + 列值唯一（可以有null）,如果是组合索引，则列值的组合必须唯一</p>
+</blockquote>
+<h4 id="主键索引-primary-key">主键索引 (PRIMARY KEY)</h4>
+<blockquote>
+<p>加速查询 + 列值唯一（不可以有null）+ 表中只允许有一个主键索引, 是一种特殊的唯一索引</p>
+</blockquote>
+<h4 id="组合索引">组合索引</h4>
+<blockquote>
+<p>多列值组成一个索引，专门用于组合搜索，其效率大于索引合并（索引合并：使用多个单列索引组合搜索）
+只有在查询条件中使用了创建索引时的第一个字段，索引才会被使用。使用组合索引时遵循最左前缀集合</p>
+</blockquote>
+<p>eg: 我们新建一张表：</p>
+<pre tabindex="0"><code>CREATE TABLE mytable( ID INT NOT NULL, username VARCHAR(16) NOT NULL, city VARCHAR(50) NOT NULL, age INT NOT NULL );
+</code></pre><p>为了进一步榨取MySQL的效率，就要考虑建立组合索引。就是将 name, city, age建到一个索引里：</p>
+<pre tabindex="0"><code>ALTER TABLE mytable ADD INDEX name_city_age (name(10),city,age);
+</code></pre><p>建表时，usernname长度为 16，这里用 10。这是因为一般情况下名字的长度不会超过10，这样会加速索引查询速度，还会减少索引文件的大小，提高INSERT的更新速度。
+如果分别在 usernname，city，age上建立单列索引，让该表有3个单列索引，查询时和上述的组合索引效率也会大不一样，远远低于我们的组合索引。虽然此时有了三个索引，但MySQL只能用到其中的那个它认为似乎是最有效率的单列索引。</p>
+<p>建立这样的组合索引，其实是相当于分别建立了下面三组组合MySQL数据库索引：</p>
+<ol>
+<li>usernname,city,age</li>
+<li>usernname,city</li>
+<li>usernname</li>
+</ol>
+<p>为什么没有 city，age这样的组合索引呢？这是因为MySQL组合索引“最左前缀”的结果。简单的理解就是只从最左面的开始组合。并不是只要包含这三列的查询都会用到该组合索引，下面的几个SQL就会用到这个组合MySQL数据库索引：</p>
+<pre tabindex="0"><code>SELECT * FROM mytable WHREE username=&#34;admin&#34; AND city=&#34;郑州&#34;
+SELECT * FROM mytable WHREE username=&#34;admin&#34;
+</code></pre><p>而下面几个则不会用到：</p>
+<pre tabindex="0"><code>SELECT * FROM mytable WHREE age=20 AND city=&#34;郑州&#34; 
+SELECT * FROM mytable WHREE city=&#34;郑州&#34;
+</code></pre><h4 id="全文索引-fulltext">全文索引 (FULLTEXT)</h4>
+<blockquote>
+<p>它能够利用【分词技术】等多种算法智能分析出文本文字中关键词的频率和重要性，然后按照一定的算法规则智能地筛选出我们想要的搜索结果。</p>
+</blockquote>
+<p>全文索引，以前只有MyISAM引擎支持。Mysql5.6后开始默认使用InnoDb引擎，并且5.6.4版本后的InnoDb引擎开始支持全文索引。 
+目前只有 CHAR、VARCHAR 、TEXT 列上可以创建全文索引。</p>
+<p>select * from article where content like &lsquo;%xxx%&rsquo;;这种写法查询效率非常低。全文索引就是为了高效的解决这种问题产生的。</p>
+<p>具体如何使用全文索引呢？</p>
+<p>不用全文索引时的写法：</p>
+<pre tabindex="0"><code>SELECT * FROM article WHERE content LIKE &#39;%查询字符串%&#39;;
+</code></pre><p>如果我们在content字段建立了全文索引，那么使用全文索引的写法：</p>
+<pre tabindex="0"><code>SELECT * FROM article WHERE MATCH(title,content) AGAINST (&#39;查询字符串&#39;);
+</code></pre><p>注意：在数据量较大时候，我们应该先将数据放入一个没有全局索引的表中，然后再用CREATE index创建fulltext索引，要比先为一张表建立fulltext然后再将数据写入的查询速度快。</p>
+<h4 id="覆盖索引">覆盖索引</h4>
+<blockquote>
+<p>select的数据列只用从索引中就能够取得，不必读取数据行，换句话说查询列要被所建的索引覆盖</p>
+</blockquote>
+<p>例如：
+表 user 中有一个组合索引 idx_name_sex(name,sex)。
+当我们通过SQL语句：select name from user where name = &lsquo;garnett&rsquo;;的时候，就可以通过覆盖索引查询.即查询条件包含在组合索引的列中，换句话说查询的列被索引覆盖。</p>
+<h2 id="规则">规则</h2>
+<h3 id="需要建立索引的情况">需要建立索引的情况</h3>
+<ul>
+<li>主键自动建立主键索引 (PRIMARY KEY)</li>
+<li>频繁作为查询条件的字段</li>
+<li>与其他表关联的字段，外键关系创建索引。（eg：user表中的dept_id）</li>
+<li>查询中统计或者分组的字段</li>
+</ul>
+<h3 id="不适合建立索引的情况">不适合建立索引的情况</h3>
+<ul>
+<li>表记录太少就别建索引了</li>
+<li>频繁更新的字段不要创建索引</li>
+<li>数据列重复的字段不需要创建索引，没必要。（eg：性别字段，不是男就是女）</li>
+<li>对于那些在查询中很少使用或者参考的列不应该创建索引</li>
+</ul>
+<h3 id="join查询索引建立规则">join查询索引建立规则</h3>
+<ul>
+<li>左连接：右表关联字段建索引</li>
+<li>右连接：左表关联字段建索引</li>
+</ul>
+<h2 id="索引失效情况">索引失效情况</h2>
+<ul>
+<li>
+<p>条件中有or，即使其中有条件带索引也不会使用(这也是为什么尽量少用or的原因)。注意：要想使用or，又想让索引生效，只能将or条件中的每个列都加上索引</p>
+</li>
+<li>
+<p>在索引字段上使用计算、函数等，会导致索引失效。例如left(name,4),导致name字段索引失效。</p>
+</li>
+<li>
+<p>对于组合索引，如果不使用的组合索引的第一列字段，则不会使用索引（即不符合最左前缀原则）</p>
+</li>
+<li>
+<p>如果列类型是字符串，那一定要在条件中将数据使用引号引用起来,否则不使用索引</p>
+</li>
+<li>
+<p>范围查找，右边的索引全失效。eg:一个组合索引 index（name,age.sex）
+<code> select name,age,sex from where name= 'aa' and age &gt;25 and sex=1  </code>
+sex 字段上的索引，无法被使用</p>
+</li>
+<li>
+<p>使用 != 和 &lt;&gt; 会导致无法使用索引，变为全表扫描。</p>
+</li>
+<li>
+<p>is null 和 is not null 无法使用索引</p>
+</li>
+<li>
+<p>like &lsquo;%aa&rsquo;,以通配符开头，索引会失效。针对这种情况，我们可以使用覆盖索引解决。
+eg: 创建一个组合索引 index（name,age），此时使用 select name from user where name like &lsquo;%aa%&rsquo;,索引不会失效</p>
+</li>
+</ul>
+<h2 id="查看索引的使用情况">查看索引的使用情况</h2>
+<pre tabindex="0"><code>show status like ‘Handler_read%’;
+</code></pre><p><figure 
+	>
+	<a href="/images/database-index-01/handler_read.png" >
+		<img src="/images/database-index-01/handler_read.png"
+			
+			
+			
+			loading="lazy"
+			alt="handler_read.png">
+	</a>
+	
+	<figcaption>handler_read.png</figcaption>
+	
+</figure></p>
+<ul>
+<li>handler_read_key:这个值越高越好，越高表示使用索引查询到的次数越多</li>
+<li>handler_read_rnd_next:这个值越高越不好，说明查询低效</li>
+</ul>
+<p>参考文章：
+<a class="link" href="https://www.cnblogs.com/LiLiliang/p/9960895.html"  target="_blank" rel="noopener"
+    >https://www.cnblogs.com/LiLiliang/p/9960895.html</a>
+<a class="link" href="https://blog.csdn.net/weixin_34379433/article/details/89745873"  target="_blank" rel="noopener"
+    >https://blog.csdn.net/weixin_34379433/article/details/89745873</a>
+<a class="link" href="https://blog.csdn.net/qq_36071795/article/details/83956068"  target="_blank" rel="noopener"
+    >https://blog.csdn.net/qq_36071795/article/details/83956068</a></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a>
+        
+            <a href="/tags/mysql/">Mysql</a>
+        
+            <a href="/tags/%E9%9D%A2%E8%AF%95/">面试</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/%E4%BD%BF%E7%94%A8explain%E5%AF%B9sql%E8%AF%AD%E5%8F%A5%E8%BF%9B%E8%A1%8C%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">使用explain对sql语句进行性能分析</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81%E6%9C%BA%E5%88%B6/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">数据库锁机制</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/sql-%E8%B0%83%E4%BC%98/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">SQL 调优</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/sql-join%E7%9A%84%E4%BD%BF%E7%94%A8/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">SQL join的使用</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/oracle%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AF%BC%E5%85%A5%E5%AF%BC%E5%87%BA%E5%8F%8A%E8%A1%A8%E7%A9%BA%E9%97%B4%E6%93%8D%E4%BD%9Cexpdpimpdp/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Oracle数据库导入导出及表空间操作（expdp、impdp）</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#索引结构分类">索引结构分类</a></li>
+    <li><a href="#索引类型">索引类型</a>
+      <ol>
+        <li><a href="#聚簇索引和非聚簇索引">聚簇索引和非聚簇索引</a>
+          <ol>
+            <li><a href="#聚簇索引-vs-非聚簇索引">聚簇索引 VS 非聚簇索引</a></li>
+          </ol>
+        </li>
+        <li><a href="#普通索引唯一索引主键索引组合索引全文索引">普通索引、唯一索引、主键索引、组合索引、全文索引</a>
+          <ol>
+            <li><a href="#普通索引normal">普通索引（NORMAL）</a></li>
+            <li><a href="#唯一索引unique">唯一索引（UNIQUE）</a></li>
+            <li><a href="#主键索引-primary-key">主键索引 (PRIMARY KEY)</a></li>
+            <li><a href="#组合索引">组合索引</a></li>
+            <li><a href="#全文索引-fulltext">全文索引 (FULLTEXT)</a></li>
+            <li><a href="#覆盖索引">覆盖索引</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+    <li><a href="#规则">规则</a>
+      <ol>
+        <li><a href="#需要建立索引的情况">需要建立索引的情况</a></li>
+        <li><a href="#不适合建立索引的情况">不适合建立索引的情况</a></li>
+        <li><a href="#join查询索引建立规则">join查询索引建立规则</a></li>
+      </ol>
+    </li>
+    <li><a href="#索引失效情况">索引失效情况</a></li>
+    <li><a href="#查看索引的使用情况">查看索引的使用情况</a></li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

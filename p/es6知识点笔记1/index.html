@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='ES6知识点笔记（1）'><title>ES6知识点笔记（1）</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/es6%E7%9F%A5%E8%AF%86%E7%82%B9%E7%AC%94%E8%AE%B01/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='ES6知识点笔记（1）'>
+<meta property='og:description' content='ES6知识点笔记（1）'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/es6%E7%9F%A5%E8%AF%86%E7%82%B9%E7%AC%94%E8%AE%B01/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='ES6' /><meta property='article:published_time' content='2020-12-23T10:40:09&#43;00:00'/><meta property='article:modified_time' content='2020-12-23T10:40:09&#43;00:00'/>
+<meta name="twitter:title" content="ES6知识点笔记（1）">
+<meta name="twitter:description" content="ES6知识点笔记（1）">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/es6/" >
+                ES6
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/es6%E7%9F%A5%E8%AF%86%E7%82%B9%E7%AC%94%E8%AE%B01/">ES6知识点笔记（1）</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        ES6知识点笔记（1）
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Dec 23, 2020</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 2 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <p>本文记录一下常见的ES6知识点。参考：http://caibaojian.com/es6/class.html</p>
+<h2 id="1javascript的作用域">1、javascript的作用域</h2>
+<ul>
+<li>
+<p>ES5中的var是没有块级作用域的(例如在 if/for 中)</p>
+</li>
+<li>
+<p>ES6中的let是有块级作用的(例如在 if/for 中)</p>
+</li>
+<li>
+<p>ES5之前因为if和for都没有块级作用域的概念, 所以在很多时候, 我们都必须借助于function的作用域来解决应用外面变量的问题</p>
+</li>
+<li>
+<p>ES6中，加入了 let, let 它是有if 和 for 的块级作用域</p>
+</li>
+</ul>
+<p><figure 
+	>
+	<a href="/images/es6-01/image-20201223110754587.png" >
+		<img src="/images/es6-01/image-20201223110754587.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201223110754587">
+	</a>
+	
+	<figcaption>image-20201223110754587</figcaption>
+	
+</figure></p>
+<h3 id="11-var-的局限性">1.1 var 的局限性</h3>
+<p>先看一个ES5中经典的小案例：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-html" data-lang="html"><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">button</span><span class="p">&gt;</span>按钮1<span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">button</span><span class="p">&gt;</span>按钮2<span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">button</span><span class="p">&gt;</span>按钮3<span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// 1.没有块级作用域引起的问题: for的块级
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kd">var</span> <span class="nx">btns</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="s1">&#39;button&#39;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="nx">i</span><span class="o">&lt;</span><span class="nx">btns</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">btns</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;click&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;第&#39;</span> <span class="o">+</span> <span class="nx">i</span> <span class="o">+</span> <span class="s1">&#39;个按钮被点击&#39;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">})</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/images/es6-01/image-20201223112159023.png" >
+		<img src="/images/es6-01/image-20201223112159023.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201223112159023">
+	</a>
+	
+	<figcaption>image-20201223112159023</figcaption>
+	
+</figure></p>
+<p>无论点击那个按钮，都是打印“第3个按钮被点击”。这是因为for代码块没有作用域，当for循环绑定监听完成的时候，i是几？是3</p>
+<p>ES5如何避免这个问题呢？可以使用闭包来解决：为什么闭包可以解决问题: 因为函数是一个作用域。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-html" data-lang="html"><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">button</span><span class="p">&gt;</span>按钮1<span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">button</span><span class="p">&gt;</span>按钮2<span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">button</span><span class="p">&gt;</span>按钮3<span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">// 2.情况二: ES5中使用闭包,为什么闭包可以解决问题: 函数是一个作用域.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kd">var</span> <span class="nx">btns</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="s1">&#39;button&#39;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="nx">i</span><span class="o">&lt;</span><span class="nx">btns</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">i</span><span class="p">)</span> <span class="p">{</span> 
+</span></span><span class="line"><span class="cl">      <span class="nx">btns</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;click&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;第&#39;</span> <span class="o">+</span> <span class="nx">i</span> <span class="o">+</span> <span class="s1">&#39;个按钮被点击&#39;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">      <span class="p">})</span>
+</span></span><span class="line"><span class="cl">    <span class="p">})</span> <span class="p">(</span><span class="nx">i</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/images/es6-01/image-20201223112128906.png" >
+		<img src="/images/es6-01/image-20201223112128906.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201223112128906">
+	</a>
+	
+	<figcaption>image-20201223112128906</figcaption>
+	
+</figure></p>
+<h3 id="12-let-的使用方式">1.2 let 的使用方式</h3>
+<p>事实上var的设计可以看成JavaScript语言设计上的错误。但是这种错误多半不能修复和移除， 以为需要向后兼容。ES6添加了一个新的关键字: let。我们可以将let看成更完美的var。</p>
+<p>同样是上面的问题，如果使用let则非常简单：</p>
+<p><figure 
+	>
+	<a href="/images/es6-01/image-20201223112956559.png" >
+		<img src="/images/es6-01/image-20201223112956559.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201223112956559">
+	</a>
+	
+	<figcaption>image-20201223112956559</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/es6-01/image-20201223112928447.png" >
+		<img src="/images/es6-01/image-20201223112928447.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201223112928447">
+	</a>
+	
+	<figcaption>image-20201223112928447</figcaption>
+	
+</figure></p>
+<h2 id="2-const的使用方式">2 、const的使用方式</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="o">&lt;</span><span class="nx">script</span><span class="o">&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// 1.注意一: 一旦给const修饰的标识符被赋值之后, 不能修改
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>   <span class="kr">const</span> <span class="nx">name</span> <span class="o">=</span> <span class="s1">&#39;why&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">   <span class="nx">name</span> <span class="o">=</span> <span class="s1">&#39;abc&#39;</span><span class="p">;</span><span class="c1">//报错 Uncaught TypeError: Assignment to constant variable.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// 2.注意二: 在使用const定义标识符,必须进行赋值
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>   <span class="kr">const</span> <span class="nx">name</span><span class="p">;</span><span class="c1">//报错 Uncaught SyntaxError: Missing initializer in const declaration
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// 3.注意三: 常量的含义是指向的对象不能修改, 但是可以改变对象内部的属性.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kr">const</span> <span class="nx">obj</span> <span class="o">=</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;why&#39;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">age</span><span class="o">:</span> <span class="mi">18</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">height</span><span class="o">:</span> <span class="mf">1.88</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// obj = {} //报错 Uncaught TypeError: Assignment to constant variable.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">obj</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nx">obj</span><span class="p">.</span><span class="nx">name</span> <span class="o">=</span> <span class="s1">&#39;kobe&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">obj</span><span class="p">.</span><span class="nx">age</span> <span class="o">=</span> <span class="mi">40</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">obj</span><span class="p">.</span><span class="nx">height</span> <span class="o">=</span> <span class="mf">1.87</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">obj</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="o">&lt;</span><span class="err">/script&gt;</span>
+</span></span></code></pre></div><h2 id="3对象字面量的增强写法">3、对象字面量的增强写法</h2>
+<p>针对<code>对象字面量</code>进行了很多增强。</p>
+<p>ES5中定义对象代码如下：</p>
+<p><figure 
+	>
+	<a href="/images/es6-01/image-20201223115628866.png" >
+		<img src="/images/es6-01/image-20201223115628866.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201223115628866">
+	</a>
+	
+	<figcaption>image-20201223115628866</figcaption>
+	
+</figure></p>
+<p>ES6中定义对象，代码如下：</p>
+<p><figure 
+	>
+	<a href="/images/es6-01/image-20201223115726421.png" >
+		<img src="/images/es6-01/image-20201223115726421.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201223115726421">
+	</a>
+	
+	<figcaption>image-20201223115726421</figcaption>
+	
+</figure></p>
+<h2 id="4箭头函数">4、箭头函数</h2>
+<p>ES6标准新增了一种新的函数：Arrow Function（箭头函数）。</p>
+<p>下面代码是普通函数定义与箭头函数的对比：</p>
+<p><figure 
+	>
+	<a href="/images/es6-01/image-20201228170924828.png" >
+		<img src="/images/es6-01/image-20201228170924828.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201228170924828">
+	</a>
+	
+	<figcaption>image-20201228170924828</figcaption>
+	
+</figure></p>
+<p>箭头函数的写法更为简便，箭头左侧定义参数，箭头右侧定义函数体。当函数体为一行内容时，return关键字可以省略。</p>
+<h2 id="5this指针">5、this指针</h2>
+<h3 id="51-对象中的this指针">5.1 对象中的this指针</h3>
+<p>在对象中，this指针指向的就是对象本身。this可以引用对象的属性和方法。</p>
+<p><figure 
+	>
+	<a href="/images/es6-01/image-20201228182127134.png" >
+		<img src="/images/es6-01/image-20201228182127134.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201228182127134">
+	</a>
+	
+	<figcaption>image-20201228182127134</figcaption>
+	
+</figure></p>
+<h3 id="52-全局环境中的this指针">5.2 全局环境中的this指针</h3>
+<p>全局环境中，this指针指向window全局对象。</p>
+<p><figure 
+	>
+	<a href="/images/es6-01/image-20201228182155315.png" >
+		<img src="/images/es6-01/image-20201228182155315.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201228182155315">
+	</a>
+	
+	<figcaption>image-20201228182155315</figcaption>
+	
+</figure></p>
+<h3 id="53-函数中的this指针">5.3 函数中的this指针</h3>
+<p><strong>谁调用函数，函数内的this指针就指向谁</strong>，我们平时在使用js函数时，在全局环境下实际是window对象调用函数。</p>
+<p><figure 
+	>
+	<a href="/images/es6-01/image-20201228182239926.png" >
+		<img src="/images/es6-01/image-20201228182239926.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201228182239926">
+	</a>
+	
+	<figcaption>image-20201228182239926</figcaption>
+	
+</figure></p>
+<p>在函数的内部this指针的指向有两种可能:</p>
+<ul>
+<li>在严格模式下，this指针为undefined。严格模式，是js更严谨、更安全的一种发展方向的体现。</li>
+<li>在非严格模式下，this指向window全局对象</li>
+</ul>
+<h3 id="54-this指针使用过程中存在的一个问题">5.4 this指针使用过程中存在的一个问题</h3>
+<p><figure 
+	>
+	<a href="/images/es6-01/image-20201228182415008.png" >
+		<img src="/images/es6-01/image-20201228182415008.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201228182415008">
+	</a>
+	
+	<figcaption>image-20201228182415008</figcaption>
+	
+</figure></p>
+<p>我们期望的执行结果是“james&mdash;35&quot;，但是实际的执行结果是“undefined&mdash;undefined”。
+<strong>谁调用函数，函数内的this指针就指向谁</strong>。那么哪个对象调用了setTimeout的定时函数呢？
+是player1么？不是，是window。window没有nickname和age属性，所以打印“undefined&mdash;undefined”。</p>
+<p><strong>那么我们怎么解决这个问题呢？</strong>，下面三种方法都可以打印我们期望的结果：“james&mdash;35&quot;</p>
+<ul>
+<li>
+<p>额外定义this指针的替身</p>
+<p><figure 
+	>
+	<a href="/images/es6-01/image-20201228182529781.png" >
+		<img src="/images/es6-01/image-20201228182529781.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201228182529781">
+	</a>
+	
+	<figcaption>image-20201228182529781</figcaption>
+	
+</figure></p>
+</li>
+<li>
+<p>使用<code>bind(this)</code></p>
+<p><figure 
+	>
+	<a href="/images/es6-01/image-20201228182553182.png" >
+		<img src="/images/es6-01/image-20201228182553182.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201228182553182">
+	</a>
+	
+	<figcaption>image-20201228182553182</figcaption>
+	
+</figure></p>
+</li>
+<li>
+<p>箭头函数</p>
+<p><figure 
+	>
+	<a href="/images/es6-01/image-20201228182617949.png" >
+		<img src="/images/es6-01/image-20201228182617949.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201228182617949">
+	</a>
+	
+	<figcaption>image-20201228182617949</figcaption>
+	
+</figure></p>
+</li>
+</ul>
+<h2 id="6高阶函数">6、高阶函数</h2>
+<p>高阶函数不在ES6的范畴中，但是这里把常见的高阶函数记录一下。</p>
+<p>Higher-order function。JavaScript的函数其实都指向某个变量。既然变量可以指向函数，函数的参数能接收变量，那么一个函数就可以接收另一个函数作为参数，这种函数就称之为高阶函数。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/es6/">ES6</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/es6-es11-%E7%9F%A5%E8%AF%86%E7%82%B9%E7%AC%94%E8%AE%B0/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">ES6-ES11 知识点笔记</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#1javascript的作用域">1、javascript的作用域</a>
+      <ol>
+        <li><a href="#11-var-的局限性">1.1 var 的局限性</a></li>
+        <li><a href="#12-let-的使用方式">1.2 let 的使用方式</a></li>
+      </ol>
+    </li>
+    <li><a href="#2-const的使用方式">2 、const的使用方式</a></li>
+    <li><a href="#3对象字面量的增强写法">3、对象字面量的增强写法</a></li>
+    <li><a href="#4箭头函数">4、箭头函数</a></li>
+    <li><a href="#5this指针">5、this指针</a>
+      <ol>
+        <li><a href="#51-对象中的this指针">5.1 对象中的this指针</a></li>
+        <li><a href="#52-全局环境中的this指针">5.2 全局环境中的this指针</a></li>
+        <li><a href="#53-函数中的this指针">5.3 函数中的this指针</a></li>
+        <li><a href="#54-this指针使用过程中存在的一个问题">5.4 this指针使用过程中存在的一个问题</a></li>
+      </ol>
+    </li>
+    <li><a href="#6高阶函数">6、高阶函数</a></li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

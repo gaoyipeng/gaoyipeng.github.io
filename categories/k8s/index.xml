@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>k8s on 十一爸爸的博客</title>
+    <link>https://garnettboy.gitee.io/categories/k8s/</link>
+    <description>Recent content in k8s on 十一爸爸的博客</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language><atom:link href="https://garnettboy.gitee.io/categories/k8s/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>k8s 概念及使用</title>
+      <link>https://garnettboy.gitee.io/p/k8s-%E6%A6%82%E5%BF%B5%E5%8F%8A%E4%BD%BF%E7%94%A8/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/k8s-%E6%A6%82%E5%BF%B5%E5%8F%8A%E4%BD%BF%E7%94%A8/</guid>
+      <description>一、k8s 概念 Kubernetes：作为开源的容器编排引擎，用来对容器化应用进行自动化部署、 扩缩和管理。
+1.1 K8S 核心架构 image-20250619110607292K8S 是属于Master-Worker架构，即有 Master 节点负责核心的调度、管理和运维，Worker 节点则执行用户的程序。但是在 K8S 中，主节点一般被称为Master Node ，而从节点则被称为Worker Node 或者 Node。
+**注意：**Master Node 和 Worker Node 是分别安装了 K8S 的 Master 和 Woker 组件的实体服务器，每个 Node 都对应了一台实体服务器（虽然 Master Node 可以和其中一个 Worker Node 安装在同一台服务器，但是建议 Master Node 单独部署），所有 Master Node 和 Worker Node 组成了K8S 集群，同一个集群可能存在多个 Master Node 和 Worker Node。
+Master Node都有哪些组件：
+kube-apiserver：
+K8S 的请求入口服务。API Server 负责接收 K8S 所有请求（来自 UI 界面或者 CLI 命令行工具），然后，API Server 根据用户的具体请求，去通知其他组件干活。</description>
+    </item>
+    
+  </channel>
+</rss>

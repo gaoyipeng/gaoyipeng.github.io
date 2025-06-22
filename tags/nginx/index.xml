@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Nginx on 十一爸爸的博客</title>
+    <link>https://garnettboy.gitee.io/tags/nginx/</link>
+    <description>Recent content in Nginx on 十一爸爸的博客</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Sun, 08 Mar 2020 10:28:34 +0000</lastBuildDate><atom:link href="https://garnettboy.gitee.io/tags/nginx/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>使用Docker创建Nginx，并部署Vue项目，同时实现Nginx日志分割</title>
+      <link>https://garnettboy.gitee.io/p/%E4%BD%BF%E7%94%A8docker%E5%88%9B%E5%BB%BAnginx%E5%B9%B6%E9%83%A8%E7%BD%B2vue%E9%A1%B9%E7%9B%AE%E5%90%8C%E6%97%B6%E5%AE%9E%E7%8E%B0nginx%E6%97%A5%E5%BF%97%E5%88%86%E5%89%B2/</link>
+      <pubDate>Sun, 08 Mar 2020 10:28:34 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/%E4%BD%BF%E7%94%A8docker%E5%88%9B%E5%BB%BAnginx%E5%B9%B6%E9%83%A8%E7%BD%B2vue%E9%A1%B9%E7%9B%AE%E5%90%8C%E6%97%B6%E5%AE%9E%E7%8E%B0nginx%E6%97%A5%E5%BF%97%E5%88%86%E5%89%B2/</guid>
+      <description>前面的文章docker常用命令及Dockerfile笔记中，我们介绍了Docker、Dcokerfile基本知识，并且使用Docker创建了一个Nginx容器。
+本节我们主要介绍，如何介绍如何使用Docker创建Nginx，并部署Vue项目，同时实现Nginx日志分割。
+为了阅读方便，我们重新介绍使用Docker创建Nginx的步骤，和docker常用命令及Dockerfile笔记相比，有一些小的修改项。
+创建Nginx 拉取镜像 拉取nginx镜像到本地：
+docker pull nginx:latest 说明：docker pull 镜像名称:镜像tags。如果不加 tags，默认拉取最新镜像（latest）。
+准备工作 创建挂载目录 mkdir -p /usr/local/nginx/{conf,html,logs,conf.d} conf : 存放外置nginx配置文件 html : 存放Vue包 logs : 存放nginx日志文件 conf.d : 存放具体项目的nginx配置文件 将打包好的Vue项目包（一个名为dist的文件夹）放到 /usr/local/nginx/html 目录下。 [root@192 html]# ls -l /usr/local/nginx/html/总用量 4drwxrwxr-x. 9 admin admin 250 3月 7 17:17 dist 在/usr/local/nginx/conf下创建 nginx.conf 文件，作为外置配置文件使用。 user nginx;worker_processes 1;error_log /var/log/nginx/error.log warn;pid /var/run/nginx.pid;events {worker_connections 1024;}http {include /etc/nginx/mime.types;default_type application/octet-stream;log_format main &amp;#39;$remote_addr - $remote_user [$time_local] &amp;#34;$request&amp;#34; &amp;#39;&amp;#39;$status $body_bytes_sent &amp;#34;$http_referer&amp;#34; &amp;#39;&amp;#39;&amp;#34;$http_user_agent&amp;#34; &amp;#34;$http_x_forwarded_for&amp;#34;&amp;#39;;access_log /var/log/nginx/access.</description>
+    </item>
+    
+    <item>
+      <title>docker常用命令及Dockerfile笔记</title>
+      <link>https://garnettboy.gitee.io/p/docker%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E5%8F%8Adockerfile%E7%AC%94%E8%AE%B0/</link>
+      <pubDate>Sun, 19 Jan 2020 17:22:19 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/docker%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E5%8F%8Adockerfile%E7%AC%94%E8%AE%B0/</guid>
+      <description>docker主要的3个概念：镜像（image）+容器（container）+仓库（repository）
+docker镜像：概念类似虚拟机的镜像，可以用来创建新的容器。 docker仓库：docker仓库概念和git类似。docker仓库是用来包含镜像的位置。 docker容器：是由docker镜像创建的运行实例。docker容器类似虚拟机，可以执行包含启动，停止，删除等。每个容器间是相互隔离的。容器中会运行特定的运用，包含特定应用的代码及所需的依赖文件。可以把容器看作一个简易版的linux环境（包含root用户权限，进程空间，用户空间和网络空间等）和运行在其中的应用程序。 仓库-镜像-容器关系图.png我们在这个过程中熟悉经常使用的命令。
+Docker 镜像和容器 镜像查询 docker镜像查询地址dockerhub：https://hub.docker.com/search hub.docker.com.png我们也可以使用docker search:镜像名称 的方式，搜索镜像,这种方式无法查询镜像tags。 搜索镜像.png各个选项说明:
+NAME: 镜像仓库源的名称 DESCRIPTION: 镜像的描述 OFFICIAL: 是否 docker 官方发布 stars: 类似 Github 里面的 star，表示点赞、喜欢的意思。 AUTOMATED: 自动构建。 拉取镜像 我们以nginx 为例
+拉取nginx镜像到本地 docker pull 镜像名称:镜像tags。如果不加 tags，默认拉取最新镜像（latest）。
+docker pull nginx:latest 直接执行命令报： Got permission denied while trying to connect to the Docker daemon socket &amp;hellip;.: connect: permission denied
+我们使用su root 命令切换到root用户，再次执行docker pull nginx:latest。 下载nginx镜像.png使用docker images 命令即可查看已经拥有的镜像。 查看已下载images.png各个选项说明:</description>
+    </item>
+    
+  </channel>
+</rss>

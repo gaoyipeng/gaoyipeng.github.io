@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='（Kafka-06）Kafka 节点服役和退役'><title>（Kafka-06）Kafka 节点服役和退役</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/kafka-06kafka-%E8%8A%82%E7%82%B9%E6%9C%8D%E5%BD%B9%E5%92%8C%E9%80%80%E5%BD%B9/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='（Kafka-06）Kafka 节点服役和退役'>
+<meta property='og:description' content='（Kafka-06）Kafka 节点服役和退役'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/kafka-06kafka-%E8%8A%82%E7%82%B9%E6%9C%8D%E5%BD%B9%E5%92%8C%E9%80%80%E5%BD%B9/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Kafka' /><meta property='article:published_time' content='2023-11-24T13:36:40&#43;00:00'/><meta property='article:modified_time' content='2023-11-24T13:36:40&#43;00:00'/>
+<meta name="twitter:title" content="（Kafka-06）Kafka 节点服役和退役">
+<meta name="twitter:description" content="（Kafka-06）Kafka 节点服役和退役">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/kafka/" >
+                Kafka
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/kafka-06kafka-%E8%8A%82%E7%82%B9%E6%9C%8D%E5%BD%B9%E5%92%8C%E9%80%80%E5%BD%B9/">（Kafka-06）Kafka 节点服役和退役</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        （Kafka-06）Kafka 节点服役和退役
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Nov 24, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 3 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <h2 id="一kafka-节点服役">一、Kafka 节点服役</h2>
+<p>我们当前Kafka分布在hadoop1、hadoop2、hadoop3，如果生产环境需要扩充集群，应该怎么做呢？</p>
+<p>我们把hadoop4节点加入到集群中。</p>
+<h3 id="11--新节点准备及启动">1.1  新节点准备及启动</h3>
+<p>上传安装包到hadoop4节点并解压：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop4 config<span class="o">]</span>$ tar -zxvf kafka_2.12-3.0.2.tgz -C /opt/module/
+</span></span></code></pre></div><p>配置环境变量（root用户操作）：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>root@hadoop4 profile.d<span class="o">]</span><span class="c1"># vim /etc/profile.d/my_env.sh</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="c1">#KAFKA_HOME</span>
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">KAFKA_HOME</span><span class="o">=</span>/opt/module/kafka_2.12-3.0.2
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span><span class="nv">$PATH</span>:<span class="nv">$KAFKA_HOME</span>/bin
+</span></span></code></pre></div><p>执行以下命令，使PATH生效：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="nb">source</span> /etc/profile
+</span></span></code></pre></div><p>修改kafka配置文件</p>
+<p>提前创建数据文件夹，后续配置会用到。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop4 config<span class="o">]</span>$ mkdir /opt/module/kafka_2.12-3.0.2/datas
+</span></span></code></pre></div><p>修改配置文件：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop4 config<span class="o">]</span>$ vim /opt/module/kafka_2.12-3.0.2/config/server.properties
+</span></span></code></pre></div><p>修改broker.id为3，要与其他3个节点区分开。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">broker.id<span class="o">=</span><span class="m">3</span>
+</span></span><span class="line"><span class="cl">log.dirs<span class="o">=</span>/opt/module/kafka_2.12-3.0.2/datas
+</span></span><span class="line"><span class="cl">zookeeper.connect<span class="o">=</span>hadoop1:2181,hadoop2:2181,hadoop3:2181/kafka
+</span></span></code></pre></div><h3 id="12-启动新节点">1.2 启动新节点</h3>
+<p>然后启动hadoop4的kafka服务，</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop4 config<span class="o">]</span>$ /opt/module/kafka_2.12-3.0.2/bin/kafka-server-start.sh -daemon /opt/module/kafka_2.12-3.0.2/config/server.properties
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop4 kafka_2.12-3.0.2<span class="o">]</span>$ jps
+</span></span><span class="line"><span class="cl"><span class="m">10497</span> Kafka
+</span></span><span class="line"><span class="cl"><span class="m">306</span> NodeManager
+</span></span><span class="line"><span class="cl"><span class="m">32660</span> DataNode
+</span></span><span class="line"><span class="cl"><span class="m">10587</span> Jps
+</span></span></code></pre></div><p>可以看到Kafka已经启动。并且已经注册到了zk中。<figure 
+	>
+	<a href="/../../images/06-kafka-06/image-20231124165518023.png" >
+		<img src="/../../images/06-kafka-06/image-20231124165518023.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231124165518023">
+	</a>
+	
+	<figcaption>image-20231124165518023</figcaption>
+	
+</figure></p>
+<h3 id="13--新节点主题负载均衡操作">1.3  新节点主题负载均衡操作</h3>
+<p>我们新增加了hadoop4节点，但是新节点只会对新主题生效。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop4 kafka_2.12-3.0.2<span class="o">]</span>$ bin/kafka-topics.sh --bootstrap-server hadoop1:9092 --describe --topic first
+</span></span><span class="line"><span class="cl">Topic: first    TopicId: _R6Ed9eqQvWEpxtV_bvXPQ PartitionCount: <span class="m">3</span>       ReplicationFactor: <span class="m">2</span>    Configs: segment.bytes<span class="o">=</span><span class="m">1073741824</span>
+</span></span><span class="line"><span class="cl">        Topic: first    Partition: <span class="m">0</span>    Leader: <span class="m">1</span>       Replicas: 1,0   Isr: 1,0
+</span></span><span class="line"><span class="cl">        Topic: first    Partition: <span class="m">1</span>    Leader: <span class="m">0</span>       Replicas: 0,2   Isr: 0,2
+</span></span><span class="line"><span class="cl">        Topic: first    Partition: <span class="m">2</span>    Leader: <span class="m">2</span>       Replicas: 2,1   Isr: 2,1
+</span></span></code></pre></div><p>我们查看first主题，可以看到原有主题的数据依然是分布在原先的3台机器上，如果我们想让主题均匀分布，就需要进行负载均衡调整了。</p>
+<p>（1）创建一个要均衡的主题（一个json文件），包含了准备均衡的topic。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 kafka_2.12-3.0.2<span class="o">]</span>$  vim topics-to-move.json
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl"> <span class="s2">&#34;topics&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="cl"> <span class="o">{</span><span class="s2">&#34;topic&#34;</span>: <span class="s2">&#34;first&#34;</span><span class="o">}</span>
+</span></span><span class="line"><span class="cl"> <span class="o">]</span>,
+</span></span><span class="line"><span class="cl"> <span class="s2">&#34;version&#34;</span>: <span class="m">1</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>(2)然后生成均衡计划，结果分为2部分，第一部分是当前分布情况，第二部分就是均衡计划。</p>
+<p><strong>注意，该命令并不能直接使主题均衡，而是会生成一份json格式的均衡计划。</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 kafka_2.12-3.0.2<span class="o">]</span>$ bin/kafka-reassign-partitions.sh --bootstrap-server hadoop1:9092 --topics-to-move-json-file topics-to-move.json --broker-list <span class="s2">&#34;0,1,2,3&#34;</span> --generate
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Current partition replica assignment
+</span></span><span class="line"><span class="cl"><span class="o">{</span><span class="s2">&#34;version&#34;</span>:1,<span class="s2">&#34;partitions&#34;</span>:<span class="o">[{</span><span class="s2">&#34;topic&#34;</span>:<span class="s2">&#34;first&#34;</span>,<span class="s2">&#34;partition&#34;</span>:0,<span class="s2">&#34;replicas&#34;</span>:<span class="o">[</span>1,0<span class="o">]</span>,<span class="s2">&#34;log_dirs&#34;</span>:<span class="o">[</span><span class="s2">&#34;any&#34;</span>,<span class="s2">&#34;any&#34;</span><span class="o">]}</span>,<span class="o">{</span><span class="s2">&#34;topic&#34;</span>:<span class="s2">&#34;first&#34;</span>,<span class="s2">&#34;partition&#34;</span>:1,<span class="s2">&#34;replicas&#34;</span>:<span class="o">[</span>0,2<span class="o">]</span>,<span class="s2">&#34;log_dirs&#34;</span>:<span class="o">[</span><span class="s2">&#34;any&#34;</span>,<span class="s2">&#34;any&#34;</span><span class="o">]}</span>,<span class="o">{</span><span class="s2">&#34;topic&#34;</span>:<span class="s2">&#34;first&#34;</span>,<span class="s2">&#34;partition&#34;</span>:2,<span class="s2">&#34;replicas&#34;</span>:<span class="o">[</span>2,1<span class="o">]</span>,<span class="s2">&#34;log_dirs&#34;</span>:<span class="o">[</span><span class="s2">&#34;any&#34;</span>,<span class="s2">&#34;any&#34;</span><span class="o">]}]}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Proposed partition reassignment configuration
+</span></span><span class="line"><span class="cl"><span class="o">{</span><span class="s2">&#34;version&#34;</span>:1,<span class="s2">&#34;partitions&#34;</span>:<span class="o">[{</span><span class="s2">&#34;topic&#34;</span>:<span class="s2">&#34;first&#34;</span>,<span class="s2">&#34;partition&#34;</span>:0,<span class="s2">&#34;replicas&#34;</span>:<span class="o">[</span>3,0<span class="o">]</span>,<span class="s2">&#34;log_dirs&#34;</span>:<span class="o">[</span><span class="s2">&#34;any&#34;</span>,<span class="s2">&#34;any&#34;</span><span class="o">]}</span>,<span class="o">{</span><span class="s2">&#34;topic&#34;</span>:<span class="s2">&#34;first&#34;</span>,<span class="s2">&#34;partition&#34;</span>:1,<span class="s2">&#34;replicas&#34;</span>:<span class="o">[</span>0,1<span class="o">]</span>,<span class="s2">&#34;log_dirs&#34;</span>:<span class="o">[</span><span class="s2">&#34;any&#34;</span>,<span class="s2">&#34;any&#34;</span><span class="o">]}</span>,<span class="o">{</span><span class="s2">&#34;topic&#34;</span>:<span class="s2">&#34;first&#34;</span>,<span class="s2">&#34;partition&#34;</span>:2,<span class="s2">&#34;replicas&#34;</span>:<span class="o">[</span>1,2<span class="o">]</span>,<span class="s2">&#34;log_dirs&#34;</span>:<span class="o">[</span><span class="s2">&#34;any&#34;</span>,<span class="s2">&#34;any&#34;</span><span class="o">]}]}</span>
+</span></span></code></pre></div><p>(3)将均衡计划单独复制到一个json文件中创建副本存储计划（所有副本存储在 broker0、broker1、broker2、broker3 中）。然后执行。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 kafka_2.12-3.0.2<span class="o">]</span>$ vim increase-replication-factor.json
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">{</span><span class="s2">&#34;version&#34;</span>:1,<span class="s2">&#34;partitions&#34;</span>:<span class="o">[{</span><span class="s2">&#34;topic&#34;</span>:<span class="s2">&#34;first&#34;</span>,<span class="s2">&#34;partition&#34;</span>:0,<span class="s2">&#34;replicas&#34;</span>:<span class="o">[</span>3,0<span class="o">]</span>,<span class="s2">&#34;log_dirs&#34;</span>:<span class="o">[</span><span class="s2">&#34;any&#34;</span>,<span class="s2">&#34;any&#34;</span><span class="o">]}</span>,<span class="o">{</span><span class="s2">&#34;topic&#34;</span>:<span class="s2">&#34;first&#34;</span>,<span class="s2">&#34;partition&#34;</span>:1,<span class="s2">&#34;replicas&#34;</span>:<span class="o">[</span>0,1<span class="o">]</span>,<span class="s2">&#34;log_dirs&#34;</span>:<span class="o">[</span><span class="s2">&#34;any&#34;</span>,<span class="s2">&#34;any&#34;</span><span class="o">]}</span>,<span class="o">{</span><span class="s2">&#34;topic&#34;</span>:<span class="s2">&#34;first&#34;</span>,<span class="s2">&#34;partition&#34;</span>:2,<span class="s2">&#34;replicas&#34;</span>:<span class="o">[</span>1,2<span class="o">]</span>,<span class="s2">&#34;log_dirs&#34;</span>:<span class="o">[</span><span class="s2">&#34;any&#34;</span>,<span class="s2">&#34;any&#34;</span><span class="o">]}]}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 kafka_2.12-3.0.2<span class="o">]</span>$ bin/kafka-reassign-partitions.sh --bootstrap-server hadoop1:9092 --reassignment-json-file increase-replication-factor.json --execute
+</span></span><span class="line"><span class="cl">Current partition replica assignment
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">{</span><span class="s2">&#34;version&#34;</span>:1,<span class="s2">&#34;partitions&#34;</span>:<span class="o">[{</span><span class="s2">&#34;topic&#34;</span>:<span class="s2">&#34;first&#34;</span>,<span class="s2">&#34;partition&#34;</span>:0,<span class="s2">&#34;replicas&#34;</span>:<span class="o">[</span>1,0<span class="o">]</span>,<span class="s2">&#34;log_dirs&#34;</span>:<span class="o">[</span><span class="s2">&#34;any&#34;</span>,<span class="s2">&#34;any&#34;</span><span class="o">]}</span>,<span class="o">{</span><span class="s2">&#34;topic&#34;</span>:<span class="s2">&#34;first&#34;</span>,<span class="s2">&#34;partition&#34;</span>:1,<span class="s2">&#34;replicas&#34;</span>:<span class="o">[</span>0,2<span class="o">]</span>,<span class="s2">&#34;log_dirs&#34;</span>:<span class="o">[</span><span class="s2">&#34;any&#34;</span>,<span class="s2">&#34;any&#34;</span><span class="o">]}</span>,<span class="o">{</span><span class="s2">&#34;topic&#34;</span>:<span class="s2">&#34;first&#34;</span>,<span class="s2">&#34;partition&#34;</span>:2,<span class="s2">&#34;replicas&#34;</span>:<span class="o">[</span>2,1<span class="o">]</span>,<span class="s2">&#34;log_dirs&#34;</span>:<span class="o">[</span><span class="s2">&#34;any&#34;</span>,<span class="s2">&#34;any&#34;</span><span class="o">]}]}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Save this to use as the --reassignment-json-file option during rollback
+</span></span><span class="line"><span class="cl">Successfully started partition reassignments <span class="k">for</span> first-0,first-1,first-2
+</span></span></code></pre></div><p>(4)再次查看主题详情,可以看到新的节点了：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 kafka_2.12-3.0.2<span class="o">]</span>$ bin/kafka-topics.sh --bootstrap-server hadoop1:9092 --describe --topic first
+</span></span><span class="line"><span class="cl">Topic: first    TopicId: _R6Ed9eqQvWEpxtV_bvXPQ PartitionCount: <span class="m">3</span>       ReplicationFactor: <span class="m">2</span>    Configs: segment.bytes<span class="o">=</span><span class="m">1073741824</span>
+</span></span><span class="line"><span class="cl">        Topic: first    Partition: <span class="m">0</span>    Leader: <span class="m">3</span>       Replicas: 3,0   Isr: 0,3
+</span></span><span class="line"><span class="cl">        Topic: first    Partition: <span class="m">1</span>    Leader: <span class="m">0</span>       Replicas: 0,1   Isr: 0,1
+</span></span><span class="line"><span class="cl">        Topic: first    Partition: <span class="m">2</span>    Leader: <span class="m">2</span>       Replicas: 1,2   Isr: 2,1
+</span></span></code></pre></div><p>也可以验证副本存储计划执行情况：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 kafka_2.12-3.0.2<span class="o">]</span>$ bin/kafka-reassign-partitions.sh --bootstrap-server hadoop1:9092 --reassignment-json-file increase-replication-factor.json --verify
+</span></span><span class="line"><span class="cl">Status of partition reassignment:
+</span></span><span class="line"><span class="cl">Reassignment of partition first-0 is complete.
+</span></span><span class="line"><span class="cl">Reassignment of partition first-1 is complete.
+</span></span><span class="line"><span class="cl">Reassignment of partition first-2 is complete.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Clearing broker-level throttles on brokers 0,1,2,3
+</span></span><span class="line"><span class="cl">Clearing topic-level throttles on topic first
+</span></span></code></pre></div><h2 id="二kafka-退役旧节点">二、Kafka 退役旧节点</h2>
+<h3 id="21-退役前均衡操作">2.1 退役前均衡操作</h3>
+<p>目前我们有退役前有hadoop1、hadoop2、hadoop3、hadoop4四个节点，现在准备将hadoop4节点退役，但是需要将hadoop4节点节点的topic 都转义到其他节点。</p>
+<p>（1）创建一个要均衡的主题（一个json文件），包含了准备均衡的topic。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 kafka_2.12-3.0.2<span class="o">]</span>$  vim topics-to-move.json
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl"> <span class="s2">&#34;topics&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="cl"> <span class="o">{</span><span class="s2">&#34;topic&#34;</span>: <span class="s2">&#34;first&#34;</span><span class="o">}</span>
+</span></span><span class="line"><span class="cl"> <span class="o">]</span>,
+</span></span><span class="line"><span class="cl"> <span class="s2">&#34;version&#34;</span>: <span class="m">1</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>然后生成均衡计划，结果分为2部分，第一部分是当前分布情况，第二部分就是均衡计划。</p>
+<p>（2）创建执行计划(去掉broker3节点)</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 kafka_2.12-3.0.2<span class="o">]</span>$ bin/kafka-reassign-partitions.sh --bootstrap-server hadoop1:9092 --topics-to-move-json-file topics-to-move.json --broker-list <span class="s2">&#34;0,1,2&#34;</span> --generate
+</span></span><span class="line"><span class="cl">Current partition replica assignment
+</span></span><span class="line"><span class="cl"><span class="o">{</span><span class="s2">&#34;version&#34;</span>:1,<span class="s2">&#34;partitions&#34;</span>:<span class="o">[{</span><span class="s2">&#34;topic&#34;</span>:<span class="s2">&#34;first&#34;</span>,<span class="s2">&#34;partition&#34;</span>:0,<span class="s2">&#34;replicas&#34;</span>:<span class="o">[</span>3,0<span class="o">]</span>,<span class="s2">&#34;log_dirs&#34;</span>:<span class="o">[</span><span class="s2">&#34;any&#34;</span>,<span class="s2">&#34;any&#34;</span><span class="o">]}</span>,<span class="o">{</span><span class="s2">&#34;topic&#34;</span>:<span class="s2">&#34;first&#34;</span>,<span class="s2">&#34;partition&#34;</span>:1,<span class="s2">&#34;replicas&#34;</span>:<span class="o">[</span>0,1<span class="o">]</span>,<span class="s2">&#34;log_dirs&#34;</span>:<span class="o">[</span><span class="s2">&#34;any&#34;</span>,<span class="s2">&#34;any&#34;</span><span class="o">]}</span>,<span class="o">{</span><span class="s2">&#34;topic&#34;</span>:<span class="s2">&#34;first&#34;</span>,<span class="s2">&#34;partition&#34;</span>:2,<span class="s2">&#34;replicas&#34;</span>:<span class="o">[</span>1,2<span class="o">]</span>,<span class="s2">&#34;log_dirs&#34;</span>:<span class="o">[</span><span class="s2">&#34;any&#34;</span>,<span class="s2">&#34;any&#34;</span><span class="o">]}]}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Proposed partition reassignment configuration
+</span></span><span class="line"><span class="cl"><span class="o">{</span><span class="s2">&#34;version&#34;</span>:1,<span class="s2">&#34;partitions&#34;</span>:<span class="o">[{</span><span class="s2">&#34;topic&#34;</span>:<span class="s2">&#34;first&#34;</span>,<span class="s2">&#34;partition&#34;</span>:0,<span class="s2">&#34;replicas&#34;</span>:<span class="o">[</span>0,1<span class="o">]</span>,<span class="s2">&#34;log_dirs&#34;</span>:<span class="o">[</span><span class="s2">&#34;any&#34;</span>,<span class="s2">&#34;any&#34;</span><span class="o">]}</span>,<span class="o">{</span><span class="s2">&#34;topic&#34;</span>:<span class="s2">&#34;first&#34;</span>,<span class="s2">&#34;partition&#34;</span>:1,<span class="s2">&#34;replicas&#34;</span>:<span class="o">[</span>1,2<span class="o">]</span>,<span class="s2">&#34;log_dirs&#34;</span>:<span class="o">[</span><span class="s2">&#34;any&#34;</span>,<span class="s2">&#34;any&#34;</span><span class="o">]}</span>,<span class="o">{</span><span class="s2">&#34;topic&#34;</span>:<span class="s2">&#34;first&#34;</span>,<span class="s2">&#34;partition&#34;</span>:2,<span class="s2">&#34;replicas&#34;</span>:<span class="o">[</span>2,0<span class="o">]</span>,<span class="s2">&#34;log_dirs&#34;</span>:<span class="o">[</span><span class="s2">&#34;any&#34;</span>,<span class="s2">&#34;any&#34;</span><span class="o">]}]}</span>
+</span></span></code></pre></div><p>（3）创建副本存储计划（所有副本存储在 broker0、broker1、broker2 中）。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 kafka_2.12-3.0.2<span class="o">]</span>$ vim increase-replication-factor1.json
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">{</span><span class="s2">&#34;version&#34;</span>:1,<span class="s2">&#34;partitions&#34;</span>:<span class="o">[{</span><span class="s2">&#34;topic&#34;</span>:<span class="s2">&#34;first&#34;</span>,<span class="s2">&#34;partition&#34;</span>:0,<span class="s2">&#34;replicas&#34;</span>:<span class="o">[</span>0,1<span class="o">]</span>,<span class="s2">&#34;log_dirs&#34;</span>:<span class="o">[</span><span class="s2">&#34;any&#34;</span>,<span class="s2">&#34;any&#34;</span><span class="o">]}</span>,<span class="o">{</span><span class="s2">&#34;topic&#34;</span>:<span class="s2">&#34;first&#34;</span>,<span class="s2">&#34;partition&#34;</span>:1,<span class="s2">&#34;replicas&#34;</span>:<span class="o">[</span>1,2<span class="o">]</span>,<span class="s2">&#34;log_dirs&#34;</span>:<span class="o">[</span><span class="s2">&#34;any&#34;</span>,<span class="s2">&#34;any&#34;</span><span class="o">]}</span>,<span class="o">{</span><span class="s2">&#34;topic&#34;</span>:<span class="s2">&#34;first&#34;</span>,<span class="s2">&#34;partition&#34;</span>:2,<span class="s2">&#34;replicas&#34;</span>:<span class="o">[</span>2,0<span class="o">]</span>,<span class="s2">&#34;log_dirs&#34;</span>:<span class="o">[</span><span class="s2">&#34;any&#34;</span>,<span class="s2">&#34;any&#34;</span><span class="o">]}]}</span>
+</span></span></code></pre></div><p>(4)执行副本存储计划。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 kafka_2.12-3.0.2<span class="o">]</span>$ bin/kafka-reassign-partitions.sh --bootstrap-server hadoop1:9092 --reassignment-json-file increase-replication-factor1.json --execute
+</span></span><span class="line"><span class="cl">Current partition replica assignment
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">{</span><span class="s2">&#34;version&#34;</span>:1,<span class="s2">&#34;partitions&#34;</span>:<span class="o">[{</span><span class="s2">&#34;topic&#34;</span>:<span class="s2">&#34;first&#34;</span>,<span class="s2">&#34;partition&#34;</span>:0,<span class="s2">&#34;replicas&#34;</span>:<span class="o">[</span>3,0<span class="o">]</span>,<span class="s2">&#34;log_dirs&#34;</span>:<span class="o">[</span><span class="s2">&#34;any&#34;</span>,<span class="s2">&#34;any&#34;</span><span class="o">]}</span>,<span class="o">{</span><span class="s2">&#34;topic&#34;</span>:<span class="s2">&#34;first&#34;</span>,<span class="s2">&#34;partition&#34;</span>:1,<span class="s2">&#34;replicas&#34;</span>:<span class="o">[</span>0,1<span class="o">]</span>,<span class="s2">&#34;log_dirs&#34;</span>:<span class="o">[</span><span class="s2">&#34;any&#34;</span>,<span class="s2">&#34;any&#34;</span><span class="o">]}</span>,<span class="o">{</span><span class="s2">&#34;topic&#34;</span>:<span class="s2">&#34;first&#34;</span>,<span class="s2">&#34;partition&#34;</span>:2,<span class="s2">&#34;replicas&#34;</span>:<span class="o">[</span>1,2<span class="o">]</span>,<span class="s2">&#34;log_dirs&#34;</span>:<span class="o">[</span><span class="s2">&#34;any&#34;</span>,<span class="s2">&#34;any&#34;</span><span class="o">]}]}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Save this to use as the --reassignment-json-file option during rollback
+</span></span><span class="line"><span class="cl">Successfully started partition reassignments <span class="k">for</span> first-0,first-1,first-2
+</span></span></code></pre></div><p>（5）验证副本存储计划。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 kafka_2.12-3.0.2<span class="o">]</span>$ bin/kafka-reassign-partitions.sh --bootstrap-server hadoop1:9092 --reassignment-json-file increase-replication-factor1.json --verify
+</span></span><span class="line"><span class="cl">Status of partition reassignment:
+</span></span><span class="line"><span class="cl">Reassignment of partition first-0 is complete.
+</span></span><span class="line"><span class="cl">Reassignment of partition first-1 is complete.
+</span></span><span class="line"><span class="cl">Reassignment of partition first-2 is complete.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Clearing broker-level throttles on brokers 0,1,2,3
+</span></span><span class="line"><span class="cl">Clearing topic-level throttles on topic first
+</span></span></code></pre></div><p>再次查看主题详情:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 kafka_2.12-3.0.2<span class="o">]</span>$ bin/kafka-topics.sh --bootstrap-server hadoop1:9092 --describe --topic first
+</span></span><span class="line"><span class="cl">Topic: first    TopicId: _R6Ed9eqQvWEpxtV_bvXPQ PartitionCount: <span class="m">3</span>       ReplicationFactor: <span class="m">2</span>    Configs: segment.bytes<span class="o">=</span><span class="m">1073741824</span>
+</span></span><span class="line"><span class="cl">        Topic: first    Partition: <span class="m">0</span>    Leader: <span class="m">0</span>       Replicas: 0,1   Isr: 0,1
+</span></span><span class="line"><span class="cl">        Topic: first    Partition: <span class="m">1</span>    Leader: <span class="m">1</span>       Replicas: 1,2   Isr: 1,2
+</span></span><span class="line"><span class="cl">        Topic: first    Partition: <span class="m">2</span>    Leader: <span class="m">2</span>       Replicas: 2,0   Isr: 2,0
+</span></span></code></pre></div><h3 id="22-关闭退役节点服务">2.2 关闭退役节点服务</h3>
+<p>在完成退役节点均衡操作后，关闭节点kafka服务即可。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop4 kafka_2.12-3.0.2<span class="o">]</span>$  bin/kafka-server-stop.sh
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/06-kafka-06/image-20231127165246463.png" >
+		<img src="/../../images/06-kafka-06/image-20231127165246463.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231127165246463">
+	</a>
+	
+	<figcaption>image-20231127165246463</figcaption>
+	
+</figure></p>
+<p>以上就是Kafka 节点服役和退役全部内容。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/kafka/">Kafka</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/kafka-13kafka-%E9%9B%86%E6%88%90springbootflume/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Kafka-13）Kafka 集成SpringBoot、Flume</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/kafka-12kafka-web%E7%9B%91%E6%8E%A7kafka-eagle/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Kafka-12）Kafka Web监控：Kafka-Eagle</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/kafka-11kafka-kraft-%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Kafka-11）Kafka-Kraft 模式</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/kafka-10kafka-offset-%E4%BD%8D%E7%A7%BB%E5%8F%8A%E4%BD%8D%E7%A7%BB%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Kafka-10）Kafka offset 位移及位移应用场景</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/kafka-09kafka-%E6%B6%88%E8%B4%B9%E8%80%85%E6%B6%88%E8%B4%B9%E8%80%85%E7%BB%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Kafka-09）Kafka 消费者、消费者组</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#一kafka-节点服役">一、Kafka 节点服役</a>
+      <ol>
+        <li><a href="#11--新节点准备及启动">1.1  新节点准备及启动</a></li>
+        <li><a href="#12-启动新节点">1.2 启动新节点</a></li>
+        <li><a href="#13--新节点主题负载均衡操作">1.3  新节点主题负载均衡操作</a></li>
+      </ol>
+    </li>
+    <li><a href="#二kafka-退役旧节点">二、Kafka 退役旧节点</a>
+      <ol>
+        <li><a href="#21-退役前均衡操作">2.1 退役前均衡操作</a></li>
+        <li><a href="#22-关闭退役节点服务">2.2 关闭退役节点服务</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

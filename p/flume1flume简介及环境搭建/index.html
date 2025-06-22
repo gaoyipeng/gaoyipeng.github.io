@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Flume简介'><title>（Flume1）Flume简介及环境搭建</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/flume1flume%E7%AE%80%E4%BB%8B%E5%8F%8A%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='（Flume1）Flume简介及环境搭建'>
+<meta property='og:description' content='Flume简介'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/flume1flume%E7%AE%80%E4%BB%8B%E5%8F%8A%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Flume' /><meta property='article:published_time' content='2023-10-30T15:36:40&#43;00:00'/><meta property='article:modified_time' content='2023-10-30T15:36:40&#43;00:00'/>
+<meta name="twitter:title" content="（Flume1）Flume简介及环境搭建">
+<meta name="twitter:description" content="Flume简介">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/flume/" >
+                Flume
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/flume1flume%E7%AE%80%E4%BB%8B%E5%8F%8A%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">（Flume1）Flume简介及环境搭建</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        Flume简介
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Oct 30, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 4 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <p>常用链接</p>
+<table>
+<thead>
+<tr>
+<th>说明</th>
+<th>端口</th>
+<th>链接</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NameNode HTTP 端口（集群）</td>
+<td>9870</td>
+<td>http://hadoop1:9870/</td>
+</tr>
+<tr>
+<td></td>
+<td>9870</td>
+<td>http://hadoop2:9870/</td>
+</tr>
+<tr>
+<td></td>
+<td>9870</td>
+<td>http://hadoop3:9870/</td>
+</tr>
+<tr>
+<td>MapReduce 查看执行任务端口（集群）</td>
+<td>8080</td>
+<td>http://hadoop1:8088/</td>
+</tr>
+<tr>
+<td></td>
+<td>8080</td>
+<td>http://hadoop2:8088/</td>
+</tr>
+<tr>
+<td></td>
+<td>8080</td>
+<td>http://hadoop3:8088/</td>
+</tr>
+<tr>
+<td>历史服务器通信端口</td>
+<td>19888</td>
+<td>http://hadoop1:19888/jobhistory</td>
+</tr>
+<tr>
+<td>hive-query-plan-viz</td>
+<td>8000</td>
+<td>http://hadoop1:8000/</td>
+</tr>
+<tr>
+<td>ganglia监控</td>
+<td>80</td>
+<td>http://hadoop1/ganglia</td>
+</tr>
+</tbody>
+</table>
+<h2 id="一flume简介">一、Flume简介</h2>
+<p>Flume 是 Cloudera 提供的一个高可用的，高可靠的，分布式的海量日志采集、聚合和传输的系统。Flume最主要的作用就是，实时读取服务器本地磁盘的数据，将数据写入到HDFS或者Hbase等组件中。</p>
+<p><strong>资料地址：</strong></p>
+<p>（1）Flume 官网地址：http://flume.apache.org/</p>
+<p>（2）文档查看地址：http://flume.apache.org/FlumeUserGuide.html</p>
+<p>（3）下载地址：http://archive.apache.org/dist/flume/</p>
+<h2 id="二flume-基础架构">二、Flume 基础架构</h2>
+<p>Flume 组成架构如下图所示</p>
+<p><figure 
+	>
+	<a href="/../../images/01-flume-01/image-20231031141250755.png" >
+		<img src="/../../images/01-flume-01/image-20231031141250755.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231031141250755">
+	</a>
+	
+	<figcaption>image-20231031141250755</figcaption>
+	
+</figure></p>
+<ul>
+<li>
+<p><strong>Agent</strong></p>
+<p>​		Agent 是一个 JVM 进程，它以事件的形式将数据从源头送至目的。Agent 主要有 3 个部分组成，Source、Channel、Sink。</p>
+</li>
+<li>
+<p><strong>Source</strong></p>
+<p>​		Source 是负责接收数据到 Flume Agent 的组件。Source 组件可以处理各种类型、各种格式的日志数据，包括 avro、thrift、exec、jms、spooling directory、netcat、taildir、sequence generator、syslog、http、legacy。</p>
+<blockquote>
+<p><strong>netcat source</strong>： 适用于监控端口数据</p>
+<p><strong>Exec source</strong>： 适用于监控一个实时追加的文件，不能实现断点续传；
+<strong>Spooldir Source</strong>： 适合用于同步新文件，但不适合对实时追加日志的文件进行监听并同步；而且只能监控一个目录
+<strong>Taildir Source</strong>： 适合用于监听多个实时追加的文件（文件无需在一个目录下），并且能够实现断点续传，但无法处理文件更名操作，会导致重复同步。</p>
+</blockquote>
+</li>
+<li>
+<p><strong>Sink</strong></p>
+<p>​		Sink 不断地轮询 Channel 中的事件且批量地移除它们，并将这些事件批量写入到存储或索引系统、或者被发送到另一个 Flume Agent。Sink 组件目的地包括 hdfs、logger、avro、thrift、ipc、file、HBase、solr、自定义。</p>
+</li>
+<li>
+<p><strong>Channel</strong></p>
+<p>​		Channel 是位于 Source 和 Sink 之间的缓冲区。因此，Channel 允许 Source 和 Sink 运作在不同的速率上。Channel 是线程安全的，可以同时处理几个 Source 的写入操作和几个Sink 的读取操作。Flume 自带两种 Channel：<strong>Memory Channel</strong> 和 <strong>File Channel</strong>。</p>
+<p>​		① <strong>Memory Channel</strong> 是内存中的队列。Memory Channel 在不需要关心数据丢失的情景下适用。如果需要关心数据丢失，那么 Memory Channel 就不应该使用，因为程序死亡、机器宕机或者重启都会导致数据丢失。</p>
+<p>​		② <strong>File Channel</strong> 将所有事件写到磁盘。因此在程序关闭或机器宕机的情况下不会丢失数据。</p>
+</li>
+<li>
+<p><strong>Event</strong></p>
+<p>​		传输单元，Flume 数据传输的基本单元，以 Event 的形式将数据从源头送至目的地。Event 由 <strong>Header</strong> 和 <strong>Body</strong> 两部分组成，Header 用来存放该 event 的一些属性，为 K-V 结构，Body 用来存放该条数据，形式为字节数组。如果是文本文件，通常是一行记录，event也是事务的基本单位。</p>
+</li>
+</ul>
+<p><figure 
+	>
+	<a href="/../../images/01-flume-01/image-20231031141911053.png" >
+		<img src="/../../images/01-flume-01/image-20231031141911053.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231031141911053">
+	</a>
+	
+	<figcaption>image-20231031141911053</figcaption>
+	
+</figure></p>
+<h2 id="三flume环境搭建">三、Flume环境搭建</h2>
+<p>在我们之前hadoop集群的基础上，我们进行以下扩展：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>hadoop1</th>
+<th>hadoop2</th>
+<th>hadoop3</th>
+<th>hadoop4</th>
+<th>hadoop5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HDFS</td>
+<td>NameNode</td>
+<td>NameNode</td>
+<td>NameNode</td>
+<td>DataNode</td>
+<td>DataNode</td>
+</tr>
+<tr>
+<td></td>
+<td>DataNode</td>
+<td>DataNode</td>
+<td>DataNode</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>journalnode</td>
+<td>journalnode</td>
+<td>journalnode</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>YARN</td>
+<td>ResourceManager</td>
+<td>ResourceManager</td>
+<td>ResourceManager</td>
+<td>NodeManager</td>
+<td>NodeManager</td>
+</tr>
+<tr>
+<td></td>
+<td>NodeManager</td>
+<td>NodeManager</td>
+<td>NodeManager</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Zookeeper</td>
+<td>Zookeeper</td>
+<td>Zookeeper</td>
+<td>Zookeeper</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>ZKFC</td>
+<td>ZKFC</td>
+<td>ZKFC</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Mysql</td>
+<td>Mysql5.7</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Hive</td>
+<td>HiveServer2</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>Metastore</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>hive-query-plan-viz</td>
+<td>hive-query-plan-viz:执行计划图形化解析器</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>flume</td>
+<td>flume</td>
+<td>flume</td>
+<td>flume</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Ganglia</td>
+<td>gweb</td>
+<td>gmod</td>
+<td>gmod</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>gmetad</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>gmod</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>下载最新稳定版本：https://archive.apache.org/dist/flume/stable/，截止23年10月，稳定版还是1.9.0。</p>
+<p><figure 
+	>
+	<a href="/../../images/01-flume-01/image-20231031142044074.png" >
+		<img src="/../../images/01-flume-01/image-20231031142044074.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231031142044074">
+	</a>
+	
+	<figcaption>image-20231031142044074</figcaption>
+	
+</figure></p>
+<p>（1）将 apache-flume-1.9.0-bin.tar.gz 上传到 linux 的/opt/software 目录下</p>
+<p>（2）解压 apache-flume-1.9.0-bin.tar.gz 到/opt/module/目录下</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop2 software<span class="o">]</span>$ tar -zxvf apache-flume-1.9.0-bin.tar.gz  -C ../module/
+</span></span></code></pre></div><p>（3）为了与hadoop3.1.3兼容，需要将 lib 文件夹下的 guava-11.0.2.jar 删除，这样flume就会自己去找 Hadoop 3.1.3下的jar包。</p>
+<pre tabindex="0"><code>[admin@hadoop2 hadoop-3.1.3]$ rm  /opt/module/apache-flume-1.9.0-bin/lib/guava-11.0.2.jar
+</code></pre><p>可以看到是Hadoop 3.1.3 版本是guava-27.0-jre.jar</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop2 hadoop-3.1.3<span class="o">]</span>$ find ./ -name guava*
+</span></span><span class="line"><span class="cl">./share/hadoop/common/lib/guava-27.0-jre.jar
+</span></span><span class="line"><span class="cl">./share/hadoop/hdfs/lib/guava-27.0-jre.jar
+</span></span></code></pre></div><p>（4）将flume拷贝到另外2个节点</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 apache-flume-1.9.0-bin<span class="o">]</span>$ scp -r /opt/module/apache-flume-1.9.0-bin/  admin@hadoop2:/opt/module/
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 apache-flume-1.9.0-bin<span class="o">]</span>$ scp -r /opt/module/apache-flume-1.9.0-bin/  admin@hadoop3:/opt/module/
+</span></span></code></pre></div><h2 id="四flume入门实例">四、Flume入门实例</h2>
+<p><strong>环境检查</strong>：Flume 要想将数据输出到 HDFS，依赖 Hadoop 相关 jar 包，需要保证 Hadoop 和 Java 环境变量已配置。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 ~<span class="o">]</span>$ cat /etc/profile.d/myhadoop.sh
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">HADOOP_HOME</span><span class="o">=</span>/opt/module/hadoop-3.1.3
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span><span class="nv">$PATH</span>:<span class="nv">$HADOOP_HOME</span>/bin
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span><span class="nv">$PATH</span>:<span class="nv">$HADOOP_HOME</span>/sbinexport <span class="nv">HADOOP_HOME</span><span class="o">=</span>/opt/module/hadoop-3.1.3
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span><span class="nv">$PATH</span>:<span class="nv">$HADOOP_HOME</span>/bin
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span><span class="nv">$PATH</span>:<span class="nv">$HADOOP_HOME</span>/sbin
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 ~<span class="o">]</span>$ cat /etc/profile.d/myjdk.sh
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">JAVA_HOME</span><span class="o">=</span>/opt/module/jdk1.8.0_212
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">CLASSPATH</span><span class="o">=</span>.:<span class="si">${</span><span class="nv">JAVA_HOME</span><span class="si">}</span>/jre/lib/rt.jar:<span class="si">${</span><span class="nv">JAVA_HOME</span><span class="si">}</span>/lib/dt.jar:<span class="si">${</span><span class="nv">JAVA_HOME</span><span class="si">}</span>/lib/tools.jar
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span><span class="nv">$PATH</span>:<span class="si">${</span><span class="nv">JAVA_HOME</span><span class="si">}</span>/bin
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 current<span class="o">]</span>$
+</span></span></code></pre></div><h3 id="41--实时监控单个追加文件exec-source">4.1  实时监控单个追加文件（exec source）</h3>
+<p>需求：实时监控 Hive 日志，并上传到 HDFS 中。</p>
+<p><figure 
+	>
+	<a href="/../../images/01-flume-01/image-20231031155837867.png" >
+		<img src="/../../images/01-flume-01/image-20231031155837867.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231031155837867">
+	</a>
+	
+	<figcaption>image-20231031155837867</figcaption>
+	
+</figure></p>
+<p>（1）创建Agent配置文件： flume-file-hdfs.conf</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop2 ~<span class="o">]</span>$ <span class="nb">cd</span> /opt/module/apache-flume-1.9.0-bin/
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop2 apache-flume-1.9.0-bin<span class="o">]</span>$ mkdir job
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop2 apache-flume-1.9.0-bin<span class="o">]</span>$ <span class="nb">cd</span> job
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 job<span class="o">]</span>$ vim flume-file-hdfs.conf
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Name the components on this agent</span>
+</span></span><span class="line"><span class="cl">a2.sources <span class="o">=</span> r2
+</span></span><span class="line"><span class="cl">a2.sinks <span class="o">=</span> k2
+</span></span><span class="line"><span class="cl">a2.channels <span class="o">=</span> c2
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Describe/configure the source</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#要想读取 Linux 系统中的文件，就得按照 Linux 命令的规则执行命令。由于 Hive日志在 Linux 系统中所以读取文件的类型选择：#exec 即 execute 执行的意思。表示执行Linux 命令来读取文件。</span>
+</span></span><span class="line"><span class="cl">a2.sources.r2.type <span class="o">=</span> <span class="nb">exec</span>
+</span></span><span class="line"><span class="cl">a2.sources.r2.command <span class="o">=</span> tail -F /opt/module/apache-hive-3.1.3-bin/logs/hive.log
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Describe the sink</span>
+</span></span><span class="line"><span class="cl">a2.sinks.k2.type <span class="o">=</span> hdfs
+</span></span><span class="line"><span class="cl">a2.sinks.k2.hdfs.path <span class="o">=</span> hdfs://hadoop2:8020/flume/%Y%m%d/%H
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#上传文件的前缀</span>
+</span></span><span class="line"><span class="cl">a2.sinks.k2.hdfs.filePrefix <span class="o">=</span> logs-
+</span></span><span class="line"><span class="cl"><span class="c1">#是否按照时间滚动文件夹</span>
+</span></span><span class="line"><span class="cl">a2.sinks.k2.hdfs.round <span class="o">=</span> <span class="nb">true</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#多少时间单位创建一个新的文件夹</span>
+</span></span><span class="line"><span class="cl">a2.sinks.k2.hdfs.roundValue <span class="o">=</span> <span class="m">24</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#重新定义时间单位</span>
+</span></span><span class="line"><span class="cl">a2.sinks.k2.hdfs.roundUnit <span class="o">=</span> hour
+</span></span><span class="line"><span class="cl"><span class="c1">#是否使用本地时间戳对于所有与时间相关的转义序列，Event Header 中必须存在以 “timestamp”的key（除非 #hdfs.useLocalTimeStamp 设置为 true，此方法会使用 TimestampInterceptor 自动添加 timestamp）。</span>
+</span></span><span class="line"><span class="cl">a2.sinks.k2.hdfs.useLocalTimeStamp <span class="o">=</span> <span class="nb">true</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#积攒多少个 Event 才 flush 到 HDFS 一次</span>
+</span></span><span class="line"><span class="cl">a2.sinks.k2.hdfs.batchSize <span class="o">=</span> <span class="m">100</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#设置文件类型，可支持压缩</span>
+</span></span><span class="line"><span class="cl">a2.sinks.k2.hdfs.fileType <span class="o">=</span> DataStream
+</span></span><span class="line"><span class="cl"><span class="c1">#多久生成一个新的文件（单位秒）</span>
+</span></span><span class="line"><span class="cl">a2.sinks.k2.hdfs.rollInterval <span class="o">=</span> <span class="m">60</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#设置每个文件的滚动大小</span>
+</span></span><span class="line"><span class="cl">a2.sinks.k2.hdfs.rollSize <span class="o">=</span> <span class="m">134217700</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#文件的滚动与 Event 数量无关</span>
+</span></span><span class="line"><span class="cl">a2.sinks.k2.hdfs.rollCount <span class="o">=</span> <span class="m">0</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Use a channel which buffers events in memory</span>
+</span></span><span class="line"><span class="cl">a2.channels.c2.type <span class="o">=</span> memory
+</span></span><span class="line"><span class="cl">a2.channels.c2.capacity <span class="o">=</span> <span class="m">1000</span>
+</span></span><span class="line"><span class="cl">a2.channels.c2.transactionCapacity <span class="o">=</span> <span class="m">100</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Bind the source and sink to the channel</span>
+</span></span><span class="line"><span class="cl">a2.sources.r2.channels <span class="o">=</span> c2
+</span></span><span class="line"><span class="cl">a2.sinks.k2.channel <span class="o">=</span> c2
+</span></span></code></pre></div><p>注意：这里的端口为hadoop 的dfs.namenode.rpc-address参数，默认8020,hadoop必须选择是active状态的节点，当前是hadoop2</p>
+<p><figure 
+	>
+	<a href="/../../images/01-flume-01/image-20231101163900570.png" >
+		<img src="/../../images/01-flume-01/image-20231101163900570.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231101163900570">
+	</a>
+	
+	<figcaption>image-20231101163900570</figcaption>
+	
+</figure></p>
+<p>(2)运行 Flume</p>
+<p>第一种写法：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">bin/flume-ng agent --conf conf/ --name a2 --conf-file job/flume-file-hdfs.conf <span class="p">&amp;</span>
+</span></span></code></pre></div><p>第二种写法（简化）：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"> bin/flume-ng agent -c conf/ -n a2 -f job/flume-file-hdfs.conf <span class="p">&amp;</span>
+</span></span></code></pre></div><p>参数说明：</p>
+<ul>
+<li>&ndash;conf/-c：表示配置文件存储在 conf/目录</li>
+<li>&ndash;name/-n：表示给 agent 起名为 a1</li>
+<li>&ndash;conf-file/-f：flume 本次启动读取的配置文件是在 job 文件夹下的 flume-telnet.conf文件。</li>
+<li>（补充）-Dflume.root.logger=INFO,console ：-D 表示 flume 运行时动态修改 flume.root.logger参数属性值，并将控制台日志打印级别设置为 INFO 级别。日志级别包括:log、info、warn、error。</li>
+</ul>
+<p><figure 
+	>
+	<a href="/../../images/01-flume-01/image-20231101090926330.png" >
+		<img src="/../../images/01-flume-01/image-20231101090926330.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231101090926330">
+	</a>
+	
+	<figcaption>image-20231101090926330</figcaption>
+	
+</figure></p>
+<p>可以看到按规则，每分钟生成一个文件：<figure 
+	>
+	<a href="/../../images/01-flume-01/image-20231101085022378.png" >
+		<img src="/../../images/01-flume-01/image-20231101085022378.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231101085022378">
+	</a>
+	
+	<figcaption>image-20231101085022378</figcaption>
+	
+</figure></p>
+<h3 id="42-实时监控目录下多个追加文件taildir-source">4.2 实时监控目录下多个追加文件（taildir source）</h3>
+<p><figure 
+	>
+	<a href="/../../images/01-flume-01/image-20231101103502991.png" >
+		<img src="/../../images/01-flume-01/image-20231101103502991.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231101103502991">
+	</a>
+	
+	<figcaption>image-20231101103502991</figcaption>
+	
+</figure></p>
+<p>（1）创建配置文件 flume-taildir-hdfs.conf</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 job<span class="o">]</span>$ vim flume-taildir-hdfs.conf
+</span></span><span class="line"><span class="cl"><span class="c1"># Name the components on this agent</span>
+</span></span><span class="line"><span class="cl">a3.sources <span class="o">=</span> r3
+</span></span><span class="line"><span class="cl">a3.sinks <span class="o">=</span> k3 
+</span></span><span class="line"><span class="cl">a3.channels <span class="o">=</span> c3
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Describe/configure the source</span>
+</span></span><span class="line"><span class="cl">a3.sources.r3.type <span class="o">=</span> TAILDIR
+</span></span><span class="line"><span class="cl"><span class="c1">#断点续传信息记录文件</span>
+</span></span><span class="line"><span class="cl">a3.sources.r3.positionFile <span class="o">=</span> /opt/module/apache-flume-1.9.0-bin/tail_dir.json
+</span></span><span class="line"><span class="cl">a3.sources.r3.filegroups <span class="o">=</span> f1 f2
+</span></span><span class="line"><span class="cl">a3.sources.r3.filegroups.f1 <span class="o">=</span> /opt/module/apache-flume-1.9.0-bin/file/.*file.*
+</span></span><span class="line"><span class="cl">a3.sources.r3.filegroups.f2 <span class="o">=</span> /opt/module/apache-flume-1.9.0-bin/file2/.*log.*
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Describe the sink</span>
+</span></span><span class="line"><span class="cl">a3.sinks.k3.type <span class="o">=</span> hdfs
+</span></span><span class="line"><span class="cl">a3.sinks.k3.hdfs.path <span class="o">=</span> hdfs://hadoop2:8020/flume/upload/%Y%m%d/%H
+</span></span><span class="line"><span class="cl"><span class="c1">#上传文件的前缀</span>
+</span></span><span class="line"><span class="cl">a3.sinks.k3.hdfs.filePrefix <span class="o">=</span> upload-
+</span></span><span class="line"><span class="cl"><span class="c1">#是否按照时间滚动文件夹</span>
+</span></span><span class="line"><span class="cl">a3.sinks.k3.hdfs.round <span class="o">=</span> <span class="nb">true</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#多少时间单位创建一个新的文件夹</span>
+</span></span><span class="line"><span class="cl">a3.sinks.k3.hdfs.roundValue <span class="o">=</span> <span class="m">1</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#重新定义时间单位</span>
+</span></span><span class="line"><span class="cl">a3.sinks.k3.hdfs.roundUnit <span class="o">=</span> hour
+</span></span><span class="line"><span class="cl"><span class="c1">#是否使用本地时间戳</span>
+</span></span><span class="line"><span class="cl">a3.sinks.k3.hdfs.useLocalTimeStamp <span class="o">=</span> <span class="nb">true</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#积攒多少个 Event 才 flush 到 HDFS 一次</span>
+</span></span><span class="line"><span class="cl">a3.sinks.k3.hdfs.batchSize <span class="o">=</span> <span class="m">100</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#设置文件类型，可支持压缩</span>
+</span></span><span class="line"><span class="cl">a3.sinks.k3.hdfs.fileType <span class="o">=</span> DataStream
+</span></span><span class="line"><span class="cl"><span class="c1">#多久生成一个新的文件</span>
+</span></span><span class="line"><span class="cl">a3.sinks.k3.hdfs.rollInterval <span class="o">=</span> <span class="m">60</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#设置每个文件的滚动大小大概是 128M</span>
+</span></span><span class="line"><span class="cl">a3.sinks.k3.hdfs.rollSize <span class="o">=</span> <span class="m">134217700</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#文件的滚动与 Event 数量无关</span>
+</span></span><span class="line"><span class="cl">a3.sinks.k3.hdfs.rollCount <span class="o">=</span> <span class="m">0</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Use a channel which buffers events in memory</span>
+</span></span><span class="line"><span class="cl">a3.channels.c3.type <span class="o">=</span> memory
+</span></span><span class="line"><span class="cl">a3.channels.c3.capacity <span class="o">=</span> <span class="m">1000</span>
+</span></span><span class="line"><span class="cl">a3.channels.c3.transactionCapacity <span class="o">=</span> <span class="m">100</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Bind the source and sink to the channel</span>
+</span></span><span class="line"><span class="cl">a3.sources.r3.channels <span class="o">=</span> c3
+</span></span><span class="line"><span class="cl">a3.sinks.k3.channel <span class="o">=</span> c3
+</span></span></code></pre></div><p>(2)在/opt/module/flume 目录下创建 files\files2 文件夹</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 apache-flume-1.9.0-bin<span class="o">]</span>$ bin/flume-ng agent --conf conf/ --name a3 --conf-file job/flume-taildir-hdfs.conf <span class="p">&amp;</span>
+</span></span></code></pre></div><p>向 upload 文件夹中添加文件</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 apache-flume-1.9.0-bin<span class="o">]</span>$ <span class="nb">echo</span> file1 &gt;&gt; file/file1.txt
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 apache-flume-1.9.0-bin<span class="o">]</span>$ <span class="nb">echo</span> log1 &gt;&gt; file2/log1.log
+</span></span><span class="line"><span class="cl"><span class="c1">##间隔1分钟</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 apache-flume-1.9.0-bin<span class="o">]</span>$ <span class="nb">echo</span> file2 &gt;&gt; file/file1.txt
+</span></span><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 apache-flume-1.9.0-bin<span class="o">]</span>$ <span class="nb">echo</span> log2 &gt;&gt; file2/log1.log
+</span></span></code></pre></div><p>查看HDFS</p>
+<p><figure 
+	>
+	<a href="/../../images/01-flume-01/image-20231101164637841.png" >
+		<img src="/../../images/01-flume-01/image-20231101164637841.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231101164637841">
+	</a>
+	
+	<figcaption>image-20231101164637841</figcaption>
+	
+</figure></p>
+<p>间隔1分钟后</p>
+<p><figure 
+	>
+	<a href="/../../images/01-flume-01/image-20231101164852388.png" >
+		<img src="/../../images/01-flume-01/image-20231101164852388.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231101164852388">
+	</a>
+	
+	<figcaption>image-20231101164852388</figcaption>
+	
+</figure></p>
+<p><strong>Taildir 说明：</strong> Taildir Source 维护了一个 json 格式的 position File，其会定期的往 position File中更新每个文件读取到的最新的位置，因此能够实现断点续传。Position File 的格式如下</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 apache-flume-1.9.0-bin<span class="o">]</span>$ cat tail_dir.json
+</span></span><span class="line"><span class="cl"><span class="o">[{</span><span class="s2">&#34;inode&#34;</span>:524300554,<span class="s2">&#34;pos&#34;</span>:12,<span class="s2">&#34;file&#34;</span>:<span class="s2">&#34;/opt/module/apache-flume-1.9.0-bin/file/file1.txt&#34;</span><span class="o">}</span>,<span class="o">{</span><span class="s2">&#34;inode&#34;</span>:528597647,<span class="s2">&#34;pos&#34;</span>:10,<span class="s2">&#34;file&#34;</span>:<span class="s2">&#34;/opt/module/apache-flume-1.9.0-bin/file2/log1.log&#34;</span><span class="o">}]</span>
+</span></span></code></pre></div><p>其中 inode 号码来识别文件。</p>
+<h2 id="五日志文件名称滚动问题">五、日志文件名称滚动问题</h2>
+<p>​		Flume做断点续传是根据文件的inode值（文件ID）和pos（续传位置）来决定的。</p>
+<p>源码位置：<code>apache-flume-1.9.0-src\flume-ng-sources\flume-taildir-source\src\main\java\org\apache\flume\source\taildir</code></p>
+<p><figure 
+	>
+	<a href="/../../images/01-flume-01/image-20231109100356993.png" >
+		<img src="/../../images/01-flume-01/image-20231109100356993.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231109100356993">
+	</a>
+	
+	<figcaption>image-20231109100356993</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/01-flume-01/image-20231109101053258.png" >
+		<img src="/../../images/01-flume-01/image-20231109101053258.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231109101053258">
+	</a>
+	
+	<figcaption>image-20231109101053258</figcaption>
+	
+</figure></p>
+<p>​		生产环境下的日志文件，我们往往会做日志切割（比如按天切割），此时如果我们使用taildir监控文件夹下的日志文件，在凌晨日志切割是会将自动生成一个新的文件，而这个新文件会再次被flume监控上传，导致上传内容重复。</p>
+<p>​		那么只监控当天日志文件可以吗？不行，比如23:30，如果flume进程异常，我们第2天发现后重启flume，此时日志文件已经改名，我们只监控当天日志，会遗漏昨天最后半小时的日志。</p>
+<p>​		<strong>解决方案是修改断点续传逻辑：只根据inode值来判断。这样就不会被文件重名影响。</strong></p>
+<p>修改源代码如下：</p>
+<p><figure 
+	>
+	<a href="/../../images/01-flume-01/image-20231109101354385.png" >
+		<img src="/../../images/01-flume-01/image-20231109101354385.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231109101354385">
+	</a>
+	
+	<figcaption>image-20231109101354385</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/01-flume-01/image-20231109101502490.png" >
+		<img src="/../../images/01-flume-01/image-20231109101502490.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231109101502490">
+	</a>
+	
+	<figcaption>image-20231109101502490</figcaption>
+	
+</figure></p>
+<p>重新打包后，替换对应jar包，位置：<code>/opt/module/apache-flume-1.9.0-bin/lib/flume-taildir-source-1.9.0.jar</code>。</p>
+<p>然后重启flume进程即可。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/flume/">Flume</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/flume7%E5%AE%89%E8%A3%85ganglia%E7%9B%91%E6%8E%A7flume/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Flume7）安装Ganglia监控Flume</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/flume6%E8%87%AA%E5%AE%9A%E4%B9%89source%E8%87%AA%E5%AE%9A%E4%B9%89sink/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Flume6）自定义Source、自定义sink</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/flume5flume-%E8%81%9A%E5%90%88/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Flume5）Flume 聚合</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/flume4%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E5%92%8C%E6%95%85%E9%9A%9C%E8%BD%AC%E7%A7%BB/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Flume4）负载均衡和故障转移</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/flume3flume%E5%A4%8D%E5%88%B6%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89%E6%8B%A6%E6%88%AA%E5%99%A8interceptor/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Flume3）Flume复制、多路复用、自定义拦截器Interceptor</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#一flume简介">一、Flume简介</a></li>
+    <li><a href="#二flume-基础架构">二、Flume 基础架构</a></li>
+    <li><a href="#三flume环境搭建">三、Flume环境搭建</a></li>
+    <li><a href="#四flume入门实例">四、Flume入门实例</a>
+      <ol>
+        <li><a href="#41--实时监控单个追加文件exec-source">4.1  实时监控单个追加文件（exec source）</a></li>
+        <li><a href="#42-实时监控目录下多个追加文件taildir-source">4.2 实时监控目录下多个追加文件（taildir source）</a></li>
+      </ol>
+    </li>
+    <li><a href="#五日志文件名称滚动问题">五、日志文件名称滚动问题</a></li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

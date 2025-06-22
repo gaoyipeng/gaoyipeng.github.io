@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>面试 on 十一爸爸的博客</title>
+    <link>https://garnettboy.gitee.io/tags/%E9%9D%A2%E8%AF%95/</link>
+    <description>Recent content in 面试 on 十一爸爸的博客</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Thu, 27 Feb 2020 00:08:15 +0000</lastBuildDate><atom:link href="https://garnettboy.gitee.io/tags/%E9%9D%A2%E8%AF%95/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>数据库索引</title>
+      <link>https://garnettboy.gitee.io/p/%E6%95%B0%E6%8D%AE%E5%BA%93%E7%B4%A2%E5%BC%95/</link>
+      <pubDate>Thu, 27 Feb 2020 00:08:15 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/%E6%95%B0%E6%8D%AE%E5%BA%93%E7%B4%A2%E5%BC%95/</guid>
+      <description>{% note info %} MySQL官方对索引的定义为：索引（Index）是帮助MySQL高效获取数据的数据结构。即索引的本质：索引是数据结构。 但方法都是有利有弊，索引在方便你查询的时候，也要牺牲磁盘的空间为代价。 数据库索引可以协助快速查询,更新数据库中表的数据.索引的实现通常使用B树和变种的B+树(mysql常用的索引就是B+树){% endnote %}
+索引结构分类 Mysql目前主要有以下几种索引结构：HASH，BTREE，RTREE
+BTREE BTREE索引就是一种将索引值按一定的算法，存入一个树形的数据结构中（二叉树），每次查询都是从树的入口root开始，依次遍历node，获取leaf。 BTREE是MySQL里默认和最常用的索引类型
+HASH 由于HASH的唯一（几乎100%的唯一）及类似键值对的形式，很适合作为索引。 HASH索引可以一次定位，不需要像树形索引那样逐层查找,因此具有极高的效率。但是，这种高效是有条件的，即只在“=”和“in”条件下高效，对于范围查询、排序及组合索引仍然效率不高。
+RTREE RTREE在MySQL很少使用，仅支持geometry数据类型，支持该类型的存储引擎只有MyISAM、BDb、InnoDb、NDb、Archive几种。 相对于BTREE，RTREE的优势在于范围查找。
+索引类型 mysql 索引有2种分类标准
+从物理存储角度分为：聚簇索引、非聚簇索引 从逻辑存储角度分为：普通索引、唯一索引、主键索引、组合索引、全文索引 聚簇索引和非聚簇索引 聚簇索引：是对磁盘上实际数据重新组织以按指定的一个或多个列的值排序的算法。特点是存储数据的顺序和索引顺序一致。 一个表只能有一个聚簇索引。主键索引一般都是聚簇索引
+非聚簇索引：表数据存储顺序与索引顺序无关。对于非聚簇索引，叶结点包含索引字段值及指向数据页数据行的逻辑指针，其行数量与数据表行数据量一致。非聚簇索引记录的物理顺序与逻辑顺序没有必然的联系，与数据的存储物理结构没有关系；一个表对应的非聚簇索引可以有多条，根据不同列的约束可以建立不同要求的非聚簇索引；
+建立聚簇索引的语句：
+CREATE CLUSTER INDEX index_name ON table_name(column_name1,...); 聚簇索引 VS 非聚簇索引 聚簇索引的叶子节点就是数据节点（Innodb的B+树的主键对应的数据节点），非聚簇索引的叶子节点仍然是索引节点，只不过有指向对应数据块的指针。 聚簇索引主键的插入速度要比非聚簇索引主键的插入速度慢很多。聚簇索引适合排序，非聚簇索引不适合用在排序的场合。因为聚簇索引本身已经是按照物理顺序放置的，排序很快。非聚簇索引则没有按序存放，需要额外消耗资源来排序。 普通索引、唯一索引、主键索引、组合索引、全文索引 普通索引（NORMAL） 仅加速查询,无限制
+唯一索引（UNIQUE） 加速查询 + 列值唯一（可以有null）,如果是组合索引，则列值的组合必须唯一
+主键索引 (PRIMARY KEY) 加速查询 + 列值唯一（不可以有null）+ 表中只允许有一个主键索引, 是一种特殊的唯一索引
+组合索引 多列值组成一个索引，专门用于组合搜索，其效率大于索引合并（索引合并：使用多个单列索引组合搜索） 只有在查询条件中使用了创建索引时的第一个字段，索引才会被使用。使用组合索引时遵循最左前缀集合
+eg: 我们新建一张表：
+CREATE TABLE mytable( ID INT NOT NULL, username VARCHAR(16) NOT NULL, city VARCHAR(50) NOT NULL, age INT NOT NULL ); 为了进一步榨取MySQL的效率，就要考虑建立组合索引。就是将 name, city, age建到一个索引里：</description>
+    </item>
+    
+  </channel>
+</rss>

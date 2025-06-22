@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Activiti（5）流程定义文件—流程定义—流程模型 的相互转化'><title>Activiti（5）流程定义文件—流程定义—流程模型 的相互转化</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/activiti5%E6%B5%81%E7%A8%8B%E5%AE%9A%E4%B9%89%E6%96%87%E4%BB%B6%E6%B5%81%E7%A8%8B%E5%AE%9A%E4%B9%89%E6%B5%81%E7%A8%8B%E6%A8%A1%E5%9E%8B-%E7%9A%84%E7%9B%B8%E4%BA%92%E8%BD%AC%E5%8C%96/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Activiti（5）流程定义文件—流程定义—流程模型 的相互转化'>
+<meta property='og:description' content='Activiti（5）流程定义文件—流程定义—流程模型 的相互转化'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/activiti5%E6%B5%81%E7%A8%8B%E5%AE%9A%E4%B9%89%E6%96%87%E4%BB%B6%E6%B5%81%E7%A8%8B%E5%AE%9A%E4%B9%89%E6%B5%81%E7%A8%8B%E6%A8%A1%E5%9E%8B-%E7%9A%84%E7%9B%B8%E4%BA%92%E8%BD%AC%E5%8C%96/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Activiti' /><meta property='article:published_time' content='2020-06-01T16:38:33&#43;00:00'/><meta property='article:modified_time' content='2020-06-01T16:38:33&#43;00:00'/>
+<meta name="twitter:title" content="Activiti（5）流程定义文件—流程定义—流程模型 的相互转化">
+<meta name="twitter:description" content="Activiti（5）流程定义文件—流程定义—流程模型 的相互转化">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/activiti/" >
+                Activiti
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/activiti5%E6%B5%81%E7%A8%8B%E5%AE%9A%E4%B9%89%E6%96%87%E4%BB%B6%E6%B5%81%E7%A8%8B%E5%AE%9A%E4%B9%89%E6%B5%81%E7%A8%8B%E6%A8%A1%E5%9E%8B-%E7%9A%84%E7%9B%B8%E4%BA%92%E8%BD%AC%E5%8C%96/">Activiti（5）流程定义文件—流程定义—流程模型 的相互转化</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        Activiti（5）流程定义文件—流程定义—流程模型 的相互转化
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jun 01, 2020</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 5 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <blockquote>
+<p>前面我们介绍了流程模型的创建、以及用流程模型部署流程定义。本节我们主要介绍，流程定义文件—流程定义—流程模型 的相互转化</p>
+</blockquote>
+<h1 id="1回顾">1、回顾</h1>
+<h2 id="11-生成流程模型">1.1 、生成流程模型</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 创建模型
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Test</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">create</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">String</span> <span class="n">name</span> <span class="o">=</span> <span class="s">&#34;请假流程&#34;</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">String</span> <span class="n">key</span> <span class="o">=</span> <span class="s">&#34;leave&#34;</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">String</span> <span class="n">description</span> <span class="o">=</span> <span class="s">&#34;这是一个简单的请假流程&#34;</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">try</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">ObjectMapper</span> <span class="n">objectMapper</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ObjectMapper</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">            <span class="n">ObjectNode</span> <span class="n">editorNode</span> <span class="o">=</span> <span class="n">objectMapper</span><span class="o">.</span><span class="na">createObjectNode</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">            <span class="n">editorNode</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;id&#34;</span><span class="o">,</span> <span class="s">&#34;canvas&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">editorNode</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;resourceId&#34;</span><span class="o">,</span> <span class="s">&#34;canvas&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="n">ObjectNode</span> <span class="n">stencilSetNode</span> <span class="o">=</span> <span class="n">objectMapper</span><span class="o">.</span><span class="na">createObjectNode</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">            <span class="n">stencilSetNode</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;namespace&#34;</span><span class="o">,</span> <span class="s">&#34;http://b3mn.org/stencilset/bpmn2.0#&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="n">editorNode</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;stencilset&#34;</span><span class="o">,</span> <span class="n">stencilSetNode</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="n">ObjectNode</span> <span class="n">modelObjectNode</span> <span class="o">=</span> <span class="n">objectMapper</span><span class="o">.</span><span class="na">createObjectNode</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">            <span class="n">modelObjectNode</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">MODEL_NAME</span><span class="o">,</span> <span class="n">name</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">modelObjectNode</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ModelDataJsonConstants</span><span class="o">.</span><span class="na">MODEL_REVISION</span><span class="o">,</span> <span class="n">1</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">description</span> <span class="o">=</span> <span class="n">StringUtils</span><span class="o">.</span><span class="na">defaultString</span><span class="o">(</span><span class="n">description</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">modelObjectNode</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">MODEL_DESCRIPTION</span><span class="o">,</span> <span class="n">description</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="n">Model</span> <span class="n">newModel</span> <span class="o">=</span> <span class="n">repositoryService</span><span class="o">.</span><span class="na">newModel</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">            <span class="n">newModel</span><span class="o">.</span><span class="na">setMetaInfo</span><span class="o">(</span><span class="n">modelObjectNode</span><span class="o">.</span><span class="na">toString</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">            <span class="n">newModel</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="n">name</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">newModel</span><span class="o">.</span><span class="na">setKey</span><span class="o">(</span><span class="n">StringUtils</span><span class="o">.</span><span class="na">defaultString</span><span class="o">(</span><span class="n">key</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="n">repositoryService</span><span class="o">.</span><span class="na">saveModel</span><span class="o">(</span><span class="n">newModel</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">repositoryService</span><span class="o">.</span><span class="na">addModelEditorSource</span><span class="o">(</span><span class="n">newModel</span><span class="o">.</span><span class="na">getId</span><span class="o">(),</span> <span class="n">editorNode</span><span class="o">.</span><span class="na">toString</span><span class="o">().</span><span class="na">getBytes</span><span class="o">(</span><span class="s">&#34;utf-8&#34;</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;生成的moduleId:&#34;</span><span class="o">+</span><span class="n">newModel</span><span class="o">.</span><span class="na">getId</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span></code></pre></div><h2 id="12-部署流程定义">1.2 、部署流程定义</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 部署流程定义
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Test</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">deployTest</span><span class="o">(){</span>
+</span></span><span class="line"><span class="cl">        <span class="n">Deployment</span> <span class="n">deployment</span> <span class="o">=</span> <span class="n">repositoryService</span><span class="o">.</span><span class="na">createDeployment</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">addClasspathResource</span><span class="o">(</span><span class="s">&#34;leave.bpmn&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">deploy</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">assertNotNull</span><span class="o">(</span><span class="n">deployment</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span></code></pre></div><h2 id="13--引出问题">1.3 、 引出问题</h2>
+<p>**第一个问题：**步骤 1.2 中，部署流程定义是直接使用 <code>leave.bpmn</code> 文件部署的。但是我们使用Activiti Modeler设计流程图后，流程模型数据是直接保存在数据库表中的（act_re_model）。并不是直接生成一个<code>.bpmn</code> 文件。这时如何部署流程定义呢？</p>
+<ul>
+<li>
+<p>方式一：使用Activiti Modeler 设计器保存在act_re_model表中的模型记录，导出一个<code>.bpmn</code> 文件后再部署（不方便）</p>
+</li>
+<li>
+<p>方式二：直接使用 act_re_model 表中的模型记录来部署流程定义。（正确用法）</p>
+</li>
+</ul>
+<p>**第二个问题：**就是如果我们现在只有一个别人提供的<code>.bpmn</code> 文件，如何才能将它保存到<code>act_re_model</code>表中呢？</p>
+<p>思路如下：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-05/image-20200602185522746.png" >
+		<img src="/images/activiti6-05/image-20200602185522746.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200602185522746">
+	</a>
+	
+	<figcaption>image-20200602185522746</figcaption>
+	
+</figure></p>
+<h1 id="2流程定义文件流程定义流程模型-相互转化">2、流程定义文件—流程定义—流程模型 相互转化</h1>
+<h2 id="21--bpmn文件转流程定义act_re_procdef">2.1 、 bpmn文件转流程定义（act_re_procdef）</h2>
+<blockquote>
+<p>上面的1.2 中，我们是直接将文件放在了<code>src/main/resources</code>目录下。下面我们改造一下。改为上传附件部署流程定义。</p>
+</blockquote>
+<p>这里改动较大、把常用工具类类单独放在了workflow-common这个module中。贴出关键代码：</p>
+<p>新建 ProcessDefinitionController.java</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.workflow.activiti.rest.controller</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">com.sxdx.common.config.GlobalConfig</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">com.sxdx.common.constant.CodeEnum</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">com.sxdx.common.constant.Constants</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">com.sxdx.common.util.CommonResponse</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">com.sxdx.common.util.StringUtils</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">com.sxdx.common.util.file.FileUploadUtils</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">com.sxdx.workflow.activiti.rest.service.ProcessDefinitionService</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.activiti.engine.RepositoryService</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.slf4j.Logger</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.slf4j.LoggerFactory</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.beans.factory.annotation.Autowired</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.stereotype.Controller</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.web.bind.annotation.*</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.web.multipart.MultipartFile</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nd">@Controller</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@RequestMapping</span><span class="o">(</span><span class="s">&#34;/definition&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">ProcessDefinitionController</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">Logger</span> <span class="n">log</span> <span class="o">=</span> <span class="n">LoggerFactory</span><span class="o">.</span><span class="na">getLogger</span><span class="o">(</span><span class="n">ProcessDefinitionController</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">String</span> <span class="n">prefix</span> <span class="o">=</span> <span class="s">&#34;definition&#34;</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@Autowired</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">ProcessDefinitionService</span> <span class="n">processDefinitionService</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Autowired</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">RepositoryService</span> <span class="n">repositoryService</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 部署流程定义
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@PostMapping</span><span class="o">(</span><span class="s">&#34;/upload&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@ResponseBody</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">CommonResponse</span> <span class="nf">upload</span><span class="o">(</span><span class="nd">@RequestParam</span><span class="o">(</span><span class="s">&#34;processDefinition&#34;</span><span class="o">)</span> <span class="n">MultipartFile</span> <span class="n">file</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">try</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="o">(!</span><span class="n">file</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">())</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">String</span> <span class="n">extensionName</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="na">getOriginalFilename</span><span class="o">().</span><span class="na">substring</span><span class="o">(</span><span class="n">file</span><span class="o">.</span><span class="na">getOriginalFilename</span><span class="o">().</span><span class="na">lastIndexOf</span><span class="o">(</span><span class="sc">&#39;.&#39;</span><span class="o">)</span> <span class="o">+</span> <span class="n">1</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">                <span class="k">if</span> <span class="o">(!</span><span class="s">&#34;bpmn&#34;</span><span class="o">.</span><span class="na">equalsIgnoreCase</span><span class="o">(</span><span class="n">extensionName</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                        <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="s">&#34;zip&#34;</span><span class="o">.</span><span class="na">equalsIgnoreCase</span><span class="o">(</span><span class="n">extensionName</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                        <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="s">&#34;bar&#34;</span><span class="o">.</span><span class="na">equalsIgnoreCase</span><span class="o">(</span><span class="n">extensionName</span><span class="o">))</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="k">return</span> <span class="k">new</span> <span class="n">CommonResponse</span><span class="o">().</span><span class="na">code</span><span class="o">(</span><span class="n">CodeEnum</span><span class="o">.</span><span class="na">FAILURE</span><span class="o">.</span><span class="na">getCode</span><span class="o">()).</span><span class="na">message</span><span class="o">(</span><span class="s">&#34;流程定义文件仅支持 bpmn, zip 和 bar 格式！&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">                <span class="o">}</span>
+</span></span><span class="line"><span class="cl">                <span class="c1">// p.s. 此时 FileUploadUtils.upload() 返回字符串 fileName 前缀为 Constants.RESOURCE_PREFIX，需剔除
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="c1">// 详见: FileUploadUtils.getPathFileName(...)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="n">String</span> <span class="n">fileName</span> <span class="o">=</span> <span class="n">FileUploadUtils</span><span class="o">.</span><span class="na">upload</span><span class="o">(</span><span class="n">GlobalConfig</span><span class="o">.</span><span class="na">getProfile</span><span class="o">()</span> <span class="o">+</span> <span class="s">&#34;/processDefiniton&#34;</span><span class="o">,</span> <span class="n">file</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">                <span class="k">if</span> <span class="o">(</span><span class="n">StringUtils</span><span class="o">.</span><span class="na">isNotBlank</span><span class="o">(</span><span class="n">fileName</span><span class="o">))</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">String</span> <span class="n">realFilePath</span> <span class="o">=</span> <span class="n">GlobalConfig</span><span class="o">.</span><span class="na">getProfile</span><span class="o">()</span> <span class="o">+</span> <span class="n">fileName</span><span class="o">.</span><span class="na">substring</span><span class="o">(</span><span class="n">Constants</span><span class="o">.</span><span class="na">RESOURCE_PREFIX</span><span class="o">.</span><span class="na">length</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">processDefinitionService</span><span class="o">.</span><span class="na">deployProcessDefinition</span><span class="o">(</span><span class="n">realFilePath</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">                    <span class="k">return</span> <span class="k">new</span> <span class="n">CommonResponse</span><span class="o">().</span><span class="na">code</span><span class="o">(</span><span class="n">CodeEnum</span><span class="o">.</span><span class="na">SUCCESS</span><span class="o">.</span><span class="na">getCode</span><span class="o">()).</span><span class="na">message</span><span class="o">(</span><span class="s">&#34;部署成功&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">                <span class="o">}</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="k">new</span> <span class="n">CommonResponse</span><span class="o">().</span><span class="na">code</span><span class="o">(</span><span class="n">CodeEnum</span><span class="o">.</span><span class="na">FAILURE</span><span class="o">.</span><span class="na">getCode</span><span class="o">()).</span><span class="na">message</span><span class="o">(</span><span class="s">&#34;不允许上传空文件！&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">log</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="s">&#34;上传流程定义文件失败！&#34;</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="k">new</span> <span class="n">CommonResponse</span><span class="o">().</span><span class="na">code</span><span class="o">(</span><span class="n">CodeEnum</span><span class="o">.</span><span class="na">FAILURE</span><span class="o">.</span><span class="na">getCode</span><span class="o">().</span><span class="na">toString</span><span class="o">()).</span><span class="na">message</span><span class="o">(</span><span class="n">e</span><span class="o">.</span><span class="na">getMessage</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>我们使用postman做测试：</p>
+<p>支持单个bpmn文件上传，也支持多个文件压缩成zip包、或者bar包</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-05/image-20200602183752513.png" >
+		<img src="/images/activiti6-05/image-20200602183752513.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200602183752513">
+	</a>
+	
+	<figcaption>image-20200602183752513</figcaption>
+	
+</figure></p>
+<p>然后我们查看<code>act_re_deployment</code>和<code>act_re_procdef</code>表，可以看到已经生成了对应的流程定义记录（我执行了2次，所以2条记录）</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-05/image-20200602184117885.png" >
+		<img src="/images/activiti6-05/image-20200602184117885.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200602184117885">
+	</a>
+	
+	<figcaption>image-20200602184117885</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-05/image-20200602184139312.png" >
+		<img src="/images/activiti6-05/image-20200602184139312.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200602184139312">
+	</a>
+	
+	<figcaption>image-20200602184139312</figcaption>
+	
+</figure></p>
+<p>然后我们就可以根据流程定义来发起流程了，本节我们主要介绍内容不是这个，我们先来介绍流程定义如何转化流程模型。</p>
+<h2 id="22流程定义act_re_procdef转流程模型act_re_model">2.2、流程定义（act_re_procdef）转流程模型（act_re_model）</h2>
+<p>执行代码如下：</p>
+<pre tabindex="0"><code class="language-ajva" data-lang="ajva">/**
+     * 转换流程定义为模型
+     * @param processDefinitionId 流程定义id
+     * @return
+     * @throws UnsupportedEncodingException
+     * @throws XMLStreamException
+     */
+    @PostMapping(value = &#34;/convertToModel&#34;)
+    @ResponseBody
+    public CommonResponse convertToModel(@Param(&#34;processDefinitionId&#34;) String processDefinitionId)
+            throws UnsupportedEncodingException, XMLStreamException {
+        org.activiti.engine.repository.ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery()
+                .processDefinitionId(processDefinitionId).singleResult();
+        InputStream bpmnStream = repositoryService.getResourceAsStream(processDefinition.getDeploymentId(),
+                processDefinition.getResourceName());
+        XMLInputFactory xif = XMLInputFactory.newInstance();
+        InputStreamReader in = new InputStreamReader(bpmnStream, &#34;UTF-8&#34;);
+        XMLStreamReader xtr = xif.createXMLStreamReader(in);
+        BpmnModel bpmnModel = new BpmnXMLConverter().convertToBpmnModel(xtr);
+
+        BpmnJsonConverter converter = new BpmnJsonConverter();
+        ObjectNode modelNode = converter.convertToJson(bpmnModel);
+        Model modelData = repositoryService.newModel();
+        modelData.setKey(processDefinition.getKey());
+        modelData.setName(processDefinition.getResourceName());
+        modelData.setCategory(processDefinition.getDeploymentId());
+
+        ObjectNode modelObjectNode = new ObjectMapper().createObjectNode();
+        modelObjectNode.put(ModelDataJsonConstants.MODEL_NAME, processDefinition.getName());
+        modelObjectNode.put(ModelDataJsonConstants.MODEL_REVISION, 1);
+        modelObjectNode.put(ModelDataJsonConstants.MODEL_DESCRIPTION, processDefinition.getDescription());
+        modelData.setMetaInfo(modelObjectNode.toString());
+
+        repositoryService.saveModel(modelData);
+
+        repositoryService.addModelEditorSource(modelData.getId(), modelNode.toString().getBytes(&#34;utf-8&#34;));
+
+        return new CommonResponse().code(CodeEnum.SUCCESS.getCode()).message(&#34;转换成功&#34;);
+    }
+</code></pre><p>postman测试结果（参数是流程定义id，即<code>act_re_procdef</code>表的主键id）</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-05/image-20200602190226097.png" >
+		<img src="/images/activiti6-05/image-20200602190226097.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200602190226097">
+	</a>
+	
+	<figcaption>image-20200602190226097</figcaption>
+	
+</figure></p>
+<p>转化成功后，我们查看<code>act_re_model</code>表，可以看到已经生成了对应的流程模型。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-05/image-20200602190443001.png" >
+		<img src="/images/activiti6-05/image-20200602190443001.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200602190443001">
+	</a>
+	
+	<figcaption>image-20200602190443001</figcaption>
+	
+</figure></p>
+<h2 id="23流程模型act_re_model转流程定义act_re_procdef">2.3、流程模型（act_re_model）转流程定义（act_re_procdef）</h2>
+<p>新建ModelerController.java：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 根据Model部署流程，参数为act_re_model表的ID_字段
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;/modeler/deploy/{modelId}&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@ResponseBody</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">AjaxResult</span> <span class="nf">deploy</span><span class="o">(</span><span class="nd">@PathVariable</span><span class="o">(</span><span class="s">&#34;modelId&#34;</span><span class="o">)</span> <span class="n">String</span> <span class="n">modelId</span><span class="o">,</span> <span class="n">RedirectAttributes</span> <span class="n">redirectAttributes</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">try</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">Model</span> <span class="n">modelData</span> <span class="o">=</span> <span class="n">repositoryService</span><span class="o">.</span><span class="na">getModel</span><span class="o">(</span><span class="n">modelId</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">ObjectNode</span> <span class="n">modelNode</span> <span class="o">=</span> <span class="o">(</span><span class="n">ObjectNode</span><span class="o">)</span> <span class="k">new</span> <span class="n">ObjectMapper</span><span class="o">().</span><span class="na">readTree</span><span class="o">(</span><span class="n">repositoryService</span><span class="o">.</span><span class="na">getModelEditorSource</span><span class="o">(</span><span class="n">modelData</span><span class="o">.</span><span class="na">getId</span><span class="o">()));</span>
+</span></span><span class="line"><span class="cl">            <span class="kt">byte</span><span class="o">[]</span> <span class="n">bpmnBytes</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="n">BpmnModel</span> <span class="n">model</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BpmnJsonConverter</span><span class="o">().</span><span class="na">convertToBpmnModel</span><span class="o">(</span><span class="n">modelNode</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">bpmnBytes</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BpmnXMLConverter</span><span class="o">().</span><span class="na">convertToXML</span><span class="o">(</span><span class="n">model</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="n">String</span> <span class="n">processName</span> <span class="o">=</span> <span class="n">modelData</span><span class="o">.</span><span class="na">getName</span><span class="o">()</span> <span class="o">+</span> <span class="s">&#34;.bpmn20.xml&#34;</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">            <span class="n">Deployment</span> <span class="n">deployment</span> <span class="o">=</span> <span class="n">repositoryService</span><span class="o">.</span><span class="na">createDeployment</span><span class="o">().</span><span class="na">name</span><span class="o">(</span><span class="n">modelData</span><span class="o">.</span><span class="na">getName</span><span class="o">()).</span><span class="na">addString</span><span class="o">(</span><span class="n">processName</span><span class="o">,</span> <span class="k">new</span> <span class="n">String</span><span class="o">(</span><span class="n">bpmnBytes</span><span class="o">,</span> <span class="s">&#34;UTF-8&#34;</span><span class="o">)).</span><span class="na">deploy</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">            <span class="n">LOGGER</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">&#34;部署成功，部署ID=&#34;</span> <span class="o">+</span> <span class="n">deployment</span><span class="o">.</span><span class="na">getId</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="n">success</span><span class="o">(</span><span class="s">&#34;部署成功&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">LOGGER</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="s">&#34;根据模型部署流程失败：modelId={}&#34;</span><span class="o">,</span> <span class="n">modelId</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">error</span><span class="o">(</span><span class="s">&#34;部署失败&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 导出model的xml文件
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;/modeler/export/{modelId}&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">export</span><span class="o">(</span><span class="nd">@PathVariable</span><span class="o">(</span><span class="s">&#34;modelId&#34;</span><span class="o">)</span> <span class="n">String</span> <span class="n">modelId</span><span class="o">,</span> <span class="n">HttpServletResponse</span> <span class="n">response</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">try</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">Model</span> <span class="n">modelData</span> <span class="o">=</span> <span class="n">repositoryService</span><span class="o">.</span><span class="na">getModel</span><span class="o">(</span><span class="n">modelId</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">BpmnJsonConverter</span> <span class="n">jsonConverter</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BpmnJsonConverter</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">            <span class="n">JsonNode</span> <span class="n">editorNode</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ObjectMapper</span><span class="o">().</span><span class="na">readTree</span><span class="o">(</span><span class="n">repositoryService</span><span class="o">.</span><span class="na">getModelEditorSource</span><span class="o">(</span><span class="n">modelData</span><span class="o">.</span><span class="na">getId</span><span class="o">()));</span>
+</span></span><span class="line"><span class="cl">            <span class="n">BpmnModel</span> <span class="n">bpmnModel</span> <span class="o">=</span> <span class="n">jsonConverter</span><span class="o">.</span><span class="na">convertToBpmnModel</span><span class="o">(</span><span class="n">editorNode</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="c1">// 流程非空判断
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="k">if</span> <span class="o">(!</span><span class="n">CollectionUtils</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">(</span><span class="n">bpmnModel</span><span class="o">.</span><span class="na">getProcesses</span><span class="o">()))</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">BpmnXMLConverter</span> <span class="n">xmlConverter</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BpmnXMLConverter</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">                <span class="kt">byte</span><span class="o">[]</span> <span class="n">bpmnBytes</span> <span class="o">=</span> <span class="n">xmlConverter</span><span class="o">.</span><span class="na">convertToXML</span><span class="o">(</span><span class="n">bpmnModel</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">                <span class="n">ByteArrayInputStream</span> <span class="n">in</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ByteArrayInputStream</span><span class="o">(</span><span class="n">bpmnBytes</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">                <span class="n">String</span> <span class="n">filename</span> <span class="o">=</span> <span class="n">bpmnModel</span><span class="o">.</span><span class="na">getMainProcess</span><span class="o">().</span><span class="na">getId</span><span class="o">()</span> <span class="o">+</span> <span class="s">&#34;.bpmn&#34;</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">                <span class="n">response</span><span class="o">.</span><span class="na">setHeader</span><span class="o">(</span><span class="s">&#34;Content-Disposition&#34;</span><span class="o">,</span> <span class="s">&#34;attachment; filename=&#34;</span> <span class="o">+</span> <span class="n">filename</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">                <span class="n">IOUtils</span><span class="o">.</span><span class="na">copy</span><span class="o">(</span><span class="n">in</span><span class="o">,</span> <span class="n">response</span><span class="o">.</span><span class="na">getOutputStream</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">                <span class="n">response</span><span class="o">.</span><span class="na">flushBuffer</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="k">try</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">response</span><span class="o">.</span><span class="na">sendRedirect</span><span class="o">(</span><span class="s">&#34;/modeler/modelList&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">                <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">IOException</span> <span class="n">ex</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">ex</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">                <span class="o">}</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">LOGGER</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="s">&#34;导出model的xml文件失败：modelId={}&#34;</span><span class="o">,</span> <span class="n">modelId</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="k">try</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">response</span><span class="o">.</span><span class="na">sendRedirect</span><span class="o">(</span><span class="s">&#34;/modeler/modelList&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">IOException</span> <span class="n">ex</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">ex</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/images/activiti6-05/image-20200602192147302.png" >
+		<img src="/images/activiti6-05/image-20200602192147302.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200602192147302">
+	</a>
+	
+	<figcaption>image-20200602192147302</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-05/image-20200602192240137.png" >
+		<img src="/images/activiti6-05/image-20200602192240137.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200602192240137">
+	</a>
+	
+	<figcaption>image-20200602192240137</figcaption>
+	
+</figure></p>
+<p>我们查看对应的数据库表：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-05/image-20200602192229729.png" >
+		<img src="/images/activiti6-05/image-20200602192229729.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200602192229729">
+	</a>
+	
+	<figcaption>image-20200602192229729</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-05/image-20200602192416109.png" >
+		<img src="/images/activiti6-05/image-20200602192416109.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200602192416109">
+	</a>
+	
+	<figcaption>image-20200602192416109</figcaption>
+	
+</figure></p>
+<p>可以看到生成了对应的流程定义，因为我们使用的是同一个KEY的流程，所以生成的记录的VERSION_字段（版本）自动递增变为了3。有一点需要说明。当我们直接使用流程定义KEY（这里是leaveCounterSign）发起流程时，系统会默认选择吧版本更高的流程定义。</p>
+<h2 id="24将流程模型导出为bpmn文件">2.4、将流程模型导出为bpmn文件</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"> <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 将流程模型导出为 bpmn文件
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;/modeler/export/{modelId}&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">export</span><span class="o">(</span><span class="nd">@PathVariable</span><span class="o">(</span><span class="s">&#34;modelId&#34;</span><span class="o">)</span> <span class="n">String</span> <span class="n">modelId</span><span class="o">,</span> <span class="n">HttpServletResponse</span> <span class="n">response</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">try</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">Model</span> <span class="n">modelData</span> <span class="o">=</span> <span class="n">repositoryService</span><span class="o">.</span><span class="na">getModel</span><span class="o">(</span><span class="n">modelId</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">BpmnJsonConverter</span> <span class="n">jsonConverter</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BpmnJsonConverter</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">            <span class="n">JsonNode</span> <span class="n">editorNode</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ObjectMapper</span><span class="o">().</span><span class="na">readTree</span><span class="o">(</span><span class="n">repositoryService</span><span class="o">.</span><span class="na">getModelEditorSource</span><span class="o">(</span><span class="n">modelData</span><span class="o">.</span><span class="na">getId</span><span class="o">()));</span>
+</span></span><span class="line"><span class="cl">            <span class="n">BpmnModel</span> <span class="n">bpmnModel</span> <span class="o">=</span> <span class="n">jsonConverter</span><span class="o">.</span><span class="na">convertToBpmnModel</span><span class="o">(</span><span class="n">editorNode</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="c1">// 流程非空判断
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="k">if</span> <span class="o">(!</span><span class="n">CollectionUtils</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">(</span><span class="n">bpmnModel</span><span class="o">.</span><span class="na">getProcesses</span><span class="o">()))</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">BpmnXMLConverter</span> <span class="n">xmlConverter</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BpmnXMLConverter</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">                <span class="kt">byte</span><span class="o">[]</span> <span class="n">bpmnBytes</span> <span class="o">=</span> <span class="n">xmlConverter</span><span class="o">.</span><span class="na">convertToXML</span><span class="o">(</span><span class="n">bpmnModel</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">                <span class="n">ByteArrayInputStream</span> <span class="n">in</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ByteArrayInputStream</span><span class="o">(</span><span class="n">bpmnBytes</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">                <span class="n">String</span> <span class="n">filename</span> <span class="o">=</span> <span class="n">bpmnModel</span><span class="o">.</span><span class="na">getMainProcess</span><span class="o">().</span><span class="na">getId</span><span class="o">()</span> <span class="o">+</span> <span class="s">&#34;.bpmn&#34;</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">                <span class="n">response</span><span class="o">.</span><span class="na">setHeader</span><span class="o">(</span><span class="s">&#34;Content-Disposition&#34;</span><span class="o">,</span> <span class="s">&#34;attachment; filename=&#34;</span> <span class="o">+</span> <span class="n">filename</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">                <span class="n">IOUtils</span><span class="o">.</span><span class="na">copy</span><span class="o">(</span><span class="n">in</span><span class="o">,</span> <span class="n">response</span><span class="o">.</span><span class="na">getOutputStream</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">                <span class="n">response</span><span class="o">.</span><span class="na">flushBuffer</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">logger</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="s">&#34;导出model的xml文件失败：modelId={}&#34;</span><span class="o">,</span> <span class="n">modelId</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">logger</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="s">&#34;导出model的xml文件失败：modelId={}&#34;</span><span class="o">,</span> <span class="n">modelId</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span></code></pre></div><p>测试结果：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-05/image-20200602194029052.png" >
+		<img src="/images/activiti6-05/image-20200602194029052.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200602194029052">
+	</a>
+	
+	<figcaption>image-20200602194029052</figcaption>
+	
+</figure></p>
+<p>如果直接使用浏览器访问，则会下载bpmn文件</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-05/image-20200602194230562.png" >
+		<img src="/images/activiti6-05/image-20200602194230562.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200602194230562">
+	</a>
+	
+	<figcaption>image-20200602194230562</figcaption>
+	
+</figure></p>
+<h2 id="25创建流程模型">2.5、创建流程模型</h2>
+<p>这个我们在第3节已经介绍过，不做其他介绍。直接贴代码：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 创建模型
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;/modeler/create&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@ResponseBody</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">CommonResponse</span> <span class="nf">create</span><span class="o">(</span><span class="nd">@RequestParam</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;name&#34;</span><span class="o">,</span><span class="n">required</span><span class="o">=</span><span class="kc">true</span><span class="o">)</span> <span class="n">String</span> <span class="n">name</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">                       <span class="nd">@RequestParam</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;key&#34;</span><span class="o">,</span><span class="n">required</span><span class="o">=</span><span class="kc">true</span><span class="o">)</span> <span class="n">String</span> <span class="n">key</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">                       <span class="nd">@RequestParam</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;description&#34;</span><span class="o">,</span><span class="n">required</span><span class="o">=</span><span class="kc">true</span><span class="o">)</span> <span class="n">String</span> <span class="n">description</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">       <span class="cm">/* String name = &#34;请假流程&#34;;
+</span></span></span><span class="line"><span class="cl"><span class="cm">        String key = &#34;qingjia&#34;;
+</span></span></span><span class="line"><span class="cl"><span class="cm">        String description = &#34;这是一个简单的请假流程&#34;;*/</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">try</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">ObjectMapper</span> <span class="n">objectMapper</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ObjectMapper</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">            <span class="n">ObjectNode</span> <span class="n">editorNode</span> <span class="o">=</span> <span class="n">objectMapper</span><span class="o">.</span><span class="na">createObjectNode</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">            <span class="n">editorNode</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;id&#34;</span><span class="o">,</span> <span class="s">&#34;canvas&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">editorNode</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;resourceId&#34;</span><span class="o">,</span> <span class="s">&#34;canvas&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="n">ObjectNode</span> <span class="n">stencilSetNode</span> <span class="o">=</span> <span class="n">objectMapper</span><span class="o">.</span><span class="na">createObjectNode</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">            <span class="n">stencilSetNode</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;namespace&#34;</span><span class="o">,</span> <span class="s">&#34;http://b3mn.org/stencilset/bpmn2.0#&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="n">editorNode</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;stencilset&#34;</span><span class="o">,</span> <span class="n">stencilSetNode</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="n">ObjectNode</span> <span class="n">modelObjectNode</span> <span class="o">=</span> <span class="n">objectMapper</span><span class="o">.</span><span class="na">createObjectNode</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">            <span class="n">modelObjectNode</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">MODEL_NAME</span><span class="o">,</span> <span class="n">name</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">modelObjectNode</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ModelDataJsonConstants</span><span class="o">.</span><span class="na">MODEL_REVISION</span><span class="o">,</span> <span class="n">1</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">description</span> <span class="o">=</span> <span class="n">StringUtils</span><span class="o">.</span><span class="na">defaultString</span><span class="o">(</span><span class="n">description</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">modelObjectNode</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">MODEL_DESCRIPTION</span><span class="o">,</span> <span class="n">description</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="n">Model</span> <span class="n">newModel</span> <span class="o">=</span> <span class="n">repositoryService</span><span class="o">.</span><span class="na">newModel</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">            <span class="n">newModel</span><span class="o">.</span><span class="na">setMetaInfo</span><span class="o">(</span><span class="n">modelObjectNode</span><span class="o">.</span><span class="na">toString</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">            <span class="n">newModel</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="n">name</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">newModel</span><span class="o">.</span><span class="na">setKey</span><span class="o">(</span><span class="n">StringUtils</span><span class="o">.</span><span class="na">defaultString</span><span class="o">(</span><span class="n">key</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="n">repositoryService</span><span class="o">.</span><span class="na">saveModel</span><span class="o">(</span><span class="n">newModel</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">repositoryService</span><span class="o">.</span><span class="na">addModelEditorSource</span><span class="o">(</span><span class="n">newModel</span><span class="o">.</span><span class="na">getId</span><span class="o">(),</span> <span class="n">editorNode</span><span class="o">.</span><span class="na">toString</span><span class="o">().</span><span class="na">getBytes</span><span class="o">(</span><span class="s">&#34;utf-8&#34;</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;生成的moduleId:&#34;</span><span class="o">+</span><span class="n">newModel</span><span class="o">.</span><span class="na">getId</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="k">new</span> <span class="n">CommonResponse</span><span class="o">().</span><span class="na">code</span><span class="o">(</span><span class="n">CodeEnum</span><span class="o">.</span><span class="na">SUCCESS</span><span class="o">.</span><span class="na">getCode</span><span class="o">()).</span><span class="na">message</span><span class="o">(</span><span class="s">&#34;部署成功&#34;</span><span class="o">).</span><span class="na">data</span><span class="o">(</span><span class="n">newModel</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">logger</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="s">&#34;创建模型失败&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="k">new</span> <span class="n">CommonResponse</span><span class="o">().</span><span class="na">code</span><span class="o">(</span><span class="n">CodeEnum</span><span class="o">.</span><span class="na">SUCCESS</span><span class="o">.</span><span class="na">getCode</span><span class="o">()).</span><span class="na">message</span><span class="o">(</span><span class="s">&#34;部署成功&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/images/activiti6-05/image-20200603164205645.png" >
+		<img src="/images/activiti6-05/image-20200603164205645.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200603164205645">
+	</a>
+	
+	<figcaption>image-20200603164205645</figcaption>
+	
+</figure></p>
+<h2 id="26-查看流程模型">2.6 、查看流程模型</h2>
+<p>访问 http://localhost:8080/modeler/modeler.html?modelId=1,</p>
+<p>就可以愉快的在上面设计流程图了。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-05/image-20200603164324344.png" >
+		<img src="/images/activiti6-05/image-20200603164324344.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200603164324344">
+	</a>
+	
+	<figcaption>image-20200603164324344</figcaption>
+	
+</figure></p>
+<p>流程定义文件—流程定义—流程模型 之间的相互转化，就介绍到这里。</p>
+<h2 id="27删除已部署的流程定义">2.7、删除已部署的流程定义</h2>
+<pre tabindex="0"><code>/**
+     * 删除已部署的流程定义
+     * @param deploymentId 流程部署ID
+     */
+    @GetMapping(value = &#34;/process/delete/{deploymentId}&#34;)
+    @ApiOperation(value = &#34;删除已部署的流程定义&#34;,notes = &#34;删除已部署的流程定义&#34;)
+    public CommonResponse delete(@PathVariable(&#34;deploymentId&#34;) @ApiParam(&#34;流程定义ID (act_re_deployment表id)&#34;)  String deploymentId) {
+
+        List&lt;ProcessInstance&gt; instanceList = runtimeService.createProcessInstanceQuery()
+                .deploymentId(deploymentId)
+                .list();
+        if (!CollectionUtils.isEmpty(instanceList)) {
+            // 存在流程实例的流程定义
+            throw new CommonException(&#34;删除失败，存在运行中的流程实例&#34;);
+        }
+        repositoryService.deleteDeployment(deploymentId, true); // true 表示级联删除引用，比如 act_ru_execution 数据
+
+        return new CommonResponse().code(CodeEnum.SUCCESS.getCode()).message(&#34;删除流程实例成功&#34;);
+    }
+</code></pre><p><figure 
+	>
+	<a href="/images/activiti6-05/image-20200617155645515.png" >
+		<img src="/images/activiti6-05/image-20200617155645515.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200617155645515">
+	</a>
+	
+	<figcaption>image-20200617155645515</figcaption>
+	
+</figure></p>
+<h2 id="28删除流程模型">2.8、删除流程模型</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@GetMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;/modeler/delete/{modelId}&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@ApiOperation</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;删除流程模型&#34;</span><span class="o">,</span><span class="n">notes</span> <span class="o">=</span> <span class="s">&#34;删除流程模型&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">CommonResponse</span> <span class="nf">remove</span><span class="o">(</span><span class="nd">@PathVariable</span><span class="o">(</span><span class="s">&#34;modelId&#34;</span><span class="o">)</span> <span class="nd">@ApiParam</span><span class="o">(</span><span class="s">&#34;流程模型Id&#34;</span><span class="o">)</span> <span class="n">String</span> <span class="n">modelId</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">       <span class="n">repositoryService</span><span class="o">.</span><span class="na">deleteModel</span><span class="o">(</span><span class="n">modelId</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">       <span class="k">return</span> <span class="k">new</span> <span class="n">CommonResponse</span><span class="o">().</span><span class="na">code</span><span class="o">(</span><span class="n">CodeEnum</span><span class="o">.</span><span class="na">SUCCESS</span><span class="o">.</span><span class="na">getCode</span><span class="o">()).</span><span class="na">message</span><span class="o">(</span><span class="s">&#34;删除流程模型成功&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/images/activiti6-05/image-20200617163620124.png" >
+		<img src="/images/activiti6-05/image-20200617163620124.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200617163620124">
+	</a>
+	
+	<figcaption>image-20200617163620124</figcaption>
+	
+</figure></p>
+<h1 id="3内容补充">3、内容补充</h1>
+<h2 id="31-获取流程模型列表">3.1 获取流程模型列表</h2>
+<p>此处添加一个获取流程模型列表的接口，其中用到了<strong>自定义分页插件</strong>。自定义分页插件在后面的**第15章节《历史数据模块、补充获取流程定义列表接口》**中会有介绍。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"> <span class="nd">@GetMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;/modelList&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@ApiOperation</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;获取流程模型列表&#34;</span><span class="o">,</span><span class="n">notes</span> <span class="o">=</span> <span class="s">&#34;获取流程模型列表&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">CommonResponse</span> <span class="nf">getModelerList</span><span class="o">(</span><span class="nd">@RequestParam</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;pageNum&#34;</span><span class="o">,</span> <span class="n">required</span> <span class="o">=</span> <span class="kc">false</span><span class="o">,</span><span class="n">defaultValue</span> <span class="o">=</span> <span class="s">&#34;1&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                                   <span class="nd">@ApiParam</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;页码&#34;</span> <span class="o">,</span><span class="n">required</span> <span class="o">=</span> <span class="kc">false</span><span class="o">)</span><span class="kt">int</span> <span class="n">pageNum</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">                               <span class="nd">@RequestParam</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;pageSize&#34;</span><span class="o">,</span> <span class="n">required</span> <span class="o">=</span> <span class="kc">false</span><span class="o">,</span><span class="n">defaultValue</span> <span class="o">=</span> <span class="s">&#34;10&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                                   <span class="nd">@ApiParam</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;条数&#34;</span> <span class="o">,</span><span class="n">required</span> <span class="o">=</span> <span class="kc">false</span><span class="o">)</span><span class="kt">int</span> <span class="n">pageSize</span><span class="o">){</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ModelQuery</span> <span class="n">modelQuery</span> <span class="o">=</span> <span class="n">repositoryService</span><span class="o">.</span><span class="na">createModelQuery</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">Page</span> <span class="n">page</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Page</span><span class="o">(</span><span class="n">pageNum</span><span class="o">,</span><span class="n">pageSize</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">List</span><span class="o">&lt;</span><span class="n">Model</span><span class="o">&gt;</span> <span class="n">list</span> <span class="o">=</span> <span class="n">modelQuery</span><span class="o">.</span><span class="na">orderByCreateTime</span><span class="o">().</span><span class="na">desc</span><span class="o">()</span>
+</span></span><span class="line"><span class="cl">                                    <span class="o">.</span><span class="na">listPage</span><span class="o">(</span><span class="n">page</span><span class="o">.</span><span class="na">getFirstResult</span><span class="o">(),</span><span class="n">page</span><span class="o">.</span><span class="na">getMaxResults</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="kt">int</span> <span class="n">total</span> <span class="o">=</span> <span class="o">(</span><span class="kt">int</span><span class="o">)</span> <span class="n">modelQuery</span><span class="o">.</span><span class="na">count</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">page</span><span class="o">.</span><span class="na">setTotal</span><span class="o">(</span><span class="n">total</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">page</span><span class="o">.</span><span class="na">setList</span><span class="o">(</span><span class="n">list</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="k">new</span> <span class="n">CommonResponse</span><span class="o">().</span><span class="na">code</span><span class="o">(</span><span class="n">CodeEnum</span><span class="o">.</span><span class="na">SUCCESS</span><span class="o">.</span><span class="na">getCode</span><span class="o">()).</span><span class="na">message</span><span class="o">(</span><span class="s">&#34;获取流程模型列表成功&#34;</span><span class="o">).</span><span class="na">data</span><span class="o">(</span><span class="n">page</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/images/activiti6-05/image-20200815164800115.png" >
+		<img src="/images/activiti6-05/image-20200815164800115.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200815164800115">
+	</a>
+	
+	<figcaption>image-20200815164800115</figcaption>
+	
+</figure></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/activiti/">Activiti</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/activiti6%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%B3%BB%E7%BB%9F%E6%90%AD%E5%BB%BA%E6%95%99%E7%A8%8B/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti6工作流系统搭建教程</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti33-spring-security%E8%8E%B7%E5%8F%96%E5%BD%93%E5%89%8D%E6%93%8D%E4%BD%9C%E4%BA%BA%E4%BF%A1%E6%81%AF/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（33） Spring-Security获取当前操作人信息</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti34-%E4%BD%BF%E7%94%A8swagger%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（34） 使用Swagger生成静态接口文档</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti35-%E4%BD%BF%E7%94%A8swagger%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（35） 使用Swagger生成静态接口文档</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti32-%E6%9B%BF%E6%8D%A2activiti%E7%94%A8%E6%88%B7%E5%92%8C%E7%94%A8%E6%88%B7%E7%BB%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（32） 替换Activiti用户和用户组</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#11-生成流程模型">1.1 、生成流程模型</a></li>
+    <li><a href="#12-部署流程定义">1.2 、部署流程定义</a></li>
+    <li><a href="#13--引出问题">1.3 、 引出问题</a></li>
+  </ol>
+
+  <ol>
+    <li><a href="#21--bpmn文件转流程定义act_re_procdef">2.1 、 bpmn文件转流程定义（act_re_procdef）</a></li>
+    <li><a href="#22流程定义act_re_procdef转流程模型act_re_model">2.2、流程定义（act_re_procdef）转流程模型（act_re_model）</a></li>
+    <li><a href="#23流程模型act_re_model转流程定义act_re_procdef">2.3、流程模型（act_re_model）转流程定义（act_re_procdef）</a></li>
+    <li><a href="#24将流程模型导出为bpmn文件">2.4、将流程模型导出为bpmn文件</a></li>
+    <li><a href="#25创建流程模型">2.5、创建流程模型</a></li>
+    <li><a href="#26-查看流程模型">2.6 、查看流程模型</a></li>
+    <li><a href="#27删除已部署的流程定义">2.7、删除已部署的流程定义</a></li>
+    <li><a href="#28删除流程模型">2.8、删除流程模型</a></li>
+  </ol>
+
+  <ol>
+    <li><a href="#31-获取流程模型列表">3.1 获取流程模型列表</a></li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

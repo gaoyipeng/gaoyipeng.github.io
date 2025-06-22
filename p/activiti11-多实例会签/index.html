@@ -1,0 +1,1443 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Activiti（11） 多实例（会签）、任务监听器、执行监听器'><title>Activiti（11） 多实例（会签）</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/activiti11-%E5%A4%9A%E5%AE%9E%E4%BE%8B%E4%BC%9A%E7%AD%BE/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Activiti（11） 多实例（会签）'>
+<meta property='og:description' content='Activiti（11） 多实例（会签）、任务监听器、执行监听器'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/activiti11-%E5%A4%9A%E5%AE%9E%E4%BE%8B%E4%BC%9A%E7%AD%BE/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Activiti' /><meta property='article:published_time' content='2020-07-02T16:51:27&#43;00:00'/><meta property='article:modified_time' content='2020-07-02T16:51:27&#43;00:00'/>
+<meta name="twitter:title" content="Activiti（11） 多实例（会签）">
+<meta name="twitter:description" content="Activiti（11） 多实例（会签）、任务监听器、执行监听器">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/activiti/" >
+                Activiti
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/activiti11-%E5%A4%9A%E5%AE%9E%E4%BE%8B%E4%BC%9A%E7%AD%BE/">Activiti（11） 多实例（会签）</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        Activiti（11） 多实例（会签）、任务监听器、执行监听器
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jul 02, 2020</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 5 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <h1 id="1场景引入">1、场景引入</h1>
+<p>现在我们有这样的一个需求，在一个任务节点的时候，我们需要多个人对这个节点进行审批，比如实际中这样一个例子，有5个人，那么当5个人都投票的时候大概分为如下几种：</p>
+<ol>
+<li>所有人都去投票，当所有人都投票完成的时候，这个节点结束，流程运转到下一个节点。(并行)</li>
+<li>所有人都去投票,只要有任意2/3的人同意，这个节点结束，流程运转到下一个节点。(部分人投票只要满足条件就算完成)。</li>
+<li>5人中有一个部门经理，只要部门经理投票过了，这个节点结束，流程运转到下一个节点（一票否决权）。</li>
+<li>部门中根据职位不同，不同的人都不同的权重，当满足条件的时候，这个节点结束，流程运转到下一个节点。比如说a有0.2的权重，其他的四个人分别是0.1的权重，我们可以配置权重达到0.3就可以走向下一个节点，换言之a的权重是其他人的2倍，那就是a的投票相当于2个人投票。</li>
+<li>部门所有人都去投票，a投票结束到b,b开始投票结束到c,一直如此，串行执行。最终到最后一个人再统计结果，决定流程的运转。（串行）</li>
+</ol>
+<p>上面的五种情况，我们可以提取出来一些信息，我们的activiti 工作流引擎，必须支持如下功能，才能满足上面的需求：</p>
+<ol>
+<li>任务节点可以配置自定义满足条件。</li>
+<li>任务节点必须支持串行、并行。</li>
+<li>任务节点必须支持可以指定候选人或者候选组。</li>
+<li>任务节点必须支持可以循环的次数。</li>
+<li>任务节点必须支持可以自定义权重。</li>
+<li>任务节点必须支持加签、减签。(就是动态的修改任务节点的处理人)</li>
+</ol>
+<p>实际上的需求可能比上面的几种情况更加的复杂。</p>
+<h1 id="2并行会签">2、并行会签</h1>
+<p>我们依旧使用请假流程来演示，此处我们合并部门领导和人事节点，合并为一个【部门/人事联合会签】。</p>
+<h2 id="21--流程定义">2.1  流程定义</h2>
+<p><figure 
+	>
+	<a href="/images/activiti6-11/image-20200702174847574.png" >
+		<img src="/images/activiti6-11/image-20200702174847574.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200702174847574">
+	</a>
+	
+	<figcaption>image-20200702174847574</figcaption>
+	
+</figure></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="cp">&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;definitions</span> <span class="na">xmlns=</span><span class="s">&#34;http://www.omg.org/spec/BPMN/20100524/MODEL&#34;</span> <span class="na">xmlns:xsi=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="na">xmlns:activiti=</span><span class="s">&#34;http://activiti.org/bpmn&#34;</span> <span class="na">xmlns:bpmndi=</span><span class="s">&#34;http://www.omg.org/spec/BPMN/20100524/DI&#34;</span> <span class="na">xmlns:omgdc=</span><span class="s">&#34;http://www.omg.org/spec/DD/20100524/DC&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="na">xmlns:omgdi=</span><span class="s">&#34;http://www.omg.org/spec/DD/20100524/DI&#34;</span> <span class="na">typeLanguage=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema&#34;</span> <span class="na">expressionLanguage=</span><span class="s">&#34;http://www.w3.org/1999/XPath&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="na">targetNamespace=</span><span class="s">&#34;http://www.activiti.org/test&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="nt">&lt;process</span> <span class="na">id=</span><span class="s">&#34;leave-countersign&#34;</span> <span class="na">name=</span><span class="s">&#34;请假流程-会签&#34;</span> <span class="na">isExecutable=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="nt">&lt;documentation&gt;</span>请假流程演示-会签<span class="nt">&lt;/documentation&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="nt">&lt;startEvent</span> <span class="na">id=</span><span class="s">&#34;startevent1&#34;</span> <span class="na">name=</span><span class="s">&#34;Start&#34;</span> <span class="na">activiti:initiator=</span><span class="s">&#34;applyUserId&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;startDate&#34;</span> <span class="na">name=</span><span class="s">&#34;请假开始日期&#34;</span> <span class="na">type=</span><span class="s">&#34;date&#34;</span> <span class="na">datePattern=</span><span class="s">&#34;yyyy-MM-dd&#34;</span> <span class="na">required=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;endDate&#34;</span> <span class="na">name=</span><span class="s">&#34;请假结束日期&#34;</span> <span class="na">type=</span><span class="s">&#34;date&#34;</span> <span class="na">datePattern=</span><span class="s">&#34;yyyy-MM-dd&#34;</span> <span class="na">required=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;reason&#34;</span> <span class="na">name=</span><span class="s">&#34;请假原因&#34;</span> <span class="na">type=</span><span class="s">&#34;string&#34;</span> <span class="na">required=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;users&#34;</span> <span class="na">name=</span><span class="s">&#34;审批参与人&#34;</span> <span class="na">type=</span><span class="s">&#34;users&#34;</span> <span class="na">required=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;validScript&#34;</span> <span class="na">type=</span><span class="s">&#34;javascript&#34;</span> <span class="na">default=</span><span class="s">&#34;alert(&#39;表单已经加载完毕&#39;);&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;/extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="nt">&lt;/startEvent&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="nt">&lt;userTask</span> <span class="na">id=</span><span class="s">&#34;countersign&#34;</span> <span class="na">name=</span><span class="s">&#34;[部门/人事]联合会签&#34;</span> <span class="na">activiti:assignee=</span><span class="s">&#34;${user}&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;startDate&#34;</span> <span class="na">name=</span><span class="s">&#34;请假开始日期&#34;</span> <span class="na">type=</span><span class="s">&#34;date&#34;</span> <span class="na">datePattern=</span><span class="s">&#34;yyyy-MM-dd&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;endDate&#34;</span> <span class="na">name=</span><span class="s">&#34;请假结束日期&#34;</span> <span class="na">type=</span><span class="s">&#34;date&#34;</span> <span class="na">datePattern=</span><span class="s">&#34;yyyy-MM-dd&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;reason&#34;</span> <span class="na">name=</span><span class="s">&#34;请假原因&#34;</span> <span class="na">type=</span><span class="s">&#34;string&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;approved&#34;</span> <span class="na">name=</span><span class="s">&#34;审批意见&#34;</span> <span class="na">type=</span><span class="s">&#34;enum&#34;</span> <span class="na">required=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">					<span class="nt">&lt;activiti:value</span> <span class="na">id=</span><span class="s">&#34;true&#34;</span> <span class="na">name=</span><span class="s">&#34;同意&#34;</span><span class="nt">&gt;&lt;/activiti:value&gt;</span>
+</span></span><span class="line"><span class="cl">					<span class="nt">&lt;activiti:value</span> <span class="na">id=</span><span class="s">&#34;false&#34;</span> <span class="na">name=</span><span class="s">&#34;拒绝&#34;</span><span class="nt">&gt;&lt;/activiti:value&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;activiti:taskListener</span> <span class="na">event=</span><span class="s">&#34;complete&#34;</span> <span class="na">delegateExpression=</span><span class="s">&#34;${leaveCounterSignCompleteListener}&#34;</span><span class="nt">&gt;&lt;/activiti:taskListener&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;/extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;multiInstanceLoopCharacteristics</span> <span class="na">isSequential=</span><span class="s">&#34;false&#34;</span> <span class="na">activiti:collection=</span><span class="s">&#34;users&#34;</span>
+</span></span><span class="line"><span class="cl">				<span class="na">activiti:elementVariable=</span><span class="s">&#34;user&#34;</span><span class="nt">&gt;&lt;/multiInstanceLoopCharacteristics&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="nt">&lt;/userTask&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="nt">&lt;userTask</span> <span class="na">id=</span><span class="s">&#34;reportBack&#34;</span> <span class="na">name=</span><span class="s">&#34;销假&#34;</span> <span class="na">activiti:assignee=</span><span class="s">&#34;${applyUserId}&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;startDate&#34;</span> <span class="na">name=</span><span class="s">&#34;请假开始日期&#34;</span> <span class="na">type=</span><span class="s">&#34;date&#34;</span> <span class="na">datePattern=</span><span class="s">&#34;yyyy-MM-dd&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;endDate&#34;</span> <span class="na">name=</span><span class="s">&#34;请假结束日期&#34;</span> <span class="na">type=</span><span class="s">&#34;date&#34;</span> <span class="na">datePattern=</span><span class="s">&#34;yyyy-MM-dd&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;reason&#34;</span> <span class="na">name=</span><span class="s">&#34;请假原因&#34;</span> <span class="na">type=</span><span class="s">&#34;string&#34;</span> <span class="na">writable=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;reportBackDate&#34;</span> <span class="na">name=</span><span class="s">&#34;销假日期&#34;</span> <span class="na">type=</span><span class="s">&#34;date&#34;</span> <span class="na">default=</span><span class="s">&#34;${endDate}&#34;</span> <span class="na">datePattern=</span><span class="s">&#34;yyyy-MM-dd&#34;</span>
+</span></span><span class="line"><span class="cl">					<span class="na">required=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;/extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="nt">&lt;/userTask&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="nt">&lt;endEvent</span> <span class="na">id=</span><span class="s">&#34;endevent1&#34;</span> <span class="na">name=</span><span class="s">&#34;End&#34;</span><span class="nt">&gt;&lt;/endEvent&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow2&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;startevent1&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;countersign&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;activiti:executionListener</span> <span class="na">event=</span><span class="s">&#34;take&#34;</span> <span class="na">expression=</span><span class="s">&#34;${execution.setVariable(&#39;approvedCounter&#39;, 0)}&#34;</span><span class="nt">&gt;&lt;/activiti:executionListener&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;/extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="nt">&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow8&#34;</span> <span class="na">name=</span><span class="s">&#34;销假&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;reportBack&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;endevent1&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;activiti:executionListener</span> <span class="na">event=</span><span class="s">&#34;take&#34;</span> <span class="na">expression=</span><span class="s">&#34;${execution.setVariable(&#39;result&#39;, &#39;ok&#39;)}&#34;</span><span class="nt">&gt;&lt;/activiti:executionListener&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;/extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="nt">&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow13&#34;</span> <span class="na">name=</span><span class="s">&#34;全部通过&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;exclusivegateway1&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;reportBack&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;conditionExpression</span> <span class="na">xsi:type=</span><span class="s">&#34;tFormalExpression&#34;</span><span class="nt">&gt;</span><span class="cp">&lt;![CDATA[${approvedCounter == users.size()}]]&gt;</span><span class="nt">&lt;/conditionExpression&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="nt">&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="nt">&lt;exclusiveGateway</span> <span class="na">id=</span><span class="s">&#34;exclusivegateway1&#34;</span> <span class="na">name=</span><span class="s">&#34;Exclusive Gateway&#34;</span><span class="nt">&gt;&lt;/exclusiveGateway&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow14&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;countersign&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;exclusivegateway1&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="nt">&lt;userTask</span> <span class="na">id=</span><span class="s">&#34;modifyApply&#34;</span> <span class="na">name=</span><span class="s">&#34;调整申请&#34;</span> <span class="na">activiti:assignee=</span><span class="s">&#34;${applyUserId}&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;startDate&#34;</span> <span class="na">name=</span><span class="s">&#34;请假开始日期&#34;</span> <span class="na">type=</span><span class="s">&#34;date&#34;</span> <span class="na">datePattern=</span><span class="s">&#34;yyyy-MM-dd&#34;</span> <span class="na">required=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;endDate&#34;</span> <span class="na">name=</span><span class="s">&#34;请假结束日期&#34;</span> <span class="na">type=</span><span class="s">&#34;date&#34;</span> <span class="na">datePattern=</span><span class="s">&#34;yyyy-MM-dd&#34;</span> <span class="na">required=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;reason&#34;</span> <span class="na">name=</span><span class="s">&#34;请假原因&#34;</span> <span class="na">type=</span><span class="s">&#34;string&#34;</span> <span class="na">required=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;reApply&#34;</span> <span class="na">name=</span><span class="s">&#34;重新申请&#34;</span> <span class="na">type=</span><span class="s">&#34;enum&#34;</span> <span class="na">required=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">					<span class="nt">&lt;activiti:value</span> <span class="na">id=</span><span class="s">&#34;true&#34;</span> <span class="na">name=</span><span class="s">&#34;重新申请&#34;</span><span class="nt">&gt;&lt;/activiti:value&gt;</span>
+</span></span><span class="line"><span class="cl">					<span class="nt">&lt;activiti:value</span> <span class="na">id=</span><span class="s">&#34;false&#34;</span> <span class="na">name=</span><span class="s">&#34;取消申请&#34;</span><span class="nt">&gt;&lt;/activiti:value&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;/extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="nt">&lt;/userTask&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow15&#34;</span> <span class="na">name=</span><span class="s">&#34;部分通过&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;exclusivegateway1&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;modifyApply&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;conditionExpression</span> <span class="na">xsi:type=</span><span class="s">&#34;tFormalExpression&#34;</span><span class="nt">&gt;</span><span class="cp">&lt;![CDATA[${approvedCounter &lt; users.size()}]]&gt;</span><span class="nt">&lt;/conditionExpression&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="nt">&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="nt">&lt;exclusiveGateway</span> <span class="na">id=</span><span class="s">&#34;exclusivegateway2&#34;</span> <span class="na">name=</span><span class="s">&#34;Exclusive Gateway&#34;</span><span class="nt">&gt;&lt;/exclusiveGateway&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow16&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;modifyApply&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;exclusivegateway2&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow17&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;exclusivegateway2&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;endevent1&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;conditionExpression</span> <span class="na">xsi:type=</span><span class="s">&#34;tFormalExpression&#34;</span><span class="nt">&gt;</span><span class="cp">&lt;![CDATA[${reApply == &#39;false&#39;}]]&gt;</span><span class="nt">&lt;/conditionExpression&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="nt">&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;flow18&#34;</span> <span class="na">name=</span><span class="s">&#34;重新申请&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;exclusivegateway2&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;countersign&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;activiti:executionListener</span> <span class="na">event=</span><span class="s">&#34;take&#34;</span> <span class="na">expression=</span><span class="s">&#34;${execution.setVariable(&#39;approvedCounter&#39;, 0)}&#34;</span><span class="nt">&gt;&lt;/activiti:executionListener&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;/extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;conditionExpression</span> <span class="na">xsi:type=</span><span class="s">&#34;tFormalExpression&#34;</span><span class="nt">&gt;</span><span class="cp">&lt;![CDATA[${reApply == &#39;true&#39;}]]&gt;</span><span class="nt">&lt;/conditionExpression&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="nt">&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="nt">&lt;/process&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="nt">&lt;bpmndi:BPMNDiagram</span> <span class="na">id=</span><span class="s">&#34;BPMNDiagram_leave-countersign&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="nt">&lt;bpmndi:BPMNPlane</span> <span class="na">bpmnElement=</span><span class="s">&#34;leave-countersign&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNPlane_leave-countersign&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;startevent1&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_startevent1&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;35.0&#34;</span> <span class="na">width=</span><span class="s">&#34;35.0&#34;</span> <span class="na">x=</span><span class="s">&#34;10.0&#34;</span> <span class="na">y=</span><span class="s">&#34;30.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;reportBack&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_reportBack&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;55.0&#34;</span> <span class="na">width=</span><span class="s">&#34;105.0&#34;</span> <span class="na">x=</span><span class="s">&#34;340.0&#34;</span> <span class="na">y=</span><span class="s">&#34;20.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;endevent1&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_endevent1&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;35.0&#34;</span> <span class="na">width=</span><span class="s">&#34;35.0&#34;</span> <span class="na">x=</span><span class="s">&#34;375.0&#34;</span> <span class="na">y=</span><span class="s">&#34;203.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;countersign&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_countersign&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;55.0&#34;</span> <span class="na">width=</span><span class="s">&#34;105.0&#34;</span> <span class="na">x=</span><span class="s">&#34;90.0&#34;</span> <span class="na">y=</span><span class="s">&#34;20.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;exclusivegateway1&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_exclusivegateway1&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;40.0&#34;</span> <span class="na">width=</span><span class="s">&#34;40.0&#34;</span> <span class="na">x=</span><span class="s">&#34;220.0&#34;</span> <span class="na">y=</span><span class="s">&#34;27.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;modifyApply&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_modifyApply&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;55.0&#34;</span> <span class="na">width=</span><span class="s">&#34;105.0&#34;</span> <span class="na">x=</span><span class="s">&#34;188.0&#34;</span> <span class="na">y=</span><span class="s">&#34;110.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;exclusivegateway2&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_exclusivegateway2&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;40.0&#34;</span> <span class="na">width=</span><span class="s">&#34;40.0&#34;</span> <span class="na">x=</span><span class="s">&#34;220.0&#34;</span> <span class="na">y=</span><span class="s">&#34;200.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;flow2&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_flow2&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;45.0&#34;</span> <span class="na">y=</span><span class="s">&#34;47.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;90.0&#34;</span> <span class="na">y=</span><span class="s">&#34;47.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;flow8&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_flow8&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;392.0&#34;</span> <span class="na">y=</span><span class="s">&#34;75.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;392.0&#34;</span> <span class="na">y=</span><span class="s">&#34;203.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;bpmndi:BPMNLabel&gt;</span>
+</span></span><span class="line"><span class="cl">					<span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;11.0&#34;</span> <span class="na">width=</span><span class="s">&#34;100.0&#34;</span> <span class="na">x=</span><span class="s">&#34;-22.0&#34;</span> <span class="na">y=</span><span class="s">&#34;-17.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;/bpmndi:BPMNLabel&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;flow13&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_flow13&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;260.0&#34;</span> <span class="na">y=</span><span class="s">&#34;47.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;340.0&#34;</span> <span class="na">y=</span><span class="s">&#34;47.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;bpmndi:BPMNLabel&gt;</span>
+</span></span><span class="line"><span class="cl">					<span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;11.0&#34;</span> <span class="na">width=</span><span class="s">&#34;100.0&#34;</span> <span class="na">x=</span><span class="s">&#34;-29.0&#34;</span> <span class="na">y=</span><span class="s">&#34;-17.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;/bpmndi:BPMNLabel&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;flow14&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_flow14&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;195.0&#34;</span> <span class="na">y=</span><span class="s">&#34;47.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;220.0&#34;</span> <span class="na">y=</span><span class="s">&#34;47.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;flow15&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_flow15&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;240.0&#34;</span> <span class="na">y=</span><span class="s">&#34;67.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;240.0&#34;</span> <span class="na">y=</span><span class="s">&#34;110.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;bpmndi:BPMNLabel&gt;</span>
+</span></span><span class="line"><span class="cl">					<span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;11.0&#34;</span> <span class="na">width=</span><span class="s">&#34;100.0&#34;</span> <span class="na">x=</span><span class="s">&#34;10.0&#34;</span> <span class="na">y=</span><span class="s">&#34;0.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;/bpmndi:BPMNLabel&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;flow16&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_flow16&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;240.0&#34;</span> <span class="na">y=</span><span class="s">&#34;165.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;240.0&#34;</span> <span class="na">y=</span><span class="s">&#34;200.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;flow17&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_flow17&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;260.0&#34;</span> <span class="na">y=</span><span class="s">&#34;220.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;375.0&#34;</span> <span class="na">y=</span><span class="s">&#34;220.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;flow18&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_flow18&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;220.0&#34;</span> <span class="na">y=</span><span class="s">&#34;220.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;142.0&#34;</span> <span class="na">y=</span><span class="s">&#34;220.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;142.0&#34;</span> <span class="na">y=</span><span class="s">&#34;75.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;bpmndi:BPMNLabel&gt;</span>
+</span></span><span class="line"><span class="cl">					<span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;11.0&#34;</span> <span class="na">width=</span><span class="s">&#34;100.0&#34;</span> <span class="na">x=</span><span class="s">&#34;9.0&#34;</span> <span class="na">y=</span><span class="s">&#34;14.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">				<span class="nt">&lt;/bpmndi:BPMNLabel&gt;</span>
+</span></span><span class="line"><span class="cl">			<span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">		<span class="nt">&lt;/bpmndi:BPMNPlane&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="nt">&lt;/bpmndi:BPMNDiagram&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/definitions&gt;</span>
+</span></span></code></pre></div><p>其中 isSequential</p>
+<ul>
+<li>true：表示串行，即节点人员顺序审批</li>
+<li>false：表示并行，即节点人员同步审批</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;multiInstanceLoopCharacteristics</span> <span class="na">isSequential=</span><span class="s">&#34;false&#34;</span> <span class="na">activiti:collection=</span><span class="s">&#34;users&#34;</span>
+</span></span><span class="line"><span class="cl">				<span class="na">activiti:elementVariable=</span><span class="s">&#34;user&#34;</span><span class="nt">&gt;&lt;/multiInstanceLoopCharacteristics&gt;</span>
+</span></span></code></pre></div><h2 id="22-部署流程">2.2 部署流程</h2>
+<p><figure 
+	>
+	<a href="/images/activiti6-11/image-20200703105612630.png" >
+		<img src="/images/activiti6-11/image-20200703105612630.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200703105612630">
+	</a>
+	
+	<figcaption>image-20200703105612630</figcaption>
+	
+</figure></p>
+<h2 id="23-自定义表单字段类型">2.3 自定义表单字段类型</h2>
+<p>我们先来查看下启动节点的内容：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;startEvent</span> <span class="na">id=</span><span class="s">&#34;startevent1&#34;</span> <span class="na">name=</span><span class="s">&#34;Start&#34;</span> <span class="na">activiti:initiator=</span><span class="s">&#34;applyUserId&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;startDate&#34;</span> <span class="na">name=</span><span class="s">&#34;请假开始日期&#34;</span> <span class="na">type=</span><span class="s">&#34;date&#34;</span> <span class="na">datePattern=</span><span class="s">&#34;yyyy-MM-dd&#34;</span> <span class="na">required=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;endDate&#34;</span> <span class="na">name=</span><span class="s">&#34;请假结束日期&#34;</span> <span class="na">type=</span><span class="s">&#34;date&#34;</span> <span class="na">datePattern=</span><span class="s">&#34;yyyy-MM-dd&#34;</span> <span class="na">required=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;reason&#34;</span> <span class="na">name=</span><span class="s">&#34;请假原因&#34;</span> <span class="na">type=</span><span class="s">&#34;string&#34;</span> <span class="na">required=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;users&#34;</span> <span class="na">name=</span><span class="s">&#34;审批参与人&#34;</span> <span class="na">type=</span><span class="s">&#34;users&#34;</span> <span class="na">required=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;validScript&#34;</span> <span class="na">type=</span><span class="s">&#34;javascript&#34;</span> <span class="na">default=</span><span class="s">&#34;alert(&#39;表单已经加载完毕&#39;);&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/startEvent&gt;</span>
+</span></span></code></pre></div><p>type=&ldquo;users&quot;以及type=&ldquo;javascript&rdquo;，不是流程引擎支持的类型。需要我们自定义类型。</p>
+<p>前面我们学习动态表单时介绍过Activiti支持的表单字段类型。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-11/image-20200705162151989.png" >
+		<img src="/images/activiti6-11/image-20200705162151989.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200705162151989">
+	</a>
+	
+	<figcaption>image-20200705162151989</figcaption>
+	
+</figure></p>
+<p>现在我们学习如何自定义字段类型。</p>
+<h3 id="231-创建解析类">2.3.1 创建解析类</h3>
+<p>​	需要继承<code>AbstractFormType</code>类。或者继承默认字段类型实现类。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.workflow.activiti.rest.entity.formTypes</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">cn.hutool.core.util.ObjectUtil</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">freemarker.template.utility.StringUtil</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.activiti.engine.form.AbstractFormType</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.stereotype.Component</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.util.Arrays</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nd">@Component</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">KikiUserFormType</span> <span class="kd">extends</span> <span class="n">AbstractFormType</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 把表单中的值转换为实际的对象
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param s
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @return
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">Object</span> <span class="nf">convertFormValueToModelValue</span><span class="o">(</span><span class="n">String</span> <span class="n">s</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">String</span><span class="o">[]</span> <span class="n">split</span> <span class="o">=</span> <span class="n">StringUtil</span><span class="o">.</span><span class="na">split</span><span class="o">(</span><span class="n">s</span><span class="o">,</span> <span class="sc">&#39;,&#39;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">Arrays</span><span class="o">.</span><span class="na">asList</span><span class="o">(</span><span class="n">split</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 把实际对象的值转换为表单中的值
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param o
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @return
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">String</span> <span class="nf">convertModelValueToFormValue</span><span class="o">(</span><span class="n">Object</span> <span class="n">o</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">ObjectUtil</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">0</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 定义表单类型的标识符
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getName</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="s">&#34;users&#34;</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.workflow.activiti.rest.entity.formTypes</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.activiti.engine.form.AbstractFormType</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.stereotype.Component</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nd">@Component</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">JavascriptFormType</span> <span class="kd">extends</span> <span class="n">AbstractFormType</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 把表单中的值转换为实际的对象
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param propertyValue
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @return
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">Object</span> <span class="nf">convertFormValueToModelValue</span><span class="o">(</span><span class="n">String</span> <span class="n">propertyValue</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">propertyValue</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 把实际对象的值转换为表单中的值
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param modelValue
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @return
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">String</span> <span class="nf">convertModelValueToFormValue</span><span class="o">(</span><span class="n">Object</span> <span class="n">modelValue</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="o">(</span><span class="n">String</span><span class="o">)</span> <span class="n">modelValue</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 定义表单类型的标识符
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @return
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getName</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="s">&#34;javascript&#34;</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><h3 id="232-在流程引擎中注册解析类">2.3.2 在流程引擎中注册解析类</h3>
+<p>此处用到了BeanPostProcessor（后置Bean处理器），对这个不熟悉的可以参考我的另一篇博客 ：<a class="link" href="https://blog.gaoyp.cn/2020/04/12/spring-study-07/"  target="_blank" rel="noopener"
+    >Spring源码学习（7）：Bean的生命周期</a></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 自定义表单字段类型
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @return
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Bean</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">BeanPostProcessor</span> <span class="nf">activitiConfigurer</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="k">new</span> <span class="n">BeanPostProcessor</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">            <span class="kd">public</span> <span class="n">Object</span> <span class="nf">postProcessBeforeInitialization</span><span class="o">(</span><span class="n">Object</span> <span class="n">bean</span><span class="o">,</span> <span class="n">String</span> <span class="n">beanName</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">BeansException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="k">if</span> <span class="o">(</span><span class="n">bean</span> <span class="k">instanceof</span> <span class="n">SpringProcessEngineConfiguration</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">List</span><span class="o">&lt;</span><span class="n">AbstractFormType</span><span class="o">&gt;</span> <span class="n">customFormTypes</span> <span class="o">=</span> <span class="n">Arrays</span><span class="o">.&lt;</span><span class="n">AbstractFormType</span><span class="o">&gt;</span><span class="n">asList</span><span class="o">(</span><span class="n">javascriptFormType</span><span class="o">,</span><span class="n">kikiUserFormType</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">                    <span class="o">((</span><span class="n">SpringProcessEngineConfiguration</span><span class="o">)</span><span class="n">bean</span><span class="o">).</span><span class="na">setCustomFormTypes</span><span class="o">(</span><span class="n">customFormTypes</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">                <span class="o">}</span>
+</span></span><span class="line"><span class="cl">                <span class="k">return</span> <span class="n">bean</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">            <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">            <span class="kd">public</span> <span class="n">Object</span> <span class="nf">postProcessAfterInitialization</span><span class="o">(</span><span class="n">Object</span> <span class="n">bean</span><span class="o">,</span> <span class="n">String</span> <span class="n">beanName</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">BeansException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="k">return</span> <span class="n">bean</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span></code></pre></div><p>此时，我们已经可以正常发起流程了，不过在图形化工具Activiti Modeler中，我们还是无法选择自定义字段。</p>
+<h3 id="233-修改activiti-modeler-ui">2.3.3 修改Activiti Modeler UI</h3>
+<p>修改<code>static/modeler/editor-app/configuration/properties/form-properties-popup.html</code>文件</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-html" data-lang="html"><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;form-group&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">&lt;</span><span class="nt">label</span> <span class="na">for</span><span class="o">=</span><span class="s">&#34;typeField&#34;</span><span class="p">&gt;</span>{{&#39;PROPERTY.FORMPROPERTIES.TYPE&#39; | translate}}<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">&lt;</span><span class="nt">select</span> <span class="na">id</span><span class="o">=</span><span class="s">&#34;typeField&#34;</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;form-control&#34;</span> <span class="na">ng-model</span><span class="o">=</span><span class="s">&#34;selectedProperties[0].type&#34;</span> <span class="na">ng-change</span><span class="o">=</span><span class="s">&#34;propertyTypeChanged()&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">&lt;</span><span class="nt">option</span><span class="p">&gt;</span>string<span class="p">&lt;/</span><span class="nt">option</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">&lt;</span><span class="nt">option</span><span class="p">&gt;</span>long<span class="p">&lt;/</span><span class="nt">option</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">&lt;</span><span class="nt">option</span><span class="p">&gt;</span>boolean<span class="p">&lt;/</span><span class="nt">option</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">&lt;</span><span class="nt">option</span><span class="p">&gt;</span>date<span class="p">&lt;/</span><span class="nt">option</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">&lt;</span><span class="nt">option</span><span class="p">&gt;</span>enum<span class="p">&lt;/</span><span class="nt">option</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">&lt;</span><span class="nt">option</span><span class="p">&gt;</span>users<span class="p">&lt;/</span><span class="nt">option</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">&lt;</span><span class="nt">option</span><span class="p">&gt;</span>javascript<span class="p">&lt;/</span><span class="nt">option</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">&lt;</span><span class="nt">option</span><span class="p">&gt;</span>bigtext<span class="p">&lt;/</span><span class="nt">option</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">&lt;</span><span class="nt">option</span><span class="p">&gt;</span>double<span class="p">&lt;/</span><span class="nt">option</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">&lt;/</span><span class="nt">select</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span></code></pre></div><p>添加对应的自定义类型，效果如下：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-11/image-20200713145610645.png" >
+		<img src="/images/activiti6-11/image-20200713145610645.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200713145610645">
+	</a>
+	
+	<figcaption>image-20200713145610645</figcaption>
+	
+</figure></p>
+<h2 id="24-获取流程启动节点表单信息">2.4 获取流程启动节点表单信息</h2>
+<p><figure 
+	>
+	<a href="/images/activiti6-11/image-20200705171609395.png" >
+		<img src="/images/activiti6-11/image-20200705171609395.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200705171609395">
+	</a>
+	
+	<figcaption>image-20200705171609395</figcaption>
+	
+</figure></p>
+<p>返回信息：(可以看到我们的自定义类型users,javascript)</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;code&#34;</span><span class="p">:</span> <span class="s2">&#34;0000&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;data&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;form&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;formKey&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;deploymentId&#34;</span><span class="p">:</span> <span class="s2">&#34;2501&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;formProperties&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="s2">&#34;startDate&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;请假开始日期&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;date&#34;</span>
+</span></span><span class="line"><span class="cl">          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;value&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;readable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;writable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;required&#34;</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="s2">&#34;endDate&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;请假结束日期&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;date&#34;</span>
+</span></span><span class="line"><span class="cl">          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;value&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;readable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;writable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;required&#34;</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="s2">&#34;reason&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;请假原因&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;string&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;mimeType&#34;</span><span class="p">:</span> <span class="s2">&#34;text/plain&#34;</span>
+</span></span><span class="line"><span class="cl">          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;value&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;readable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;writable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;required&#34;</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="s2">&#34;users&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;审批参与人&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;users&#34;</span>
+</span></span><span class="line"><span class="cl">          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;value&#34;</span><span class="p">:</span> <span class="s2">&#34;0&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;readable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;writable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;required&#34;</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="s2">&#34;validScript&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;javascript&#34;</span>
+</span></span><span class="line"><span class="cl">          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;value&#34;</span><span class="p">:</span> <span class="s2">&#34;alert(&#39;表单已经加载完毕&#39;);&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;readable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;writable&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;required&#34;</span><span class="p">:</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">      <span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;processDefinition&#34;</span><span class="p">:</span> <span class="kc">null</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;message&#34;</span><span class="p">:</span> <span class="s2">&#34;获取启动节点&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><h2 id="25-发起流程">2.5 发起流程</h2>
+<p><figure 
+	>
+	<a href="/images/activiti6-11/image-20200709100415667.png" >
+		<img src="/images/activiti6-11/image-20200709100415667.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200709100415667">
+	</a>
+	
+	<figcaption>image-20200709100415667</figcaption>
+	
+</figure></p>
+<p>此时我们查看数据库表，可以看到产生了2条任务</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-11/image-20200709100554207.png" >
+		<img src="/images/activiti6-11/image-20200709100554207.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200709100554207">
+	</a>
+	
+	<figcaption>image-20200709100554207</figcaption>
+	
+</figure></p>
+<h2 id="26-获取待办">2.6 获取待办</h2>
+<p>这种直接分配审批人员的情况，不要签收任务。分别查看<code>leaderuser</code>、<code>hruser</code>的待办信息。（注意修改代码中的当前操作人），任务id分别为5028、5031</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-11/image-20200709102859010.png" >
+		<img src="/images/activiti6-11/image-20200709102859010.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200709102859010">
+	</a>
+	
+	<figcaption>image-20200709102859010</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-11/image-20200709103337630.png" >
+		<img src="/images/activiti6-11/image-20200709103337630.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200709103337630">
+	</a>
+	
+	<figcaption>image-20200709103337630</figcaption>
+	
+</figure></p>
+<h2 id="27-计算流程结束条件任务监听器">2.7 计算流程结束条件(任务监听器)</h2>
+<p>我们在流程定义中设置了一个任务监听器，用于统计<code>leaderuser</code>、<code>hruser</code>会签任务完成时统计同意的数量，设置<code>approvedCounter</code>的值。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;activiti:taskListener</span> <span class="na">event=</span><span class="s">&#34;complete&#34;</span> <span class="na">delegateExpression=</span><span class="s">&#34;${leaveCounterSignCompleteListener}&#34;</span><span class="nt">&gt;&lt;/activiti:taskListener&gt;</span>
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/images/activiti6-11/image-20200709104549901.png" >
+		<img src="/images/activiti6-11/image-20200709104549901.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200709104549901">
+	</a>
+	
+	<figcaption>image-20200709104549901</figcaption>
+	
+</figure></p>
+<p>代码实现</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.workflow.activiti.rest.listener</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.activiti.engine.delegate.DelegateTask</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.activiti.engine.delegate.TaskListener</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.stereotype.Component</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * 请假会签任务监听器，当会签任务完成时统计同意的数量
+</span></span></span><span class="line"><span class="cl"><span class="cm"> */</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@Component</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">LeaveCounterSignCompleteListener</span> <span class="kd">implements</span> <span class="n">TaskListener</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">notify</span><span class="o">(</span><span class="n">DelegateTask</span> <span class="n">delegateTask</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//approved为审批意见字段
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">Boolean</span> <span class="n">approved</span> <span class="o">=</span> <span class="n">Boolean</span><span class="o">.</span><span class="na">getBoolean</span><span class="o">(</span><span class="n">delegateTask</span><span class="o">.</span><span class="na">getVariable</span><span class="o">(</span><span class="s">&#34;approved&#34;</span><span class="o">).</span><span class="na">toString</span><span class="o">())</span> <span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="o">(</span><span class="n">approved</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">Long</span> <span class="n">agreeCounter</span> <span class="o">=</span> <span class="o">(</span><span class="n">Long</span><span class="o">)</span> <span class="n">delegateTask</span><span class="o">.</span><span class="na">getVariable</span><span class="o">(</span><span class="s">&#34;approvedCounter&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">delegateTask</span><span class="o">.</span><span class="na">setVariable</span><span class="o">(</span><span class="s">&#34;approvedCounter&#34;</span><span class="o">,</span> <span class="n">agreeCounter</span> <span class="o">+</span> <span class="n">1</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><h2 id="28-读取task的表单信息">2.8 读取task的表单信息</h2>
+<ol>
+<li>
+<p><code>leaderuser</code> 读取task的表单信息</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-11/image-20200709111046666.png" >
+		<img src="/images/activiti6-11/image-20200709111046666.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200709111046666">
+	</a>
+	
+	<figcaption>image-20200709111046666</figcaption>
+	
+</figure></p>
+</li>
+<li>
+<p><code>hruser</code> 读取task的表单信息</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-11/image-20200709111419270.png" >
+		<img src="/images/activiti6-11/image-20200709111419270.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200709111419270.png">
+	</a>
+	
+	<figcaption>image-20200709111419270.png</figcaption>
+	
+</figure></p>
+</li>
+</ol>
+<h2 id="29--办理任务">2.9  办理任务</h2>
+<p>我们这里模拟一个场景：<code>leaderuser</code> 审批通过，<code>hruser</code>审批不通过。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-11/image-20200709123302866.png" >
+		<img src="/images/activiti6-11/image-20200709123302866.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200709123302866">
+	</a>
+	
+	<figcaption>image-20200709123302866</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-11/image-20200709123344447.png" >
+		<img src="/images/activiti6-11/image-20200709123344447.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200709123344447">
+	</a>
+	
+	<figcaption>image-20200709123344447</figcaption>
+	
+</figure></p>
+<p>此时查看流程图，已到达<code>调整申请</code>节点，符合我们的预期。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-11/image-20200709123411187.png" >
+		<img src="/images/activiti6-11/image-20200709123411187.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200709123411187">
+	</a>
+	
+	<figcaption>image-20200709123411187</figcaption>
+	
+</figure></p>
+<h2 id="210-重新申请执行监听器">2.10 重新申请（执行监听器）</h2>
+<p><code>重新申请</code>这个顺序流除了包含判断条件外，还包含一个执行监听器，用于将前一步审批时产生的<code>approvedCounter</code>变量值清零。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="nt">&lt;activiti:executionListener</span> <span class="na">event=</span><span class="s">&#34;take&#34;</span> <span class="na">expression=</span><span class="s">&#34;${execution.setVariable(&#39;approvedCounter&#39;, 0)}&#34;</span><span class="nt">&gt;&lt;/activiti:executionListener&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/extensionElements&gt;</span>
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/images/activiti6-11/image-20200709135610852.png" >
+		<img src="/images/activiti6-11/image-20200709135610852.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200709135610852">
+	</a>
+	
+	<figcaption>image-20200709135610852</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-11/image-20200709135501118.png" >
+		<img src="/images/activiti6-11/image-20200709135501118.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200709135501118">
+	</a>
+	
+	<figcaption>image-20200709135501118</figcaption>
+	
+</figure></p>
+<p>接下来由<code>kafeitu</code>来完成重新申请任务。首先获取待办任务，任务id：10006。（注意修改代码中当前操作人）</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-11/image-20200709140236261.png" >
+		<img src="/images/activiti6-11/image-20200709140236261.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200709140236261">
+	</a>
+	
+	<figcaption>image-20200709140236261</figcaption>
+	
+</figure></p>
+<p>完成任务，发起重新申请。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-11/image-20200709142611674.png" >
+		<img src="/images/activiti6-11/image-20200709142611674.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200709142611674">
+	</a>
+	
+	<figcaption>image-20200709142611674</figcaption>
+	
+</figure></p>
+<h2 id="211--再次办理任务">2.11  再次办理任务</h2>
+<p>可以看到数据库再次生成了2条待办数据。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-11/image-20200709144112256.png" >
+		<img src="/images/activiti6-11/image-20200709144112256.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200709144112256">
+	</a>
+	
+	<figcaption>image-20200709144112256</figcaption>
+	
+</figure></p>
+<p>此时的流程走向：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-11/image-20200709144359448.png" >
+		<img src="/images/activiti6-11/image-20200709144359448.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200709144359448">
+	</a>
+	
+	<figcaption>image-20200709144359448</figcaption>
+	
+</figure></p>
+<p>我们分别使用<code>leaderuser</code> 、<code>hruser</code>   审批通过。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-11/image-20200709144538225.png" >
+		<img src="/images/activiti6-11/image-20200709144538225.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200709144538225">
+	</a>
+	
+	<figcaption>image-20200709144538225</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-11/image-20200709144736461.png" >
+		<img src="/images/activiti6-11/image-20200709144736461.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200709144736461">
+	</a>
+	
+	<figcaption>image-20200709144736461</figcaption>
+	
+</figure></p>
+<p>人事审批期间，我们在任务监听器上打个断点，验证一下是否正确执行，符合预期。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-11/image-20200709144727829.png" >
+		<img src="/images/activiti6-11/image-20200709144727829.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200709144727829">
+	</a>
+	
+	<figcaption>image-20200709144727829</figcaption>
+	
+</figure></p>
+<p>查看流程图，可以看到已经到达销假节点</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-11/image-20200709144943878.png" >
+		<img src="/images/activiti6-11/image-20200709144943878.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200709144943878">
+	</a>
+	
+	<figcaption>image-20200709144943878</figcaption>
+	
+</figure></p>
+<h2 id="212-销假">2.12 销假</h2>
+<p>这个就和前面的步骤一样了，发起人获取待办任务、完成销假任务即可。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-11/image-20200709145308664.png" >
+		<img src="/images/activiti6-11/image-20200709145308664.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200709145308664">
+	</a>
+	
+	<figcaption>image-20200709145308664</figcaption>
+	
+</figure></p>
+<p>完成销假任务：<figure 
+	>
+	<a href="/images/activiti6-11/image-20200709145412557.png" >
+		<img src="/images/activiti6-11/image-20200709145412557.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200709145412557">
+	</a>
+	
+	<figcaption>image-20200709145412557</figcaption>
+	
+</figure></p>
+<h2 id="213-流程结束">2.13 流程结束</h2>
+<p><figure 
+	>
+	<a href="/images/activiti6-11/image-20200709145457616.png" >
+		<img src="/images/activiti6-11/image-20200709145457616.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200709145457616">
+	</a>
+	
+	<figcaption>image-20200709145457616</figcaption>
+	
+</figure></p>
+<h1 id="3串行会签">3、串行会签</h1>
+<p>所谓串行会签，就是说，会签任务有先后顺序，只需要把 <code>iSequential</code>改为<code>true</code>即可，其他不变。</p>
+<h2 id="31-区别">3.1 区别</h2>
+<ul>
+<li>体现在流程设计器中的区别</li>
+</ul>
+<p><figure 
+	>
+	<a href="/images/activiti6-11/image-20200709150323675.png" >
+		<img src="/images/activiti6-11/image-20200709150323675.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200709150323675">
+	</a>
+	
+	<figcaption>image-20200709150323675</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-11/image-20200709150720171.png" >
+		<img src="/images/activiti6-11/image-20200709150720171.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200709150720171">
+	</a>
+	
+	<figcaption>image-20200709150720171</figcaption>
+	
+</figure></p>
+<ul>
+<li>串行，顾名思义，任务是一个个来执行的，所以需要注意users参数的顺序</li>
+</ul>
+<h1 id="4监听器">4、监听器</h1>
+<p>我们这里搬运一下《Activiti实战》的概念介绍。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-11/image-20200709151703680.png" >
+		<img src="/images/activiti6-11/image-20200709151703680.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200709151703680">
+	</a>
+	
+	<figcaption>image-20200709151703680</figcaption>
+	
+</figure></p>
+<h2 id="41-执行监听器">4.1 执行监听器</h2>
+<p><figure 
+	>
+	<a href="/images/activiti6-11/image-20200709151647254.png" >
+		<img src="/images/activiti6-11/image-20200709151647254.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200709151647254">
+	</a>
+	
+	<figcaption>image-20200709151647254</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-11/image-20200709151136832.png" >
+		<img src="/images/activiti6-11/image-20200709151136832.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200709151136832">
+	</a>
+	
+	<figcaption>image-20200709151136832</figcaption>
+	
+</figure></p>
+<h2 id="42-任务监听器">4.2 任务监听器</h2>
+<p><figure 
+	>
+	<a href="/images/activiti6-11/image-20200709151517106.png" >
+		<img src="/images/activiti6-11/image-20200709151517106.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200709151517106">
+	</a>
+	
+	<figcaption>image-20200709151517106</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-11/image-20200709151548984.png" >
+		<img src="/images/activiti6-11/image-20200709151548984.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200709151548984">
+	</a>
+	
+	<figcaption>image-20200709151548984</figcaption>
+	
+</figure></p>
+<h1 id="5-情景扩展">5 情景扩展</h1>
+<p>前面我们还提出过一些需求，例如按比例通过需求，即会签人员有60%完成了审批，即通过。这样的需求应该怎么实现呢？</p>
+<p>这里介绍一下，任务监听器的几个内置变量。</p>
+<ul>
+<li>
+<p>nrOfInstances：实例总数</p>
+</li>
+<li>
+<p>nrOfActiveInstances：当前活动的，比如，还没完成的，实例数量。 对于顺序执行的多实例，值一直为1。</p>
+</li>
+<li>
+<p>nrOfCompletedInstances：已经完成实例的数目。</p>
+</li>
+</ul>
+<p>另外，每个创建的分支都会有分支级别的本地变量（比如，其他实例不可见， 不会保存到流程实例级别）：</p>
+<ul>
+<li>loopCounter：表示特定实例的在循环的索引值。可以使用activiti的elementIndexVariable属性修改loopCounter的变量名。</li>
+</ul>
+<p>可以通过execution.getVariable(x)方法获得这些变量。</p>
+<p>我们可以使用这些内置变量来实现需求，这里不做详细介绍，只是提供一个思路，后期遇到再详细研究。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;multiInstanceLoopCharacteristics</span> <span class="na">isSequential=</span><span class="s">&#34;false&#34;</span>
+</span></span><span class="line"><span class="cl">     <span class="na">activiti:collection=</span><span class="s">&#34;assigneeList&#34;</span> <span class="na">activiti:elementVariable=</span><span class="s">&#34;assignee&#34;</span> <span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;completionCondition&gt;</span>${nrOfCompletedInstances/nrOfInstances &gt;= 0.6 }<span class="nt">&lt;/completionCondition&gt;</span>
+</span></span><span class="line"><span class="cl"> <span class="nt">&lt;/multiInstanceLoopCharacteristics&gt;</span>
+</span></span></code></pre></div><p>参考：https://blog.csdn.net/qq_30739519/article/details/51239818</p>
+<p><a class="link" href="https://stackoverflow.com/questions/28022772/how-to-declare-an-activiti-custom-formtype-in-a-spring-boot-application"  target="_blank" rel="noopener"
+    >https://stackoverflow.com/questions/28022772/how-to-declare-an-activiti-custom-formtype-in-a-spring-boot-application</a></p>
+<p><a class="link" href="https://cloud.tencent.com/developer/article/1642728"  target="_blank" rel="noopener"
+    >https://cloud.tencent.com/developer/article/1642728</a></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/activiti/">Activiti</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/activiti6%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%B3%BB%E7%BB%9F%E6%90%AD%E5%BB%BA%E6%95%99%E7%A8%8B/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti6工作流系统搭建教程</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti33-spring-security%E8%8E%B7%E5%8F%96%E5%BD%93%E5%89%8D%E6%93%8D%E4%BD%9C%E4%BA%BA%E4%BF%A1%E6%81%AF/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（33） Spring-Security获取当前操作人信息</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti34-%E4%BD%BF%E7%94%A8swagger%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（34） 使用Swagger生成静态接口文档</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti35-%E4%BD%BF%E7%94%A8swagger%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（35） 使用Swagger生成静态接口文档</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti32-%E6%9B%BF%E6%8D%A2activiti%E7%94%A8%E6%88%B7%E5%92%8C%E7%94%A8%E6%88%B7%E7%BB%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（32） 替换Activiti用户和用户组</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#21--流程定义">2.1  流程定义</a></li>
+    <li><a href="#22-部署流程">2.2 部署流程</a></li>
+    <li><a href="#23-自定义表单字段类型">2.3 自定义表单字段类型</a>
+      <ol>
+        <li><a href="#231-创建解析类">2.3.1 创建解析类</a></li>
+        <li><a href="#232-在流程引擎中注册解析类">2.3.2 在流程引擎中注册解析类</a></li>
+        <li><a href="#233-修改activiti-modeler-ui">2.3.3 修改Activiti Modeler UI</a></li>
+      </ol>
+    </li>
+    <li><a href="#24-获取流程启动节点表单信息">2.4 获取流程启动节点表单信息</a></li>
+    <li><a href="#25-发起流程">2.5 发起流程</a></li>
+    <li><a href="#26-获取待办">2.6 获取待办</a></li>
+    <li><a href="#27-计算流程结束条件任务监听器">2.7 计算流程结束条件(任务监听器)</a></li>
+    <li><a href="#28-读取task的表单信息">2.8 读取task的表单信息</a></li>
+    <li><a href="#29--办理任务">2.9  办理任务</a></li>
+    <li><a href="#210-重新申请执行监听器">2.10 重新申请（执行监听器）</a></li>
+    <li><a href="#211--再次办理任务">2.11  再次办理任务</a></li>
+    <li><a href="#212-销假">2.12 销假</a></li>
+    <li><a href="#213-流程结束">2.13 流程结束</a></li>
+  </ol>
+
+  <ol>
+    <li><a href="#31-区别">3.1 区别</a></li>
+  </ol>
+
+  <ol>
+    <li><a href="#41-执行监听器">4.1 执行监听器</a></li>
+    <li><a href="#42-任务监听器">4.2 任务监听器</a></li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

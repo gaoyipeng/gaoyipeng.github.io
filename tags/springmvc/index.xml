@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>SpringMVC on 十一爸爸的博客</title>
+    <link>https://garnettboy.gitee.io/tags/springmvc/</link>
+    <description>Recent content in SpringMVC on 十一爸爸的博客</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Sun, 15 Mar 2020 22:13:33 +0000</lastBuildDate><atom:link href="https://garnettboy.gitee.io/tags/springmvc/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>SpringMVC @ModelAttribute注解的用法</title>
+      <link>https://garnettboy.gitee.io/p/springmvc-modelattribute%E6%B3%A8%E8%A7%A3%E7%9A%84%E7%94%A8%E6%B3%95/</link>
+      <pubDate>Sun, 15 Mar 2020 22:13:33 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/springmvc-modelattribute%E6%B3%A8%E8%A7%A3%E7%9A%84%E7%94%A8%E6%B3%95/</guid>
+      <description>@ModelAttribute主要的作用是将数据添加到对象模型中，在视图页面展示时使用。 @ModelAttribute 等价于 model.addAttribute(&amp;ldquo;abc&amp;rdquo;, &amp;ldquo;abc&amp;rdquo;); 或 map.put(&amp;ldquo;abc&amp;rdquo;,&amp;ldquo;abc&amp;rdquo;)
+小知识点 首先我们需要知道，在SpringMVC中，以下3种写法效果相同。
+@RequestMapping(value = &amp;#34;/index1&amp;#34;)public String index(Dog dog) {dog.setName(&amp;#34;二哈1&amp;#34;);dog.setAge(1);return &amp;#34;index&amp;#34;;}@RequestMapping(value = &amp;#34;/index2&amp;#34;)public String index1( Model model) {Dog dog = new Dog();dog.setName(&amp;#34;二哈2&amp;#34;);dog.setAge(2);model.addAttribute(&amp;#34;dog&amp;#34;,dog);return &amp;#34;index&amp;#34;;}@RequestMapping(value = &amp;#34;/index3&amp;#34;)public String index2( Map map) {Dog dog = new Dog();dog.setName(&amp;#34;二哈3&amp;#34;);dog.setAge(3);map.put(&amp;#34;dog&amp;#34;,dog);return &amp;#34;index&amp;#34;;} index.jsp：
+&amp;lt;%@ page contentType=&amp;#34;text/html;charset=UTF-8&amp;#34; language=&amp;#34;java&amp;#34; %&amp;gt;&amp;lt;%String path = request.</description>
+    </item>
+    
+  </channel>
+</rss>

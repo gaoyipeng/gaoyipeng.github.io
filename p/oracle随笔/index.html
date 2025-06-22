@@ -1,0 +1,1853 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Oracle随笔'><title>Oracle随笔</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/oracle%E9%9A%8F%E7%AC%94/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Oracle随笔'>
+<meta property='og:description' content='Oracle随笔'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/oracle%E9%9A%8F%E7%AC%94/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='数据库' /><meta property='article:tag' content='Oracle' /><meta property='article:published_time' content='2022-05-22T20:32:55&#43;00:00'/><meta property='article:modified_time' content='2022-05-22T20:32:55&#43;00:00'/>
+<meta name="twitter:title" content="Oracle随笔">
+<meta name="twitter:description" content="Oracle随笔">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/" >
+                数据库
+            </a>
+        
+            <a href="/categories/oracle/" >
+                Oracle
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/oracle%E9%9A%8F%E7%AC%94/">Oracle随笔</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        Oracle随笔
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">May 22, 2022</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 9 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <p>本文记录一下Oracle的一些常用知识。</p>
+<p>[TOC]</p>
+<h2 id="1常用查询">1、常用查询</h2>
+<h3 id="11转义字符">1.1、转义字符</h3>
+<blockquote>
+<p>ESCAPE &rsquo;escape_character&rsquo;：允许在字符串中搜索通配符而不是将其作为通配符使用。escape_character 是放在通配符前表示此特殊用途的字符。</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">eg</span><span class="p">:</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">&#39;%aa/%bb%&#39;</span><span class="w"> </span><span class="k">ESCAPE</span><span class="w"> </span><span class="s1">&#39;/&#39;</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>PS:第一个和最后一个%作为通配符，中间的%作为普通字符。</p>
+<h2 id="2常用函数">2、常用函数</h2>
+<h3 id="21单行函数">2.1、单行函数</h3>
+<h4 id="211-字符函数">2.1.1 字符函数</h4>
+<table>
+<thead>
+<tr>
+<th>函数</th>
+<th>结果</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LOWER(&lsquo;SQL Course&rsquo;)</td>
+<td>sql course</td>
+<td>小写</td>
+</tr>
+<tr>
+<td>UPPER(&lsquo;SQL Course&rsquo;)</td>
+<td>SQL COURSE</td>
+<td>大写</td>
+</tr>
+<tr>
+<td>INITCAP(&lsquo;SQL Course&rsquo;)</td>
+<td>Sql Course</td>
+<td>驼峰命名</td>
+</tr>
+<tr>
+<td>CONCAT(&lsquo;Hello&rsquo;, &lsquo;World&rsquo;)</td>
+<td>HelloWorld</td>
+<td>字符连接</td>
+</tr>
+<tr>
+<td>SUBSTR(&lsquo;HelloWorld&rsquo;,1,5)</td>
+<td>Hello</td>
+<td>字符截取（1开始，截5位）</td>
+</tr>
+<tr>
+<td>LENGTH(&lsquo;HelloWorld&rsquo;)</td>
+<td>10</td>
+<td>获取字符长度</td>
+</tr>
+<tr>
+<td>INSTR(&lsquo;HelloWorld&rsquo;, &lsquo;W&rsquo;)</td>
+<td>6</td>
+<td>获取字符出现的位置。</td>
+</tr>
+<tr>
+<td>LPAD(&lsquo;24000&rsquo;,10,&rsquo;*&rsquo;)</td>
+<td>*********24000</td>
+<td>左边补位</td>
+</tr>
+<tr>
+<td>RPAD(‘24000’, 10, &lsquo;*&rsquo;)</td>
+<td>24000<code>*****</code></td>
+<td>右边补位</td>
+</tr>
+<tr>
+<td>TRIM(&lsquo;H&rsquo; FROM &lsquo;HelloWorld&rsquo;)</td>
+<td>elloWorld</td>
+<td>去首位字符</td>
+</tr>
+<tr>
+<td>REPLACE(‘abcd’,’b’,’m’)</td>
+<td>amcd</td>
+<td>字符替换</td>
+</tr>
+</tbody>
+</table>
+<h4 id="212-数字函数">2.1.2 数字函数</h4>
+<table>
+<thead>
+<tr>
+<th>函数</th>
+<th>结果</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ROUND(45.926, 2)</td>
+<td>45.93</td>
+<td>四舍五入，保留2位小数</td>
+</tr>
+<tr>
+<td>TRUNC(45.926, 2)</td>
+<td>45.92</td>
+<td>截断，保留2位小数</td>
+</tr>
+<tr>
+<td>MOD(1600, 300)</td>
+<td>100</td>
+<td>求余</td>
+</tr>
+</tbody>
+</table>
+<h4 id="213-日期函数">2.1.3 日期函数</h4>
+<blockquote>
+<p><em>SYSDATE</em> =  &lsquo;25-JUL-95&rsquo;</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>函数</th>
+<th>结果</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MONTHS_BETWEEN (&lsquo;01-SEP-95&rsquo;,&lsquo;11-JAN-94&rsquo;)</td>
+<td>19.6774194</td>
+<td>两个日期相差的月数</td>
+</tr>
+<tr>
+<td>ADD_MONTHS (&lsquo;11-JAN-94&rsquo;,6)</td>
+<td>11-JUL-94</td>
+<td>向指定日期中加上若干月数</td>
+</tr>
+<tr>
+<td>NEXT_DAY (&lsquo;01-SEP-95&rsquo;,&lsquo;FRIDAY&rsquo;)</td>
+<td>&lsquo;08-SEP-95&rsquo;</td>
+<td>指定日期的下一个星期 * 对应的日期</td>
+</tr>
+<tr>
+<td>LAST_DAY(&lsquo;01-FEB-95&rsquo;)</td>
+<td>&lsquo;28-FEB-95&rsquo;</td>
+<td>本月的最后一天</td>
+</tr>
+<tr>
+<td>ROUND(SYSDATE,&lsquo;MONTH&rsquo;)</td>
+<td>01-AUG-95</td>
+<td>日期四舍五入</td>
+</tr>
+<tr>
+<td>TRUNC(SYSDATE ,&lsquo;MONTH&rsquo;)</td>
+<td>01-JUL-95</td>
+<td>日期截断</td>
+</tr>
+</tbody>
+</table>
+<h4 id="214-转化函数">2.1.4 转化函数</h4>
+<p><figure 
+	>
+	<a href="/images/database-oracle/image-20220522212425346.png" >
+		<img src="/images/database-oracle/image-20220522212425346.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20220522212425346">
+	</a>
+	
+	<figcaption>image-20220522212425346</figcaption>
+	
+</figure></p>
+<table>
+<thead>
+<tr>
+<th>函数</th>
+<th>结果</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TO_DATE(‘2012年10月29日 08:10:21’,’yyyy“年”mm”月”dd“日”hh:mi:ss’)</td>
+<td>2012年10月29日 08:10:21</td>
+<td>字符转时间</td>
+</tr>
+<tr>
+<td>TO_NUMBER(‘￥1,234,567,890.00’,’L999,999,999,999.99’)</td>
+<td>1,234,567,890.00</td>
+<td>字符转数字</td>
+</tr>
+<tr>
+<td>TO_CHAR(sysdate,‘yyyy-mm-dd hh:mi:ss’)</td>
+<td>2012-10-29 08:10:21</td>
+<td>必须包含在单引号中而且大小写敏感。可以包含任意的有效的日期格式。日期之间用逗号隔开。</td>
+</tr>
+</tbody>
+</table>
+<p><figure 
+	>
+	<a href="/images/database-oracle/image-20220522213102753.png" >
+		<img src="/images/database-oracle/image-20220522213102753.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20220522213102753">
+	</a>
+	
+	<figcaption>image-20220522213102753</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/database-oracle/image-20220522213114344.png" >
+		<img src="/images/database-oracle/image-20220522213114344.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20220522213114344">
+	</a>
+	
+	<figcaption>image-20220522213114344</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/database-oracle/image-20220522213130290.png" >
+		<img src="/images/database-oracle/image-20220522213130290.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20220522213130290">
+	</a>
+	
+	<figcaption>image-20220522213130290</figcaption>
+	
+</figure></p>
+<h4 id="215-通用函数">2.1.5 通用函数</h4>
+<table>
+<thead>
+<tr>
+<th>函数</th>
+<th>说明</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NVL (expr1, expr2)</td>
+<td>expr1不为空，返回expr1，否则返回expr2</td>
+<td>NVL(commission_pct,0)</td>
+</tr>
+<tr>
+<td>NVL2 (expr1, expr2, expr3)</td>
+<td>expr1不为NULL，返回expr2；为NULL，返回expr3。</td>
+<td></td>
+</tr>
+<tr>
+<td>NULLIF (expr1, expr2)</td>
+<td>相等返回NULL，不等返回expr1</td>
+<td></td>
+</tr>
+<tr>
+<td>COALESCE (expr1, expr2, &hellip;, exprn)</td>
+<td>与NVL类似，如果第一个表达式为空,则返回下一个表达式，<!-- raw HTML omitted -->expr1不为空，返回expr1，否则返回expr2，再判断expr2不为空，<!-- raw HTML omitted -->返回expr2 否则返回expr&hellip;</td>
+<td></td>
+</tr>
+<tr>
+<td>CASE 表达式</td>
+<td>case [表达式]<!-- raw HTML omitted -->when 条件表达式  then 结果表达式<!-- raw HTML omitted -->　　[&hellip;n]<!-- raw HTML omitted -->[else 其他条件表达式]<!-- raw HTML omitted -->end<!-- raw HTML omitted --><!-- raw HTML omitted -->注：其中[]内都是可选的。</td>
+<td>select *,<!-- raw HTML omitted -->case sgroup<!-- raw HTML omitted -->when 1 then &lsquo;组1&rsquo;<!-- raw HTML omitted -->when 2 then &lsquo;组2&rsquo;<!-- raw HTML omitted -->when 3 then &lsquo;组3&rsquo;<!-- raw HTML omitted -->else &lsquo;未知&rsquo; end [as] 别名<!-- raw HTML omitted -->from 表名</td>
+</tr>
+<tr>
+<td>DECODE 函数</td>
+<td>decode(条件,值1,返回值1,值2,返回值2,…值n,返回值n,缺省值)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="22多行函数">2.2、多行函数</h3>
+<h4 id="221-组函数">2.2.1 组函数</h4>
+<table>
+<thead>
+<tr>
+<th>函数</th>
+<th>说明</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AVG(salary)</td>
+<td>salary字段不为null的记录的平均数</td>
+<td>适用于数值型数据number</td>
+</tr>
+<tr>
+<td>MIN(hire_date)</td>
+<td>最小值</td>
+<td>可以对任意数据类型的数据使用</td>
+</tr>
+<tr>
+<td>MAX(hire_date)</td>
+<td>最大值</td>
+<td>可以对任意数据类型的数据使用</td>
+</tr>
+<tr>
+<td>SUM(salary)</td>
+<td>求总和</td>
+<td>适用于数值型数据number</td>
+</tr>
+<tr>
+<td>COUNT(*)<!-- raw HTML omitted -->COUNT(salary)</td>
+<td>返回记录总数<!-- raw HTML omitted -->&lt;br /salary字段不为null的记录的总数</td>
+<td>可以对任意数据类型的数据使用</td>
+</tr>
+</tbody>
+</table>
+<h4 id="222-分组数据-group-by">2.2.2 分组数据 Group By</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">SELECT</span><span class="w">	</span><span class="k">column</span><span class="p">,</span><span class="w"> </span><span class="n">group_function</span><span class="p">(</span><span class="k">column</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">FROM</span><span class="w">		</span><span class="k">table</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">[</span><span class="k">WHERE</span><span class="w">	</span><span class="n">condition</span><span class="p">]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">[</span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w">	</span><span class="n">group_by_expression</span><span class="p">]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">[</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w">	</span><span class="k">column</span><span class="w"> </span><span class="k">asc</span><span class="o">/</span><span class="k">desc</span><span class="p">];</span><span class="w">
+</span></span></span></code></pre></div><p><!-- raw HTML omitted -->在SELECT 列表中所有未包含在组函数中的列都应该包含在 GROUP BY 子句中。<!-- raw HTML omitted --></p>
+<p><figure 
+	>
+	<a href="/images/database-oracle/image-20220523213150349.png" >
+		<img src="/images/database-oracle/image-20220523213150349.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20220523213150349">
+	</a>
+	
+	<figcaption>image-20220523213150349</figcaption>
+	
+</figure></p>
+<p><!-- raw HTML omitted -->不能在 WHERE 子句中使用组函数。可以在 HAVING 子句中使用组函数。<!-- raw HTML omitted --></p>
+<p>那么什么时候使用where，什么时候使用having呢？答案就是需要使用组函数时使用having。</p>
+<h2 id="3多表查询">3、多表查询</h2>
+<h3 id="31-常见多表查询">3.1 常见多表查询</h3>
+<p><figure 
+	>
+	<a href="/images/database-oracle/image-20220522230154172.png" >
+		<img src="/images/database-oracle/image-20220522230154172.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20220522230154172">
+	</a>
+	
+	<figcaption>image-20220522230154172</figcaption>
+	
+</figure></p>
+<blockquote>
+<p>连接 n个表,至少需要 n-1个连接条件。</p>
+</blockquote>
+<p>eg:	等值连接和非等值连接</p>
+<p><figure 
+	>
+	<a href="/images/database-oracle/image-20220522230227782.png" >
+		<img src="/images/database-oracle/image-20220522230227782.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20220522230227782">
+	</a>
+	
+	<figcaption>image-20220522230227782</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/database-oracle/image-20220522230414876.png" >
+		<img src="/images/database-oracle/image-20220522230414876.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20220522230414876">
+	</a>
+	
+	<figcaption>image-20220522230414876</figcaption>
+	
+</figure></p>
+<h3 id="32-外连接">3.2 外连接</h3>
+<blockquote>
+<p>​	使用外连接可以查询不满足连接条件的数据。外连接的符号是 (+)。</p>
+</blockquote>
+<p><figure 
+	>
+	<a href="/images/database-oracle/image-20220522223831183.png" >
+		<img src="/images/database-oracle/image-20220522223831183.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20220522223831183">
+	</a>
+	
+	<figcaption>image-20220522223831183</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/database-oracle/image-20220522223845255.png" >
+		<img src="/images/database-oracle/image-20220522223845255.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20220522223845255">
+	</a>
+	
+	<figcaption>image-20220522223845255</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/database-oracle/image-20220522224505459.png" >
+		<img src="/images/database-oracle/image-20220522224505459.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20220522224505459">
+	</a>
+	
+	<figcaption>image-20220522224505459</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/database-oracle/image-20220522224519389.png" >
+		<img src="/images/database-oracle/image-20220522224519389.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20220522224519389">
+	</a>
+	
+	<figcaption>image-20220522224519389</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/database-oracle/image-20220522224533847.png" >
+		<img src="/images/database-oracle/image-20220522224533847.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20220522224533847">
+	</a>
+	
+	<figcaption>image-20220522224533847</figcaption>
+	
+</figure></p>
+<h3 id="33-内连接">3.3 内连接</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">T1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">INNER</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">T2</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">ON</span><span class="w"> </span><span class="n">T1</span><span class="p">.</span><span class="n">aa</span><span class="o">=</span><span class="n">T2</span><span class="p">.</span><span class="n">bb</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><h3 id="34-自连接">3.4 自连接</h3>
+<p><figure 
+	>
+	<a href="/images/database-oracle/image-20220522224121152.png" >
+		<img src="/images/database-oracle/image-20220522224121152.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20220522224121152">
+	</a>
+	
+	<figcaption>image-20220522224121152</figcaption>
+	
+</figure></p>
+<h2 id="4ddl语言">4、DDL语言</h2>
+<h3 id="41创建表">4.1创建表</h3>
+<p>命名规则：</p>
+<p><figure 
+	>
+	<a href="/images/database-oracle/image-20220525225747182.png" >
+		<img src="/images/database-oracle/image-20220525225747182.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20220525225747182">
+	</a>
+	
+	<figcaption>image-20220525225747182</figcaption>
+	
+</figure></p>
+<h4 id="411-建表方式一">4.1.1 建表方式一</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="err">格式：</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="p">[</span><span class="k">schema</span><span class="p">.]</span><span class="k">table</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	    </span><span class="p">(</span><span class="k">column</span><span class="w"> </span><span class="n">datatype</span><span class="w"> </span><span class="p">[</span><span class="k">DEFAULT</span><span class="w"> </span><span class="n">expr</span><span class="p">][,</span><span class="w"> </span><span class="p">...]);</span><span class="w">
+</span></span></span></code></pre></div><p>eg:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">dept</span><span class="w">	</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="n">deptno</span><span class="w"> 	</span><span class="nb">NUMBER</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="n">dname</span><span class="w"> 	</span><span class="n">VARCHAR2</span><span class="p">(</span><span class="mi">14</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="n">loc</span><span class="w"> 	</span><span class="n">VARCHAR2</span><span class="p">(</span><span class="mi">13</span><span class="p">));</span><span class="w">
+</span></span></span></code></pre></div><h4 id="412-建表方式二">4.1.2 建表方式二</h4>
+<p>使用 AS subquery 选项，将创建表和插入数据结合起来.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="err">格式：</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="k">table</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  	  </span><span class="p">[(</span><span class="k">column</span><span class="p">,</span><span class="w"> </span><span class="k">column</span><span class="p">...)]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">AS</span><span class="w"> </span><span class="n">subquery</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>eg:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="err">复制现有的表：</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">create</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">emp1</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">employees</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">create</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">emp2</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">employees</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="mi">1</span><span class="o">=</span><span class="mi">2</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--创建的emp2是空表。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w">  </span><span class="n">deptbak</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">AS</span><span class="w">     </span><span class="k">SELECT</span><span class="w">  </span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">last_name</span><span class="err">，</span><span class="w"> </span><span class="n">hire_date</span><span class="w">    
+</span></span></span><span class="line"><span class="cl"><span class="w">  		 </span><span class="k">FROM</span><span class="w">    </span><span class="n">employees</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  		 </span><span class="k">WHERE</span><span class="w">   </span><span class="n">department_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">80</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><h4 id="413-字段数据类型">4.1.3 字段数据类型</h4>
+<table>
+<thead>
+<tr>
+<th>数据类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>VARCHAR2(size)</td>
+<td>可变长字符数据</td>
+</tr>
+<tr>
+<td>CHAR(size)</td>
+<td>定长字符数据</td>
+</tr>
+<tr>
+<td>NUMBER(p,s)</td>
+<td>可变长数值数据</td>
+</tr>
+<tr>
+<td>DATE</td>
+<td>日期型数据</td>
+</tr>
+<tr>
+<td>LONG</td>
+<td>可变长字符数据，最大可达到2G</td>
+</tr>
+<tr>
+<td>CLOB</td>
+<td>字符数据，最大可达到4G</td>
+</tr>
+<tr>
+<td>RAW (LONG RAW)</td>
+<td>原始的二进制数据</td>
+</tr>
+<tr>
+<td>BLOB</td>
+<td>二进制数据，最大可达到4G</td>
+</tr>
+<tr>
+<td>BFILE</td>
+<td>存储外部文件的二进制数据，最大可达到4G</td>
+</tr>
+<tr>
+<td>ROWID</td>
+<td>行地址</td>
+</tr>
+</tbody>
+</table>
+<h3 id="42-修改表">4.2 修改表</h3>
+<h4 id="421-加字段">4.2.1 加字段</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="err">语法：</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="k">table</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">ADD</span><span class="w">		   </span><span class="p">(</span><span class="k">column</span><span class="w"> </span><span class="n">datatype</span><span class="w"> </span><span class="p">[</span><span class="k">DEFAULT</span><span class="w"> </span><span class="n">expr</span><span class="p">]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		   </span><span class="p">[,</span><span class="w"> </span><span class="k">column</span><span class="w"> </span><span class="n">datatype</span><span class="p">]...);</span><span class="w">
+</span></span></span></code></pre></div><p>eg:</p>
+<pre tabindex="0"><code>ALTER TABLE dept80
+ADD		   (job_id VARCHAR2(9));
+</code></pre><h4 id="422-修改字段">4.2.2 修改字段</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="err">语法：</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="k">table</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">MODIFY</span><span class="w">	   </span><span class="p">(</span><span class="k">column</span><span class="w"> </span><span class="n">datatype</span><span class="w"> </span><span class="p">[</span><span class="k">DEFAULT</span><span class="w"> </span><span class="n">expr</span><span class="p">]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		   </span><span class="p">[,</span><span class="w"> </span><span class="k">column</span><span class="w"> </span><span class="n">datatype</span><span class="p">]...);</span><span class="w">
+</span></span></span></code></pre></div><p>eg:</p>
+<pre tabindex="0"><code>ALTER TABLE	dept80
+MODIFY		(last_name VARCHAR2(30));
+
+ALTER TABLE	dept80
+MODIFY		(salary number(9,2) default 1000);--加默认值
+</code></pre><p>对默认值的修改只影响今后对表的修改.</p>
+<p>更改数据类型，要求修改的列必须为空。</p>
+<h4 id="423-删除字段">4.2.3 删除字段</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="err">语法：</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="k">table</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">DROP</span><span class="w"> </span><span class="k">COLUMN</span><span class="w">  </span><span class="k">column_name</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>eg:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w">  </span><span class="n">dept80</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">DROP</span><span class="w"> </span><span class="k">COLUMN</span><span class="w">  </span><span class="n">job_id</span><span class="p">;</span><span class="w"> 
+</span></span></span></code></pre></div><p>4.2.4 重命名字段</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="err">语法：</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="k">table_name</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">RENAME</span><span class="w"> </span><span class="n">COLUMM</span><span class="w"> </span><span class="n">old_column_name</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">TO</span><span class="w"> </span><span class="n">new_column_name</span><span class="w">
+</span></span></span></code></pre></div><p>eg:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w">  </span><span class="n">dept80</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">RENAME</span><span class="w"> </span><span class="k">COLUMN</span><span class="w">  </span><span class="n">job_id</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="n">id</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><h3 id="43-删除表">4.3 删除表</h3>
+<pre tabindex="0"><code>语法：DROP TABLE table_name;
+</code></pre><ul>
+<li>数据和结构都被删除</li>
+<li>所有正在运行的相关事务被提交</li>
+<li>所有相关索引被删除</li>
+<li>DROP TABLE 语句不能回滚</li>
+</ul>
+<h3 id="44-清空表">4.4 清空表</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="err">语法：</span><span class="w"> </span><span class="k">TRUNCATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="k">table_name</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><ul>
+<li>删除表中所有的数据、表结构保留</li>
+<li>释放表的存储空间</li>
+<li>TRUNCATE语句不能回滚，即表中数据无法恢复。</li>
+</ul>
+<h3 id="45-表重命名">4.5 表重命名</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="err">语法：</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">RENAME</span><span class="w"> </span><span class="k">table_name</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="n">table_newname</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><ul>
+<li>执行RENAME语句改变表, 视图, 序列, 或同义词的名称</li>
+</ul>
+<h2 id="5dml语言">5、DML语言</h2>
+<h3 id="51-insertupdatedelete-语句">5.1 INSERT、UPDATE、DELETE 语句</h3>
+<p><figure 
+	>
+	<a href="/images/database-oracle/image-20220526214454226.png" >
+		<img src="/images/database-oracle/image-20220526214454226.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20220526214454226">
+	</a>
+	
+	<figcaption>image-20220526214454226</figcaption>
+	
+</figure></p>
+<h3 id="52-数据库事务">5.2 数据库事务</h3>
+<h4 id="521-事务概念">5.2.1 事务概念</h4>
+<blockquote>
+<p>事务：一组逻辑操作单元,使数据从一种状态变换到另一种状态。</p>
+</blockquote>
+<p>数据库事务以一个 DML 语句的执行作为开始，以下面的其中之一作为结束：</p>
+<ul>
+<li>COMMIT 或 ROLLBACK 语句</li>
+<li>DDL 语句（自动提交）</li>
+<li>用户会话正常结束</li>
+<li>系统异常终止</li>
+</ul>
+<h4 id="522-控制事务">5.2.2 控制事务</h4>
+<p>1、COMMIT  ：提交事务</p>
+<p>2、ROLLBACK ：回滚事务</p>
+<p>3、SAVEPOINT</p>
+<pre tabindex="0"><code>使用 SAVEPOINT 语句在当前事务中创建保存点。
+使用 ROLLBACK TO SAVEPOINT 语句回滚到创建的保存点。
+</code></pre><h2 id="6常见约束">6、常见约束</h2>
+<h3 id="61-约束分类">6.1 约束分类</h3>
+<p>①列级约束只能作用在一个列上
+②表级约束可以作用在多个列上（当然表级约束也 可以作用在一个列上）</p>
+<p>定义方式：列约束必须跟在列的定义后面，表约束不与列一起，而是单独定义。</p>
+<p>非空(not null) 约束只能定义在列上。</p>
+<h3 id="62-常见约束">6.2 常见约束</h3>
+<h4 id="621-not-null非空约束">6.2.1 NOT NULL：非空约束</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">employees</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">employee_id</span><span class="w">    </span><span class="nb">NUMBER</span><span class="p">(</span><span class="mi">6</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">last_name</span><span class="w">      </span><span class="n">VARCHAR2</span><span class="p">(</span><span class="mi">25</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w"> </span><span class="c1">--系统命名
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="n">salary</span><span class="w">         </span><span class="nb">NUMBER</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">commission_pct</span><span class="w"> </span><span class="nb">NUMBER</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">hire_date</span><span class="w">      </span><span class="nb">DATE</span><span class="w">  </span><span class="k">CONSTRAINT</span><span class="w"> </span><span class="n">emp_hire_date_nn</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="c1">--自定义约束名称
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">)</span><span class="w">
+</span></span></span></code></pre></div><p>非空(not null) 约束只能定义在列上。</p>
+<p>CONSTRAINT：用来定义约束名称，不使用这个，oracle会设置一个默认名称。</p>
+<h4 id="622-unique唯一约束">6.2.2 UNIQUE：唯一约束</h4>
+<p>唯一约束，允许出现多个空值：NULL。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">employees</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">employee_id</span><span class="w">      </span><span class="nb">NUMBER</span><span class="p">(</span><span class="mi">6</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">last_name</span><span class="w">        </span><span class="n">VARCHAR2</span><span class="p">(</span><span class="mi">25</span><span class="p">)</span><span class="w"> </span><span class="k">UNIQUE</span><span class="p">,</span><span class="w"> </span><span class="c1">--列级约束、系统命名
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="n">email</span><span class="w">            </span><span class="n">VARCHAR2</span><span class="p">(</span><span class="mi">25</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">salary</span><span class="w">           </span><span class="nb">NUMBER</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">commission_pct</span><span class="w">   </span><span class="nb">NUMBER</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">hire_date</span><span class="w">        </span><span class="nb">DATE</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">CONSTRAINT</span><span class="w"> </span><span class="n">emp_email_uk</span><span class="w"> </span><span class="k">UNIQUE</span><span class="p">(</span><span class="n">email</span><span class="p">))</span><span class="c1">--表级约束、自定义约束名称
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="err">）</span><span class="w">
+</span></span></span></code></pre></div><h4 id="623-primary-key主键约束">6.2.3 PRIMARY KEY：主键约束</h4>
+<p>不允许null ，不允许重复。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w">   </span><span class="n">departments</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">department_id</span><span class="w">        </span><span class="nb">NUMBER</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">department_name</span><span class="w">      </span><span class="n">VARCHAR2</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">CONSTRAINT</span><span class="w"> </span><span class="n">dept_name_nn</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">manager_id</span><span class="w">           </span><span class="nb">NUMBER</span><span class="p">(</span><span class="mi">6</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">location_id</span><span class="w">          </span><span class="nb">NUMBER</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">CONSTRAINT</span><span class="w"> </span><span class="n">dept_id_pk</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">(</span><span class="n">department_id</span><span class="p">))</span><span class="c1">--表级约束、自定义主键名称
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w">   </span><span class="n">departments</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">department_id</span><span class="w">        </span><span class="nb">NUMBER</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="k">CONSTRAINT</span><span class="w"> </span><span class="n">dept_id_pk</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span><span class="c1">--列级约束、自定义主键名称
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="n">department_name</span><span class="w">      </span><span class="n">VARCHAR2</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">CONSTRAINT</span><span class="w"> </span><span class="n">dept_name_nn</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">manager_id</span><span class="w">           </span><span class="nb">NUMBER</span><span class="p">(</span><span class="mi">6</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">location_id</span><span class="w">          </span><span class="nb">NUMBER</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w">
+</span></span></span></code></pre></div><h4 id="624-foreign-key外键约束">6.2.4 FOREIGN KEY：外键约束</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">employees</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">employee_id</span><span class="w">      </span><span class="nb">NUMBER</span><span class="p">(</span><span class="mi">6</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">last_name</span><span class="w">        </span><span class="n">VARCHAR2</span><span class="p">(</span><span class="mi">25</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">email</span><span class="w">            </span><span class="n">VARCHAR2</span><span class="p">(</span><span class="mi">25</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">salary</span><span class="w">           </span><span class="nb">NUMBER</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">commission_pct</span><span class="w">   </span><span class="nb">NUMBER</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">hire_date</span><span class="w">        </span><span class="nb">DATE</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">department_id</span><span class="w">    </span><span class="nb">NUMBER</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">CONSTRAINT</span><span class="w"> </span><span class="n">emp_dept_fk</span><span class="w"> </span><span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">department_id</span><span class="p">)</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">departments</span><span class="p">(</span><span class="n">department_id</span><span class="p">)</span><span class="w"> </span><span class="k">on</span><span class="w"> </span><span class="k">delete</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="k">null</span><span class="p">,</span><span class="c1">--外键约束,级联置空
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="k">CONSTRAINT</span><span class="w"> </span><span class="n">emp_email_uk</span><span class="w"> </span><span class="k">UNIQUE</span><span class="p">(</span><span class="n">email</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></div><ul>
+<li>
+<p>FOREIGN KEY: 在表级指定子表中的列</p>
+</li>
+<li>
+<p>REFERENCES: 标示在父表中的列</p>
+<p>在oracle中，如果你需要删除的数据被其他数据所参照，例如上栗中的<code>departments</code>表中的‘departments_id’，外键约束情况下默认是不允许删除的。如果必须要删除，可以有以下两种选择：</p>
+<pre tabindex="0"><code>1、ON DELETE CASCADE(级联删除): 当父表中的列被删除时，子表中相对应的列也被删除
+2、ON DELETE SET NULL(级联置空): 子表中相应的列置空
+</code></pre></li>
+</ul>
+<h4 id="625-check自定义约束">6.2.5 CHECK：自定义约束</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">employees</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">employee_id</span><span class="w">      </span><span class="nb">NUMBER</span><span class="p">(</span><span class="mi">6</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">last_name</span><span class="w">        </span><span class="n">VARCHAR2</span><span class="p">(</span><span class="mi">25</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">email</span><span class="w">            </span><span class="n">VARCHAR2</span><span class="p">(</span><span class="mi">25</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">salary</span><span class="w">           </span><span class="nb">NUMBER</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">CONSTRAINT</span><span class="w"> </span><span class="n">emp_salary_min</span><span class="w"> </span><span class="k">CHECK</span><span class="w"> </span><span class="p">(</span><span class="n">salary</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">5000</span><span class="p">),</span><span class="c1">--自定义check约束，工资必须大于5000
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="n">commission_pct</span><span class="w">   </span><span class="nb">NUMBER</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">hire_date</span><span class="w">        </span><span class="nb">DATE</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">department_id</span><span class="w">    </span><span class="nb">NUMBER</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></div><h3 id="63-管理约束">6.3 管理约束</h3>
+<p>使用 ALTER TABLE 语句：</p>
+<ol>
+<li>添加或删除约束,<!-- raw HTML omitted -->但是不能修改约束。<!-- raw HTML omitted --></li>
+<li>有效化或无效化约束。</li>
+<li>添加 NOT NULL 约束要使用 MODIFY 语句。</li>
+</ol>
+<h4 id="631-添加约束">6.3.1 添加约束</h4>
+<p>表已经建好了，如果想要添加约束。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w">	 </span><span class="k">table</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">ADD</span><span class="w"> </span><span class="p">[</span><span class="k">CONSTRAINT</span><span class="w"> </span><span class="k">constraint</span><span class="p">]</span><span class="w"> </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="k">column</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">eg</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w">   </span><span class="n">employees</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">ADD</span><span class="w"> </span><span class="k">CONSTRAINT</span><span class="w">  </span><span class="n">emp_manager_fk</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="p">(</span><span class="n">manager_id</span><span class="p">)</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">employees</span><span class="p">(</span><span class="n">employee_id</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></div><h4 id="632-删除约束">6.3.2 删除约束</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w">      </span><span class="n">employees</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">DROP</span><span class="w"> </span><span class="k">CONSTRAINT</span><span class="w">  </span><span class="n">emp_manager_fk</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><h4 id="633-无效化约束">6.3.3 无效化约束</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w">		</span><span class="n">employees</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">DISABLE</span><span class="w"> </span><span class="k">CONSTRAINT</span><span class="w">	</span><span class="n">emp_emp_id_pk</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><h4 id="634-激活有效化约束">6.3.4 激活（有效化）约束</h4>
+<p>ENABLE 子句可将当前无效的约束激活 。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w">		</span><span class="n">employees</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">ENABLE</span><span class="w"> </span><span class="k">CONSTRAINT</span><span class="w">	</span><span class="n">emp_emp_id_pk</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><h4 id="635-查询约束">6.3.5 查询约束</h4>
+<p>查询表的约束有哪些：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">SELECT</span><span class="w">	</span><span class="k">constraint_name</span><span class="p">,</span><span class="w"> </span><span class="n">constraint_type</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="n">search_condition</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">FROM</span><span class="w">	</span><span class="n">user_constraints</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">WHERE</span><span class="w">	</span><span class="k">table_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;EMPLOYEES&#39;</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>查询定义约束的列：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">SELECT</span><span class="w">	</span><span class="k">constraint_name</span><span class="p">,</span><span class="w"> </span><span class="k">column_name</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">FROM</span><span class="w">	</span><span class="n">user_cons_columns</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">WHERE</span><span class="w">	</span><span class="k">table_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;EMPLOYEES&#39;</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><h2 id="7视图-view">7、视图 View</h2>
+<h3 id="71-创建视图">7.1 创建视图</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">CREATE</span><span class="w"> </span><span class="k">OR</span><span class="w"> </span><span class="k">REPLACE</span><span class="w"> </span><span class="k">VIEW</span><span class="w"> </span><span class="n">empvu80</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="p">(</span><span class="n">id_number</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">sal</span><span class="p">,</span><span class="w"> </span><span class="n">department_id</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">AS</span><span class="w"> </span><span class="k">SELECT</span><span class="w">  </span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">first_name</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">&#39; &#39;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">last_name</span><span class="p">,</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">           </span><span class="n">salary</span><span class="p">,</span><span class="w"> </span><span class="n">department_id</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="k">FROM</span><span class="w">    </span><span class="n">employees</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="k">WHERE</span><span class="w">   </span><span class="n">department_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">80</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>正常创建的简单视图，是可以进行DML操作的，比如修改视图中的字段信息，会同步修改原表对应的记录。如果不允许修改视图，可以使用 <code>WITH READ ONLY</code> 选项屏蔽对视图的DML 操作。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">CREATE</span><span class="w"> </span><span class="k">OR</span><span class="w"> </span><span class="k">REPLACE</span><span class="w"> </span><span class="k">VIEW</span><span class="w"> </span><span class="n">empvu10</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">(</span><span class="n">employee_number</span><span class="p">,</span><span class="w"> </span><span class="n">employee_name</span><span class="p">,</span><span class="w"> </span><span class="n">job_title</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">AS</span><span class="w"> </span><span class="k">SELECT</span><span class="w">	</span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">last_name</span><span class="p">,</span><span class="w"> </span><span class="n">job_id</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="k">FROM</span><span class="w">     </span><span class="n">employees</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="k">WHERE</span><span class="w">    </span><span class="n">department_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="k">WITH</span><span class="w"> </span><span class="k">READ</span><span class="w"> </span><span class="k">ONLY</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><h3 id="72-删除视图">7.2 删除视图</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">drop</span><span class="w"> </span><span class="k">view</span><span class="w"> </span><span class="n">view_name</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><h3 id="73-复杂视图">7.3 复杂视图</h3>
+<p><figure 
+	>
+	<a href="/images/database-oracle/image-20220529184657863.png" >
+		<img src="/images/database-oracle/image-20220529184657863.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20220529184657863">
+	</a>
+	
+	<figcaption>image-20220529184657863</figcaption>
+	
+</figure></p>
+<p>示例：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">CREATE</span><span class="w"> </span><span class="k">VIEW</span><span class="w">	</span><span class="n">dept_sum_vu</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">minsal</span><span class="p">,</span><span class="w"> </span><span class="n">maxsal</span><span class="p">,</span><span class="w"> </span><span class="n">avgsal</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">AS</span><span class="w"> </span><span class="k">SELECT</span><span class="w">	 </span><span class="n">d</span><span class="p">.</span><span class="n">department_name</span><span class="p">,</span><span class="w"> </span><span class="k">MIN</span><span class="p">(</span><span class="n">e</span><span class="p">.</span><span class="n">salary</span><span class="p">),</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">             </span><span class="k">MAX</span><span class="p">(</span><span class="n">e</span><span class="p">.</span><span class="n">salary</span><span class="p">),</span><span class="k">AVG</span><span class="p">(</span><span class="n">e</span><span class="p">.</span><span class="n">salary</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="k">FROM</span><span class="w">      </span><span class="n">employees</span><span class="w"> </span><span class="n">e</span><span class="p">,</span><span class="w"> </span><span class="n">departments</span><span class="w"> </span><span class="n">d</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="k">WHERE</span><span class="w">     </span><span class="n">e</span><span class="p">.</span><span class="n">department_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">d</span><span class="p">.</span><span class="n">department_id</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w">  </span><span class="n">d</span><span class="p">.</span><span class="n">department_name</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><h3 id="74-视图中使用dml的规定">7.4 视图中使用DML的规定</h3>
+<p>可以在简单视图中执行 DML 操作，当视图定义中包含以下元素之一时不能使用delete:</p>
+<ul>
+<li>组函数</li>
+<li>GROUP BY 子句</li>
+<li>DISTINCT 关键字</li>
+<li>ROWNUM 伪列</li>
+</ul>
+<p>当视图定义中包含以下元素之一时不能使用update：</p>
+<ul>
+<li>组函数</li>
+<li>GROUP BY子句</li>
+<li>DISTINCT 关键字</li>
+<li>ROWNUM 伪列</li>
+<li>列的定义为表达式</li>
+</ul>
+<p>当视图定义中包含以下元素之一时不能使insert:</p>
+<ul>
+<li>组函数</li>
+<li>GROUP BY 子句</li>
+<li>DISTINCT 关键字</li>
+<li>ROWNUM 伪列</li>
+<li>列的定义为表达式</li>
+<li>表中非空的列在视图定义中未包括</li>
+</ul>
+<h2 id="8-top-n分析">8、 Top-N分析</h2>
+<p>Top-N分析可用于分页等查询。</p>
+<p>Top-N 分析查询一个列中最大或最小的 n 个值。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">SELECT</span><span class="w"> </span><span class="p">[</span><span class="n">column_list</span><span class="p">],</span><span class="w"> </span><span class="n">ROWNUM</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">FROM</span><span class="w">   </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="p">[</span><span class="n">column_list</span><span class="p">]</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">FROM</span><span class="w"> </span><span class="k">table</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">ORDER</span><span class="w">  </span><span class="k">BY</span><span class="w"> </span><span class="n">Top</span><span class="o">-</span><span class="n">N_column</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">WHERE</span><span class="w">  </span><span class="n">ROWNUM</span><span class="w"> </span><span class="o">&lt;=</span><span class="w">  </span><span class="n">N</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p><!-- raw HTML omitted -->对 ROWNUM 只能使用 &lt; 或 &lt;=, 而用 =, &gt;, &gt;= 都将不能返回任何数据。<!-- raw HTML omitted --></p>
+<p>例如：查询工资最高的三名员工:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">SELECT</span><span class="w"> </span><span class="n">ROWNUM</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">RANK</span><span class="p">,</span><span class="w"> </span><span class="n">last_name</span><span class="p">,</span><span class="w"> </span><span class="n">salary</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">FROM</span><span class="w">  </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">last_name</span><span class="p">,</span><span class="n">salary</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">employees</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">       </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">salary</span><span class="w"> </span><span class="k">DESC</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">WHERE</span><span class="w"> </span><span class="n">ROWNUM</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>如果需要查询工资处理40到50名间的员工怎么办，ROWNUM 不允许使用 &lsquo;&gt;40&rsquo;这种写法。可以把rownum伪列变为实际列，然后再排序。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">from</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">select</span><span class="w"> </span><span class="n">rownum</span><span class="w"> </span><span class="n">rn</span><span class="p">,</span><span class="n">employee_id</span><span class="p">,</span><span class="n">salary</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">         </span><span class="k">from</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="k">select</span><span class="w"> </span><span class="n">employee_id</span><span class="p">,</span><span class="n">salary</span><span class="p">,</span><span class="n">last_name</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="k">from</span><span class="w"> </span><span class="n">employees</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="k">order</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">salary</span><span class="w"> </span><span class="k">desc</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">where</span><span class="w"> </span><span class="n">rn</span><span class="w"> </span><span class="o">&lt;=</span><span class="mi">50</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">rn</span><span class="w"> </span><span class="o">&gt;</span><span class="mi">40</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><h2 id="9序列">9、序列</h2>
+<p>序列: 可供多个用户用来产生唯一数值的数据库对象。</p>
+<ul>
+<li>自动提供唯一的数值</li>
+<li>共享对象</li>
+<li>主要用于提供主键值</li>
+<li>将序列值装入内存可以提高访问效率</li>
+</ul>
+<h3 id="91-定义序列">9.1 定义序列</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">CREATE</span><span class="w"> </span><span class="n">SEQUENCE</span><span class="w"> </span><span class="n">sequence_name</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">       </span><span class="p">[</span><span class="k">INCREMENT</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">n</span><span class="p">]</span><span class="w">  </span><span class="c1">--每次增长的数值
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">       </span><span class="p">[</span><span class="k">START</span><span class="w"> </span><span class="k">WITH</span><span class="w"> </span><span class="n">n</span><span class="p">]</span><span class="w">    </span><span class="c1">--从哪个值开始
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">       </span><span class="p">[</span><span class="err">{</span><span class="k">MAXVALUE</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">NOMAXVALUE</span><span class="err">}</span><span class="p">]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">       </span><span class="p">[</span><span class="err">{</span><span class="k">MINVALUE</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">NOMINVALUE</span><span class="err">}</span><span class="p">]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">       </span><span class="p">[</span><span class="err">{</span><span class="k">CYCLE</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">NOCYCLE</span><span class="err">}</span><span class="p">]</span><span class="w">     </span><span class="c1">--是否需要循环
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">       </span><span class="p">[</span><span class="err">{</span><span class="k">CACHE</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">NOCACHE</span><span class="err">}</span><span class="p">];</span><span class="w">  </span><span class="c1">--是否缓存登录
+</span></span></span></code></pre></div><p>eg:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">CREATE</span><span class="w"> </span><span class="n">SEQUENCE</span><span class="w"> </span><span class="n">dept_deptid_seq</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="k">INCREMENT</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">10</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="k">START</span><span class="w"> </span><span class="k">WITH</span><span class="w"> </span><span class="mi">120</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="k">MAXVALUE</span><span class="w"> </span><span class="mi">9999</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="n">NOCACHE</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="n">NOCYCLE</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>获取序列下一个值：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">Select</span><span class="w"> </span><span class="n">seq</span><span class="p">.</span><span class="n">nextval</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">dual</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>获取序列当前值：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">Select</span><span class="w"> </span><span class="n">seq</span><span class="p">.</span><span class="n">currval</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">dual</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>NEXTVAL 应在 CURRVAL 之前指定 ，否则会报CURRVAL 尚未在此会话中定义的错误。</p>
+<h3 id="92-修改序列">9.2 修改序列</h3>
+<p>修改序列的增量, 最大值, 最小值, 循环选项, 或是否装入内存。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">ALTER</span><span class="w"> </span><span class="n">SEQUENCE</span><span class="w"> </span><span class="n">dept_deptid_seq</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">               </span><span class="k">INCREMENT</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">20</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">               </span><span class="k">MAXVALUE</span><span class="w"> </span><span class="mi">999999</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">               </span><span class="n">NOCACHE</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">               </span><span class="n">NOCYCLE</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>修改序列的注意事项：</p>
+<ul>
+<li>必须是序列的拥有者或对序列有 ALTER 权限</li>
+<li>只有将来的序列值会被改变</li>
+<li>改变序列的初始值只能通过删除序列之后重建序列的方法实现</li>
+</ul>
+<h3 id="93-删除序列">9.3 删除序列</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">DROP</span><span class="w"> </span><span class="n">SEQUENCE</span><span class="w"> </span><span class="n">dept_deptid_seq</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><h3 id="94-序列裂缝">9.4 序列裂缝</h3>
+<p>即序列值之间出现不连贯的情况。</p>
+<p>序列在下列情况下出现裂缝：</p>
+<ul>
+<li>回滚</li>
+<li>系统异常</li>
+<li>多个表同时使用同一序列</li>
+</ul>
+<h3 id="95-查询序列">9.5 查询序列</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">SELECT</span><span class="w">	</span><span class="n">sequence_name</span><span class="p">,</span><span class="w"> </span><span class="n">min_value</span><span class="p">,</span><span class="w"> </span><span class="n">max_value</span><span class="p">,</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="n">increment_by</span><span class="p">,</span><span class="w"> </span><span class="n">last_number</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">FROM</span><span class="w">	</span><span class="n">user_sequences</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>如果指定NOCACHE 选项，则列LAST_NUMBER 显示序列中下一个有效的值.</p>
+<h2 id="10索引">10、索引</h2>
+<ul>
+<li>一种独立于表的模式对象, 可以存储在与表不同的磁盘或表空间中。</li>
+<li>索引被删除或损坏, 不会对表产生影响, 其影响的只是查询的速度。</li>
+<li>索引一旦建立, Oracle 管理系统会对其进行自动维护, 而且由 Oracle 管理系统决定何时使用索引。用户不用在查询语句中指定使用哪个索引，</li>
+<li>在删除一个表时,所有基于该表的索引会自动被删除，</li>
+<li>通过指针加速 Oracle 服务器的查询速度。通过快速定位数据的方法，减少磁盘 I/O。</li>
+</ul>
+<h3 id="101-创建索引">10.1 创建索引</h3>
+<p>在一个或多个列上创建索引</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="k">index</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">ON</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="p">(</span><span class="k">column</span><span class="p">[,</span><span class="w"> </span><span class="k">column</span><span class="p">]...);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">eg</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> 	</span><span class="n">emp_last_name_idx</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">ON</span><span class="w"> 		</span><span class="n">employees</span><span class="p">(</span><span class="n">last_name</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></div><p><strong>什么时候创建索引？</strong></p>
+<ul>
+<li>列中数据值分布范围很广</li>
+<li>列经常在 WHERE 子句或连接条件中出现</li>
+<li>表经常被访问而且数据量很大 ，访问的数据大概占数据总量的2%到4%</li>
+</ul>
+<p><strong>下列情况不要创建索引？</strong></p>
+<ul>
+<li>表很小</li>
+<li>列不经常作为连接条件或出现在WHERE子句中</li>
+<li>查询的数据大于2%到4%</li>
+<li>表经常更新</li>
+</ul>
+<h3 id="102-删除索引">10.2 删除索引</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">DROP</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="k">index</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><h3 id="103--查询索引">10.3  查询索引</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">SELECT</span><span class="w">	</span><span class="n">ic</span><span class="p">.</span><span class="n">index_name</span><span class="p">,</span><span class="w"> </span><span class="n">ic</span><span class="p">.</span><span class="k">column_name</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="n">ic</span><span class="p">.</span><span class="n">column_position</span><span class="w"> </span><span class="n">col_pos</span><span class="p">,</span><span class="n">ix</span><span class="p">.</span><span class="n">uniqueness</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">FROM</span><span class="w">	</span><span class="n">user_indexes</span><span class="w"> </span><span class="n">ix</span><span class="p">,</span><span class="w"> </span><span class="n">user_ind_columns</span><span class="w"> </span><span class="n">ic</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">WHERE</span><span class="w">	</span><span class="n">ic</span><span class="p">.</span><span class="n">index_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ix</span><span class="p">.</span><span class="n">index_name</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">AND</span><span class="w">	</span><span class="n">ic</span><span class="p">.</span><span class="k">table_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;EMPLOYEES&#39;</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><h2 id="11同义词">11、同义词</h2>
+<p>使用同义词访问相同的对象，方便访问其它用户的对象，缩短对象名字的长度。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">CREATE</span><span class="w"> </span><span class="p">[</span><span class="k">PUBLIC</span><span class="p">]</span><span class="w"> </span><span class="n">SYNONYM</span><span class="w"> </span><span class="n">synonym_name</span><span class="w"> </span><span class="k">FOR</span><span class="w">  </span><span class="k">object</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">eg</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">CREATE</span><span class="w"> </span><span class="n">SYNONYM</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="k">FOR</span><span class="w"> </span><span class="n">employees</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="err">使用：</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">e</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="err">删除同义词：</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">DROP</span><span class="w"> </span><span class="n">SYNONYM</span><span class="w"> </span><span class="n">e</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><h2 id="12dcl语句">12、DCL语句</h2>
+<h3 id="121创建用户">12.1创建用户</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">CREATE</span><span class="w"> </span><span class="k">USER</span><span class="w"> </span><span class="k">user</span><span class="w"> </span><span class="n">IDENTIFIED</span><span class="w"> </span><span class="k">BY</span><span class="w">   </span><span class="n">password</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><h3 id="122赋予用户权限">12.2赋予用户权限</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">GRANT</span><span class="w"> </span><span class="n">privilege</span><span class="w"> </span><span class="p">[,</span><span class="w"> </span><span class="n">privilege</span><span class="p">...]</span><span class="w">			
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">TO</span><span class="w"> </span><span class="k">user</span><span class="w"> </span><span class="p">[,</span><span class="w"> </span><span class="k">user</span><span class="o">|</span><span class="w"> </span><span class="k">role</span><span class="p">,</span><span class="w"> </span><span class="k">PUBLIC</span><span class="p">...];</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="err">一般具有下列系统权限</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">CREATE</span><span class="w"> </span><span class="k">SESSION</span><span class="err">（创建会话）</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="err">（创建表）</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">CREATE</span><span class="w"> </span><span class="n">SEQUENCE</span><span class="err">（创建序列）</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">CREATE</span><span class="w"> </span><span class="k">VIEW</span><span class="err">（创建视图）</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">CREATE</span><span class="w"> </span><span class="k">PROCEDURE</span><span class="err">（创建过程）</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">eg</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">GRANT</span><span class="w">  </span><span class="k">create</span><span class="w"> </span><span class="k">session</span><span class="p">,</span><span class="w"> </span><span class="k">create</span><span class="w"> </span><span class="k">table</span><span class="p">,</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">       </span><span class="k">create</span><span class="w"> </span><span class="n">sequence</span><span class="p">,</span><span class="w"> </span><span class="k">create</span><span class="w"> </span><span class="k">view</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">TO</span><span class="w">     </span><span class="n">scott</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><h3 id="123-给用户添加表空间">12.3 给用户添加表空间</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">ALTER</span><span class="w"> </span><span class="k">USER</span><span class="w"> </span><span class="n">user_name</span><span class="w"> </span><span class="n">QUOTA</span><span class="w"> </span><span class="n">UNLIMITED</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">tablespace_name</span><span class="p">;</span><span class="c1">---user_name 添加tablespace_name表空间，表空间无限制UNLIMITED
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">ALTER</span><span class="w"> </span><span class="k">USER</span><span class="w"> </span><span class="n">user_name</span><span class="w"> </span><span class="mi">30</span><span class="n">m</span><span class="w"> </span><span class="n">UNLIMITED</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">tablespace_name</span><span class="p">;</span><span class="c1">---user_name 添加tablespace_name表空间，表空间30M
+</span></span></span></code></pre></div><h3 id="124-创建角色并赋予权限">12.4 创建角色并赋予权限</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="mi">1</span><span class="err">、创建角色</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">create</span><span class="w"> </span><span class="k">role</span><span class="w"> </span><span class="n">role_name</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="mi">2</span><span class="err">、为角色赋予权限</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">GRANT</span><span class="w">   </span><span class="k">create</span><span class="w"> </span><span class="k">session</span><span class="p">,</span><span class="w"> </span><span class="k">create</span><span class="w"> </span><span class="k">table</span><span class="p">,</span><span class="w">  </span><span class="k">create</span><span class="w"> </span><span class="n">sequence</span><span class="p">,</span><span class="w"> </span><span class="k">create</span><span class="w"> </span><span class="k">view</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">role_name</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="mi">3</span><span class="err">、将角色赋予用户</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">GRANT</span><span class="w"> </span><span class="n">role_name</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">user_name</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><h3 id="125-修改密码">12.5 修改密码</h3>
+<p>DBA 可以创建用户和修改密码，用户本人可以使用 ALTER USER 语句修改密码</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">ALTER</span><span class="w"> </span><span class="k">USER</span><span class="w"> </span><span class="n">user_name</span><span class="w">  </span><span class="n">IDENTIFIED</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">new_passwd</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><h3 id="126-分配对象权限">12.6 分配对象权限</h3>
+<p>不同的对象具有不同的对象权限
+对象的拥有者拥有所有权限
+对象的拥有者可以向外分配权限</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="w"> </span><span class="k">GRANT</span><span class="w">	</span><span class="n">object_priv</span><span class="w"> </span><span class="p">[(</span><span class="n">columns</span><span class="p">)]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="k">ON</span><span class="w">		</span><span class="k">object</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="k">TO</span><span class="w">		</span><span class="err">{</span><span class="k">user</span><span class="o">|</span><span class="k">role</span><span class="o">|</span><span class="k">PUBLIC</span><span class="err">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="p">[</span><span class="k">WITH</span><span class="w"> </span><span class="k">GRANT</span><span class="w"> </span><span class="k">OPTION</span><span class="p">];</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">eg</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="mi">1</span><span class="err">、分配表</span><span class="w"> </span><span class="n">EMPLOYEES</span><span class="w"> </span><span class="err">的查询权限给用户</span><span class="w"> </span><span class="n">user_name1</span><span class="p">,</span><span class="w"> </span><span class="n">user_name2</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="k">GRANT</span><span class="w">  </span><span class="k">select</span><span class="w"> </span><span class="k">ON</span><span class="w">  </span><span class="n">employees</span><span class="w">  </span><span class="k">TO</span><span class="w">   </span><span class="n">user_name1</span><span class="p">,</span><span class="w"> </span><span class="n">user_name2</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="mi">2</span><span class="err">、分配</span><span class="n">user_name1用户的departments表的查询权限给user_name2</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="k">GRANT</span><span class="w">  </span><span class="k">select</span><span class="w"> </span><span class="k">ON</span><span class="w">     </span><span class="n">user_name1</span><span class="p">.</span><span class="n">departments</span><span class="w">  </span><span class="k">TO</span><span class="w">   </span><span class="n">user_name2</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="err">此时</span><span class="n">user_name2可以通过</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">user_name1</span><span class="p">.</span><span class="n">departments</span><span class="p">;</span><span class="err">来查询</span><span class="n">user_name1用户下的表</span><span class="err">。</span><span class="w">
+</span></span></span></code></pre></div><h3 id="127-权限转授">12.7 权限转授</h3>
+<p>WITH GRANT OPTION和PUBLIC关键字。</p>
+<ul>
+<li>WITH GRANT OPTION 使用户同样具有分配权限的权利</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">--scott用户可以把departments表的select, insert权限，授予别人
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">GRANT</span><span class="w">  </span><span class="k">select</span><span class="p">,</span><span class="w"> </span><span class="k">insert</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">ON</span><span class="w">     </span><span class="n">departments</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">TO</span><span class="w">     </span><span class="n">scott</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">WITH</span><span class="w">   </span><span class="k">GRANT</span><span class="w"> </span><span class="k">OPTION</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><ul>
+<li>PUBLIC关键字。向数据库中所有用户分配权限</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">--scott用户的departments的查询权限给所有人
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">GRANT</span><span class="w">  </span><span class="k">select</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">ON</span><span class="w">	  </span><span class="n">scott</span><span class="p">.</span><span class="n">departments</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">TO</span><span class="w">	  </span><span class="k">PUBLIC</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><h3 id="128-权限回收">12.8 权限回收</h3>
+<ul>
+<li>使用 REVOKE 语句收回权限</li>
+<li>使用 WITH GRANT OPTION 子句所分配的权限同样被收回</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">REVOKE</span><span class="w"> </span><span class="err">{</span><span class="n">privilege</span><span class="w"> </span><span class="p">[,</span><span class="w"> </span><span class="n">privilege</span><span class="p">...]</span><span class="o">|</span><span class="k">ALL</span><span class="err">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">ON</span><span class="w">	  </span><span class="k">object</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">FROM</span><span class="w">   </span><span class="err">{</span><span class="k">user</span><span class="p">[,</span><span class="w"> </span><span class="k">user</span><span class="p">...]</span><span class="o">|</span><span class="k">role</span><span class="o">|</span><span class="k">PUBLIC</span><span class="err">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">[</span><span class="k">CASCADE</span><span class="w"> </span><span class="k">CONSTRAINTS</span><span class="p">];</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">eg</span><span class="w"> </span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">REVOKE</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="k">on</span><span class="w"> </span><span class="n">scott</span><span class="p">.</span><span class="n">departments</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">user_name</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><h3 id="129-权限查询">12.9 权限查询</h3>
+<p>所有的权限分配情况都保持在以下表中。</p>
+<p><figure 
+	>
+	<a href="/images/database-oracle/image-20220716182532557.png" >
+		<img src="/images/database-oracle/image-20220716182532557.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20220716182532557">
+	</a>
+	
+	<figcaption>image-20220716182532557</figcaption>
+	
+</figure></p>
+<h3 id="1210-创建表空间">12.10 创建表空间</h3>
+<pre tabindex="0"><code>--创建表空间
+CREATE TABLESPACE tbs_fans47test_dev LOGGING DATAFILE &#39;/oradata/devdb00/tbs_fans47test_dev.dbf&#39; SIZE 32M AUTOEXTEND ON NEXT 32M MAXSIZE 2048M EXTENT MANAGEMENT LOCAL;
+
+
+--查询表空间的位置
+select tablespace_name from dba_tablespaces;
+select t1.name,t2.name  from v$tablespace t1,v$datafile t2 where t1.ts# = t2.ts# and t1.name=&#39;tbs_fans47test_dev&#39;;
+
+--表空间磁盘不够时，创建第二文件
+--表空间增加新的数据文件：为表空间TBS_ZNWDZXFZGJ_DEV增加一个新的数据文件tbs_znwdzxfzgj_dev2.dbf
+alter tablespace TBS_ZNWDZXFZGJ_DEV add datafile &#39;/oradata2/devdb04/tbs_znwdzxfzgj_dev2.dbf&#39; size 100M autoextend on next 10M;
+</code></pre><h2 id="13set-操作符">13、SET 操作符</h2>
+<p>将多个查询用 SET 操作符连接组成一个新的查询。</p>
+<ul>
+<li>UNION / UNION ALL （取集合）</li>
+<li>INTERSECT  （交集）</li>
+<li>MINUS  （差集）</li>
+</ul>
+<p><figure 
+	>
+	<a href="/images/database-oracle/image-20220807154250394.png" >
+		<img src="/images/database-oracle/image-20220807154250394.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20220807154250394">
+	</a>
+	
+	<figcaption>image-20220807154250394</figcaption>
+	
+</figure></p>
+<h3 id="131-union--union-all">13.1 UNION / UNION ALL</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">SELECT</span><span class="w"> </span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">job_id</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">FROM</span><span class="w">   </span><span class="n">employees</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">UNION</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">SELECT</span><span class="w"> </span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">job_id</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">FROM</span><span class="w">   </span><span class="n">job_history</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><ul>
+<li>UNION ALL 操作符返回两个查询的结果集的并集。对于两个结果集的重复部分，不去重。</li>
+<li>UNION ALL 操作符返回两个查询的结果集的并集。对于两个结果集的重复部分，去重。</li>
+<li>其中查询字段个数、数据类型要相同。</li>
+<li>如果查询字段起别名，以上一个select语句的别名为准。</li>
+<li>默认排序为第一个select 语句 的employee_id 升序排列。</li>
+</ul>
+<h3 id="132-intersect">13.2 INTERSECT</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">SELECT</span><span class="w"> </span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">job_id</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">FROM</span><span class="w">   </span><span class="n">employees</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">INTERSECT</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">SELECT</span><span class="w"> </span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">job_id</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">FROM</span><span class="w">   </span><span class="n">job_history</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><ul>
+<li>INTERSECT 操作符返回两个结果集的交集</li>
+</ul>
+<h3 id="133-minus">13.3 MINUS</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">SELECT</span><span class="w"> </span><span class="n">employee_id</span><span class="p">,</span><span class="n">job_id</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">FROM</span><span class="w">   </span><span class="n">employees</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">MINUS</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">SELECT</span><span class="w"> </span><span class="n">employee_id</span><span class="p">,</span><span class="n">job_id</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">FROM</span><span class="w">   </span><span class="n">job_history</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>MINUS操作符：返回两个结果集的差集</p>
+<h3 id="134-使用相对位置排序举例">13.4 使用相对位置排序举例</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">SELECT</span><span class="w"> </span><span class="s1">&#39;sing&#39;</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="s2">&#34;My dream&#34;</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">FROM</span><span class="w"> </span><span class="n">dual</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">UNION</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">SELECT</span><span class="w"> </span><span class="s1">&#39;I`d like to teach&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">FROM</span><span class="w"> </span><span class="n">dual</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">UNION</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">SELECT</span><span class="w"> </span><span class="s1">&#39;the world to&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">FROM</span><span class="w"> </span><span class="n">dual</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>结果：</p>
+<p>列名显示第一个查询的别名，由于加了order by ,结果以第2列升序排列。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">My</span><span class="w"> </span><span class="n">dream</span><span class="w">           
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">I</span><span class="o">`</span><span class="n">d</span><span class="w"> </span><span class="k">like</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">teach</span><span class="w">  </span><span class="mi">1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">the</span><span class="w"> </span><span class="n">world</span><span class="w"> </span><span class="k">to</span><span class="w">       </span><span class="mi">2</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">sing</span><span class="w">               </span><span class="mi">3</span><span class="w">
+</span></span></span></code></pre></div><p>如果不想打印第二列，可以使用COLUMN  *** NOPRINT</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">COLUMN</span><span class="w"> </span><span class="n">a_dummy</span><span class="w"> </span><span class="n">NOPRINT</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">SELECT</span><span class="w"> </span><span class="s1">&#39;sing&#39;</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="s2">&#34;My dream&#34;</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="n">a_dummy</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">FROM</span><span class="w"> </span><span class="n">dual</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">UNION</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">SELECT</span><span class="w"> </span><span class="s1">&#39;I`d like to teach&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">FROM</span><span class="w"> </span><span class="n">dual</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">UNION</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">SELECT</span><span class="w"> </span><span class="s1">&#39;the world to&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">FROM</span><span class="w"> </span><span class="n">dual</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>打印结果：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">My</span><span class="w"> </span><span class="n">dream</span><span class="w">           
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">I</span><span class="o">`</span><span class="n">d</span><span class="w"> </span><span class="k">like</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">teach</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">the</span><span class="w"> </span><span class="n">world</span><span class="w"> </span><span class="k">to</span><span class="w">       
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">sing</span><span class="w">               
+</span></span></span></code></pre></div><h3 id="135-使用-set-操作符注意事项">13.5 使用 SET 操作符注意事项</h3>
+<ul>
+<li>
+<p>在SELECT 列表中的列名和表达式在数量和数据类型上要相对应</p>
+</li>
+<li>
+<p>括号可以改变执行的顺序</p>
+</li>
+<li>
+<p>ORDER BY 子句:</p>
+<p>只能在语句的最后出现</p>
+<p>可以使用第一个查询中的列名, 别名或相对位置</p>
+</li>
+<li>
+<p>除 UNION ALL之外，系统会自动将重复的记录删除
+系统将第一个查询的列名显示在输出中
+除 UNION ALL之外，系统自动按照第一个查询中的第一个列的升序排列</p>
+</li>
+</ul>
+<h2 id="14高级子查询">14、高级子查询</h2>
+<h3 id="141-多列子查询">14.1 多列子查询</h3>
+<ul>
+<li>主查询与子查询返回的多个列进行比较</li>
+</ul>
+<p>示例：查询与141号或174号员工的manager_id和department_id相同的其他员工的employee_id, manager_id, department_id</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">SELECT</span><span class="w">	</span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">manager_id</span><span class="p">,</span><span class="w"> </span><span class="n">department_id</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">FROM</span><span class="w">	</span><span class="n">employees</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">WHERE</span><span class="w">  </span><span class="p">(</span><span class="n">manager_id</span><span class="p">,</span><span class="w"> </span><span class="n">department_id</span><span class="p">)</span><span class="w"> </span><span class="k">IN</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                      </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">manager_id</span><span class="p">,</span><span class="w"> </span><span class="n">department_id</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                       </span><span class="k">FROM</span><span class="w">   </span><span class="n">employees</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                       </span><span class="k">WHERE</span><span class="w">  </span><span class="n">employee_id</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="mi">141</span><span class="p">,</span><span class="mi">174</span><span class="p">))</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">AND</span><span class="w">	</span><span class="n">employee_id</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="mi">141</span><span class="p">,</span><span class="mi">174</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></div><h3 id="142-在-from-子句中使用子查询">14.2 在 FROM 子句中使用子查询</h3>
+<p>示例：返回比本部门平均工资高的员工的last_name, department_id, salary及平均工资</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">SELECT</span><span class="w">  </span><span class="n">a</span><span class="p">.</span><span class="n">last_name</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">salary</span><span class="p">,</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">a</span><span class="p">.</span><span class="n">department_id</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">salavg</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">FROM</span><span class="w">    </span><span class="n">employees</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w">   </span><span class="n">department_id</span><span class="p">,</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">                      </span><span class="k">AVG</span><span class="p">(</span><span class="n">salary</span><span class="p">)</span><span class="w"> </span><span class="n">salavg</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                      </span><span class="k">FROM</span><span class="w">     </span><span class="n">employees</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                      </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">department_id</span><span class="p">)</span><span class="w"> </span><span class="n">b</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">WHERE</span><span class="w">   </span><span class="n">a</span><span class="p">.</span><span class="n">department_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">department_id</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">AND</span><span class="w">     </span><span class="n">a</span><span class="p">.</span><span class="n">salary</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">salavg</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><h3 id="143-单列子查询">14.3 单列子查询</h3>
+<p>示例：显示员工的employee_id,last_name和location。其中，若员工department_id与location_id为1800的department_id相同，则location为’Canada’,其余则为’USA’。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">SELECT</span><span class="w"> </span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">last_name</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">       </span><span class="p">(</span><span class="k">CASE</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">WHEN</span><span class="w"> </span><span class="n">department_id</span><span class="w"> </span><span class="o">=</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                
+</span></span></span><span class="line"><span class="cl"><span class="w">                 
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">THEN</span><span class="w"> </span><span class="s1">&#39;Canada&#39;</span><span class="w"> </span><span class="k">ELSE</span><span class="w"> </span><span class="s1">&#39;USA&#39;</span><span class="w"> </span><span class="k">END</span><span class="p">)</span><span class="w"> </span><span class="k">location</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">FROM</span><span class="w">   </span><span class="n">employees</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><h3 id="144-existsnot-exists-操作符">14.4 EXISTS/NOT EXISTS 操作符</h3>
+<p>示例：查询公司管理者的employee_id,last_name,job_id,department_id信息</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">SELECT</span><span class="w"> </span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">last_name</span><span class="p">,</span><span class="w"> </span><span class="n">job_id</span><span class="p">,</span><span class="w"> </span><span class="n">department_id</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">FROM</span><span class="w">   </span><span class="n">employees</span><span class="w"> </span><span class="k">outer</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">WHERE</span><span class="w">  </span><span class="k">EXISTS</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="k">SELECT</span><span class="w"> </span><span class="s1">&#39;X&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                 </span><span class="k">FROM</span><span class="w">   </span><span class="n">employees</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                 </span><span class="k">WHERE</span><span class="w">  </span><span class="n">manager_id</span><span class="w"> </span><span class="o">=</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">                        </span><span class="k">outer</span><span class="p">.</span><span class="n">employee_id</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></div><p>示例：查询departments表中，不存在于employees表中的部门的department_id和department_name</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">SELECT</span><span class="w"> </span><span class="n">department_id</span><span class="p">,</span><span class="w"> </span><span class="n">department_name</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">FROM</span><span class="w"> </span><span class="n">departments</span><span class="w"> </span><span class="n">d</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">WHERE</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="s1">&#39;X&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                  </span><span class="k">FROM</span><span class="w">   </span><span class="n">employees</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                  </span><span class="k">WHERE</span><span class="w">  </span><span class="n">department_id</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">                         </span><span class="o">=</span><span class="w"> </span><span class="n">d</span><span class="p">.</span><span class="n">department_id</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></div><h3 id="145-with-子句">14.5 WITH 子句</h3>
+<ul>
+<li>使用 WITH 子句, 可以避免在 SELECT 语句中重复书写相同的语句块</li>
+<li>WITH 子句将该子句中的语句块执行一次并存储到用户的临时表空间中</li>
+<li>使用 WITH 子句可以提高查询效率</li>
+</ul>
+<p>eg:查询公司中各部门的总工资大于公司中各部门的平均总工资的部门信息</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">--定义子句
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">WITH</span><span class="w"> </span><span class="n">dept_costs</span><span class="w">  </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="k">SELECT</span><span class="w">  </span><span class="n">d</span><span class="p">.</span><span class="n">department_name</span><span class="p">,</span><span class="w"> </span><span class="k">SUM</span><span class="p">(</span><span class="n">e</span><span class="p">.</span><span class="n">salary</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">dept_total</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="k">FROM</span><span class="w">    </span><span class="n">employees</span><span class="w"> </span><span class="n">e</span><span class="p">,</span><span class="w"> </span><span class="n">departments</span><span class="w"> </span><span class="n">d</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="k">WHERE</span><span class="w">   </span><span class="n">e</span><span class="p">.</span><span class="n">department_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">d</span><span class="p">.</span><span class="n">department_id</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">d</span><span class="p">.</span><span class="n">department_name</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">avg_cost</span><span class="w">    </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="k">SELECT</span><span class="w"> </span><span class="k">SUM</span><span class="p">(</span><span class="n">dept_total</span><span class="p">)</span><span class="o">/</span><span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">dept_avg</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="k">FROM</span><span class="w">   </span><span class="n">dept_costs</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--使用子句
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">FROM</span><span class="w">   </span><span class="n">dept_costs</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">WHERE</span><span class="w">  </span><span class="n">dept_total</span><span class="w"> </span><span class="o">&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">dept_avg</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">         </span><span class="k">FROM</span><span class="w"> </span><span class="n">avg_cost</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">department_name</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><h2 id="15-plsql">15、 PL/SQL</h2>
+<p><figure 
+	>
+	<a href="/images/database-oracle/image-20220807170859037.png" >
+		<img src="/images/database-oracle/image-20220807170859037.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20220807170859037">
+	</a>
+	
+	<figcaption>image-20220807170859037</figcaption>
+	
+</figure></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a>
+        
+            <a href="/tags/oracle/">Oracle</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/oracle%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AF%BC%E5%85%A5%E5%AF%BC%E5%87%BA%E5%8F%8A%E8%A1%A8%E7%A9%BA%E9%97%B4%E6%93%8D%E4%BD%9Cexpdpimpdp/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Oracle数据库导入导出及表空间操作（expdp、impdp）</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BD%BF%E7%94%A8explain%E5%AF%B9sql%E8%AF%AD%E5%8F%A5%E8%BF%9B%E8%A1%8C%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">使用explain对sql语句进行性能分析</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81%E6%9C%BA%E5%88%B6/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">数据库锁机制</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/sql-%E8%B0%83%E4%BC%98/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">SQL 调优</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/sql-join%E7%9A%84%E4%BD%BF%E7%94%A8/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">SQL join的使用</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#1常用查询">1、常用查询</a>
+      <ol>
+        <li><a href="#11转义字符">1.1、转义字符</a></li>
+      </ol>
+    </li>
+    <li><a href="#2常用函数">2、常用函数</a>
+      <ol>
+        <li><a href="#21单行函数">2.1、单行函数</a>
+          <ol>
+            <li><a href="#211-字符函数">2.1.1 字符函数</a></li>
+            <li><a href="#212-数字函数">2.1.2 数字函数</a></li>
+            <li><a href="#213-日期函数">2.1.3 日期函数</a></li>
+            <li><a href="#214-转化函数">2.1.4 转化函数</a></li>
+            <li><a href="#215-通用函数">2.1.5 通用函数</a></li>
+          </ol>
+        </li>
+        <li><a href="#22多行函数">2.2、多行函数</a>
+          <ol>
+            <li><a href="#221-组函数">2.2.1 组函数</a></li>
+            <li><a href="#222-分组数据-group-by">2.2.2 分组数据 Group By</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+    <li><a href="#3多表查询">3、多表查询</a>
+      <ol>
+        <li><a href="#31-常见多表查询">3.1 常见多表查询</a></li>
+        <li><a href="#32-外连接">3.2 外连接</a></li>
+        <li><a href="#33-内连接">3.3 内连接</a></li>
+        <li><a href="#34-自连接">3.4 自连接</a></li>
+      </ol>
+    </li>
+    <li><a href="#4ddl语言">4、DDL语言</a>
+      <ol>
+        <li><a href="#41创建表">4.1创建表</a>
+          <ol>
+            <li><a href="#411-建表方式一">4.1.1 建表方式一</a></li>
+            <li><a href="#412-建表方式二">4.1.2 建表方式二</a></li>
+            <li><a href="#413-字段数据类型">4.1.3 字段数据类型</a></li>
+          </ol>
+        </li>
+        <li><a href="#42-修改表">4.2 修改表</a>
+          <ol>
+            <li><a href="#421-加字段">4.2.1 加字段</a></li>
+            <li><a href="#422-修改字段">4.2.2 修改字段</a></li>
+            <li><a href="#423-删除字段">4.2.3 删除字段</a></li>
+          </ol>
+        </li>
+        <li><a href="#43-删除表">4.3 删除表</a></li>
+        <li><a href="#44-清空表">4.4 清空表</a></li>
+        <li><a href="#45-表重命名">4.5 表重命名</a></li>
+      </ol>
+    </li>
+    <li><a href="#5dml语言">5、DML语言</a>
+      <ol>
+        <li><a href="#51-insertupdatedelete-语句">5.1 INSERT、UPDATE、DELETE 语句</a></li>
+        <li><a href="#52-数据库事务">5.2 数据库事务</a>
+          <ol>
+            <li><a href="#521-事务概念">5.2.1 事务概念</a></li>
+            <li><a href="#522-控制事务">5.2.2 控制事务</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+    <li><a href="#6常见约束">6、常见约束</a>
+      <ol>
+        <li><a href="#61-约束分类">6.1 约束分类</a></li>
+        <li><a href="#62-常见约束">6.2 常见约束</a>
+          <ol>
+            <li><a href="#621-not-null非空约束">6.2.1 NOT NULL：非空约束</a></li>
+            <li><a href="#622-unique唯一约束">6.2.2 UNIQUE：唯一约束</a></li>
+            <li><a href="#623-primary-key主键约束">6.2.3 PRIMARY KEY：主键约束</a></li>
+            <li><a href="#624-foreign-key外键约束">6.2.4 FOREIGN KEY：外键约束</a></li>
+            <li><a href="#625-check自定义约束">6.2.5 CHECK：自定义约束</a></li>
+          </ol>
+        </li>
+        <li><a href="#63-管理约束">6.3 管理约束</a>
+          <ol>
+            <li><a href="#631-添加约束">6.3.1 添加约束</a></li>
+            <li><a href="#632-删除约束">6.3.2 删除约束</a></li>
+            <li><a href="#633-无效化约束">6.3.3 无效化约束</a></li>
+            <li><a href="#634-激活有效化约束">6.3.4 激活（有效化）约束</a></li>
+            <li><a href="#635-查询约束">6.3.5 查询约束</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+    <li><a href="#7视图-view">7、视图 View</a>
+      <ol>
+        <li><a href="#71-创建视图">7.1 创建视图</a></li>
+        <li><a href="#72-删除视图">7.2 删除视图</a></li>
+        <li><a href="#73-复杂视图">7.3 复杂视图</a></li>
+        <li><a href="#74-视图中使用dml的规定">7.4 视图中使用DML的规定</a></li>
+      </ol>
+    </li>
+    <li><a href="#8-top-n分析">8、 Top-N分析</a></li>
+    <li><a href="#9序列">9、序列</a>
+      <ol>
+        <li><a href="#91-定义序列">9.1 定义序列</a></li>
+        <li><a href="#92-修改序列">9.2 修改序列</a></li>
+        <li><a href="#93-删除序列">9.3 删除序列</a></li>
+        <li><a href="#94-序列裂缝">9.4 序列裂缝</a></li>
+        <li><a href="#95-查询序列">9.5 查询序列</a></li>
+      </ol>
+    </li>
+    <li><a href="#10索引">10、索引</a>
+      <ol>
+        <li><a href="#101-创建索引">10.1 创建索引</a></li>
+        <li><a href="#102-删除索引">10.2 删除索引</a></li>
+        <li><a href="#103--查询索引">10.3  查询索引</a></li>
+      </ol>
+    </li>
+    <li><a href="#11同义词">11、同义词</a></li>
+    <li><a href="#12dcl语句">12、DCL语句</a>
+      <ol>
+        <li><a href="#121创建用户">12.1创建用户</a></li>
+        <li><a href="#122赋予用户权限">12.2赋予用户权限</a></li>
+        <li><a href="#123-给用户添加表空间">12.3 给用户添加表空间</a></li>
+        <li><a href="#124-创建角色并赋予权限">12.4 创建角色并赋予权限</a></li>
+        <li><a href="#125-修改密码">12.5 修改密码</a></li>
+        <li><a href="#126-分配对象权限">12.6 分配对象权限</a></li>
+        <li><a href="#127-权限转授">12.7 权限转授</a></li>
+        <li><a href="#128-权限回收">12.8 权限回收</a></li>
+        <li><a href="#129-权限查询">12.9 权限查询</a></li>
+        <li><a href="#1210-创建表空间">12.10 创建表空间</a></li>
+      </ol>
+    </li>
+    <li><a href="#13set-操作符">13、SET 操作符</a>
+      <ol>
+        <li><a href="#131-union--union-all">13.1 UNION / UNION ALL</a></li>
+        <li><a href="#132-intersect">13.2 INTERSECT</a></li>
+        <li><a href="#133-minus">13.3 MINUS</a></li>
+        <li><a href="#134-使用相对位置排序举例">13.4 使用相对位置排序举例</a></li>
+        <li><a href="#135-使用-set-操作符注意事项">13.5 使用 SET 操作符注意事项</a></li>
+      </ol>
+    </li>
+    <li><a href="#14高级子查询">14、高级子查询</a>
+      <ol>
+        <li><a href="#141-多列子查询">14.1 多列子查询</a></li>
+        <li><a href="#142-在-from-子句中使用子查询">14.2 在 FROM 子句中使用子查询</a></li>
+        <li><a href="#143-单列子查询">14.3 单列子查询</a></li>
+        <li><a href="#144-existsnot-exists-操作符">14.4 EXISTS/NOT EXISTS 操作符</a></li>
+        <li><a href="#145-with-子句">14.5 WITH 子句</a></li>
+      </ol>
+    </li>
+    <li><a href="#15-plsql">15、 PL/SQL</a></li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

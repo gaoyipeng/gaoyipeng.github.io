@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Activiti（2）环境搭建'><title>Activiti（2）环境搭建</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/activiti2%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Activiti（2）环境搭建'>
+<meta property='og:description' content='Activiti（2）环境搭建'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/activiti2%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Activiti' /><meta property='article:published_time' content='2020-05-28T10:10:57&#43;00:00'/><meta property='article:modified_time' content='2020-05-28T10:10:57&#43;00:00'/>
+<meta name="twitter:title" content="Activiti（2）环境搭建">
+<meta name="twitter:description" content="Activiti（2）环境搭建">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/activiti/" >
+                Activiti
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/activiti2%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">Activiti（2）环境搭建</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        Activiti（2）环境搭建
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">May 28, 2020</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 3 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <blockquote>
+<p>本节我们使用springboot集成Activiti 环境。</p>
+</blockquote>
+<p>环境说明：</p>
+<ul>
+<li>
+<p>IDEA: 2019.3</p>
+</li>
+<li>
+<p>JDK1.8</p>
+</li>
+<li>
+<p>Maven: 3.6.3</p>
+</li>
+<li>
+<p>SpringBoot:2.1.1</p>
+</li>
+<li>
+<p>Activiti :6.0.0</p>
+</li>
+<li>
+<p>Mysql :5.7</p>
+</li>
+</ul>
+<p>代码地址：https://github.com/gaoyipeng/workflow-activiti6.git</p>
+<h2 id="1搭建maven聚合工程">1、搭建maven聚合工程：</h2>
+<blockquote>
+<p>为了以后扩展方便，再此我们搭建一个聚合工程。</p>
+</blockquote>
+<h3 id="11-框架搭建">1.1 框架搭建</h3>
+<p><figure 
+	>
+	<a href="/images/activiti6-02/image-20200528103143771.png" >
+		<img src="/images/activiti6-02/image-20200528103143771.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200528103143771">
+	</a>
+	
+	<figcaption>image-20200528103143771</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-02/image-20200528103347641.png" >
+		<img src="/images/activiti6-02/image-20200528103347641.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200528103347641">
+	</a>
+	
+	<figcaption>image-20200528103347641</figcaption>
+	
+</figure></p>
+<p>删除src目录</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-02/image-20200528103428378.png" >
+		<img src="/images/activiti6-02/image-20200528103428378.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200528103428378">
+	</a>
+	
+	<figcaption>image-20200528103428378</figcaption>
+	
+</figure></p>
+<p>创建一个module工程</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-02/image-20200528103452128.png" >
+		<img src="/images/activiti6-02/image-20200528103452128.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200528103452128">
+	</a>
+	
+	<figcaption>image-20200528103452128</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-02/image-20200528103557655.png" >
+		<img src="/images/activiti6-02/image-20200528103557655.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200528103557655">
+	</a>
+	
+	<figcaption>image-20200528103557655</figcaption>
+	
+</figure></p>
+<p>目录结构如下：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-02/image-20200528104038882.png" >
+		<img src="/images/activiti6-02/image-20200528104038882.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200528104038882">
+	</a>
+	
+	<figcaption>image-20200528104038882</figcaption>
+	
+</figure></p>
+<h3 id="12-pom文件">1.2 pom文件</h3>
+<ul>
+<li>
+<p>workflow-activiti父工程pom文件</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="cp">&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;project</span> <span class="na">xmlns=</span><span class="s">&#34;http://maven.apache.org/POM/4.0.0&#34;</span>
+</span></span><span class="line"><span class="cl">         <span class="na">xmlns:xsi=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span>
+</span></span><span class="line"><span class="cl">         <span class="na">xsi:schemaLocation=</span><span class="s">&#34;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;modelVersion&gt;</span>4.0.0<span class="nt">&lt;/modelVersion&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;groupId&gt;</span>org.sxdx<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;artifactId&gt;</span>workflow-activiti<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;packaging&gt;</span>pom<span class="nt">&lt;/packaging&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;version&gt;</span>1.0-SNAPSHOT<span class="nt">&lt;/version&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;modules&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;module&gt;</span>workflow-activiti-rest<span class="nt">&lt;/module&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/modules&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;properties&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;project.build.sourceEncoding&gt;</span>UTF-8<span class="nt">&lt;/project.build.sourceEncoding&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;project.reporting.outputEncoding&gt;</span>UTF-8<span class="nt">&lt;/project.reporting.outputEncoding&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;java.version&gt;</span>1.8<span class="nt">&lt;/java.version&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;druid.version&gt;</span>1.1.14<span class="nt">&lt;/druid.version&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;swagger.version&gt;</span>2.9.2<span class="nt">&lt;/swagger.version&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;fastjson.version&gt;</span>1.2.68<span class="nt">&lt;/fastjson.version&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;activiti.version&gt;</span>6.0.0<span class="nt">&lt;/activiti.version&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/properties&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c">&lt;!-- 依赖声明 --&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;dependencyManagement&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;dependencies&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="c">&lt;!-- SpringBoot的依赖配置--&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;groupId&gt;</span>org.springframework.boot<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;artifactId&gt;</span>spring-boot-dependencies<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;version&gt;</span>2.1.1.RELEASE<span class="nt">&lt;/version&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;type&gt;</span>pom<span class="nt">&lt;/type&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;scope&gt;</span>import<span class="nt">&lt;/scope&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="c">&lt;!--阿里数据库连接池 --&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;groupId&gt;</span>com.alibaba<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;artifactId&gt;</span>druid-spring-boot-starter<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;version&gt;</span>${druid.version}<span class="nt">&lt;/version&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="c">&lt;!-- swagger2--&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;groupId&gt;</span>io.springfox<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;artifactId&gt;</span>springfox-swagger2<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;version&gt;</span>${swagger.version}<span class="nt">&lt;/version&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="c">&lt;!-- swagger2-UI--&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;groupId&gt;</span>io.springfox<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;artifactId&gt;</span>springfox-swagger-ui<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;version&gt;</span>${swagger.version}<span class="nt">&lt;/version&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="c">&lt;!-- 阿里JSON解析器 --&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;groupId&gt;</span>com.alibaba<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;artifactId&gt;</span>fastjson<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;version&gt;</span>${fastjson.version}<span class="nt">&lt;/version&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/dependencies&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/dependencyManagement&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;build&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;plugins&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;plugin&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;groupId&gt;</span>org.apache.maven.plugins<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;artifactId&gt;</span>maven-compiler-plugin<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;version&gt;</span>3.1<span class="nt">&lt;/version&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;configuration&gt;</span>
+</span></span><span class="line"><span class="cl">                    <span class="nt">&lt;source&gt;</span>${java.version}<span class="nt">&lt;/source&gt;</span>
+</span></span><span class="line"><span class="cl">                    <span class="nt">&lt;target&gt;</span>${java.version}<span class="nt">&lt;/target&gt;</span>
+</span></span><span class="line"><span class="cl">                    <span class="nt">&lt;encoding&gt;</span>${project.build.sourceEncoding}<span class="nt">&lt;/encoding&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;/configuration&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;/plugin&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/plugins&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/build&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/project&gt;</span>
+</span></span></code></pre></div></li>
+<li>
+<p>workflow-activiti-rest 子工程</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"> <span class="cp">&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;project</span> <span class="na">xmlns=</span><span class="s">&#34;http://maven.apache.org/POM/4.0.0&#34;</span>
+</span></span><span class="line"><span class="cl">         <span class="na">xmlns:xsi=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span>
+</span></span><span class="line"><span class="cl">         <span class="na">xsi:schemaLocation=</span><span class="s">&#34;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;parent&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;artifactId&gt;</span>workflow-activiti<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;groupId&gt;</span>org.sxdx<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;version&gt;</span>1.0-SNAPSHOT<span class="nt">&lt;/version&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/parent&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;modelVersion&gt;</span>4.0.0<span class="nt">&lt;/modelVersion&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;artifactId&gt;</span>workflow-activiti-rest<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;dependencies&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c">&lt;!-- SpringBoot Web容器 --&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;groupId&gt;</span>org.springframework.boot<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;artifactId&gt;</span>spring-boot-starter-web<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;groupId&gt;</span>org.mybatis.spring.boot<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;artifactId&gt;</span>mybatis-spring-boot-starter<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;version&gt;</span>1.3.2<span class="nt">&lt;/version&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c">&lt;!-- Mysql驱动包 --&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;groupId&gt;</span>mysql<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;artifactId&gt;</span>mysql-connector-java<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c">&lt;!--阿里数据库连接池 --&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;groupId&gt;</span>com.alibaba<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;artifactId&gt;</span>druid-spring-boot-starter<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;groupId&gt;</span>org.springframework.boot<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;artifactId&gt;</span>spring-boot-starter-test<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c">&lt;!-- spring-boot-devtools --&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;groupId&gt;</span>org.springframework.boot<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;artifactId&gt;</span>spring-boot-devtools<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;optional&gt;</span>true<span class="nt">&lt;/optional&gt;</span> <span class="c">&lt;!-- 表示依赖不会传递 --&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/dependencies&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;build&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;plugins&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;plugin&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;groupId&gt;</span>org.springframework.boot<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;artifactId&gt;</span>spring-boot-maven-plugin<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;version&gt;</span>2.1.1.RELEASE<span class="nt">&lt;/version&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;configuration&gt;</span>
+</span></span><span class="line"><span class="cl">                    <span class="nt">&lt;fork&gt;</span>true<span class="nt">&lt;/fork&gt;</span> <span class="c">&lt;!-- 如果没有该配置，devtools不会生效 --&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;/configuration&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;executions&gt;</span>
+</span></span><span class="line"><span class="cl">                    <span class="nt">&lt;execution&gt;</span>
+</span></span><span class="line"><span class="cl">                        <span class="nt">&lt;goals&gt;</span>
+</span></span><span class="line"><span class="cl">                            <span class="nt">&lt;goal&gt;</span>repackage<span class="nt">&lt;/goal&gt;</span>
+</span></span><span class="line"><span class="cl">                        <span class="nt">&lt;/goals&gt;</span>
+</span></span><span class="line"><span class="cl">                    <span class="nt">&lt;/execution&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;/executions&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;/plugin&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/plugins&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;finalName&gt;</span>${project.artifactId}<span class="nt">&lt;/finalName&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/build&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/project&gt;</span>
+</span></span></code></pre></div></li>
+</ul>
+<h2 id="2改成springboot工程">2、改成springboot工程</h2>
+<h3 id="21--设置启动类">2.1  设置启动类</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.workflow.activiti.rest</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.boot.SpringApplication</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.boot.autoconfigure.SpringBootApplication</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nd">@SpringBootApplication</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">WorkFlowActivitiRestApplication</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">SpringApplication</span><span class="o">.</span><span class="na">run</span><span class="o">(</span><span class="n">WorkFlowActivitiRestApplication</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">args</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;启动成功&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><h3 id="22-applicationyml">2.2 application.yml</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="c"># 开发环境配置</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">server</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="c"># 服务器的HTTP端口，默认为80</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="m">8080</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">servlet</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c"># 应用的访问路径</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">context-path</span><span class="p">:</span><span class="w"> </span><span class="l">/</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">tomcat</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c"># tomcat的URI编码</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">uri-encoding</span><span class="p">:</span><span class="w"> </span><span class="l">UTF-8</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c"># tomcat最大线程数，默认为200</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">max-threads</span><span class="p">:</span><span class="w"> </span><span class="m">800</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c"># Tomcat启动初始化的线程数，默认值25</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">min-spare-threads</span><span class="p">:</span><span class="w"> </span><span class="m">30</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c"># Spring配置</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spring</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">datasource</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">driverClassName</span><span class="p">:</span><span class="w"> </span><span class="l">com.mysql.jdbc.Driver</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l">jdbc:mysql://localhost:3306/activiti?useUnicode=true&amp;characterEncoding=utf8&amp;zeroDateTimeBehavior=convertToNull&amp;useSSL=true&amp;serverTimezone=GMT%2B8&amp;nullCatalogMeansCurrent=true</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">username</span><span class="p">:</span><span class="w"> </span><span class="l">root</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="l">gaoyipeng</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c">#druid配置</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">druid</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="c"># 初始连接数</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">initialSize</span><span class="p">:</span><span class="w"> </span><span class="m">5</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="c"># 最小连接池数量</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">minIdle</span><span class="p">:</span><span class="w"> </span><span class="m">10</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="c"># 最大连接池数量</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">maxActive</span><span class="p">:</span><span class="w"> </span><span class="m">20</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="c"># 配置获取连接等待超时的时间</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">maxWait</span><span class="p">:</span><span class="w"> </span><span class="m">60000</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="c"># 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">timeBetweenEvictionRunsMillis</span><span class="p">:</span><span class="w"> </span><span class="m">60000</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="c"># 配置一个连接在池中最小生存的时间，单位是毫秒</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">minEvictableIdleTimeMillis</span><span class="p">:</span><span class="w"> </span><span class="m">300000</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="c"># 配置一个连接在池中最大生存的时间，单位是毫秒</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">maxEvictableIdleTimeMillis</span><span class="p">:</span><span class="w"> </span><span class="m">900000</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="c"># 配置检测连接是否有效</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">validationQuery</span><span class="p">:</span><span class="w"> </span><span class="l">SELECT 1 FROM DUAL</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">testWhileIdle</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">testOnBorrow</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">testOnReturn</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">webStatFilter</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">statViewServlet</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="c"># 设置白名单，不填则允许所有访问</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">allow</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">url-pattern</span><span class="p">:</span><span class="w"> </span><span class="l">/druid/*</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="c"># 控制台管理用户名和密码</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">login-username</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">login-password</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">filter</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">stat</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="c"># 慢SQL记录</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">log-slow-sql</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">slow-sql-millis</span><span class="p">:</span><span class="w"> </span><span class="m">1000</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">merge-sql</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">wall</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">config</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">multi-statement-allow</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span></code></pre></div><p>通过我们上面的配置我们知道需要新建一个名为activiti的mysql数据库。</p>
+<p>最终效果如下：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-02/image-20200528105814806.png" >
+		<img src="/images/activiti6-02/image-20200528105814806.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200528105814806">
+	</a>
+	
+	<figcaption>image-20200528105814806</figcaption>
+	
+</figure></p>
+<h2 id="3启动">3、启动</h2>
+<p>访问：http://localhost:8080/druid</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-02/image-20200528110858638.png" >
+		<img src="/images/activiti6-02/image-20200528110858638.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200528110858638">
+	</a>
+	
+	<figcaption>image-20200528110858638</figcaption>
+	
+</figure></p>
+<h2 id="4集成activiti6">4、集成activiti6</h2>
+<p>在workflow-activiti-rest 的pom 文件中添加</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl">     <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;groupId&gt;</span>org.activiti<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;artifactId&gt;</span>activiti-spring-boot-starter-rest-api<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;version&gt;</span>${activiti.version}<span class="nt">&lt;/version&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;groupId&gt;</span>org.activiti<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;artifactId&gt;</span>activiti-json-converter<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;version&gt;</span>6.0.0<span class="nt">&lt;/version&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;exclusions&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;exclusion&gt;</span>
+</span></span><span class="line"><span class="cl">                    <span class="nt">&lt;groupId&gt;</span>org.activiti<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">                    <span class="nt">&lt;artifactId&gt;</span>activiti-bpmn-model<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;/exclusion&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;/exclusions&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="c">&lt;!-- xml解析依赖--&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;groupId&gt;</span>org.apache.xmlgraphics<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;artifactId&gt;</span>batik-codec<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;version&gt;</span>1.7<span class="nt">&lt;/version&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;groupId&gt;</span>org.apache.xmlgraphics<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;artifactId&gt;</span>batik-css<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;version&gt;</span> 1.7<span class="nt">&lt;/version&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;groupId&gt;</span>org.apache.xmlgraphics<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;artifactId&gt;</span>batik-svg-dom<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;version&gt;</span>1.7<span class="nt">&lt;/version&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;groupId&gt;</span>org.apache.xmlgraphics<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;artifactId&gt;</span>batik-svggen<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;version&gt;</span>1.7<span class="nt">&lt;/version&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/dependency&gt;</span>
+</span></span></code></pre></div><h3 id="41-排除-activiti-和-spring-security-登录验证">4.1 排除 Activiti 和 Spring Security 登录验证</h3>
+<p>再次启动会报错：</p>
+<pre tabindex="0"><code>org.springframework.beans.factory.BeanDefinitionStoreException: Failed to process import candidates for configuration class [com.sxdx.workflow.activiti.rest.WorkFlowActivitiRestApplication]; nested exception is java.io.FileNotFoundException: class path resource [org/springframework/security/config/annotation/authentication/configurers/GlobalAuthenticationConfigurerAdapter.class] cannot be opened because it does not exist
+......
+
+Caused by: java.io.FileNotFoundException: class path resource [org/springframework/security/config/annotation/authentication/configurers/GlobalAuthenticationConfigurerAdapter.class] cannot be opened because it does not exist
+	at org.springframework.core.io.ClassPathResource.getInputStream(ClassPathResource.java:180) ~[spring-core-5.1.3.RELEASE.jar:5.1.3.RELEASE]
+	at org.springframework.core.type.classreading.SimpleMetadataReader.&lt;init&gt;(SimpleMetadataReader.java:51) ~[spring-core-5.1.3.RELEASE.jar:5.1.3.RELEASE]
+</code></pre><p>解决方法：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@SpringBootApplication</span><span class="o">(</span><span class="n">exclude</span> <span class="o">=</span> <span class="o">{</span> <span class="n">DataSourceAutoConfiguration</span><span class="o">.</span><span class="na">class</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">org</span><span class="o">.</span><span class="na">activiti</span><span class="o">.</span><span class="na">spring</span><span class="o">.</span><span class="na">boot</span><span class="o">.</span><span class="na">SecurityAutoConfiguration</span><span class="o">.</span><span class="na">class</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">org</span><span class="o">.</span><span class="na">springframework</span><span class="o">.</span><span class="na">boot</span><span class="o">.</span><span class="na">autoconfigure</span><span class="o">.</span><span class="na">security</span><span class="o">.</span><span class="na">servlet</span><span class="o">.</span><span class="na">SecurityAutoConfiguration</span><span class="o">.</span><span class="na">class</span>
+</span></span><span class="line"><span class="cl"><span class="o">})</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">WorkFlowActivitiRestApplication</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">SpringApplication</span><span class="o">.</span><span class="na">run</span><span class="o">(</span><span class="n">WorkFlowActivitiRestApplication</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">args</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;启动成功&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><h3 id="42--applicationyml-添加配置">4.2  application.yml 添加配置</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="c"># Spring配置</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spring</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="c"># activiti 模块</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="c"># 解决启动报错：class path resource [processes/] cannot be resolved to URL because it does not exist</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">activiti</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">check-process-definitions</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span></span></span></code></pre></div><p><figure 
+	>
+	<a href="/images/activiti6-02/image-20200528112705109.png" >
+		<img src="/images/activiti6-02/image-20200528112705109.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200528112705109">
+	</a>
+	
+	<figcaption>image-20200528112705109</figcaption>
+	
+</figure></p>
+<h2 id="5验证">5、验证</h2>
+<p>再次启动程序，能够正常启动。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-02/image-20200528112935881.png" >
+		<img src="/images/activiti6-02/image-20200528112935881.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200528112935881">
+	</a>
+	
+	<figcaption>image-20200528112935881</figcaption>
+	
+</figure></p>
+<p>这是我们看看数据库：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-02/image-20200528113032536.png" >
+		<img src="/images/activiti6-02/image-20200528113032536.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200528113032536">
+	</a>
+	
+	<figcaption>image-20200528113032536</figcaption>
+	
+</figure></p>
+<p>可以看到自动生成了activiti的28张表。至此，环境已经搭建完成。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/activiti/">Activiti</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/activiti6%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%B3%BB%E7%BB%9F%E6%90%AD%E5%BB%BA%E6%95%99%E7%A8%8B/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti6工作流系统搭建教程</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti33-spring-security%E8%8E%B7%E5%8F%96%E5%BD%93%E5%89%8D%E6%93%8D%E4%BD%9C%E4%BA%BA%E4%BF%A1%E6%81%AF/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（33） Spring-Security获取当前操作人信息</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti34-%E4%BD%BF%E7%94%A8swagger%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（34） 使用Swagger生成静态接口文档</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti35-%E4%BD%BF%E7%94%A8swagger%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（35） 使用Swagger生成静态接口文档</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti32-%E6%9B%BF%E6%8D%A2activiti%E7%94%A8%E6%88%B7%E5%92%8C%E7%94%A8%E6%88%B7%E7%BB%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（32） 替换Activiti用户和用户组</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#1搭建maven聚合工程">1、搭建maven聚合工程：</a>
+      <ol>
+        <li><a href="#11-框架搭建">1.1 框架搭建</a></li>
+        <li><a href="#12-pom文件">1.2 pom文件</a></li>
+      </ol>
+    </li>
+    <li><a href="#2改成springboot工程">2、改成springboot工程</a>
+      <ol>
+        <li><a href="#21--设置启动类">2.1  设置启动类</a></li>
+        <li><a href="#22-applicationyml">2.2 application.yml</a></li>
+      </ol>
+    </li>
+    <li><a href="#3启动">3、启动</a></li>
+    <li><a href="#4集成activiti6">4、集成activiti6</a>
+      <ol>
+        <li><a href="#41-排除-activiti-和-spring-security-登录验证">4.1 排除 Activiti 和 Spring Security 登录验证</a></li>
+        <li><a href="#42--applicationyml-添加配置">4.2  application.yml 添加配置</a></li>
+      </ol>
+    </li>
+    <li><a href="#5验证">5、验证</a></li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

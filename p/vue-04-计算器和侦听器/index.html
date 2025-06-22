@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Vue (04) 计算属性和侦听'><title>Vue (04) 计算器和侦听器</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/vue-04-%E8%AE%A1%E7%AE%97%E5%99%A8%E5%92%8C%E4%BE%A6%E5%90%AC%E5%99%A8/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Vue (04) 计算器和侦听器'>
+<meta property='og:description' content='Vue (04) 计算属性和侦听'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/vue-04-%E8%AE%A1%E7%AE%97%E5%99%A8%E5%92%8C%E4%BE%A6%E5%90%AC%E5%99%A8/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Vue' /><meta property='article:published_time' content='2020-12-29T10:28:06&#43;00:00'/><meta property='article:modified_time' content='2020-12-29T10:28:06&#43;00:00'/>
+<meta name="twitter:title" content="Vue (04) 计算器和侦听器">
+<meta name="twitter:description" content="Vue (04) 计算属性和侦听">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/vue/" >
+                Vue
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/vue-04-%E8%AE%A1%E7%AE%97%E5%99%A8%E5%92%8C%E4%BE%A6%E5%90%AC%E5%99%A8/">Vue (04) 计算器和侦听器</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        Vue (04) 计算属性和侦听
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Dec 29, 2020</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 1 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <h2 id="1计算器-computer">1、计算器 computer</h2>
+<p>我们知道，在模板中可以直接通过插值语法显示一些data中的数据。但是在某些情况，我们可能需要对数据进行一些转化后再显示，或者需要将多个数据结合起来进行显示比如我们有firstName和lastName两个变量，我们需要显示完整的名称。但是如果多个地方都需要显示完整的名称，我们就需要写多个{{firstName}} {{lastName}}</p>
+<p>这就要用到我们将要学习到的computed计算属性。</p>
+<p><figure 
+	>
+	<a href="/images/vue-04/image-20201229104050193.png" >
+		<img src="/images/vue-04/image-20201229104050193.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201229104050193">
+	</a>
+	
+	<figcaption>image-20201229104050193</figcaption>
+	
+</figure></p>
+<p>使用计算属性：</p>
+<p><figure 
+	>
+	<a href="/images/vue-04/image-20201229104115633.png" >
+		<img src="/images/vue-04/image-20201229104115633.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201229104115633">
+	</a>
+	
+	<figcaption>image-20201229104115633</figcaption>
+	
+</figure></p>
+<p>每个计算属性都包含一个getter和一个setter。在上面的例子中，我们只是使用getter来读取。在某些情况下，也可以提供一个setter方法。</p>
+<p>计算属性实现了2种监听方式：</p>
+<ul>
+<li>一是监听计算因子的变化（get方法）：即firstName属性和lastName属性的变化，任何一个计算因子发生变化都会导致计算属性fullName重新计算。</li>
+<li>二是监听计算属性fullName本身的变化（set方法）：即当fullName发生变化时，可以被监听到并触发set方法，我们可以去做一些动作。</li>
+</ul>
+<p><figure 
+	>
+	<a href="/images/vue-04/image-20201229105321541.png" >
+		<img src="/images/vue-04/image-20201229105321541.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201229105321541">
+	</a>
+	
+	<figcaption>image-20201229105321541</figcaption>
+	
+</figure></p>
+<p>我们可能会考虑这样的一个问题：methods和computed看起来都可以实现我们的功能，那么为什么还要多一个计算属性这个东西呢？
+<strong>原因：计算属性会进行缓存，如果多次使用时，计算属性只会调用一次。</strong></p>
+<h2 id="2侦听器-watch">2、侦听器 watch</h2>
+<p>除了计算属性，Vue还提供了另外一种方式实现对属性变化的监听，<strong>watch   侦听器</strong>，同样是上面的需求：</p>
+<p><figure 
+	>
+	<a href="/images/vue-04/image-20201229111846355.png" >
+		<img src="/images/vue-04/image-20201229111846355.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201229111846355">
+	</a>
+	
+	<figcaption>image-20201229111846355</figcaption>
+	
+</figure></p>
+<p>我们什么情况下要去使用属性侦听watch呢？</p>
+<p>watch属性侦听的方法可以传入两个参数，一个是新值newVal，一个是旧值oldVal。即当我们需要知道数据由什么变成了什么的时候，watch属性侦听是不二之选。</p>
+<h3 id="21-深度监听">2.1 深度监听</h3>
+<ul>
+<li>
+<p>侦听对象的属性，侦听数组的变化</p>
+</li>
+<li>
+<p>侦听一个属性，都是属性发生变化时，才调用回调函数，我们想在初始化的时候直接调用一次该怎么做？</p>
+</li>
+</ul>
+<p><figure 
+	>
+	<a href="/images/vue-04/image-20201229120217272.png" >
+		<img src="/images/vue-04/image-20201229120217272.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20201229120217272">
+	</a>
+	
+	<figcaption>image-20201229120217272</figcaption>
+	
+</figure></p>
+<ul>
+<li>player是一个对象，当我们需要侦听对象属性的变化时，需要设置参数<strong>deep:true</strong>。否则侦听无效。<strong>注意监听数组的变动时不需要设置deep:true</strong>（前提是要用数组响应式函数操作数组，直接通过数组下标操作数组不是响应式的，也无法被侦听到。）。</li>
+<li>当我们希望页面加载的时候，handler方法就被调用（可用于数据初始化）。需要设置参数<strong>immediate:true</strong>。否则只有在侦听属性发生变化时，handler才会被调用。</li>
+</ul>
+<p>如果我们只是想侦听对象某一个属性，该怎么办？</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s1">&#39;player.firstName&#39;</span><span class="o">:</span><span class="kd">function</span><span class="p">(){</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&#34;player.firstName-handler函数被调用&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>侦听对象player的属性firstName，用引号括起来。不用加deep：true。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/vue/">Vue</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/vue-08-webpack%E5%AD%A6%E4%B9%A0/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Vue (08) webpack学习</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/vue-07-%E6%A8%A1%E5%9D%97%E5%8C%96%E5%BC%80%E5%8F%91/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Vue (07) 模块化开发</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/vue-06-%E7%BB%84%E4%BB%B6%E5%8C%96%E5%BC%80%E5%8F%91/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Vue (06) 组件化开发</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/vue-05-vue%E8%BF%87%E6%BB%A4%E5%99%A8%E7%9A%84%E4%BD%BF%E7%94%A8/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Vue (05) Vue过滤器的使用</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/vue-03-%E6%95%B0%E7%BB%84%E7%9A%84%E5%93%8D%E5%BA%94%E5%BC%8F%E6%96%B9%E6%B3%95/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Vue (03) 数组的响应式方法</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#1计算器-computer">1、计算器 computer</a></li>
+    <li><a href="#2侦听器-watch">2、侦听器 watch</a>
+      <ol>
+        <li><a href="#21-深度监听">2.1 深度监听</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

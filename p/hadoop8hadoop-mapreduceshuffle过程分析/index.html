@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Hadoop-MapReduce Shuffle过程分析、Partition分区、Comparable排序、Combiner合并'><title>（Hadoop8）Hadoop-MapReduce（Shuffle过程分析）</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/hadoop8hadoop-mapreduceshuffle%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='（Hadoop8）Hadoop-MapReduce（Shuffle过程分析）'>
+<meta property='og:description' content='Hadoop-MapReduce Shuffle过程分析、Partition分区、Comparable排序、Combiner合并'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/hadoop8hadoop-mapreduceshuffle%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Hadoop' /><meta property='article:tag' content='MapReduce' /><meta property='article:published_time' content='2023-08-14T10:36:40&#43;00:00'/><meta property='article:modified_time' content='2023-08-14T10:36:40&#43;00:00'/>
+<meta name="twitter:title" content="（Hadoop8）Hadoop-MapReduce（Shuffle过程分析）">
+<meta name="twitter:description" content="Hadoop-MapReduce Shuffle过程分析、Partition分区、Comparable排序、Combiner合并">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/hadoop/" >
+                Hadoop
+            </a>
+        
+            <a href="/categories/mapreduce/" >
+                MapReduce
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/hadoop8hadoop-mapreduceshuffle%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/">（Hadoop8）Hadoop-MapReduce（Shuffle过程分析）</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        Hadoop-MapReduce Shuffle过程分析、Partition分区、Comparable排序、Combiner合并
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Aug 14, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 7 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <h2 id="一shuffle工作流程">一、Shuffle工作流程</h2>
+<p>Map 方法之后，Reduce 方法之前的数据处理过程称之为 Shuffle。</p>
+<p><figure 
+	>
+	<a href="/../../images/mapreduce-03/image-20230811083233707.png" >
+		<img src="/../../images/mapreduce-03/image-20230811083233707.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230811083233707">
+	</a>
+	
+	<figcaption>image-20230811083233707</figcaption>
+	
+</figure></p>
+<p>Shuffle的处理流程示意图：</p>
+<p><figure 
+	>
+	<a href="/../../images/mapreduce-03/image-20230815155957034.png" >
+		<img src="/../../images/mapreduce-03/image-20230815155957034.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230815155957034">
+	</a>
+	
+	<figcaption>image-20230815155957034</figcaption>
+	
+</figure></p>
+<ul>
+<li>（1）MapTask 收集我们的 map()方法输出的 kv 对，放到内存缓冲区中</li>
+<li>（2）从内存缓冲区不断溢出本地磁盘文件，可能会溢出多个文件</li>
+<li>（3）多个溢出文件会被合并成大的溢出文件</li>
+<li>（4）在溢出过程及合并的过程中，都要调用 Partitioner 进行分区和针对 key 进行排序</li>
+<li>（5）ReduceTask 根据自己的分区号，去各个 MapTask 机器上取相应的结果分区数据</li>
+<li>（6）ReduceTask 会抓取到同一个分区的来自不同 MapTask 的结果文件，ReduceTask 会将这些文件再进行合并（归并排序）</li>
+<li>（7）合并成大文件后，Shuffle 的过程也就结束了，后面进入 ReduceTask 的逻辑运算过程（从文件中取出一个一个的键值对 Group，调用用户自定义的 reduce()方法）</li>
+</ul>
+<p><strong>注意：</strong></p>
+<ul>
+<li>（1）Shuffle 中的缓冲区大小会影响到 MapReduce 程序的执行效率，原则上说，缓冲区越大，磁盘 io 的次数越少，执行速度就越快。</li>
+<li>（2）缓冲区的大小可以通过参数调整，参数：<strong>mapreduce.task.io.sort.mb 默认 100M</strong>。</li>
+</ul>
+<h2 id="二partition分区">二、Partition分区</h2>
+<p><figure 
+	>
+	<a href="/../../images/mapreduce-03/image-20230817100945739.png" >
+		<img src="/../../images/mapreduce-03/image-20230817100945739.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230817100945739">
+	</a>
+	
+	<figcaption>image-20230817100945739</figcaption>
+	
+</figure></p>
+<h3 id="21-分区的概念及默认分区">2.1 分区的概念及默认分区</h3>
+<p>是在Map环节，将Map计算结果从内存输出到磁盘分区文件的过程。比如：</p>
+<p><figure 
+	>
+	<a href="/../../images/mapreduce-03/image-20230816153524867.png" >
+		<img src="/../../images/mapreduce-03/image-20230816153524867.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230816153524867">
+	</a>
+	
+	<figcaption>image-20230816153524867</figcaption>
+	
+</figure></p>
+<p>然后ReduceTask 根据自己的分区号，去各个 MapTask 机器上取相应的结果分区数据。那么分区文件只能有一个吗？不是的，分区文件默认是一个，但是可以动态设置。</p>
+<p>我们来分析一下默认的分区是怎么生成的。</p>
+<p>如果我们设置了</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">job</span><span class="o">.</span><span class="na">setNumReduceTasks</span><span class="o">(</span><span class="n">2</span><span class="o">);</span>
+</span></span></code></pre></div><p>则会使用默认分区处理方法：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">HashPartitioner</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span> <span class="n">V</span><span class="o">&gt;</span> <span class="kd">extends</span> <span class="n">Partitioner</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span> <span class="n">V</span><span class="o">&gt;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">public</span> <span class="kt">int</span> <span class="nf">getPartition</span><span class="o">(</span><span class="n">K</span> <span class="n">key</span><span class="o">,</span> <span class="n">V</span> <span class="n">value</span><span class="o">,</span> <span class="kt">int</span> <span class="n">numReduceTasks</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="o">(</span><span class="n">key</span><span class="o">.</span><span class="na">hashCode</span><span class="o">()</span> <span class="o">&amp;</span> <span class="n">Integer</span><span class="o">.</span><span class="na">MAX_VALUE</span><span class="o">)</span> <span class="o">%</span> <span class="n">numReduceTasks</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">	<span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p><strong>HashPartitioner是Mapreduce的默认分区</strong>：该默认分区根据key的hashCode对ReduceTasks个数取模得到的。用户没法控制哪个key存储到哪个分区。</p>
+<p>而如果我们不进行<code>job.setNumReduceTasks();</code>的设置，那么则会执行如下逻辑：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="err">【</span><span class="n">MapTask</span><span class="o">.</span><span class="na">java</span><span class="err">】</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">//获取分区设置
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">public</span> <span class="kt">void</span> <span class="nf">write</span><span class="o">(</span><span class="n">K</span> <span class="n">key</span><span class="o">,</span> <span class="n">V</span> <span class="n">value</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span><span class="o">,</span> <span class="n">InterruptedException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">collector</span><span class="o">.</span><span class="na">collect</span><span class="o">(</span><span class="n">key</span><span class="o">,</span> <span class="n">value</span><span class="o">,</span><span class="n">partitioner</span><span class="o">.</span><span class="na">getPartition</span><span class="o">(</span><span class="n">key</span><span class="o">,</span> <span class="n">value</span><span class="o">,</span> <span class="n">partitions</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">//计算分区
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">NewOutputCollector</span><span class="o">(</span><span class="n">org</span><span class="o">.</span><span class="na">apache</span><span class="o">.</span><span class="na">hadoop</span><span class="o">.</span><span class="na">mapreduce</span><span class="o">.</span><span class="na">JobContext</span> <span class="n">jobContext</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">                   <span class="n">JobConf</span> <span class="n">job</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">                   <span class="n">TaskUmbilicalProtocol</span> <span class="n">umbilical</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">                   <span class="n">TaskReporter</span> <span class="n">reporter</span>
+</span></span><span class="line"><span class="cl">                  <span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span><span class="o">,</span> <span class="n">ClassNotFoundException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">collector</span> <span class="o">=</span> <span class="n">createSortingCollector</span><span class="o">(</span><span class="n">job</span><span class="o">,</span> <span class="n">reporter</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">partitions</span> <span class="o">=</span> <span class="n">jobContext</span><span class="o">.</span><span class="na">getNumReduceTasks</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="o">(</span><span class="n">partitions</span> <span class="o">&gt;</span> <span class="n">1</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">partitioner</span> <span class="o">=</span> <span class="o">(</span><span class="n">org</span><span class="o">.</span><span class="na">apache</span><span class="o">.</span><span class="na">hadoop</span><span class="o">.</span><span class="na">mapreduce</span><span class="o">.</span><span class="na">Partitioner</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;)</span>
+</span></span><span class="line"><span class="cl">            <span class="n">ReflectionUtils</span><span class="o">.</span><span class="na">newInstance</span><span class="o">(</span><span class="n">jobContext</span><span class="o">.</span><span class="na">getPartitionerClass</span><span class="o">(),</span> <span class="n">job</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">partitioner</span> <span class="o">=</span> <span class="k">new</span> <span class="n">org</span><span class="o">.</span><span class="na">apache</span><span class="o">.</span><span class="na">hadoop</span><span class="o">.</span><span class="na">mapreduce</span><span class="o">.</span><span class="na">Partitioner</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">            <span class="kd">public</span> <span class="kt">int</span> <span class="nf">getPartition</span><span class="o">(</span><span class="n">K</span> <span class="n">key</span><span class="o">,</span> <span class="n">V</span> <span class="n">value</span><span class="o">,</span> <span class="kt">int</span> <span class="n">numPartitions</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="k">return</span> <span class="n">partitions</span> <span class="o">-</span> <span class="n">1</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">};</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>默认partitions为1，所以分区计算结果为0，默认分区从0开始，默认只有一个分区。</p>
+<h3 id="22-自定义分区方法">2.2 自定义分区方法</h3>
+<p>（1）自定义类继承Partitioner，重写getPartition()方法</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">PhonePartitioner</span>  <span class="kd">extends</span> <span class="n">Partitioner</span><span class="o">&lt;</span><span class="n">Text</span><span class="o">,</span> <span class="n">FlowBean</span><span class="o">&gt;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kt">int</span> <span class="nf">getPartition</span><span class="o">(</span><span class="n">Text</span> <span class="n">key</span><span class="o">,</span> <span class="n">FlowBean</span> <span class="n">value</span><span class="o">,</span> <span class="kt">int</span> <span class="n">numPartitions</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// 控制分区代码逻辑
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="err">…</span> <span class="err">…</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">partition</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>（2）在Job驱动中，设置自定义Partitioner</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">job</span><span class="o">.</span><span class="na">setPartitionerClass</span><span class="o">(</span><span class="n">PhonePartitioner</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span></code></pre></div><p>（3）自定义Partition后，要根据自定义Partitioner的逻辑设置相应数量的ReduceTask，<strong>注意：如果不设置，那么自定义分区器是不会生效的。</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">job</span><span class="o">.</span><span class="na">setNumReduceTasks</span><span class="o">(</span><span class="n">5</span><span class="o">)</span>
+</span></span></code></pre></div><h3 id="23-自定义分区实例">2.3 自定义分区实例</h3>
+<p><strong>需求</strong>：在《Hadoop-MapReduce介绍及使用示例》示例代码的基础上，新增需求如下：将统计结果按照手机不同开头号码的输出到不同文件中**（分区）**。</p>
+<pre tabindex="0"><code>分区规则：
+136 开头手机号   分区0
+137 开头手机号	分区1
+138 开头手机号	分区2
+139 开头手机号	分区3
+其他  分区4
+</code></pre><h4 id="231-编写分区类">2.3.1 编写分区类</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.hdfs.mapreduce.partitioner</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.io.Text</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.mapreduce.Partitioner</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">PhonePartitioner</span>  <span class="kd">extends</span> <span class="n">Partitioner</span><span class="o">&lt;</span><span class="n">Text</span><span class="o">,</span> <span class="n">FlowBean</span><span class="o">&gt;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param text          Map阶段的输出Key
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param flowBean      Map阶段的输出value.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param numPartitions 分区号
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @return 返回值
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">getPartition</span><span class="o">(</span><span class="n">Text</span> <span class="n">text</span><span class="o">,</span> <span class="n">FlowBean</span> <span class="n">flowBean</span><span class="o">,</span> <span class="kt">int</span> <span class="n">numPartitions</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//获取手机号前三位 prePhone
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">String</span> <span class="n">phone</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="na">toString</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">String</span> <span class="n">prePhone</span> <span class="o">=</span> <span class="n">phone</span><span class="o">.</span><span class="na">substring</span><span class="o">(</span><span class="n">0</span><span class="o">,</span> <span class="n">3</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//定义一个分区号变量 partition,根据 prePhone 设置分区号
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="kt">int</span> <span class="n">partition</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span><span class="o">(</span><span class="s">&#34;136&#34;</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">prePhone</span><span class="o">)){</span>
+</span></span><span class="line"><span class="cl">            <span class="n">partition</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span><span class="k">else</span> <span class="k">if</span><span class="o">(</span><span class="s">&#34;137&#34;</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">prePhone</span><span class="o">)){</span>
+</span></span><span class="line"><span class="cl">            <span class="n">partition</span> <span class="o">=</span> <span class="n">1</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span><span class="k">else</span> <span class="k">if</span><span class="o">(</span><span class="s">&#34;138&#34;</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">prePhone</span><span class="o">)){</span>
+</span></span><span class="line"><span class="cl">            <span class="n">partition</span> <span class="o">=</span> <span class="n">2</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span><span class="k">else</span> <span class="k">if</span><span class="o">(</span><span class="s">&#34;139&#34;</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">prePhone</span><span class="o">)){</span>
+</span></span><span class="line"><span class="cl">            <span class="n">partition</span> <span class="o">=</span> <span class="n">3</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span><span class="k">else</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">partition</span> <span class="o">=</span> <span class="n">4</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//最后返回分区号 partition
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">return</span> <span class="n">partition</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><h4 id="232-设置分区类和reducetasks数量">2.3.2 设置分区类和ReduceTasks数量</h4>
+<p>在驱动函数中增加自定义数据分区设置和ReduceTask数量设置：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.hdfs.mapreduce.partitioner</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.conf.Configuration</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.fs.Path</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.io.Text</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.mapreduce.Job</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.mapreduce.lib.input.FileInputFormat</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.mapreduce.lib.output.FileOutputFormat</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.io.IOException</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">FlowDriver</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span><span class="o">,</span> <span class="n">ClassNotFoundException</span><span class="o">,</span> <span class="n">InterruptedException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//1 获取 job 对象
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">Configuration</span> <span class="n">conf</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Configuration</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">Job</span> <span class="n">job</span> <span class="o">=</span> <span class="n">Job</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="n">conf</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//2 关联本 Driver 类
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">job</span><span class="o">.</span><span class="na">setJarByClass</span><span class="o">(</span><span class="n">FlowDriver</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//3 关联 Mapper 和 Reducer
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">job</span><span class="o">.</span><span class="na">setMapperClass</span><span class="o">(</span><span class="n">FlowMapper</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">job</span><span class="o">.</span><span class="na">setReducerClass</span><span class="o">(</span><span class="n">FlowReducer</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">//4 设置 Map 端输出 KV 类型
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">job</span><span class="o">.</span><span class="na">setMapOutputKeyClass</span><span class="o">(</span><span class="n">Text</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">job</span><span class="o">.</span><span class="na">setMapOutputValueClass</span><span class="o">(</span><span class="n">FlowBean</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">//5 设置程序最终输出的 KV 类型
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">job</span><span class="o">.</span><span class="na">setOutputKeyClass</span><span class="o">(</span><span class="n">Text</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">job</span><span class="o">.</span><span class="na">setOutputValueClass</span><span class="o">(</span><span class="n">FlowBean</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">//6 设置程序的输入输出路径 new Path(args[0]) new Path(args[1]) 用于接收命令参数
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">FileInputFormat</span><span class="o">.</span><span class="na">setInputPaths</span><span class="o">(</span><span class="n">job</span><span class="o">,</span> <span class="k">new</span> <span class="n">Path</span><span class="o">(</span><span class="s">&#34;D:\\inputflow&#34;</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">        <span class="n">FileOutputFormat</span><span class="o">.</span><span class="na">setOutputPath</span><span class="o">(</span><span class="n">job</span><span class="o">,</span> <span class="k">new</span> <span class="n">Path</span><span class="o">(</span><span class="s">&#34;D:\\flowoutput&#34;</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">//指定自定义分区器
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">job</span><span class="o">.</span><span class="na">setPartitionerClass</span><span class="o">(</span><span class="n">PhonePartitioner</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//同时指定相应数量的 ReduceTask，如果不设置，那么自定义分区器是不会生效的。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">job</span><span class="o">.</span><span class="na">setNumReduceTasks</span><span class="o">(</span><span class="n">5</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">//7 提交 Job
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="kt">boolean</span> <span class="n">b</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="na">waitForCompletion</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">exit</span><span class="o">(</span><span class="n">b</span> <span class="o">?</span> <span class="n">0</span> <span class="o">:</span> <span class="n">1</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>可以看到我们在6、7步建新加的<strong>自定义数据分区设置和ReduceTask设置</strong>。注意：此处我们是在Windows环境做的测试。所以输入输出路径均为windows目录。</p>
+<p>然后我们执行FlowDriver的Main方法，查看输出路径，可以看到，生成了5个分区文件：</p>
+<p><figure 
+	>
+	<a href="/../../images/mapreduce-03/image-20230816163634422.png" >
+		<img src="/../../images/mapreduce-03/image-20230816163634422.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230816163634422">
+	</a>
+	
+	<figcaption>image-20230816163634422</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/mapreduce-03/image-20230816164045715.png" >
+		<img src="/../../images/mapreduce-03/image-20230816164045715.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230816164045715">
+	</a>
+	
+	<figcaption>image-20230816164045715</figcaption>
+	
+</figure></p>
+<p>我们看下ReduceTask数量设置是5，对应了PhonePartitioner的5个不用返回值，如果设置其他值可以吗？</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl">    <span class="c1">//同时指定相应数量的 ReduceTask
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">job</span><span class="o">.</span><span class="na">setNumReduceTasks</span><span class="o">(</span><span class="n">5</span><span class="o">);</span>
+</span></span></code></pre></div><p>测试结果如下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="err">（</span><span class="n">1</span><span class="err">）</span><span class="n">job</span><span class="o">.</span><span class="na">setNumReduceTasks</span><span class="o">(</span><span class="n">1</span><span class="o">);</span><span class="n">会正常运行</span><span class="err">，</span><span class="n">只不过会产生一个输出文件</span>
+</span></span><span class="line"><span class="cl"><span class="err">（</span><span class="n">2</span><span class="err">）</span><span class="n">job</span><span class="o">.</span><span class="na">setNumReduceTasks</span><span class="o">(</span><span class="n">2</span><span class="o">);</span><span class="n">会报错</span>
+</span></span><span class="line"><span class="cl"><span class="err">（</span><span class="n">3</span><span class="err">）</span><span class="n">job</span><span class="o">.</span><span class="na">setNumReduceTasks</span><span class="o">(</span><span class="n">6</span><span class="o">);</span><span class="n">大于5</span><span class="err">，</span><span class="n">程序会正常运行</span><span class="err">，</span><span class="n">会产生空文件</span>
+</span></span></code></pre></div><h3 id="24-分区总结">2.4 分区总结</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="err">（</span><span class="n">1</span><span class="err">）</span><span class="n">如果ReduceTask的数量</span> <span class="o">&gt;</span> <span class="n">getPartition的结果数</span><span class="err">，</span><span class="n">则会多产生几个空的输出文件part</span><span class="o">-</span><span class="n">r</span><span class="o">-</span><span class="n">000xx</span><span class="err">；</span>
+</span></span><span class="line"><span class="cl"><span class="err">（</span><span class="n">2</span><span class="err">）</span><span class="n">如果1</span><span class="o">&lt;</span><span class="n">ReduceTask的数量</span><span class="o">&lt;</span><span class="n">getPartition的结果数</span><span class="err">，</span><span class="n">则有一部分分区数据无处安放</span><span class="err">，</span><span class="n">会Exception</span><span class="err">；</span>
+</span></span><span class="line"><span class="cl"><span class="err">（</span><span class="n">3</span><span class="err">）</span><span class="n">如</span> <span class="n">果ReduceTask的数量</span><span class="o">=</span><span class="n">1</span><span class="err">，</span><span class="n">则不管MapTask端输出多少个分区文件</span><span class="err">，</span><span class="n">最终结果都交给这一个ReduceTask</span><span class="err">，</span><span class="n">最终也就只会产生一个结果文件</span> <span class="n">part</span><span class="o">-</span><span class="n">r</span><span class="o">-</span><span class="n">00000</span><span class="err">；</span>
+</span></span><span class="line"><span class="cl"><span class="err">（</span><span class="n">4</span><span class="err">）</span><span class="n">分区号必须从零开始</span><span class="err">，</span><span class="n">逐一累加</span><span class="err">。</span>
+</span></span></code></pre></div><h2 id="三comparable排序">三、Comparable排序</h2>
+<p><figure 
+	>
+	<a href="/../../images/mapreduce-03/image-20230817101024654.png" >
+		<img src="/../../images/mapreduce-03/image-20230817101024654.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230817101024654">
+	</a>
+	
+	<figcaption>image-20230817101024654</figcaption>
+	
+</figure></p>
+<h3 id="31-排序的概念">3.1 排序的概念</h3>
+<p>​		MapTask和ReduceTask均会对数据<strong>按照key进行排序</strong>。该操作属于Hadoop的默认行为。任何应用程序中的数据均会被排序，而不管逻辑上是否需要。默认排序是按照字典顺序排序，且实现该排序的方法是快速排序。</p>
+<p>​		对于MapTask，它会将处理的结果暂时放到环形缓冲区中，当环形缓冲区使用率达到一定阈值后，再对缓冲区中的数据<strong>进行一次快速排序</strong>，并将这些有序数据溢写到磁盘上，而当数据处理完毕后，它会对磁盘上所有文件<strong>进行归并排序</strong>。</p>
+<p>​		<strong>对于ReduceTask，它从每个MapTask上远程拷贝相应的数据文件</strong>，如果文件大小超过一定阈值，则溢写磁盘上，否则存储在内存中。如果磁盘上文件数目达到一定阈值，则进行一次归并排序以生成一个更大文件；如果内存中文件大小或者数目超过一定阈值，则进行一次合并后将数据溢写到磁盘上。当所有数据拷贝完毕后，<strong>ReduceTask统一对内存和磁盘上的所有数据进行一次归并排序。</strong></p>
+<h3 id="32-排序分类">3.2 排序分类</h3>
+<p>（1）部分排序（分区内排序）：MapReduce根据输入记录的键对数据集排序。保证输出的每个文件内部有序。</p>
+<p>（2）全排序：最终输出结果只有一个文件，且文件内部有序。实现方式是只设置一个ReduceTask。但该方法在处理大型文件时效率极低，因为一台机器处理所有文件，完全丧失了MapReduce所提供的并行架构。</p>
+<p>（3）辅助排序：（GroupingComparator分组）在Reduce端对key进行分组。应用于：在接收的key为bean对象时，想让一个或几个字段相同（全部字段比较不相同）的key进入到同一个reduce方法时，可以采用分组排序。有2中实现方法：</p>
+<ul>
+<li>继承 WritableCompartor接口</li>
+<li>继承 RawComparator接口</li>
+</ul>
+<p>（4）二次排序：在自定义排序过程中，如果compareTo中的判断条件为两个即为二次排序。</p>
+<h3 id="32-自定义排序方法">3.2 自定义排序方法</h3>
+<p>Hadoop的默认按照key进行排序，如果我们要实现自定义排序，我们需要修改Key的排序方法：bean 对象做为 key 传输，需要实现 WritableComparable 接口重写 compareTo 方法，就可以实现排序。示例：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kt">int</span> <span class="nf">compareTo</span><span class="o">(</span><span class="n">FlowBean</span> <span class="n">bean</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">result</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// 按照总流量大小，倒序排列
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span> <span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">sumFlow</span> <span class="o">&gt;</span> <span class="n">bean</span><span class="o">.</span><span class="na">getSumFlow</span><span class="o">())</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    	<span class="n">result</span> <span class="o">=</span> <span class="o">-</span><span class="n">1</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span><span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">sumFlow</span> <span class="o">&lt;</span> <span class="n">bean</span><span class="o">.</span><span class="na">getSumFlow</span><span class="o">())</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    	<span class="n">result</span> <span class="o">=</span> <span class="n">1</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span><span class="k">else</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    	<span class="n">result</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><h3 id="34自定义排序实例">3.4自定义排序实例</h3>
+<p><strong>需求如下</strong>：</p>
+<ul>
+<li>
+<p>统计每一个手机号耗费的总上行流量、总下行流量、总流量。</p>
+</li>
+<li>
+<p>将统计结果按照手机不同开头号码的输出到不同文件中**（分区）**</p>
+<pre tabindex="0"><code>分区规则：
+136 开头手机号   分区0
+137 开头手机号	分区1
+138 开头手机号	分区2
+139 开头手机号	分区3
+其他  分区4
+</code></pre></li>
+<li>
+<p>各分区文件对总流量进行倒序排序（分区内排序），如果总流量大小相同，则对上行流量倒序排序</p>
+</li>
+</ul>
+<p>输入数据：</p>
+<pre tabindex="0"><code>1	13736230513	192.196.100.1	www.atguigu.com	2481	24681	200
+2	13846544121	192.196.100.2			264	0	200
+3 	13956435636	192.196.100.3			132	1512	200
+4 	13966251146	192.168.100.1			240	0	404
+5 	18271575951	192.168.100.2	www.atguigu.com	1527	2106	200
+6 	84188413	192.168.100.3	www.atguigu.com	4116	1432	200
+7 	13590439668	192.168.100.4			1116	954	200
+8 	15910133277	192.168.100.5	www.hao123.com	3156	2936	200
+9 	13729199489	192.168.100.6			240	0	200
+10 	13630577991	192.168.100.7	www.shouhu.com	6960	690	200
+11 	15043685818	192.168.100.8	www.baidu.com	3659	3538	200
+12 	15959002129	192.168.100.9	www.atguigu.com	1938	180	500
+13 	13560439638	192.168.100.10			918	4938	200
+14 	13470253144	192.168.100.11			180	180	200
+15 	13682846555	192.168.100.12	www.qq.com	1938	2910	200
+16 	13992314666	192.168.100.13	www.gaga.com	3008	3720	200
+17 	13509468723	192.168.100.14	www.qinghua.com	7335	110349	404
+18 	18390173782	192.168.100.15	www.sogou.com	9531	2412	200
+19 	13975057813	192.168.100.16	www.baidu.com	11058	48243	200
+20 	13768778790	192.168.100.17			120	120	200
+21 	13568436656	192.168.100.18	www.alibaba.com	2481	24681	200
+22 	13568436656	192.168.100.19			1116	954	200
+23 	13568436657	192.168.100.20			1100	970	200
+</code></pre><h4 id="341-编写的序列化-bean-对象">3.4.1 编写的序列化 Bean 对象</h4>
+<p>需要实现WritableComparable接口，并且重写compareTo实现了排序和二次排序：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.hdfs.mapreduce.comparable</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.io.WritableComparable</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.io.DataInput</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.io.DataOutput</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.io.IOException</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">//1 继承 WritableComparable 接口
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">FlowBean</span> <span class="kd">implements</span> <span class="n">WritableComparable</span><span class="o">&lt;</span><span class="n">FlowBean</span><span class="o">&gt;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">String</span> <span class="n">phoneNum</span><span class="o">;</span><span class="c1">//手机号
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kd">private</span> <span class="kt">long</span> <span class="n">upFlow</span><span class="o">;</span> <span class="c1">//上行流量
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kd">private</span> <span class="kt">long</span> <span class="n">downFlow</span><span class="o">;</span> <span class="c1">//下行流量
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kd">private</span> <span class="kt">long</span> <span class="n">sumFlow</span><span class="o">;</span> <span class="c1">//总流量
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">//2 提供无参构造
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kd">public</span> <span class="nf">FlowBean</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">//3 重写序列化方法（write）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">write</span><span class="o">(</span><span class="n">DataOutput</span> <span class="n">dataOutput</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">dataOutput</span><span class="o">.</span><span class="na">writeLong</span><span class="o">(</span><span class="n">upFlow</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">dataOutput</span><span class="o">.</span><span class="na">writeLong</span><span class="o">(</span><span class="n">downFlow</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">dataOutput</span><span class="o">.</span><span class="na">writeLong</span><span class="o">(</span><span class="n">sumFlow</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">dataOutput</span><span class="o">.</span><span class="na">writeUTF</span><span class="o">(</span><span class="n">phoneNum</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//4 重写反序列化方法（readFields）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">readFields</span><span class="o">(</span><span class="n">DataInput</span> <span class="n">dataInput</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//注意反序列化的字段顺序和序列化的字段顺序完全一致
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">this</span><span class="o">.</span><span class="na">upFlow</span> <span class="o">=</span> <span class="n">dataInput</span><span class="o">.</span><span class="na">readLong</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">downFlow</span> <span class="o">=</span> <span class="n">dataInput</span><span class="o">.</span><span class="na">readLong</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">sumFlow</span> <span class="o">=</span> <span class="n">dataInput</span><span class="o">.</span><span class="na">readLong</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">phoneNum</span> <span class="o">=</span> <span class="n">dataInput</span><span class="o">.</span><span class="na">readUTF</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">//5 重写 ToString
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">String</span> <span class="nf">toString</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">upFlow</span> <span class="o">+</span> <span class="s">&#34;\t&#34;</span> <span class="o">+</span> <span class="n">downFlow</span> <span class="o">+</span> <span class="s">&#34;\t&#34;</span> <span class="o">+</span> <span class="n">sumFlow</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">long</span> <span class="nf">getUpFlow</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">upFlow</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setUpFlow</span><span class="o">(</span><span class="kt">long</span> <span class="n">upFlow</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">upFlow</span> <span class="o">=</span> <span class="n">upFlow</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">long</span> <span class="nf">getDownFlow</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">downFlow</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setDownFlow</span><span class="o">(</span><span class="kt">long</span> <span class="n">downFlow</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">downFlow</span> <span class="o">=</span> <span class="n">downFlow</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">long</span> <span class="nf">getSumFlow</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">sumFlow</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setSumFlow</span><span class="o">(</span><span class="kt">long</span> <span class="n">sumFlow</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">sumFlow</span> <span class="o">=</span> <span class="n">sumFlow</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setSumFlow</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">sumFlow</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">upFlow</span> <span class="o">+</span> <span class="k">this</span><span class="o">.</span><span class="na">downFlow</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getPhoneNum</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">phoneNum</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setPhoneNum</span><span class="o">(</span><span class="n">String</span> <span class="n">phoneNum</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">phoneNum</span> <span class="o">=</span> <span class="n">phoneNum</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 排序
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param o
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @return
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">compareTo</span><span class="o">(</span><span class="n">FlowBean</span> <span class="n">o</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//按照总流量比较,倒序排列
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">if</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">sumFlow</span> <span class="o">&gt;</span> <span class="n">o</span><span class="o">.</span><span class="na">sumFlow</span><span class="o">){</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="o">-</span><span class="n">1</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span><span class="k">else</span> <span class="k">if</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">sumFlow</span> <span class="o">&lt;</span> <span class="n">o</span><span class="o">.</span><span class="na">sumFlow</span><span class="o">){</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="n">1</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span><span class="k">else</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">//二次排序
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="k">if</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">upFlow</span> <span class="o">&gt;</span> <span class="n">o</span><span class="o">.</span><span class="na">upFlow</span><span class="o">){</span>
+</span></span><span class="line"><span class="cl">                <span class="k">return</span> <span class="o">-</span><span class="n">1</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span><span class="k">else</span> <span class="k">if</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">upFlow</span> <span class="o">&lt;</span> <span class="n">o</span><span class="o">.</span><span class="na">upFlow</span><span class="o">){</span>
+</span></span><span class="line"><span class="cl">                <span class="k">return</span> <span class="n">1</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span><span class="k">else</span><span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="k">return</span> <span class="n">0</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><h4 id="342-编写-mapper-类">3.4.2 编写 Mapper 类</h4>
+<p>注意，此处我们输出结果，用FlowBean为Key。这样后续才能使用FlowBean排序</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.hdfs.mapreduce.comparable</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.io.LongWritable</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.io.Text</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.mapreduce.Mapper</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.io.IOException</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">FlowMapper</span> <span class="kd">extends</span> <span class="n">Mapper</span><span class="o">&lt;</span><span class="n">LongWritable</span><span class="o">,</span> <span class="n">Text</span><span class="o">,</span> <span class="n">FlowBean</span><span class="o">,</span><span class="n">Text</span><span class="o">&gt;</span>  <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">Text</span> <span class="n">outV</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Text</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">FlowBean</span> <span class="n">outK</span> <span class="o">=</span> <span class="k">new</span> <span class="n">FlowBean</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">map</span><span class="o">(</span><span class="n">LongWritable</span> <span class="n">key</span><span class="o">,</span> <span class="n">Text</span> <span class="n">value</span><span class="o">,</span> <span class="n">Context</span> <span class="n">context</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">            <span class="kd">throws</span> <span class="n">IOException</span><span class="o">,</span> <span class="n">InterruptedException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//1 获取一行数据,转成字符串
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">String</span> <span class="n">line</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="na">toString</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//2 切割数据
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">String</span><span class="o">[]</span> <span class="n">split</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="na">split</span><span class="o">(</span><span class="s">&#34;\t&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//3 抓取我们需要的数据:手机号,上行流量,下行流量
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">String</span> <span class="n">phone</span> <span class="o">=</span> <span class="n">split</span><span class="o">[</span><span class="n">1</span><span class="o">];</span>
+</span></span><span class="line"><span class="cl">        <span class="n">String</span> <span class="n">up</span> <span class="o">=</span> <span class="n">split</span><span class="o">[</span><span class="n">split</span><span class="o">.</span><span class="na">length</span> <span class="o">-</span> <span class="n">3</span><span class="o">];</span>
+</span></span><span class="line"><span class="cl">        <span class="n">String</span> <span class="n">down</span> <span class="o">=</span> <span class="n">split</span><span class="o">[</span><span class="n">split</span><span class="o">.</span><span class="na">length</span> <span class="o">-</span> <span class="n">2</span><span class="o">];</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//4 封装 outK outV
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">outV</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="n">phone</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">outK</span><span class="o">.</span><span class="na">setPhoneNum</span><span class="o">(</span><span class="n">phone</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">outK</span><span class="o">.</span><span class="na">setUpFlow</span><span class="o">(</span><span class="n">Long</span><span class="o">.</span><span class="na">parseLong</span><span class="o">(</span><span class="n">up</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">        <span class="n">outK</span><span class="o">.</span><span class="na">setDownFlow</span><span class="o">(</span><span class="n">Long</span><span class="o">.</span><span class="na">parseLong</span><span class="o">(</span><span class="n">down</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">        <span class="n">outK</span><span class="o">.</span><span class="na">setSumFlow</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">//5 写出 outK outV
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">context</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">outK</span><span class="o">,</span> <span class="n">outV</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><h4 id="243-编写分区类">2.4.3 编写分区类</h4>
+<p>注意，此处的输入Key,，要和Mapper的输出Key保持一致。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.hdfs.mapreduce.comparable</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.io.Text</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.mapreduce.Partitioner</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">PhonePartitioner</span>  <span class="kd">extends</span> <span class="n">Partitioner</span><span class="o">&lt;</span><span class="n">FlowBean</span><span class="o">,</span><span class="n">Text</span><span class="o">&gt;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param text          Map阶段的输出key flowBean
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param flowBean      Map阶段的输出value.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param numPartitions 分区号
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @return 返回值
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">getPartition</span><span class="o">(</span><span class="n">FlowBean</span> <span class="n">flowBean</span><span class="o">,</span><span class="n">Text</span> <span class="n">text</span><span class="o">,</span> <span class="kt">int</span> <span class="n">numPartitions</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//获取手机号前三位 prePhone
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">String</span> <span class="n">phone</span> <span class="o">=</span> <span class="n">flowBean</span><span class="o">.</span><span class="na">getPhoneNum</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">String</span> <span class="n">prePhone</span> <span class="o">=</span> <span class="n">phone</span><span class="o">.</span><span class="na">substring</span><span class="o">(</span><span class="n">0</span><span class="o">,</span> <span class="n">3</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//定义一个分区号变量 partition,根据 prePhone 设置分区号
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="kt">int</span> <span class="n">partition</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span><span class="o">(</span><span class="s">&#34;136&#34;</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">prePhone</span><span class="o">)){</span>
+</span></span><span class="line"><span class="cl">            <span class="n">partition</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span><span class="k">else</span> <span class="k">if</span><span class="o">(</span><span class="s">&#34;137&#34;</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">prePhone</span><span class="o">)){</span>
+</span></span><span class="line"><span class="cl">            <span class="n">partition</span> <span class="o">=</span> <span class="n">1</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span><span class="k">else</span> <span class="k">if</span><span class="o">(</span><span class="s">&#34;138&#34;</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">prePhone</span><span class="o">)){</span>
+</span></span><span class="line"><span class="cl">            <span class="n">partition</span> <span class="o">=</span> <span class="n">2</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span><span class="k">else</span> <span class="k">if</span><span class="o">(</span><span class="s">&#34;139&#34;</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">prePhone</span><span class="o">)){</span>
+</span></span><span class="line"><span class="cl">            <span class="n">partition</span> <span class="o">=</span> <span class="n">3</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span><span class="k">else</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">partition</span> <span class="o">=</span> <span class="n">4</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//最后返回分区号 partition
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">return</span> <span class="n">partition</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><h4 id="244-编写分组排序-groupingcomparator">2.4.4 编写分组排序 GroupingComparator</h4>
+<p>由于我们接收的key为bean对象，所以为了后续计算，需要使用GroupingComparator分组排序。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.hdfs.mapreduce.comparable</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.io.WritableComparable</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.io.WritableComparator</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * GroupingComparator分组排序：
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * 应用于：在接收的key为bean对象时，想让一个或几个字段相同（全部字段比较不相同）的key进入到同一个reduce方法时，
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * 可以采用分组排序。
+</span></span></span><span class="line"><span class="cl"><span class="cm"> */</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">FlowGroupingComparator</span> <span class="kd">extends</span> <span class="n">WritableComparator</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="nf">FlowGroupingComparator</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">super</span><span class="o">(</span><span class="n">FlowBean</span><span class="o">.</span><span class="na">class</span><span class="o">,</span><span class="kc">null</span><span class="o">,</span><span class="kc">true</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 如果2个Key的PhoneNum字段相同，则任务key相同
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param a
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param b
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @return
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">compare</span><span class="o">(</span><span class="n">WritableComparable</span> <span class="n">a</span><span class="o">,</span> <span class="n">WritableComparable</span> <span class="n">b</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">FlowBean</span> <span class="n">o1</span><span class="o">=(</span><span class="n">FlowBean</span><span class="o">)</span> <span class="n">a</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">FlowBean</span> <span class="n">o2</span><span class="o">=(</span><span class="n">FlowBean</span><span class="o">)</span> <span class="n">b</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">o1</span><span class="o">.</span><span class="na">getPhoneNum</span><span class="o">().</span><span class="na">compareTo</span><span class="o">(</span><span class="n">o2</span><span class="o">.</span><span class="na">getPhoneNum</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><h4 id="245-编写reducer类">2.4.5 编写Reducer类</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.hdfs.mapreduce.comparable</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.io.Text</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.mapreduce.Reducer</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.io.IOException</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">FlowReducer</span> <span class="kd">extends</span> <span class="n">Reducer</span><span class="o">&lt;</span><span class="n">FlowBean</span><span class="o">,</span> <span class="n">Text</span><span class="o">,</span> <span class="n">Text</span><span class="o">,</span> <span class="n">FlowBean</span><span class="o">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">FlowBean</span> <span class="n">outV</span> <span class="o">=</span> <span class="k">new</span> <span class="n">FlowBean</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">reduce</span><span class="o">(</span><span class="n">FlowBean</span> <span class="n">key</span><span class="o">,</span> <span class="n">Iterable</span><span class="o">&lt;</span><span class="n">Text</span><span class="o">&gt;</span> <span class="n">values</span><span class="o">,</span> <span class="n">Context</span> <span class="n">context</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span><span class="o">,</span> <span class="n">InterruptedException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kt">long</span> <span class="n">totalUp</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="kt">long</span> <span class="n">totalDown</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">String</span> <span class="n">phoneNum</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="na">getPhoneNum</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//遍历 values 集合,循环写出
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">FlowBean</span> <span class="n">key1</span> <span class="o">=</span> <span class="n">key</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="o">(</span><span class="n">Text</span> <span class="n">value</span> <span class="o">:</span> <span class="n">values</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="o">(</span><span class="n">value</span><span class="o">.</span><span class="na">toString</span><span class="o">().</span><span class="na">equals</span><span class="o">(</span><span class="n">phoneNum</span><span class="o">)){</span>
+</span></span><span class="line"><span class="cl">                <span class="n">totalUp</span> <span class="o">+=</span> <span class="n">key</span><span class="o">.</span><span class="na">getUpFlow</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">                <span class="n">totalDown</span> <span class="o">+=</span> <span class="n">key</span><span class="o">.</span><span class="na">getDownFlow</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">            <span class="n">key1</span><span class="o">.</span><span class="na">setUpFlow</span><span class="o">(</span><span class="n">totalUp</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">key1</span><span class="o">.</span><span class="na">setDownFlow</span><span class="o">(</span><span class="n">totalDown</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">context</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">value</span><span class="o">,</span><span class="n">key1</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><h4 id="246-编写driver类">2.4.6 编写Driver类</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.hdfs.mapreduce.comparable</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.conf.Configuration</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.fs.Path</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.io.Text</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.mapreduce.Job</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.mapreduce.lib.input.FileInputFormat</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.hadoop.mapreduce.lib.output.FileOutputFormat</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.io.IOException</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">FlowDriver</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span><span class="o">,</span> <span class="n">ClassNotFoundException</span><span class="o">,</span> <span class="n">InterruptedException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//1 获取 job 对象
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">Configuration</span> <span class="n">conf</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Configuration</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">Job</span> <span class="n">job</span> <span class="o">=</span> <span class="n">Job</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="n">conf</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//2 关联本 Driver 类
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">job</span><span class="o">.</span><span class="na">setJarByClass</span><span class="o">(</span><span class="n">FlowDriver</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//3 关联 Mapper 和 Reducer
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">job</span><span class="o">.</span><span class="na">setMapperClass</span><span class="o">(</span><span class="n">FlowMapper</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">job</span><span class="o">.</span><span class="na">setReducerClass</span><span class="o">(</span><span class="n">FlowReducer</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">//4 设置 Map 端输出 KV 类型
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">job</span><span class="o">.</span><span class="na">setMapOutputKeyClass</span><span class="o">(</span><span class="n">FlowBean</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">job</span><span class="o">.</span><span class="na">setMapOutputValueClass</span><span class="o">(</span><span class="n">Text</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">//5 设置程序最终输出的 KV 类型
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">job</span><span class="o">.</span><span class="na">setOutputKeyClass</span><span class="o">(</span><span class="n">Text</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">job</span><span class="o">.</span><span class="na">setOutputValueClass</span><span class="o">(</span><span class="n">FlowBean</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">//6 设置程序的输入输出路径 new Path(args[0]) new Path(args[1]) 用于接收命令参数
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">FileInputFormat</span><span class="o">.</span><span class="na">setInputPaths</span><span class="o">(</span><span class="n">job</span><span class="o">,</span> <span class="k">new</span> <span class="n">Path</span><span class="o">(</span><span class="s">&#34;D:\\inputflow&#34;</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">        <span class="n">FileOutputFormat</span><span class="o">.</span><span class="na">setOutputPath</span><span class="o">(</span><span class="n">job</span><span class="o">,</span> <span class="k">new</span> <span class="n">Path</span><span class="o">(</span><span class="s">&#34;D:\\flowoutput\\flowoutput3&#34;</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">//指定自定义分区器
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">job</span><span class="o">.</span><span class="na">setPartitionerClass</span><span class="o">(</span><span class="n">PhonePartitioner</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//同时指定相应数量的 ReduceTask
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">job</span><span class="o">.</span><span class="na">setNumReduceTasks</span><span class="o">(</span><span class="n">5</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//设置自定义的分组比较器
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">job</span><span class="o">.</span><span class="na">setGroupingComparatorClass</span><span class="o">(</span><span class="n">FlowGroupingComparator</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">//7 提交 Job
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="kt">boolean</span> <span class="n">b</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="na">waitForCompletion</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">exit</span><span class="o">(</span><span class="n">b</span> <span class="o">?</span> <span class="n">0</span> <span class="o">:</span> <span class="n">1</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>可以看到我们在6、7步建新加的<strong>自定义数据分区设置、ReduceTask设置、自定义的分组比较器</strong>。</p>
+<h4 id="247-测试">2.4.7 测试</h4>
+<p>然后我们执行FlowDriver的Main方法，查看输出路径，可以看到，生成了5个分区文件：</p>
+<p><figure 
+	>
+	<a href="/../../images/mapreduce-03/image-20230817165944761.png" >
+		<img src="/../../images/mapreduce-03/image-20230817165944761.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230817165944761">
+	</a>
+	
+	<figcaption>image-20230817165944761</figcaption>
+	
+</figure></p>
+<p>并且每个文件中的计算及排序也是正确的。</p>
+<p><figure 
+	>
+	<a href="/../../images/mapreduce-03/image-20230817170118900.png" >
+		<img src="/../../images/mapreduce-03/image-20230817170118900.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230817170118900">
+	</a>
+	
+	<figcaption>image-20230817170118900</figcaption>
+	
+</figure></p>
+<p>但是查看执行日志发现报错如下，但是不影响执行结果（参考：https://blog.csdn.net/boy1397081650/article/details/122187596、https://blog.csdn.net/weixin_51273963/article/details/125586305）：</p>
+<pre tabindex="0"><code>org.apache.hadoop.io.nativeio.NativeIOException: 当文件已存在时，无法创建该文件。
+</code></pre><p><figure 
+	>
+	<a href="/../../images/mapreduce-03/image-20230818104521846.png" >
+		<img src="/../../images/mapreduce-03/image-20230818104521846.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230818104521846">
+	</a>
+	
+	<figcaption>image-20230818104521846</figcaption>
+	
+</figure></p>
+<h2 id="四combiner-组合器">四、Combiner 组合器</h2>
+<p><figure 
+	>
+	<a href="/../../images/mapreduce-03/image-20230818100236396.png" >
+		<img src="/../../images/mapreduce-03/image-20230818100236396.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20230818100236396">
+	</a>
+	
+	<figcaption>image-20230818100236396</figcaption>
+	
+</figure></p>
+<h3 id="41-combiner-组合器基本概念">4.1 Combiner 组合器基本概念</h3>
+<p>（1）Combiner是MR程序中Mapper和Reducer之外的一种组件。</p>
+<p>（2）Combiner组件的父类就是Reducer。</p>
+<p>（3）Combiner和Reducer的区别在于运行的位置</p>
+<blockquote>
+<p><strong>Mapper阶段如果有多个MapTask，那么Combiner是在每一个MapTask所在的节点运行;</strong></p>
+<p><strong>Reducer是接收全局所有MapTask的输出结果后再次进行计算；</strong></p>
+</blockquote>
+<p>（4）Combiner的意义就是对每一个MapTask的输出进行局部汇总，以减小网络传输量。</p>
+<p>（5）Combiner能够应用的<strong>前提是不能影响最终的业务逻辑</strong>，而且Combiner的输出kv应该跟Reducer的输入kv类型要对应起来。</p>
+<pre tabindex="0"><code>例如求3+5+7+2+6的平均值，如果是在Reducer阶段：
+Reducer ： (3+5+7+2+6)/5=23/5 
+而使用Combiner放在Mapper阶段则变成了
+	MapTask1：3 5 7 -&gt;(3+5+7)/3=5
+	MapTask2：2 6 -&gt;(2+6)/2=4
+	Reducer：(5+4)/2=9/2
+但是 (3+5+7+2+6)/5=23/5 不等于 (5+4)/2=9/2
+</code></pre><h3 id="42-自定义-combiner-实现步骤">4.2 自定义 Combiner 实现步骤</h3>
+<h4 id="421-实现一">4.2.1 实现一</h4>
+<p>​	（a）自定义一个 Combiner 继承 Reducer，重写 Reduce 方法</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">WordCountCombiner</span> <span class="kd">extends</span> <span class="n">Reducer</span><span class="o">&lt;</span><span class="n">Text</span><span class="o">,</span> <span class="n">IntWritable</span><span class="o">,</span> <span class="n">Text</span><span class="o">,</span> <span class="n">IntWritable</span><span class="o">&gt;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">     <span class="kd">private</span> <span class="n">IntWritable</span> <span class="n">outV</span> <span class="o">=</span> <span class="k">new</span> <span class="n">IntWritable</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">     <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">reduce</span><span class="o">(</span><span class="n">Text</span> <span class="n">key</span><span class="o">,</span> <span class="n">Iterable</span><span class="o">&lt;</span><span class="n">IntWritable</span><span class="o">&gt;</span> <span class="n">values</span><span class="o">,</span> <span class="n">Context</span> <span class="n">context</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span><span class="o">,</span> <span class="n">InterruptedException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">         <span class="kt">int</span> <span class="n">sum</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">         <span class="k">for</span> <span class="o">(</span><span class="n">IntWritable</span> <span class="n">value</span> <span class="o">:</span> <span class="n">values</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">         <span class="n">sum</span> <span class="o">+=</span> <span class="n">value</span><span class="o">.</span><span class="na">get</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">     <span class="o">}</span>
+</span></span><span class="line"><span class="cl">     	<span class="n">outV</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="n">sum</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">     	<span class="n">context</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">key</span><span class="o">,</span><span class="n">outV</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">     <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>​	（b）在 Job 驱动类中设置：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">job</span><span class="o">.</span><span class="na">setCombinerClass</span><span class="o">(</span><span class="n">WordCountCombiner</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span></code></pre></div><h4 id="422-实现二">4.2.2 实现二</h4>
+<p>​	我们上面介绍过，Combiner组件的父类就是Reducer。和Reducer的区别在于运行的位置</p>
+<blockquote>
+<p><strong>Mapper阶段如果有多个MapTask，那么Combiner是在每一个MapTask所在的节点运行;</strong></p>
+<p><strong>Reducer是接收全局所有MapTask的输出结果后再次进行计算；</strong></p>
+</blockquote>
+<p>Combiner的意义就是对每一个MapTask的输出进行局部汇总，以减小网络传输量。</p>
+<p>所以，<strong>如果在不影响计算结果的基础上</strong>，可以直接将Reducer类设置为Combiner。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">//eg 指定需要使用 Combiner，以及用哪个类作为 Combiner 的逻辑,此处直接使用Reducer类
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">job</span><span class="o">.</span><span class="na">setCombinerClass</span><span class="o">(</span><span class="n">WordCountReducer</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></span></code></pre></div>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/hadoop/">Hadoop</a>
+        
+            <a href="/tags/mapreduce/">MapReduce</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/hadoop22hadoop-mapreduce-%E5%8F%82%E6%95%B0%E8%B0%83%E4%BC%98/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hadoop22）Hadoop MapReduce 参数调优</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hadoop11hadoop-mapreduce%E5%8E%8B%E7%BC%A9/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hadoop11）Hadoop-MapReduce压缩</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hadoop10hadoop-mapreducemapjoin%E5%92%8Creducejoin/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hadoop10）Hadoop-MapReduce（MapJoin和ReduceJoin ）</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hadoop9hadoop-mapreducereducetask%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hadoop9）Hadoop-MapReduce（ReduceTask过程分析）</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hadoop7hadoop-mapreducemaptask%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hadoop7）Hadoop-MapReduce（MapTask过程分析）</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#一shuffle工作流程">一、Shuffle工作流程</a></li>
+    <li><a href="#二partition分区">二、Partition分区</a>
+      <ol>
+        <li><a href="#21-分区的概念及默认分区">2.1 分区的概念及默认分区</a></li>
+        <li><a href="#22-自定义分区方法">2.2 自定义分区方法</a></li>
+        <li><a href="#23-自定义分区实例">2.3 自定义分区实例</a>
+          <ol>
+            <li><a href="#231-编写分区类">2.3.1 编写分区类</a></li>
+            <li><a href="#232-设置分区类和reducetasks数量">2.3.2 设置分区类和ReduceTasks数量</a></li>
+          </ol>
+        </li>
+        <li><a href="#24-分区总结">2.4 分区总结</a></li>
+      </ol>
+    </li>
+    <li><a href="#三comparable排序">三、Comparable排序</a>
+      <ol>
+        <li><a href="#31-排序的概念">3.1 排序的概念</a></li>
+        <li><a href="#32-排序分类">3.2 排序分类</a></li>
+        <li><a href="#32-自定义排序方法">3.2 自定义排序方法</a></li>
+        <li><a href="#34自定义排序实例">3.4自定义排序实例</a>
+          <ol>
+            <li><a href="#341-编写的序列化-bean-对象">3.4.1 编写的序列化 Bean 对象</a></li>
+            <li><a href="#342-编写-mapper-类">3.4.2 编写 Mapper 类</a></li>
+            <li><a href="#243-编写分区类">2.4.3 编写分区类</a></li>
+            <li><a href="#244-编写分组排序-groupingcomparator">2.4.4 编写分组排序 GroupingComparator</a></li>
+            <li><a href="#245-编写reducer类">2.4.5 编写Reducer类</a></li>
+            <li><a href="#246-编写driver类">2.4.6 编写Driver类</a></li>
+            <li><a href="#247-测试">2.4.7 测试</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+    <li><a href="#四combiner-组合器">四、Combiner 组合器</a>
+      <ol>
+        <li><a href="#41-combiner-组合器基本概念">4.1 Combiner 组合器基本概念</a></li>
+        <li><a href="#42-自定义-combiner-实现步骤">4.2 自定义 Combiner 实现步骤</a>
+          <ol>
+            <li><a href="#421-实现一">4.2.1 实现一</a></li>
+            <li><a href="#422-实现二">4.2.2 实现二</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='任务并行度优化、小文件合并优化、本地模式、Stage并行执行、严格模式、CBO优化'><title>（Hive-11）Hive调优-任务并行度优化、小文件合并优化、本地模式、Stage并行执行、严格模式、CBO优化</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/hive-11hive%E8%B0%83%E4%BC%98-%E4%BB%BB%E5%8A%A1%E5%B9%B6%E8%A1%8C%E5%BA%A6%E4%BC%98%E5%8C%96%E5%B0%8F%E6%96%87%E4%BB%B6%E5%90%88%E5%B9%B6%E4%BC%98%E5%8C%96%E6%9C%AC%E5%9C%B0%E6%A8%A1%E5%BC%8Fstage%E5%B9%B6%E8%A1%8C%E6%89%A7%E8%A1%8C%E4%B8%A5%E6%A0%BC%E6%A8%A1%E5%BC%8Fcbo%E4%BC%98%E5%8C%96/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='（Hive-11）Hive调优-任务并行度优化、小文件合并优化、本地模式、Stage并行执行、严格模式、CBO优化'>
+<meta property='og:description' content='任务并行度优化、小文件合并优化、本地模式、Stage并行执行、严格模式、CBO优化'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/hive-11hive%E8%B0%83%E4%BC%98-%E4%BB%BB%E5%8A%A1%E5%B9%B6%E8%A1%8C%E5%BA%A6%E4%BC%98%E5%8C%96%E5%B0%8F%E6%96%87%E4%BB%B6%E5%90%88%E5%B9%B6%E4%BC%98%E5%8C%96%E6%9C%AC%E5%9C%B0%E6%A8%A1%E5%BC%8Fstage%E5%B9%B6%E8%A1%8C%E6%89%A7%E8%A1%8C%E4%B8%A5%E6%A0%BC%E6%A8%A1%E5%BC%8Fcbo%E4%BC%98%E5%8C%96/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Hive' /><meta property='article:published_time' content='2023-10-24T17:04:40&#43;00:00'/><meta property='article:modified_time' content='2023-10-24T17:04:40&#43;00:00'/>
+<meta name="twitter:title" content="（Hive-11）Hive调优-任务并行度优化、小文件合并优化、本地模式、Stage并行执行、严格模式、CBO优化">
+<meta name="twitter:description" content="任务并行度优化、小文件合并优化、本地模式、Stage并行执行、严格模式、CBO优化">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/hive/" >
+                Hive
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/hive-11hive%E8%B0%83%E4%BC%98-%E4%BB%BB%E5%8A%A1%E5%B9%B6%E8%A1%8C%E5%BA%A6%E4%BC%98%E5%8C%96%E5%B0%8F%E6%96%87%E4%BB%B6%E5%90%88%E5%B9%B6%E4%BC%98%E5%8C%96%E6%9C%AC%E5%9C%B0%E6%A8%A1%E5%BC%8Fstage%E5%B9%B6%E8%A1%8C%E6%89%A7%E8%A1%8C%E4%B8%A5%E6%A0%BC%E6%A8%A1%E5%BC%8Fcbo%E4%BC%98%E5%8C%96/">（Hive-11）Hive调优-任务并行度优化、小文件合并优化、本地模式、Stage并行执行、严格模式、CBO优化</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        任务并行度优化、小文件合并优化、本地模式、Stage并行执行、严格模式、CBO优化
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Oct 24, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 1 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <h2 id="一-任务并行度">一、 任务并行度</h2>
+<p>Hive的计算任务如果由MapReduce完成，并行度的调整需要分为Map端和Reduce端。</p>
+<h3 id="11-map端并行度">1.1 Map端并行度</h3>
+<p>Map端的并行度，也就是Map的个数。是由输入文件的切片数决定的。一般情况下，Map端的并行度无需手动调整。</p>
+<p>以下特殊情况可考虑调整map端并行度：</p>
+<ul>
+<li>1）查询的表中存在大量小文件</li>
+</ul>
+<p>​		按照<code>Hadoop</code>默认的切片策略，一个小文件会单独启动一个map task负责计算。若查询的表中存在大量小文件，则会启动大量map task，造成计算资源的浪费。这种情况下，可以使用Hive提供的<code>CombineHiveInputFormat</code>，多个小文件合并为一个切片，从而控制map task个数。相关参数如下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="k">input</span><span class="p">.</span><span class="n">format</span><span class="o">=</span><span class="n">org</span><span class="p">.</span><span class="n">apache</span><span class="p">.</span><span class="n">hadoop</span><span class="p">.</span><span class="n">hive</span><span class="p">.</span><span class="n">ql</span><span class="p">.</span><span class="n">io</span><span class="p">.</span><span class="n">CombineHiveInputFormat</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><ul>
+<li>
+<ol start="2">
+<li>map端有复杂的查询逻辑</li>
+</ol>
+</li>
+</ul>
+<p>若SQL语句中有正则替换、json解析等复杂耗时的查询逻辑时，map端的计算会相对慢一些。若想加快计算速度，在计算资源充足的情况下，可考虑增大map端的并行度，令map task多一些，每个map task计算的数据少一些。相关参数如下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">--一个切片的最大值
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">mapreduce</span><span class="p">.</span><span class="k">input</span><span class="p">.</span><span class="n">fileinputformat</span><span class="p">.</span><span class="n">split</span><span class="p">.</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">256000000</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><h3 id="12-reduce端并行度">1.2 Reduce端并行度</h3>
+<p>Reduce端的并行度，也就是Reduce个数。相对来说，更需要关注。Reduce端的并行度，可由用户自己指定，也可由Hive自行根据该MR Job输入的文件大小进行估算。</p>
+<p>Reduce端的并行度的相关参数如下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">--指定Reduce端并行度，默认值为-1，表示用户未指定
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">mapreduce</span><span class="p">.</span><span class="n">job</span><span class="p">.</span><span class="n">reduces</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--Reduce端并行度最大值
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="k">exec</span><span class="p">.</span><span class="n">reducers</span><span class="p">.</span><span class="k">max</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--单个Reduce Task计算的数据量，用于估算Reduce并行度
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="k">exec</span><span class="p">.</span><span class="n">reducers</span><span class="p">.</span><span class="n">bytes</span><span class="p">.</span><span class="n">per</span><span class="p">.</span><span class="n">reducer</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>Reduce端并行度的默认计算逻辑如下：</p>
+<ul>
+<li>​	假设Job输入的文件大小为<code>totalInputBytes</code></li>
+<li>​	参数hive.exec.reducers.bytes.per.reducer的值为<code>bytesPerReducer</code>。</li>
+<li>​	参数hive.exec.reducers.max的值为<code>maxReducers</code>。则Reduce端的并行度为：</li>
+</ul>
+<p><figure 
+	>
+	<a href="/../../images/11-hive-11/wps1.jpg" >
+		<img src="/../../images/11-hive-11/wps1.jpg"
+			
+			
+			
+			loading="lazy"
+			alt="img">
+	</a>
+	
+	<figcaption>img</figcaption>
+	
+</figure></p>
+<p>Hive自行估算Reduce并行度时，是以整个MR Job输入的文件大小作为依据的。因此，在某些情况下其估计的并行度很可能并不准确，此时就需要用户根据实际情况来指定Reduce并行度了：</p>
+<ul>
+<li>指定参数<strong>mapreduce.job.reduces</strong>的值为一个非负整数，则Reduce并行度为指定值。</li>
+</ul>
+<h3 id="13--并行执行">1.3  并行执行</h3>
+<p>Hive会将一个SQL语句转化成一个或者多个Stage，每个Stage对应一个MR Job。默认情况下，Hive同时只会执行一个Stage。但是某SQL语句可能会包含多个Stage，但这多个Stage可能并非完全互相依赖，也就是说有些Stage是可以并行执行的。此处提到的并行执行就是指这些Stage的并行执行。相关参数如下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">--启用并行执行优化
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="k">exec</span><span class="p">.</span><span class="n">parallel</span><span class="o">=</span><span class="k">true</span><span class="p">;</span><span class="w">    
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--同一个sql允许最大并行度，默认为8
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="k">exec</span><span class="p">.</span><span class="n">parallel</span><span class="p">.</span><span class="n">thread</span><span class="p">.</span><span class="nb">number</span><span class="o">=</span><span class="mi">8</span><span class="p">;</span><span class="w"> 
+</span></span></span></code></pre></div><h2 id="二小文件合并优化">二、小文件合并优化</h2>
+<p>我们在Map端并行度里已经介绍了Map端输入文件合并。</p>
+<p>相关参数为：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">--可将多个小文件切片，合并为一个切片，进而由一个map任务处理
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="k">input</span><span class="p">.</span><span class="n">format</span><span class="o">=</span><span class="n">org</span><span class="p">.</span><span class="n">apache</span><span class="p">.</span><span class="n">hadoop</span><span class="p">.</span><span class="n">hive</span><span class="p">.</span><span class="n">ql</span><span class="p">.</span><span class="n">io</span><span class="p">.</span><span class="n">CombineHiveInputFormat</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>而Reduce端输出的小文件合并，是指将多个小文件合并成大文件。目的是减少HDFS小文件数量。</p>
+<p>其原理是根据计算任务输出文件的平均大小进行判断，若符合条件，则单独启动一个额外的任务进行合并。</p>
+<p>相关参数为：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">--开启合并map only任务输出的小文件,默认false（如果只有Map 没有reduce,且map输出了小文件，则会触发合并）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="n">merge</span><span class="p">.</span><span class="n">mapfiles</span><span class="o">=</span><span class="k">true</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--开启合并map reduce任务输出的小文件,默认false
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="n">merge</span><span class="p">.</span><span class="n">mapredfiles</span><span class="o">=</span><span class="k">true</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--合并后的文件大小（256M）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="n">merge</span><span class="p">.</span><span class="k">size</span><span class="p">.</span><span class="n">per</span><span class="p">.</span><span class="n">task</span><span class="o">=</span><span class="mi">256000000</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--触发小文件合并任务的阈值，若某计算任务输出的文件平均大小低于该值，则触发合并
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="n">merge</span><span class="p">.</span><span class="n">smallfiles</span><span class="p">.</span><span class="n">avgsize</span><span class="o">=</span><span class="mi">16000000</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><h2 id="三本地模式">三、本地模式</h2>
+<p>大多数的Hadoop Job是需要Hadoop提供的完整的可扩展性来处理大数据集的。不过，有时Hive的输入数据量是非常小的。在这种情况下，为查询触发执行任务消耗的时间可能会比实际job的执行时间要多的多。对于大多数这种情况，Hive可以通过本地模式在单台机器上处理所有的任务。对于小数据集，执行时间可以明显被缩短。</p>
+<p>相关参数如下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">--开启自动转换为本地模式
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="k">exec</span><span class="p">.</span><span class="k">mode</span><span class="p">.</span><span class="k">local</span><span class="p">.</span><span class="n">auto</span><span class="o">=</span><span class="k">true</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--设置local MapReduce的最大输入数据量，当输入数据量小于这个值时采用local MapReduce的方式，默认为134217728，即128M
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="k">exec</span><span class="p">.</span><span class="k">mode</span><span class="p">.</span><span class="k">local</span><span class="p">.</span><span class="n">auto</span><span class="p">.</span><span class="n">inputbytes</span><span class="p">.</span><span class="k">max</span><span class="o">=</span><span class="mi">50000000</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--设置local MapReduce的最大输入文件个数，当输入文件个数小于这个值时采用local MapReduce的方式，默认为4
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="k">exec</span><span class="p">.</span><span class="k">mode</span><span class="p">.</span><span class="k">local</span><span class="p">.</span><span class="n">auto</span><span class="p">.</span><span class="k">input</span><span class="p">.</span><span class="n">files</span><span class="p">.</span><span class="k">max</span><span class="o">=</span><span class="mi">10</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><h2 id="四stage并行执行">四、Stage并行执行</h2>
+<p>Hive会将一个SQL语句转化成一个或者多个Stage，每个Stage对应一个MR Job。默认情况下，Hive同时只会执行一个Stage。但是某SQL语句可能会包含多个Stage，但这多个Stage可能并非完全互相依赖，也就是说有些Stage是可以并行执行的。此处提到的并行执行就是指这些Stage的并行执行。相关参数如下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">--启用并行执行优化
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="k">exec</span><span class="p">.</span><span class="n">parallel</span><span class="o">=</span><span class="k">true</span><span class="p">;</span><span class="w">    
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--同一个sql允许最大并行度，默认为8
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">set</span><span class="w"> </span><span class="n">hive</span><span class="p">.</span><span class="k">exec</span><span class="p">.</span><span class="n">parallel</span><span class="p">.</span><span class="n">thread</span><span class="p">.</span><span class="nb">number</span><span class="o">=</span><span class="mi">8</span><span class="p">;</span><span class="w"> 
+</span></span></span></code></pre></div><h2 id="五严格模式">五、严格模式</h2>
+<p>Hive可以通过设置某些参数防止危险操作：</p>
+<p>1）分区表不使用分区过滤</p>
+<pre tabindex="0"><code>将hive.strict.checks.no.partition.filter设置为true时，对于分区表，除非where语句中含有分区字段过滤条件来限制范围，否则不允许执行。换句话说，就是用户不允许扫描所有分区。进行这个限制的原因是，通常分区表都拥有非常大的数据集，而且数据增加迅速。没有进行分区限制的查询可能会消耗令人不可接受的巨大资源来处理这个表。
+</code></pre><p>2）使用order by没有limit过滤</p>
+<pre tabindex="0"><code>将hive.strict.checks.orderby.no.limit设置为true时，对于使用了order by语句的查询，要求必须使用limit语句。因为order by为了执行排序过程会将所有的结果数据分发到同一个Reduce中进行处理，强制要求用户增加这个limit语句可以防止Reduce额外执行很长一段时间（开启了limit可以在数据进入到Reduce之前就减少一部分数据）。
+</code></pre><p>3）笛卡尔积</p>
+<pre tabindex="0"><code>将hive.strict.checks.cartesian.product设置为true时，会限制笛卡尔积的查询。对关系型数据库非常了解的用户可能期望在执行JOIN查询的时候不使用ON语句而是使用where语句，这样关系数据库的执行优化器就可以高效地将WHERE语句转化成那个ON语句。不幸的是，Hive并不会执行这种优化，因此，如果表足够大，那么这个查询就会出现不可控的情况。
+</code></pre><h2 id="六cbo优化">六、CBO优化</h2>
+<p>CBO是指Cost based Optimizer，即基于计算成本的优化。</p>
+<p>在Hive中，计算成本模型考虑到了：数据的行数、CPU、本地IO、HDFS IO、网络IO等方面。Hive会计算同一SQL语句的不同执行计划的计算成本，并选出成本最低的执行计划。目前CBO在hive的MR引擎下主要用于join的优化，例如多表join的join顺序。</p>
+<p>相关参数为：</p>
+<pre tabindex="0"><code>--是否启用cbo优化 
+set hive.cbo.enable=true;
+</code></pre><p>示例SQL</p>
+<pre tabindex="0"><code>select
+  *
+from order_detail od
+join product_info product on od.product_id=product.id
+join province_info province on od.province_id=province.id;
+</code></pre><p>如果关闭cbo优化 ，根据执行计划，可以看出，三张表的join顺序如下：</p>
+<p><figure 
+	>
+	<a href="/../../images/11-hive-11/wps1-1698632260947.jpg" >
+		<img src="/../../images/11-hive-11/wps1-1698632260947.jpg"
+			
+			
+			
+			loading="lazy"
+			alt="img">
+	</a>
+	
+	<figcaption>img</figcaption>
+	
+</figure></p>
+<p>如果开启cbo优化 ，根据执行计划，可以看出，三张表的join顺序如下：</p>
+<p><figure 
+	>
+	<a href="/../../images/11-hive-11/wps2.jpg" >
+		<img src="/../../images/11-hive-11/wps2.jpg"
+			
+			
+			
+			loading="lazy"
+			alt="img">
+	</a>
+	
+	<figcaption>img</figcaption>
+	
+</figure></p>
+<p>根据上述案例可以看出，CBO优化对于执行计划中join顺序是有影响的，其之所以会将province_info的join顺序提前，是因为province info的数据量较小，将其提前，会有更大的概率使得中间结果的数据量变小，从而使整个计算任务的数据量减小，也就是使计算成本变小。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/hive/">Hive</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/hive-10hive%E8%B0%83%E4%BC%98-%E6%95%B0%E6%8D%AE%E5%80%BE%E6%96%9C%E8%B0%83%E4%BC%98/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hive-10）Hive调优-数据倾斜调优</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hive-09hive-explain%E6%89%A7%E8%A1%8C%E8%AE%A1%E5%88%92%E5%88%86%E6%9E%90%E5%8F%8Asql%E8%B0%83%E4%BC%98/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hive-09）Hive Explain执行计划分析及SQL调优</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hive-08hive%E9%85%8D%E7%BD%AE%E8%B0%83%E4%BC%98/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hive-08）Hive配置调优</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hive-07hive%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F%E6%96%87%E4%BB%B6%E5%8E%8B%E7%BC%A9/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hive-07）Hive文件格式、文件压缩</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/hive-06hive%E5%88%86%E5%8C%BA%E8%A1%A8%E5%92%8C%E5%88%86%E6%A1%B6%E8%A1%A8/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Hive-06）Hive分区表和分桶表</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#一-任务并行度">一、 任务并行度</a>
+      <ol>
+        <li><a href="#11-map端并行度">1.1 Map端并行度</a></li>
+        <li><a href="#12-reduce端并行度">1.2 Reduce端并行度</a></li>
+        <li><a href="#13--并行执行">1.3  并行执行</a></li>
+      </ol>
+    </li>
+    <li><a href="#二小文件合并优化">二、小文件合并优化</a></li>
+    <li><a href="#三本地模式">三、本地模式</a></li>
+    <li><a href="#四stage并行执行">四、Stage并行执行</a></li>
+    <li><a href="#五严格模式">五、严格模式</a></li>
+    <li><a href="#六cbo优化">六、CBO优化</a></li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

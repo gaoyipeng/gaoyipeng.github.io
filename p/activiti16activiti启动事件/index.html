@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Activiti启动事件'><title>Activiti（16）Activiti启动事件</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/activiti16activiti%E5%90%AF%E5%8A%A8%E4%BA%8B%E4%BB%B6/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Activiti（16）Activiti启动事件'>
+<meta property='og:description' content='Activiti启动事件'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/activiti16activiti%E5%90%AF%E5%8A%A8%E4%BA%8B%E4%BB%B6/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Activiti' /><meta property='article:published_time' content='2020-08-16T17:08:25&#43;00:00'/><meta property='article:modified_time' content='2020-08-16T17:08:25&#43;00:00'/>
+<meta name="twitter:title" content="Activiti（16）Activiti启动事件">
+<meta name="twitter:description" content="Activiti启动事件">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/activiti/" >
+                Activiti
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/activiti16activiti%E5%90%AF%E5%8A%A8%E4%BA%8B%E4%BB%B6/">Activiti（16）Activiti启动事件</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        Activiti启动事件
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Aug 16, 2020</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 5 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <p>我们先来总结下Activiti的各种事件，这些在流程设计器中都可以找到：</p>
+<p>事件分类：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">定义|事件</th>
+<th style="text-align:center">启动事件（捕获 Catching）</th>
+<th style="text-align:center">结束事件(抛出 Throwing)</th>
+<th style="text-align:center">边界事件（捕获 Catching）</th>
+<th style="text-align:center">中间事件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">错误</td>
+<td style="text-align:center">错误（异常）启动事件 √</td>
+<td style="text-align:center">错误结束事件√</td>
+<td style="text-align:center">错误边界事件√</td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">信号</td>
+<td style="text-align:center">信号启动事件√</td>
+<td style="text-align:center"></td>
+<td style="text-align:center">信号边界事件√</td>
+<td style="text-align:center">信号中间事件（捕获&amp;抛出）</td>
+</tr>
+<tr>
+<td style="text-align:center">消息</td>
+<td style="text-align:center">消息启动事件√</td>
+<td style="text-align:center"></td>
+<td style="text-align:center">消息边界事件√</td>
+<td style="text-align:center">消息中间事件（捕获）</td>
+</tr>
+<tr>
+<td style="text-align:center">取消</td>
+<td style="text-align:center"></td>
+<td style="text-align:center">取消结束事件√</td>
+<td style="text-align:center">取消边界事件√</td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">补偿</td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center">补偿边界事件√</td>
+<td style="text-align:center">补偿中间抛出事件 √</td>
+</tr>
+<tr>
+<td style="text-align:center">定时器</td>
+<td style="text-align:center">定时启动事件√</td>
+<td style="text-align:center"></td>
+<td style="text-align:center">定时边界事件√</td>
+<td style="text-align:center">定时器中间事件（捕获）</td>
+</tr>
+<tr>
+<td style="text-align:center">终止</td>
+<td style="text-align:center"></td>
+<td style="text-align:center">终止结束事件√</td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+</tr>
+</tbody>
+</table>
+<p>本节我们介绍Activiti的启动事件类型。</p>
+<h1 id="1启动事件">1、启动事件</h1>
+<p>从<code>Activiti Modeler</code>中即可看到，启动事件有以下这么几种，我们前面流程中使用的都是普通的开始事件。接下来我们介绍其他常用的开始事件。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-16/image-20200816171238387.png" >
+		<img src="/images/activiti6-16/image-20200816171238387.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200816171238387">
+	</a>
+	
+	<figcaption>image-20200816171238387</figcaption>
+	
+</figure></p>
+<h2 id="11-开始事件">1.1 开始事件</h2>
+<p>“空”启动事件，指的是没有特别指定启动流程实例的触发器。这意味着引擎无法预知何时启动流程实例。可以通过以下方法启动：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">ProcessInstance</span> <span class="n">processInstance</span> <span class="o">=</span> <span class="n">runtimeService</span><span class="o">.</span><span class="na">startProcessInstanceByXXX</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="n">formService</span><span class="o">.</span><span class="na">submitStartFormData</span><span class="o">();</span>
+</span></span></code></pre></div><p>**注意：**子流程（subprocess）总是有空启动事件。</p>
+<p>空启动事件的XML表示格式，就是普通的启动事件声明，而没有任何子元素（其他种类的启动事件都有子元素，用于声明其类型）。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;startEvent</span> <span class="na">id=</span><span class="s">&#34;start&#34;</span> <span class="na">name=</span><span class="s">&#34;my start event&#34;</span> <span class="nt">/&gt;</span>
+</span></span></code></pre></div><p>前面我们已经见过很多了，这里不做演示了。</p>
+<h2 id="12-定时启动事件">1.2 定时启动事件</h2>
+<p>定时器启动事件用于在给定的时间点创建流程实例。它可以用在只启动一次的流程中，也可以用在特定时间间隔下启动。</p>
+<p>XML表示：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;startEvent</span> <span class="na">id=</span><span class="s">&#34;theStart&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;timerEventDefinition&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;timeDate&gt;</span>2020-08-16T12:13:14<span class="nt">&lt;/timeDate&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/timerEventDefinition&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/startEvent&gt;</span>
+</span></span></code></pre></div><p><strong>注意：</strong></p>
+<p>1、子流程中不能使用定时器启动事件。 <strong>定时器是从流程部署开始计时，不需要去启动流程。</strong></p>
+<p>2、当部署带有定时器启动事件的流程的新版本时，上一版本的定时器作业会被移除。这是因为通常并不希望旧版本的流程仍然自动启动新的流程实例。</p>
+<h3 id="121-定时器分类">1.2.1 定时器分类</h3>
+<p><figure 
+	>
+	<a href="/images/activiti6-16/image-20200816184632442.png" >
+		<img src="/images/activiti6-16/image-20200816184632442.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200816184632442">
+	</a>
+	
+	<figcaption>image-20200816184632442</figcaption>
+	
+</figure></p>
+<ul>
+<li>
+<p><strong>timeDate</strong>：一次性启动</p>
+<p>使用 ISO 8601 格式指定一个确定的时间点。</p>
+<p>在框中输入2020-08-16T12:13:14代表2020年08月16号，12点13分14秒这个时间点执行此定时器。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;startEvent</span> <span class="na">id=</span><span class="s">&#34;theStart&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;timerEventDefinition&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;timeDate&gt;</span>2020-08-16T12:13:14<span class="nt">&lt;/timeDate&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/timerEventDefinition&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/startEvent&gt;</span>
+</span></span></code></pre></div></li>
+<li>
+<p><strong>timeDuration</strong>：设置多长时间启动</p>
+<p>指定定时器之前要等待多长时间。 使用ISO 8601规定的格式 （由BPMN 2.0规定）</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl">## P1D：代表1天后执行此时间定时器。
+</span></span><span class="line"><span class="cl">## P1H：代表1小时后执行此时间定时器。
+</span></span><span class="line"><span class="cl">## P1M：代表1分钟后执行此时间定时器。
+</span></span><span class="line"><span class="cl">## PT1M：代表1分钟后执行此时间定时器。
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;startEvent</span> <span class="na">id=</span><span class="s">&#34;theStart&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;timerEventDefinition&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;timeDuration&gt;</span>P10M<span class="nt">&lt;/timeDuration&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/timerEventDefinition&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/startEvent&gt;</span>
+</span></span></code></pre></div></li>
+<li>
+<p><strong>timeCycle</strong>：周期性循环启动</p>
+<p>指定重复执行的间隔， 可以用来定期启动流程实例。 timeCycle元素可以使用两种格式。</p>
+<ul>
+<li>第一种是 ISO 8601 标准的格式。示例：（重复3次，每次间隔10小时）：</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;startEvent</span> <span class="na">id=</span><span class="s">&#34;theStart&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;timerEventDefinition&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;timeCycle&gt;</span>R3/PT10H<span class="nt">&lt;/timeCycle&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/timerEventDefinition&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/startEvent&gt;</span>
+</span></span></code></pre></div><ul>
+<li>第二种是使用cron表达式指定timeCycle。示例：（每分钟执行一次）</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;startEvent</span> <span class="na">id=</span><span class="s">&#34;theStart&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;timerEventDefinition&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;timeCycle&gt;</span>0 0/1 * * * ?<span class="nt">&lt;/timeCycle&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/timerEventDefinition&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;startEvent</span> <span class="na">id=</span><span class="s">&#34;theStart&#34;</span><span class="nt">&gt;</span>
+</span></span></code></pre></div><p>cron表达式生成器：<a class="link" href="https://cron.qqe2.com/"  target="_blank" rel="noopener"
+    >https://cron.qqe2.com/</a></p>
+</li>
+</ul>
+<h3 id="122-示例">1.2.2 示例</h3>
+<p>此处我们画一个简单的流程来验证一下：</p>
+<p>流程很简单，每隔一分钟启动此流程，流转到<strong>部门领导办理</strong>节点，然后结束。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-16/image-20200816174807017.png" >
+		<img src="/images/activiti6-16/image-20200816174807017.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200816174807017">
+	</a>
+	
+	<figcaption>image-20200816174807017</figcaption>
+	
+</figure></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="cp">&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;definitions</span> <span class="na">xmlns=</span><span class="s">&#34;http://www.omg.org/spec/BPMN/20100524/MODEL&#34;</span> <span class="na">xmlns:xsi=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span> <span class="na">xmlns:xsd=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema&#34;</span> <span class="na">xmlns:activiti=</span><span class="s">&#34;http://activiti.org/bpmn&#34;</span> <span class="na">xmlns:bpmndi=</span><span class="s">&#34;http://www.omg.org/spec/BPMN/20100524/DI&#34;</span> <span class="na">xmlns:omgdc=</span><span class="s">&#34;http://www.omg.org/spec/DD/20100524/DC&#34;</span> <span class="na">xmlns:omgdi=</span><span class="s">&#34;http://www.omg.org/spec/DD/20100524/DI&#34;</span> <span class="na">typeLanguage=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema&#34;</span> <span class="na">expressionLanguage=</span><span class="s">&#34;http://www.w3.org/1999/XPath&#34;</span> <span class="na">targetNamespace=</span><span class="s">&#34;http://www.activiti.org/processdef&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;process</span> <span class="na">id=</span><span class="s">&#34;timing-start-event&#34;</span> <span class="na">name=</span><span class="s">&#34;定时开始事件&#34;</span> <span class="na">isExecutable=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;documentation&gt;</span>用于测试定时开始事件<span class="nt">&lt;/documentation&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;startEvent</span> <span class="na">id=</span><span class="s">&#34;startEvent&#34;</span> <span class="na">activiti:isInterrupting=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;documentation&gt;</span>每隔一分钟发起一个流程<span class="nt">&lt;/documentation&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;timerEventDefinition&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;timeCycle&gt;</span>0 0/1 * * * ?<span class="nt">&lt;/timeCycle&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/timerEventDefinition&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/startEvent&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;userTask</span> <span class="na">id=</span><span class="s">&#34;manageApprove&#34;</span> <span class="na">name=</span><span class="s">&#34;部门领导办理&#34;</span> <span class="na">activiti:candidateGroups=</span><span class="s">&#34;deptLeader&#34;</span><span class="nt">&gt;&lt;/userTask&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;sid-A74B2996-9B0B-4791-97EE-739BA5284496&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;startEvent&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;manageApprove&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;endEvent</span> <span class="na">id=</span><span class="s">&#34;sid-35EBDCF2-C4A3-4BA2-B5C7-DA216ED2C7BB&#34;</span><span class="nt">&gt;&lt;/endEvent&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;sid-F4C07822-864B-421C-9506-23EAC7EAD893&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;manageApprove&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;sid-35EBDCF2-C4A3-4BA2-B5C7-DA216ED2C7BB&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;/process&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;bpmndi:BPMNDiagram</span> <span class="na">id=</span><span class="s">&#34;BPMNDiagram_timing-start-event&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;bpmndi:BPMNPlane</span> <span class="na">bpmnElement=</span><span class="s">&#34;timing-start-event&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNPlane_timing-start-event&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;startEvent&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_startEvent&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;31.0&#34;</span> <span class="na">width=</span><span class="s">&#34;31.0&#34;</span> <span class="na">x=</span><span class="s">&#34;156.0&#34;</span> <span class="na">y=</span><span class="s">&#34;230.5&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;manageApprove&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_manageApprove&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;80.0&#34;</span> <span class="na">width=</span><span class="s">&#34;100.0&#34;</span> <span class="na">x=</span><span class="s">&#34;232.0&#34;</span> <span class="na">y=</span><span class="s">&#34;206.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-35EBDCF2-C4A3-4BA2-B5C7-DA216ED2C7BB&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_sid-35EBDCF2-C4A3-4BA2-B5C7-DA216ED2C7BB&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;28.0&#34;</span> <span class="na">width=</span><span class="s">&#34;28.0&#34;</span> <span class="na">x=</span><span class="s">&#34;377.0&#34;</span> <span class="na">y=</span><span class="s">&#34;232.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-F4C07822-864B-421C-9506-23EAC7EAD893&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_sid-F4C07822-864B-421C-9506-23EAC7EAD893&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;332.0&#34;</span> <span class="na">y=</span><span class="s">&#34;246.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;377.0&#34;</span> <span class="na">y=</span><span class="s">&#34;246.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-A74B2996-9B0B-4791-97EE-739BA5284496&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_sid-A74B2996-9B0B-4791-97EE-739BA5284496&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;187.99983471330506&#34;</span> <span class="na">y=</span><span class="s">&#34;246.42727347857587&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;232.0&#34;</span> <span class="na">y=</span><span class="s">&#34;246.22727272727272&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/bpmndi:BPMNPlane&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;/bpmndi:BPMNDiagram&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/definitions&gt;</span>
+</span></span></code></pre></div><p>部署流程什么的我就不再演示了，相信大家都很熟悉了。</p>
+<p>我们直接查看部门领导<code>leaderuser</code>的当前待办。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-16/image-20200816175133619.png" >
+		<img src="/images/activiti6-16/image-20200816175133619.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200816175133619">
+	</a>
+	
+	<figcaption>image-20200816175133619</figcaption>
+	
+</figure></p>
+<p>返回值：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;code&#34;</span><span class="p">:</span><span class="s2">&#34;0000&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;data&#34;</span><span class="p">:{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;pageNum&#34;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;pageSize&#34;</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;total&#34;</span><span class="p">:</span><span class="mi">13</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;pages&#34;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;firstResult&#34;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;maxResults&#34;</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;list&#34;</span><span class="p">:[</span>
+</span></span><span class="line"><span class="cl">            <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;owner&#34;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;originalAssignee&#34;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;assignee&#34;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;delegationState&#34;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;parentTaskId&#34;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;name&#34;</span><span class="p">:</span><span class="s2">&#34;部门领导办理&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;localizedName&#34;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;description&#34;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;localizedDescription&#34;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;priority&#34;</span><span class="p">:</span><span class="mi">50</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;createTime&#34;</span><span class="p">:</span><span class="s2">&#34;2020-08-16 09:51:02&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;dueDate&#34;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;suspensionState&#34;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;category&#34;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;executionId&#34;</span><span class="p">:</span><span class="s2">&#34;7558&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;processInstanceId&#34;</span><span class="p">:</span><span class="s2">&#34;7557&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;processDefinitionId&#34;</span><span class="p">:</span><span class="s2">&#34;timing-start-event:1:5004&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;taskDefinitionKey&#34;</span><span class="p">:</span><span class="s2">&#34;manageApprove&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;formKey&#34;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;isDeleted&#34;</span><span class="p">:</span><span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;isCanceled&#34;</span><span class="p">:</span><span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;eventName&#34;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;currentActivitiListener&#34;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;tenantId&#34;</span><span class="p">:</span><span class="s2">&#34;&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;queryVariables&#34;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;claimTime&#34;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;usedVariablesCache&#34;</span><span class="p">:{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">                <span class="p">},</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;cachedElContext&#34;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;id&#34;</span><span class="p">:</span><span class="s2">&#34;7562&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;revision&#34;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;isInserted&#34;</span><span class="p">:</span><span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;isUpdated&#34;</span><span class="p">:</span><span class="kc">false</span>
+</span></span><span class="line"><span class="cl">            <span class="p">},</span>
+</span></span><span class="line"><span class="cl">            <span class="err">Object</span><span class="p">{</span><span class="err">...</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">            <span class="err">Object</span><span class="p">{</span><span class="err">...</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">            <span class="err">Object</span><span class="p">{</span><span class="err">...</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">            <span class="err">Object</span><span class="p">{</span><span class="err">...</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">            <span class="err">Object</span><span class="p">{</span><span class="err">...</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">            <span class="err">Object</span><span class="p">{</span><span class="err">...</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">            <span class="err">Object</span><span class="p">{</span><span class="err">...</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">            <span class="err">Object</span><span class="p">{</span><span class="err">...</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">            <span class="err">Object</span><span class="p">{</span><span class="err">...</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;message&#34;</span><span class="p">:</span><span class="s2">&#34;获取当前人员待办列表成功&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>可以看到已经自动生成了很多待办。</p>
+<h2 id="13-消息开始事件">1.3 消息开始事件</h2>
+<blockquote>
+<p>消息启动事件，使用具名消息启动流程实例。它让我们可以使用消息名，有效地在一组可选的启动事件中<em>选择</em>正确的启动事件。</p>
+</blockquote>
+<p>上面是官方的介绍，看着拗口，说白了就是通过一个消息ID=xxx，将已部署的流程定义中启动事件是消息启动事件的，并且监听ID的消息为xx的流程启动。</p>
+<p>XML 表示：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;message</span> <span class="na">id=</span><span class="s">&#34;message-start-01&#34;</span> <span class="na">name=</span><span class="s">&#34;message-start-01&#34;</span><span class="nt">&gt;&lt;/message&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;startEvent</span> <span class="na">id=</span><span class="s">&#34;message-start&#34;</span> <span class="na">name=</span><span class="s">&#34;消息启动&#34;</span> <span class="na">activiti:isInterrupting=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;messageEventDefinition</span> <span class="na">messageRef=</span><span class="s">&#34;message-start-01&#34;</span><span class="nt">&gt;&lt;/messageEventDefinition&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/startEvent&gt;</span>
+</span></span></code></pre></div><h3 id="131-示例">1.3.1 示例</h3>
+<p>此处我们依然画一个简单流程图来验证。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-16/image-20200819182710738.png" >
+		<img src="/images/activiti6-16/image-20200819182710738.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200819182710738">
+	</a>
+	
+	<figcaption>image-20200819182710738</figcaption>
+	
+</figure></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="cp">&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;definitions</span> <span class="na">xmlns=</span><span class="s">&#34;http://www.omg.org/spec/BPMN/20100524/MODEL&#34;</span> <span class="na">xmlns:xsi=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span> <span class="na">xmlns:xsd=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema&#34;</span> <span class="na">xmlns:activiti=</span><span class="s">&#34;http://activiti.org/bpmn&#34;</span> <span class="na">xmlns:bpmndi=</span><span class="s">&#34;http://www.omg.org/spec/BPMN/20100524/DI&#34;</span> <span class="na">xmlns:omgdc=</span><span class="s">&#34;http://www.omg.org/spec/DD/20100524/DC&#34;</span> <span class="na">xmlns:omgdi=</span><span class="s">&#34;http://www.omg.org/spec/DD/20100524/DI&#34;</span> <span class="na">typeLanguage=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema&#34;</span> <span class="na">expressionLanguage=</span><span class="s">&#34;http://www.w3.org/1999/XPath&#34;</span> <span class="na">targetNamespace=</span><span class="s">&#34;http://www.activiti.org/processdef&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;message</span> <span class="na">id=</span><span class="s">&#34;message-start-01&#34;</span> <span class="na">name=</span><span class="s">&#34;message-start-01&#34;</span><span class="nt">&gt;&lt;/message&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;process</span> <span class="na">id=</span><span class="s">&#34;message-start-event&#34;</span> <span class="na">name=</span><span class="s">&#34;消息启动事件&#34;</span> <span class="na">isExecutable=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;documentation&gt;</span>测试消息启动事件<span class="nt">&lt;/documentation&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;userTask</span> <span class="na">id=</span><span class="s">&#34;manageApprove&#34;</span> <span class="na">name=</span><span class="s">&#34;部门领导审批&#34;</span> <span class="na">activiti:candidateGroups=</span><span class="s">&#34;deptLeader&#34;</span><span class="nt">&gt;&lt;/userTask&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;endEvent</span> <span class="na">id=</span><span class="s">&#34;sid-94160C92-3C13-4EC1-8182-771B59FE6497&#34;</span><span class="nt">&gt;&lt;/endEvent&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;sid-5113EC9A-BC30-4804-9177-179C6DA065A8&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;manageApprove&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;sid-94160C92-3C13-4EC1-8182-771B59FE6497&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;startEvent</span> <span class="na">id=</span><span class="s">&#34;message-start&#34;</span> <span class="na">name=</span><span class="s">&#34;消息启动&#34;</span> <span class="na">activiti:isInterrupting=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;messageEventDefinition</span> <span class="na">messageRef=</span><span class="s">&#34;message-start-01&#34;</span><span class="nt">&gt;&lt;/messageEventDefinition&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/startEvent&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;sid-BA8C8F05-153A-4A47-9E47-ED54DC04A740&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;message-start&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;manageApprove&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;/process&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;bpmndi:BPMNDiagram</span> <span class="na">id=</span><span class="s">&#34;BPMNDiagram_message-start-event&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;bpmndi:BPMNPlane</span> <span class="na">bpmnElement=</span><span class="s">&#34;message-start-event&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNPlane_message-start-event&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;manageApprove&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_manageApprove&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;80.0&#34;</span> <span class="na">width=</span><span class="s">&#34;100.0&#34;</span> <span class="na">x=</span><span class="s">&#34;255.0&#34;</span> <span class="na">y=</span><span class="s">&#34;166.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-94160C92-3C13-4EC1-8182-771B59FE6497&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_sid-94160C92-3C13-4EC1-8182-771B59FE6497&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;28.0&#34;</span> <span class="na">width=</span><span class="s">&#34;28.0&#34;</span> <span class="na">x=</span><span class="s">&#34;405.0&#34;</span> <span class="na">y=</span><span class="s">&#34;192.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;message-start&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_message-start&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;30.0&#34;</span> <span class="na">width=</span><span class="s">&#34;30.5&#34;</span> <span class="na">x=</span><span class="s">&#34;150.0&#34;</span> <span class="na">y=</span><span class="s">&#34;191.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-BA8C8F05-153A-4A47-9E47-ED54DC04A740&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_sid-BA8C8F05-153A-4A47-9E47-ED54DC04A740&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;205.79998779296875&#34;</span> <span class="na">y=</span><span class="s">&#34;206.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;255.0&#34;</span> <span class="na">y=</span><span class="s">&#34;206.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-5113EC9A-BC30-4804-9177-179C6DA065A8&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_sid-5113EC9A-BC30-4804-9177-179C6DA065A8&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;355.0&#34;</span> <span class="na">y=</span><span class="s">&#34;206.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;405.0&#34;</span> <span class="na">y=</span><span class="s">&#34;206.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/bpmndi:BPMNPlane&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;/bpmndi:BPMNDiagram&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/definitions&gt;</span>
+</span></span></code></pre></div><ul>
+<li>
+<p>定义消息</p>
+<p>点击流程图空白处，先定义一个消息。消息id：message-start-01</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-16/image-20200819182939708.png" >
+		<img src="/images/activiti6-16/image-20200819182939708.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200819182939708">
+	</a>
+	
+	<figcaption>image-20200819182939708</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-16/image-20200819183000998.png" >
+		<img src="/images/activiti6-16/image-20200819183000998.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200819183000998">
+	</a>
+	
+	<figcaption>image-20200819183000998</figcaption>
+	
+</figure></p>
+</li>
+<li>
+<p>设置消息启动事件</p>
+<p>在启动节点选择上一步定义好的消息。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-16/image-20200819183120975.png" >
+		<img src="/images/activiti6-16/image-20200819183120975.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200819183120975">
+	</a>
+	
+	<figcaption>image-20200819183120975</figcaption>
+	
+</figure></p>
+<p>其他节点就不做介绍了。</p>
+</li>
+</ul>
+<h3 id="132--启动方式">1.3.2  启动方式</h3>
+<p>消息开始事件的发起，和普通开始事件是不同的。我们来看一下迄今为止，我们用到过的流程启动方法：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"> <span class="n">formService</span><span class="o">.</span><span class="na">submitStartFormData</span><span class="o">(</span><span class="n">processDefinitionId</span><span class="o">,</span> <span class="n">formProperties</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"> <span class="n">runtimeService</span><span class="o">.</span><span class="na">startProcessInstanceByKey</span><span class="o">(</span><span class="s">&#34;leave&#34;</span><span class="o">,</span> <span class="n">businessKey</span><span class="o">,</span> <span class="n">variables</span><span class="o">);</span>
+</span></span></code></pre></div><p>而消息开始事件用的是以下的方法</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">ProcessInstance</span> <span class="nf">startProcessInstanceByMessage</span><span class="o">(</span><span class="n">String</span> <span class="n">messageName</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">ProcessInstance</span> <span class="nf">startProcessInstanceByMessage</span><span class="o">(</span><span class="n">String</span> <span class="n">messageName</span><span class="o">,</span> <span class="n">String</span> <span class="n">businessKey</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">ProcessInstance</span> <span class="nf">startProcessInstanceByMessage</span><span class="o">(</span><span class="n">String</span> <span class="n">messageName</span><span class="o">,</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;</span> <span class="n">processVariables</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">ProcessInstance</span> <span class="nf">startProcessInstanceByMessage</span><span class="o">(</span><span class="n">String</span> <span class="n">messageName</span><span class="o">,</span> <span class="n">String</span> <span class="n">businessKey</span><span class="o">,</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&lt;</span> <span class="n">processVariables</span><span class="o">);</span>
+</span></span></code></pre></div><p>我们新建一个启动方法，参考<code>/process/startProcess/{processDefinitionId}</code>接口即可。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * 消息启动流程
+</span></span></span><span class="line"><span class="cl"><span class="cm"> */</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@PostMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;/messageStartEventInstance/{messageId}&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@ApiOperation</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;消息启动流程&#34;</span><span class="o">,</span><span class="n">notes</span> <span class="o">=</span> <span class="s">&#34;发起启动节点是消息启动类型的流程，key需要以fp_开头&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="n">CommonResponse</span> <span class="nf">messageStartEventInstance</span><span class="o">(</span><span class="nd">@PathVariable</span><span class="o">(</span><span class="s">&#34;messageId&#34;</span><span class="o">)</span> <span class="nd">@ApiParam</span><span class="o">(</span><span class="s">&#34;消息定义的编号&#34;</span><span class="o">)</span><span class="n">String</span> <span class="n">messageId</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">                                                <span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">CommonException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ProcessInstance</span> <span class="n">processInstance</span> <span class="o">=</span> <span class="n">processService</span><span class="o">.</span><span class="na">messageStartEventInstance</span><span class="o">(</span><span class="n">messageId</span><span class="o">,</span><span class="n">request</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="k">new</span> <span class="n">CommonResponse</span><span class="o">().</span><span class="na">code</span><span class="o">(</span><span class="n">CodeEnum</span><span class="o">.</span><span class="na">SUCCESS</span><span class="o">.</span><span class="na">getCode</span><span class="o">()).</span><span class="na">message</span><span class="o">(</span><span class="s">&#34;流程启动成功，流程ID：&#34;</span> <span class="o">+</span> <span class="n">processInstance</span><span class="o">.</span><span class="na">getId</span><span class="o">()).</span><span class="na">data</span><span class="o">(</span><span class="n">processInstance</span><span class="o">.</span><span class="na">getId</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="n">ProcessInstance</span> <span class="nf">messageStartEventInstance</span><span class="o">(</span><span class="n">String</span> <span class="n">message</span><span class="o">,</span> <span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">CommonException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;</span> <span class="n">formProperties</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;();</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// 从request中读取参数然后转换
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">[]&gt;</span> <span class="n">parameterMap</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="na">getParameterMap</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="o">(</span><span class="n">parameterMap</span><span class="o">.</span><span class="na">size</span><span class="o">()&gt;</span><span class="n">0</span><span class="o">){</span>
+</span></span><span class="line"><span class="cl">        <span class="n">Set</span><span class="o">&lt;</span><span class="n">Map</span><span class="o">.</span><span class="na">Entry</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">[]&gt;&gt;</span> <span class="n">entrySet</span> <span class="o">=</span> <span class="n">parameterMap</span><span class="o">.</span><span class="na">entrySet</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="o">(</span><span class="n">Map</span><span class="o">.</span><span class="na">Entry</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">[]&gt;</span> <span class="n">entry</span> <span class="o">:</span> <span class="n">entrySet</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">String</span> <span class="n">key</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="na">getKey</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// fp_的意思是form paremeter
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="k">if</span> <span class="o">(</span><span class="n">StringUtils</span><span class="o">.</span><span class="na">defaultString</span><span class="o">(</span><span class="n">key</span><span class="o">).</span><span class="na">startsWith</span><span class="o">(</span><span class="s">&#34;fp_&#34;</span><span class="o">))</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">formProperties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">key</span><span class="o">.</span><span class="na">split</span><span class="o">(</span><span class="s">&#34;_&#34;</span><span class="o">)[</span><span class="n">1</span><span class="o">],</span> <span class="n">entry</span><span class="o">.</span><span class="na">getValue</span><span class="o">()[</span><span class="n">0</span><span class="o">]);</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">log</span><span class="o">.</span><span class="na">debug</span><span class="o">(</span><span class="s">&#34;start form parameters: {}&#34;</span><span class="o">,</span> <span class="n">formProperties</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">UserQueryImpl</span> <span class="n">user</span> <span class="o">=</span> <span class="k">new</span> <span class="n">UserQueryImpl</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="n">user</span> <span class="o">=</span> <span class="o">(</span><span class="n">UserQueryImpl</span><span class="o">)</span><span class="n">identityService</span><span class="o">.</span><span class="na">createUserQuery</span><span class="o">().</span><span class="na">userId</span><span class="o">(</span><span class="n">GlobalConfig</span><span class="o">.</span><span class="na">getOperator</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">ProcessInstance</span> <span class="n">processInstance</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">try</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">identityService</span><span class="o">.</span><span class="na">setAuthenticatedUserId</span><span class="o">(</span><span class="n">user</span><span class="o">.</span><span class="na">getId</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="n">processInstance</span> <span class="o">=</span> <span class="n">runtimeService</span><span class="o">.</span><span class="na">startProcessInstanceByMessage</span><span class="o">(</span><span class="n">message</span><span class="o">,</span><span class="n">formProperties</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">log</span><span class="o">.</span><span class="na">debug</span><span class="o">(</span><span class="s">&#34;start a processinstance: {}&#34;</span><span class="o">,</span> <span class="n">processInstance</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">identityService</span><span class="o">.</span><span class="na">setAuthenticatedUserId</span><span class="o">(</span><span class="kc">null</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">processInstance</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><h3 id="133-测试">1.3.3 测试</h3>
+<p><figure 
+	>
+	<a href="/images/activiti6-16/image-20200819185928285.png" >
+		<img src="/images/activiti6-16/image-20200819185928285.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200819185928285">
+	</a>
+	
+	<figcaption>image-20200819185928285</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-16/image-20200819190119903.png" >
+		<img src="/images/activiti6-16/image-20200819190119903.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200819190119903">
+	</a>
+	
+	<figcaption>image-20200819190119903</figcaption>
+	
+</figure></p>
+<p>可以看到，部门领导用户已经有了这条流程的待办了。</p>
+<h3 id="134-注意事项">1.3.4 注意事项</h3>
+<p>当<strong>部署</strong>具有一个或多个消息启动事件的流程定义时，需要注意：</p>
+<ul>
+<li>消息启动事件的名字，在给定流程定义中，必须是唯一的。一个流程定义不得包含多个同名的消息启动事件。如果流程定义中有两个或多个消息启动事件引用 同一个消息，也即两个或多个消息启动事件引用了具有相同消息名字的消息，则Activiti在部署这个流程定义时，会抛出异常。</li>
+<li>消息启动事件的名字，在所有已部署的流程定义中，必须是唯一的。如果流程定义中，一个或多个消息启动事件，引用了已经部署的另一流程定义中消息启动事件的消息名，则Activiti在部署这个流程定义时，会抛出异常。</li>
+<li>流程版本：在部署流程定义的新版本时，会取消上一版本的消息订阅。即使新版本中并没有这个消息事件，仍然如此（取消上版本的消息订阅）。</li>
+</ul>
+<h2 id="14错误开始事件">1.4错误开始事件</h2>
+<p>错误开始事件，可用于触发事件子流程（Event Sub-Process）。<strong>错误启动事件不能用于启动流程实例</strong>。</p>
+<p>错误开始事件，往往和错误结束事件一起出现，可以是N对1的关系。异常结束事件抛出一个异常编码，只要和异常启动事件设置的异常编码匹配，即可开启事件子流程。</p>
+<p>XML表示:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="c">&lt;!--错误结束--&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;endEvent</span> <span class="na">id=</span><span class="s">&#34;errorendevent1&#34;</span> <span class="na">name=</span><span class="s">&#34;TerminateEndEvent&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;errorEventDefinition</span> <span class="na">errorRef=</span><span class="s">&#34;PAYMENT_REJECT&#34;</span><span class="nt">&gt;&lt;/errorEventDefinition&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/endEvent&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="c">&lt;!--错误开始--&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;startEvent</span> <span class="na">id=</span><span class="s">&#34;messageStart&#34;</span> <span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="nt">&lt;errorEventDefinition</span> <span class="na">errorRef=</span><span class="s">&#34;PAYMENT_REJECT&#34;</span> <span class="nt">/&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/startEvent&gt;</span>
+</span></span></code></pre></div><p>在前面的事件子流程章节，我们已经见过了，这里就不再赘述：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-16/image-20200820104351195.png" >
+		<img src="/images/activiti6-16/image-20200820104351195.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200820104351195">
+	</a>
+	
+	<figcaption>image-20200820104351195</figcaption>
+	
+</figure></p>
+<h2 id="15-信号开始事件">1.5 信号开始事件</h2>
+<blockquote>
+<p>信号启动事件，使用具名信号启动流程实例。这个信号可以由流程实例中的信号抛出中间事件（intermediary signal throw event），或者<code>API</code>（<code>runtimeService.signalEventReceivedXXX</code>方法）触发。这些情况下，所有拥有相同名字信号启动事件的流程定义都会被启动。</p>
+</blockquote>
+<h3 id="151-示例">1.5.1 示例</h3>
+<p>我们创建一个简单流程</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-16/image-20200820145210752.png" >
+		<img src="/images/activiti6-16/image-20200820145210752.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200820145210752">
+	</a>
+	
+	<figcaption>image-20200820145210752</figcaption>
+	
+</figure></p>
+<p>设置信号定义：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-16/image-20200820152733416.png" >
+		<img src="/images/activiti6-16/image-20200820152733416.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200820152733416">
+	</a>
+	
+	<figcaption>image-20200820152733416</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-16/image-20200820153723808.png" >
+		<img src="/images/activiti6-16/image-20200820153723808.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200820153723808">
+	</a>
+	
+	<figcaption>image-20200820153723808</figcaption>
+	
+</figure></p>
+<p>Scope说明：</p>
+<ul>
+<li><code>global</code>:全局</li>
+<li><code>processInstance</code>:当前流程</li>
+</ul>
+<p>默认信号会在流程引擎范围内进行广播。就是说， 你可以在一个流程实例中抛出一个信号事件，其他不同流程定义的流程实例 都可以监听到这个事件。然而，有时只希望在同一个流程实例中响应这个信号事件。可以使用信号事件定义的scope 属性 （不是BPMN2.0的标准属性）</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-16/image-20200820153815439.png" >
+		<img src="/images/activiti6-16/image-20200820153815439.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200820153815439">
+	</a>
+	
+	<figcaption>image-20200820153815439</figcaption>
+	
+</figure></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="cp">&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;definitions</span> <span class="na">xmlns=</span><span class="s">&#34;http://www.omg.org/spec/BPMN/20100524/MODEL&#34;</span> <span class="na">xmlns:xsi=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span> <span class="na">xmlns:xsd=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema&#34;</span> <span class="na">xmlns:activiti=</span><span class="s">&#34;http://activiti.org/bpmn&#34;</span> <span class="na">xmlns:bpmndi=</span><span class="s">&#34;http://www.omg.org/spec/BPMN/20100524/DI&#34;</span> <span class="na">xmlns:omgdc=</span><span class="s">&#34;http://www.omg.org/spec/DD/20100524/DC&#34;</span> <span class="na">xmlns:omgdi=</span><span class="s">&#34;http://www.omg.org/spec/DD/20100524/DI&#34;</span> <span class="na">typeLanguage=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema&#34;</span> <span class="na">expressionLanguage=</span><span class="s">&#34;http://www.w3.org/1999/XPath&#34;</span> <span class="na">targetNamespace=</span><span class="s">&#34;http://www.activiti.org/processdef&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;signal</span> <span class="na">id=</span><span class="s">&#34;signal-start-01&#34;</span> <span class="na">name=</span><span class="s">&#34;signal-start-01&#34;</span> <span class="na">activiti:scope=</span><span class="s">&#34;processInstance&#34;</span><span class="nt">&gt;&lt;/signal&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;signal</span> <span class="na">id=</span><span class="s">&#34;signal-start-02&#34;</span> <span class="na">name=</span><span class="s">&#34;signal-start-02&#34;</span> <span class="na">activiti:scope=</span><span class="s">&#34;global&#34;</span><span class="nt">&gt;&lt;/signal&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;process</span> <span class="na">id=</span><span class="s">&#34;signal-start-event&#34;</span> <span class="na">name=</span><span class="s">&#34;信号开始事件&#34;</span> <span class="na">isExecutable=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;startEvent</span> <span class="na">id=</span><span class="s">&#34;signal-start&#34;</span> <span class="na">name=</span><span class="s">&#34;信号启动&#34;</span> <span class="na">activiti:isInterrupting=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;signalEventDefinition</span> <span class="na">signalRef=</span><span class="s">&#34;signal-start-01&#34;</span><span class="nt">&gt;&lt;/signalEventDefinition&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/startEvent&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;userTask</span> <span class="na">id=</span><span class="s">&#34;manageApprove&#34;</span> <span class="na">name=</span><span class="s">&#34;部门领导审批&#34;</span> <span class="na">activiti:candidateGroups=</span><span class="s">&#34;deptLeader&#34;</span><span class="nt">&gt;&lt;/userTask&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;sid-A3B56AF2-FEE1-49DB-850D-A7DDB2C11C4B&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;signal-start&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;manageApprove&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;endEvent</span> <span class="na">id=</span><span class="s">&#34;sid-908769D7-DF1B-471F-9BDB-0CCEC7EB0D18&#34;</span><span class="nt">&gt;&lt;/endEvent&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;sid-EBB4CE5E-311A-4BAE-B367-0FF462B103C1&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;manageApprove&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;sid-908769D7-DF1B-471F-9BDB-0CCEC7EB0D18&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;/process&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;bpmndi:BPMNDiagram</span> <span class="na">id=</span><span class="s">&#34;BPMNDiagram_signal-start-event&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;bpmndi:BPMNPlane</span> <span class="na">bpmnElement=</span><span class="s">&#34;signal-start-event&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNPlane_signal-start-event&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;signal-start&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_signal-start&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;30.0&#34;</span> <span class="na">width=</span><span class="s">&#34;30.0&#34;</span> <span class="na">x=</span><span class="s">&#34;191.39999999999998&#34;</span> <span class="na">y=</span><span class="s">&#34;273.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;manageApprove&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_manageApprove&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;80.0&#34;</span> <span class="na">width=</span><span class="s">&#34;100.0&#34;</span> <span class="na">x=</span><span class="s">&#34;266.4&#34;</span> <span class="na">y=</span><span class="s">&#34;248.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-908769D7-DF1B-471F-9BDB-0CCEC7EB0D18&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_sid-908769D7-DF1B-471F-9BDB-0CCEC7EB0D18&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;28.0&#34;</span> <span class="na">width=</span><span class="s">&#34;28.0&#34;</span> <span class="na">x=</span><span class="s">&#34;411.4&#34;</span> <span class="na">y=</span><span class="s">&#34;274.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-EBB4CE5E-311A-4BAE-B367-0FF462B103C1&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_sid-EBB4CE5E-311A-4BAE-B367-0FF462B103C1&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;366.4&#34;</span> <span class="na">y=</span><span class="s">&#34;288.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;411.4&#34;</span> <span class="na">y=</span><span class="s">&#34;288.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-A3B56AF2-FEE1-49DB-850D-A7DDB2C11C4B&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_sid-A3B56AF2-FEE1-49DB-850D-A7DDB2C11C4B&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;221.39999999999998&#34;</span> <span class="na">y=</span><span class="s">&#34;288.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;266.4&#34;</span> <span class="na">y=</span><span class="s">&#34;288.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/bpmndi:BPMNPlane&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;/bpmndi:BPMNDiagram&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/definitions&gt;</span>
+</span></span></code></pre></div><h3 id="152--启动方式">1.5.2  启动方式</h3>
+<ul>
+<li>
+<p><code>API</code>主动触发：调用 <code>runtimeService.signalEventReceivedXXX</code>方法,可以看到提供了异步启动API</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-16/image-20200821104915953.png" >
+		<img src="/images/activiti6-16/image-20200821104915953.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200821104915953">
+	</a>
+	
+	<figcaption>image-20200821104915953</figcaption>
+	
+</figure></p>
+</li>
+<li>
+<p>由流程实例中的信号抛出中间事件触发</p>
+<p>这个我们后面修学习到信号抛出中间事件再介绍。</p>
+</li>
+</ul>
+<p>我们新建一个启动方法</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * 信号启动流程
+</span></span></span><span class="line"><span class="cl"><span class="cm"> */</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@PostMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;/signalStartEventInstance/{signalId}&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@ApiOperation</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;信号启动流程&#34;</span><span class="o">,</span><span class="n">notes</span> <span class="o">=</span> <span class="s">&#34;发起启动节点是信号启动类型的流程，key需要以fp_开头&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="n">CommonResponse</span> <span class="nf">signalStartEventInstance</span><span class="o">(</span><span class="nd">@PathVariable</span><span class="o">(</span><span class="s">&#34;signalId&#34;</span><span class="o">)</span> <span class="nd">@ApiParam</span><span class="o">(</span><span class="s">&#34;信号定义的编号&#34;</span><span class="o">)</span><span class="n">String</span> <span class="n">signalId</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">                                               <span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">CommonException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">processService</span><span class="o">.</span><span class="na">signalStartEventInstance</span><span class="o">(</span><span class="n">signalId</span><span class="o">,</span><span class="n">request</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="k">new</span> <span class="n">CommonResponse</span><span class="o">().</span><span class="na">code</span><span class="o">(</span><span class="n">CodeEnum</span><span class="o">.</span><span class="na">SUCCESS</span><span class="o">.</span><span class="na">getCode</span><span class="o">()).</span><span class="na">message</span><span class="o">(</span><span class="s">&#34;信号启动流程成功&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">* 信号启动流程
+</span></span></span><span class="line"><span class="cl"><span class="cm">* @param signalId
+</span></span></span><span class="line"><span class="cl"><span class="cm">* @param request
+</span></span></span><span class="line"><span class="cl"><span class="cm">* @return
+</span></span></span><span class="line"><span class="cl"><span class="cm">* @throws CommonException
+</span></span></span><span class="line"><span class="cl"><span class="cm">*/</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kt">void</span> <span class="nf">signalStartEventInstance</span><span class="o">(</span><span class="n">String</span> <span class="n">signalId</span><span class="o">,</span> <span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">CommonException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;</span> <span class="n">formProperties</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;();</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// 从request中读取参数然后转换
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">[]&gt;</span> <span class="n">parameterMap</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="na">getParameterMap</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="o">(</span><span class="n">parameterMap</span><span class="o">.</span><span class="na">size</span><span class="o">()&gt;</span><span class="n">0</span><span class="o">){</span>
+</span></span><span class="line"><span class="cl">        <span class="n">Set</span><span class="o">&lt;</span><span class="n">Map</span><span class="o">.</span><span class="na">Entry</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">[]&gt;&gt;</span> <span class="n">entrySet</span> <span class="o">=</span> <span class="n">parameterMap</span><span class="o">.</span><span class="na">entrySet</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="o">(</span><span class="n">Map</span><span class="o">.</span><span class="na">Entry</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">[]&gt;</span> <span class="n">entry</span> <span class="o">:</span> <span class="n">entrySet</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">String</span> <span class="n">key</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="na">getKey</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// fp_的意思是form paremeter
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="k">if</span> <span class="o">(</span><span class="n">StringUtils</span><span class="o">.</span><span class="na">defaultString</span><span class="o">(</span><span class="n">key</span><span class="o">).</span><span class="na">startsWith</span><span class="o">(</span><span class="s">&#34;fp_&#34;</span><span class="o">))</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">formProperties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">key</span><span class="o">.</span><span class="na">split</span><span class="o">(</span><span class="s">&#34;_&#34;</span><span class="o">)[</span><span class="n">1</span><span class="o">],</span> <span class="n">entry</span><span class="o">.</span><span class="na">getValue</span><span class="o">()[</span><span class="n">0</span><span class="o">]);</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">log</span><span class="o">.</span><span class="na">debug</span><span class="o">(</span><span class="s">&#34;start form parameters: {}&#34;</span><span class="o">,</span> <span class="n">formProperties</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">UserQueryImpl</span> <span class="n">user</span> <span class="o">=</span> <span class="k">new</span> <span class="n">UserQueryImpl</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="n">user</span> <span class="o">=</span> <span class="o">(</span><span class="n">UserQueryImpl</span><span class="o">)</span><span class="n">identityService</span><span class="o">.</span><span class="na">createUserQuery</span><span class="o">().</span><span class="na">userId</span><span class="o">(</span><span class="n">GlobalConfig</span><span class="o">.</span><span class="na">getOperator</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">ProcessInstance</span> <span class="n">processInstance</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">try</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">identityService</span><span class="o">.</span><span class="na">setAuthenticatedUserId</span><span class="o">(</span><span class="n">user</span><span class="o">.</span><span class="na">getId</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="n">runtimeService</span><span class="o">.</span><span class="na">signalEventReceived</span><span class="o">(</span><span class="n">signalId</span><span class="o">,</span><span class="n">formProperties</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">identityService</span><span class="o">.</span><span class="na">setAuthenticatedUserId</span><span class="o">(</span><span class="kc">null</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><h3 id="153-测试">1.5.3 测试</h3>
+<p>部署流程后开始测试。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-16/image-20200821110616766.png" >
+		<img src="/images/activiti6-16/image-20200821110616766.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200821110616766">
+	</a>
+	
+	<figcaption>image-20200821110616766</figcaption>
+	
+</figure></p>
+<p>使用leaderuser启动系统，获取待办</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-16/image-20200821110642761.png" >
+		<img src="/images/activiti6-16/image-20200821110642761.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200821110642761">
+	</a>
+	
+	<figcaption>image-20200821110642761</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-16/image-20200821111436096.png" >
+		<img src="/images/activiti6-16/image-20200821111436096.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200821111436096">
+	</a>
+	
+	<figcaption>image-20200821111436096</figcaption>
+	
+</figure></p>
+<p>可以看到已经获取了待办。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/activiti/">Activiti</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/activiti6%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%B3%BB%E7%BB%9F%E6%90%AD%E5%BB%BA%E6%95%99%E7%A8%8B/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti6工作流系统搭建教程</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti33-spring-security%E8%8E%B7%E5%8F%96%E5%BD%93%E5%89%8D%E6%93%8D%E4%BD%9C%E4%BA%BA%E4%BF%A1%E6%81%AF/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（33） Spring-Security获取当前操作人信息</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti34-%E4%BD%BF%E7%94%A8swagger%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（34） 使用Swagger生成静态接口文档</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti35-%E4%BD%BF%E7%94%A8swagger%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（35） 使用Swagger生成静态接口文档</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti32-%E6%9B%BF%E6%8D%A2activiti%E7%94%A8%E6%88%B7%E5%92%8C%E7%94%A8%E6%88%B7%E7%BB%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（32） 替换Activiti用户和用户组</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#11-开始事件">1.1 开始事件</a></li>
+    <li><a href="#12-定时启动事件">1.2 定时启动事件</a>
+      <ol>
+        <li><a href="#121-定时器分类">1.2.1 定时器分类</a></li>
+        <li><a href="#122-示例">1.2.2 示例</a></li>
+      </ol>
+    </li>
+    <li><a href="#13-消息开始事件">1.3 消息开始事件</a>
+      <ol>
+        <li><a href="#131-示例">1.3.1 示例</a></li>
+        <li><a href="#132--启动方式">1.3.2  启动方式</a></li>
+        <li><a href="#133-测试">1.3.3 测试</a></li>
+        <li><a href="#134-注意事项">1.3.4 注意事项</a></li>
+      </ol>
+    </li>
+    <li><a href="#14错误开始事件">1.4错误开始事件</a></li>
+    <li><a href="#15-信号开始事件">1.5 信号开始事件</a>
+      <ol>
+        <li><a href="#151-示例">1.5.1 示例</a></li>
+        <li><a href="#152--启动方式">1.5.2  启动方式</a></li>
+        <li><a href="#153-测试">1.5.3 测试</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Activiti（18） 事务子流程'><title>Activiti（18） 事务子流程</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/activiti18-%E4%BA%8B%E5%8A%A1%E5%AD%90%E6%B5%81%E7%A8%8B/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Activiti（18） 事务子流程'>
+<meta property='og:description' content='Activiti（18） 事务子流程'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/activiti18-%E4%BA%8B%E5%8A%A1%E5%AD%90%E6%B5%81%E7%A8%8B/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Activiti' /><meta property='article:published_time' content='2020-08-27T13:24:37&#43;00:00'/><meta property='article:modified_time' content='2020-08-27T13:24:37&#43;00:00'/>
+<meta name="twitter:title" content="Activiti（18） 事务子流程">
+<meta name="twitter:description" content="Activiti（18） 事务子流程">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/activiti/" >
+                Activiti
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/activiti18-%E4%BA%8B%E5%8A%A1%E5%AD%90%E6%B5%81%E7%A8%8B/">Activiti（18） 事务子流程</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        Activiti（18） 事务子流程
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Aug 27, 2020</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 3 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <p>事务子流程是一种嵌入式子流程，可用于将多个活动组织在一个事务里。事务是工作的逻辑单元，可以组织一组独立活动，使得它们可以一起成功或失败。</p>
+<p>**事务的可能结果：**事务有三种不同的结果：</p>
+<ul>
+<li><strong>事务成功</strong>：若未被取消，或被意外终止，则事务<em>成功</em>。若事务子流程成功，将使用出口顺序流离开。若流程后面抛出了补偿事件，成功的事务可以被补偿。*请注意：*与“普通”嵌入式子流程一样，可以使用补偿抛出中间事件，在事务成功完成后补偿。</li>
+<li><strong>结束取消</strong>：若执行到达取消结束事件时，事务被<em>取消</em>。当取消边界事件触发时，首先会中断当前范围的所有活动执行。接下来，启动事务范围内所有有效的的补偿边界事件（compensation boundary event）。补偿会同步执行，也就是说在离开事务前，边界事件会等待补偿完成。当补偿完成时，使用取消边界事件的出口顺序流，离开事务子流程。</li>
+<li><strong>错误结束</strong>：若由于抛出了错误结束事件，且未被事务子流程所在的范围捕获，则事务会被<em>意外</em>终止（错误被事件子流程的边界捕获也一样）。在这种情况下，不会进行补偿。</li>
+</ul>
+<p>说明：学习事务子流程需要先对<strong>取消边界事件</strong>和<strong>取消结束事件</strong>的概念有一定的了解。（可以参考《边界事件》和《Activiti结束事件》这2篇教程）</p>
+<h2 id="1流程定义">1、流程定义</h2>
+<p>此处我们画一个流程图来模拟事务可能的3种结果：</p>
+<h3 id="11-流程定义">1.1 流程定义</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="cp">&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;definitions</span> <span class="na">xmlns=</span><span class="s">&#34;http://www.omg.org/spec/BPMN/20100524/MODEL&#34;</span> <span class="na">xmlns:xsi=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span> <span class="na">xmlns:xsd=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema&#34;</span> <span class="na">xmlns:activiti=</span><span class="s">&#34;http://activiti.org/bpmn&#34;</span> <span class="na">xmlns:bpmndi=</span><span class="s">&#34;http://www.omg.org/spec/BPMN/20100524/DI&#34;</span> <span class="na">xmlns:omgdc=</span><span class="s">&#34;http://www.omg.org/spec/DD/20100524/DC&#34;</span> <span class="na">xmlns:omgdi=</span><span class="s">&#34;http://www.omg.org/spec/DD/20100524/DI&#34;</span> <span class="na">typeLanguage=</span><span class="s">&#34;http://www.w3.org/2001/XMLSchema&#34;</span> <span class="na">expressionLanguage=</span><span class="s">&#34;http://www.w3.org/1999/XPath&#34;</span> <span class="na">targetNamespace=</span><span class="s">&#34;http://www.activiti.org/processdef&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;process</span> <span class="na">id=</span><span class="s">&#34;transactionSubProcess&#34;</span> <span class="na">isExecutable=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;startEvent</span> <span class="na">id=</span><span class="s">&#34;sid-F0F15ABD-37D9-4EAC-960B-9E099AFEBC6D&#34;</span><span class="nt">&gt;&lt;/startEvent&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;endEvent</span> <span class="na">id=</span><span class="s">&#34;sid-84E39C18-F341-4AE7-840E-213581EA1482&#34;</span><span class="nt">&gt;&lt;/endEvent&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;sid-588CFB0B-F353-4AD3-93B7-028E85CF20AF&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;sid-AC28574D-44AF-4650-BF00-9AB95E26B123&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;sid-84E39C18-F341-4AE7-840E-213581EA1482&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;endEvent</span> <span class="na">id=</span><span class="s">&#34;sid-614C6EFE-4E6D-4CD3-AB4D-E404CB716F13&#34;</span><span class="nt">&gt;&lt;/endEvent&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;sid-1190457B-AD79-42A1-AF82-D553997E2552&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;sid-C52F0179-A84E-4328-8996-69C01D3F372F&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;sid-614C6EFE-4E6D-4CD3-AB4D-E404CB716F13&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;endEvent</span> <span class="na">id=</span><span class="s">&#34;sid-DB9AC289-C0A7-4B15-A443-414784487BC6&#34;</span><span class="nt">&gt;&lt;/endEvent&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;sid-551B1C78-B4E1-4D45-9544-8D24117D7B91&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;sid-8A361F6E-ECF3-4EDF-AEB3-11E0C4FBC386&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;sid-DB9AC289-C0A7-4B15-A443-414784487BC6&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;transaction</span> <span class="na">id=</span><span class="s">&#34;sid-AC28574D-44AF-4650-BF00-9AB95E26B123&#34;</span> <span class="na">name=</span><span class="s">&#34;subProcess&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;startEvent</span> <span class="na">id=</span><span class="s">&#34;sid-46AEBDA5-3FEF-4EF8-8370-922D206FFC3D&#34;</span><span class="nt">&gt;&lt;/startEvent&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;serviceTask</span> <span class="na">id=</span><span class="s">&#34;sid-66402E45-A7AD-4C27-8CC3-156F0AA4CEE7&#34;</span> <span class="na">name=</span><span class="s">&#34;A打款&#34;</span> <span class="na">activiti:class=</span><span class="s">&#34;com.sxdx.workflow.activiti.rest.serviceTask.boundaryCompensationEvent.APaymentService&#34;</span><span class="nt">&gt;&lt;/serviceTask&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;serviceTask</span> <span class="na">id=</span><span class="s">&#34;sid-6E0604FC-8D7B-4F99-BE32-76EE9DE7905A&#34;</span> <span class="na">name=</span><span class="s">&#34;B收钱&#34;</span> <span class="na">activiti:class=</span><span class="s">&#34;com.sxdx.workflow.activiti.rest.serviceTask.boundaryCompensationEvent.BReceivePaymentService&#34;</span><span class="nt">&gt;&lt;/serviceTask&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;exclusiveGateway</span> <span class="na">id=</span><span class="s">&#34;sid-B0303DE4-1024-488D-82CD-78A4A1D2D336&#34;</span><span class="nt">&gt;&lt;/exclusiveGateway&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;endEvent</span> <span class="na">id=</span><span class="s">&#34;sid-6F8681D7-0158-460C-8929-DFB96AC5A217&#34;</span> <span class="na">name=</span><span class="s">&#34;错误结束&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;errorEventDefinition&gt;&lt;/errorEventDefinition&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/endEvent&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;endEvent</span> <span class="na">id=</span><span class="s">&#34;sid-57226B0E-783D-4FD4-87BB-C228F160AEAF&#34;</span> <span class="na">name=</span><span class="s">&#34;结束取消&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;cancelEventDefinition&gt;&lt;/cancelEventDefinition&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/endEvent&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;serviceTask</span> <span class="na">id=</span><span class="s">&#34;sid-A66E0771-CB55-4F3F-9D91-7FF0CE66FEE4&#34;</span> <span class="na">name=</span><span class="s">&#34;B收钱补偿&#34;</span> <span class="na">activiti:class=</span><span class="s">&#34;com.sxdx.workflow.activiti.rest.serviceTask.boundaryCompensationEvent.BMakeUpService&#34;</span> <span class="na">isForCompensation=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;&lt;/serviceTask&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;serviceTask</span> <span class="na">id=</span><span class="s">&#34;sid-18A68A51-A66F-4760-B610-A126D4EE9636&#34;</span> <span class="na">name=</span><span class="s">&#34;A打款补偿&#34;</span> <span class="na">activiti:class=</span><span class="s">&#34;com.sxdx.workflow.activiti.rest.serviceTask.boundaryCompensationEvent.AMakeUpService&#34;</span> <span class="na">isForCompensation=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;&lt;/serviceTask&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;endEvent</span> <span class="na">id=</span><span class="s">&#34;sid-D185BC86-F922-46B4-93C4-2D9C6559A57D&#34;</span> <span class="na">name=</span><span class="s">&#34;正常结束&#34;</span><span class="nt">&gt;&lt;/endEvent&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;userTask</span> <span class="na">id=</span><span class="s">&#34;sid-9F7131AC-5F2D-4B9B-ABE5-C1ED4DFCFA00&#34;</span> <span class="na">name=</span><span class="s">&#34;manage人工审批&#34;</span> <span class="na">activiti:candidateGroups=</span><span class="s">&#34;generalManager&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&lt;activiti:formProperty</span> <span class="na">id=</span><span class="s">&#34;pass&#34;</span> <span class="na">name=</span><span class="s">&#34;事务结果类型&#34;</span> <span class="na">type=</span><span class="s">&#34;string&#34;</span> <span class="na">required=</span><span class="s">&#34;true&#34;</span><span class="nt">&gt;&lt;/activiti:formProperty&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/extensionElements&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/userTask&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;boundaryEvent</span> <span class="na">id=</span><span class="s">&#34;sid-5F643838-FA37-41E9-8F1B-1FEDDAA15B45&#34;</span> <span class="na">attachedToRef=</span><span class="s">&#34;sid-66402E45-A7AD-4C27-8CC3-156F0AA4CEE7&#34;</span> <span class="na">cancelActivity=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;compensateEventDefinition&gt;&lt;/compensateEventDefinition&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/boundaryEvent&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;boundaryEvent</span> <span class="na">id=</span><span class="s">&#34;sid-5520B272-95AD-4301-AF1D-97FAF2A87E6F&#34;</span> <span class="na">attachedToRef=</span><span class="s">&#34;sid-6E0604FC-8D7B-4F99-BE32-76EE9DE7905A&#34;</span> <span class="na">cancelActivity=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;compensateEventDefinition&gt;&lt;/compensateEventDefinition&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/boundaryEvent&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;sid-3ED40954-C3F7-4360-BA68-BF1BD9FCDEB2&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;sid-46AEBDA5-3FEF-4EF8-8370-922D206FFC3D&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;sid-66402E45-A7AD-4C27-8CC3-156F0AA4CEE7&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;sid-1C0737B3-87B2-4C56-8A1F-D6EC2BB9A6C4&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;sid-66402E45-A7AD-4C27-8CC3-156F0AA4CEE7&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;sid-6E0604FC-8D7B-4F99-BE32-76EE9DE7905A&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;sid-EADDE25C-040A-4639-880E-79DA6E48EDA1&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;sid-6E0604FC-8D7B-4F99-BE32-76EE9DE7905A&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;sid-9F7131AC-5F2D-4B9B-ABE5-C1ED4DFCFA00&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;sid-B7138C91-6ED6-4A79-9F16-0C3EA187AD3F&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;sid-9F7131AC-5F2D-4B9B-ABE5-C1ED4DFCFA00&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;sid-B0303DE4-1024-488D-82CD-78A4A1D2D336&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;sid-B701E023-89C8-481F-96AF-68D62E040712&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;sid-B0303DE4-1024-488D-82CD-78A4A1D2D336&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;sid-57226B0E-783D-4FD4-87BB-C228F160AEAF&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;conditionExpression</span> <span class="na">xsi:type=</span><span class="s">&#34;tFormalExpression&#34;</span><span class="nt">&gt;</span><span class="cp">&lt;![CDATA[${pass == &#39;canel&#39;}]]&gt;</span><span class="nt">&lt;/conditionExpression&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;sid-4A05D4AC-C06F-4EBD-B371-67034FBC7F55&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;sid-B0303DE4-1024-488D-82CD-78A4A1D2D336&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;sid-D185BC86-F922-46B4-93C4-2D9C6559A57D&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;conditionExpression</span> <span class="na">xsi:type=</span><span class="s">&#34;tFormalExpression&#34;</span><span class="nt">&gt;</span><span class="cp">&lt;![CDATA[${pass == &#39;success&#39;}]]&gt;</span><span class="nt">&lt;/conditionExpression&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;sid-6525CF68-D40A-461E-80C1-E19DBA86FFB1&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;sid-B0303DE4-1024-488D-82CD-78A4A1D2D336&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;sid-6F8681D7-0158-460C-8929-DFB96AC5A217&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;conditionExpression</span> <span class="na">xsi:type=</span><span class="s">&#34;tFormalExpression&#34;</span><span class="nt">&gt;</span><span class="cp">&lt;![CDATA[${pass == &#39;error&#39;}]]&gt;</span><span class="nt">&lt;/conditionExpression&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/transaction&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;sequenceFlow</span> <span class="na">id=</span><span class="s">&#34;sid-CE5E3449-209C-4FA4-B623-84CE1E4D5B58&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;sid-F0F15ABD-37D9-4EAC-960B-9E099AFEBC6D&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;sid-AC28574D-44AF-4650-BF00-9AB95E26B123&#34;</span><span class="nt">&gt;&lt;/sequenceFlow&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;boundaryEvent</span> <span class="na">id=</span><span class="s">&#34;sid-C52F0179-A84E-4328-8996-69C01D3F372F&#34;</span> <span class="na">name=</span><span class="s">&#34;边界取消&#34;</span> <span class="na">attachedToRef=</span><span class="s">&#34;sid-AC28574D-44AF-4650-BF00-9AB95E26B123&#34;</span> <span class="na">cancelActivity=</span><span class="s">&#34;false&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;cancelEventDefinition&gt;&lt;/cancelEventDefinition&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/boundaryEvent&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;boundaryEvent</span> <span class="na">id=</span><span class="s">&#34;sid-8A361F6E-ECF3-4EDF-AEB3-11E0C4FBC386&#34;</span> <span class="na">name=</span><span class="s">&#34;边界错误&#34;</span> <span class="na">attachedToRef=</span><span class="s">&#34;sid-AC28574D-44AF-4650-BF00-9AB95E26B123&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;errorEventDefinition&gt;&lt;/errorEventDefinition&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/boundaryEvent&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;association</span> <span class="na">id=</span><span class="s">&#34;sid-7F11E687-8C92-4A8E-8E0A-167DAA300427&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;sid-5F643838-FA37-41E9-8F1B-1FEDDAA15B45&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;sid-18A68A51-A66F-4760-B610-A126D4EE9636&#34;</span> <span class="na">associationDirection=</span><span class="s">&#34;None&#34;</span><span class="nt">&gt;&lt;/association&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;association</span> <span class="na">id=</span><span class="s">&#34;sid-A1FEA0B1-45D5-4FF9-A470-89C75F7C2E51&#34;</span> <span class="na">sourceRef=</span><span class="s">&#34;sid-5520B272-95AD-4301-AF1D-97FAF2A87E6F&#34;</span> <span class="na">targetRef=</span><span class="s">&#34;sid-A66E0771-CB55-4F3F-9D91-7FF0CE66FEE4&#34;</span> <span class="na">associationDirection=</span><span class="s">&#34;None&#34;</span><span class="nt">&gt;&lt;/association&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;/process&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;bpmndi:BPMNDiagram</span> <span class="na">id=</span><span class="s">&#34;BPMNDiagram_transactionSubProcess&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;bpmndi:BPMNPlane</span> <span class="na">bpmnElement=</span><span class="s">&#34;transactionSubProcess&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNPlane_transactionSubProcess&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-F0F15ABD-37D9-4EAC-960B-9E099AFEBC6D&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_sid-F0F15ABD-37D9-4EAC-960B-9E099AFEBC6D&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;30.0&#34;</span> <span class="na">width=</span><span class="s">&#34;30.0&#34;</span> <span class="na">x=</span><span class="s">&#34;120.0&#34;</span> <span class="na">y=</span><span class="s">&#34;185.5&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-84E39C18-F341-4AE7-840E-213581EA1482&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_sid-84E39C18-F341-4AE7-840E-213581EA1482&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;28.0&#34;</span> <span class="na">width=</span><span class="s">&#34;28.0&#34;</span> <span class="na">x=</span><span class="s">&#34;975.0&#34;</span> <span class="na">y=</span><span class="s">&#34;186.5&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-614C6EFE-4E6D-4CD3-AB4D-E404CB716F13&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_sid-614C6EFE-4E6D-4CD3-AB4D-E404CB716F13&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;28.0&#34;</span> <span class="na">width=</span><span class="s">&#34;28.0&#34;</span> <span class="na">x=</span><span class="s">&#34;666.0985362601482&#34;</span> <span class="na">y=</span><span class="s">&#34;450.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-DB9AC289-C0A7-4B15-A443-414784487BC6&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_sid-DB9AC289-C0A7-4B15-A443-414784487BC6&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;28.0&#34;</span> <span class="na">width=</span><span class="s">&#34;28.0&#34;</span> <span class="na">x=</span><span class="s">&#34;295.055896733921&#34;</span> <span class="na">y=</span><span class="s">&#34;450.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-AC28574D-44AF-4650-BF00-9AB95E26B123&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_sid-AC28574D-44AF-4650-BF00-9AB95E26B123&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;281.0&#34;</span> <span class="na">width=</span><span class="s">&#34;701.9999999999999&#34;</span> <span class="na">x=</span><span class="s">&#34;210.0&#34;</span> <span class="na">y=</span><span class="s">&#34;60.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-46AEBDA5-3FEF-4EF8-8370-922D206FFC3D&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_sid-46AEBDA5-3FEF-4EF8-8370-922D206FFC3D&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;30.0&#34;</span> <span class="na">width=</span><span class="s">&#34;30.0&#34;</span> <span class="na">x=</span><span class="s">&#34;249.0&#34;</span> <span class="na">y=</span><span class="s">&#34;115.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-66402E45-A7AD-4C27-8CC3-156F0AA4CEE7&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_sid-66402E45-A7AD-4C27-8CC3-156F0AA4CEE7&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;80.0&#34;</span> <span class="na">width=</span><span class="s">&#34;100.0&#34;</span> <span class="na">x=</span><span class="s">&#34;321.0&#34;</span> <span class="na">y=</span><span class="s">&#34;90.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-6E0604FC-8D7B-4F99-BE32-76EE9DE7905A&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_sid-6E0604FC-8D7B-4F99-BE32-76EE9DE7905A&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;80.0&#34;</span> <span class="na">width=</span><span class="s">&#34;100.0&#34;</span> <span class="na">x=</span><span class="s">&#34;456.0&#34;</span> <span class="na">y=</span><span class="s">&#34;90.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-B0303DE4-1024-488D-82CD-78A4A1D2D336&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_sid-B0303DE4-1024-488D-82CD-78A4A1D2D336&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;40.0&#34;</span> <span class="na">width=</span><span class="s">&#34;40.0&#34;</span> <span class="na">x=</span><span class="s">&#34;726.0&#34;</span> <span class="na">y=</span><span class="s">&#34;110.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-6F8681D7-0158-460C-8929-DFB96AC5A217&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_sid-6F8681D7-0158-460C-8929-DFB96AC5A217&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;28.0&#34;</span> <span class="na">width=</span><span class="s">&#34;28.0&#34;</span> <span class="na">x=</span><span class="s">&#34;732.0&#34;</span> <span class="na">y=</span><span class="s">&#34;257.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-57226B0E-783D-4FD4-87BB-C228F160AEAF&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_sid-57226B0E-783D-4FD4-87BB-C228F160AEAF&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;28.0&#34;</span> <span class="na">width=</span><span class="s">&#34;28.0&#34;</span> <span class="na">x=</span><span class="s">&#34;861.0&#34;</span> <span class="na">y=</span><span class="s">&#34;116.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-A66E0771-CB55-4F3F-9D91-7FF0CE66FEE4&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_sid-A66E0771-CB55-4F3F-9D91-7FF0CE66FEE4&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;80.0&#34;</span> <span class="na">width=</span><span class="s">&#34;100.0&#34;</span> <span class="na">x=</span><span class="s">&#34;456.0&#34;</span> <span class="na">y=</span><span class="s">&#34;212.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-18A68A51-A66F-4760-B610-A126D4EE9636&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_sid-18A68A51-A66F-4760-B610-A126D4EE9636&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;80.0&#34;</span> <span class="na">width=</span><span class="s">&#34;100.0&#34;</span> <span class="na">x=</span><span class="s">&#34;321.0&#34;</span> <span class="na">y=</span><span class="s">&#34;212.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-D185BC86-F922-46B4-93C4-2D9C6559A57D&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_sid-D185BC86-F922-46B4-93C4-2D9C6559A57D&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;28.0&#34;</span> <span class="na">width=</span><span class="s">&#34;28.0&#34;</span> <span class="na">x=</span><span class="s">&#34;861.0&#34;</span> <span class="na">y=</span><span class="s">&#34;257.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-9F7131AC-5F2D-4B9B-ABE5-C1ED4DFCFA00&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_sid-9F7131AC-5F2D-4B9B-ABE5-C1ED4DFCFA00&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;80.0&#34;</span> <span class="na">width=</span><span class="s">&#34;100.0&#34;</span> <span class="na">x=</span><span class="s">&#34;591.0&#34;</span> <span class="na">y=</span><span class="s">&#34;90.0&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-5F643838-FA37-41E9-8F1B-1FEDDAA15B45&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_sid-5F643838-FA37-41E9-8F1B-1FEDDAA15B45&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;30.0&#34;</span> <span class="na">width=</span><span class="s">&#34;30.0&#34;</span> <span class="na">x=</span><span class="s">&#34;355.86614093745214&#34;</span> <span class="na">y=</span><span class="s">&#34;155.15526788131257&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-5520B272-95AD-4301-AF1D-97FAF2A87E6F&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_sid-5520B272-95AD-4301-AF1D-97FAF2A87E6F&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;30.0&#34;</span> <span class="na">width=</span><span class="s">&#34;30.0&#34;</span> <span class="na">x=</span><span class="s">&#34;488.25562276244625&#34;</span> <span class="na">y=</span><span class="s">&#34;155.51211766563023&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-7F11E687-8C92-4A8E-8E0A-167DAA300427&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_sid-7F11E687-8C92-4A8E-8E0A-167DAA300427&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;26.13412934073375&#34;</span> <span class="na">width=</span><span class="s">&#34;0.042743008175307295&#34;</span> <span class="na">x=</span><span class="s">&#34;370.8907834861153&#34;</span> <span class="na">y=</span><span class="s">&#34;185.2223298767445&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-A1FEA0B1-45D5-4FF9-A470-89C75F7C2E51&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_sid-A1FEA0B1-45D5-4FF9-A470-89C75F7C2E51&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;26.01259281959679&#34;</span> <span class="na">width=</span><span class="s">&#34;0.8760611465018542&#34;</span> <span class="na">x=</span><span class="s">&#34;503.7609718646044&#34;</span> <span class="na">y=</span><span class="s">&#34;185.51728080827144&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-C52F0179-A84E-4328-8996-69C01D3F372F&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_sid-C52F0179-A84E-4328-8996-69C01D3F372F&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;30.0&#34;</span> <span class="na">width=</span><span class="s">&#34;30.0&#34;</span> <span class="na">x=</span><span class="s">&#34;665.0985362601482&#34;</span> <span class="na">y=</span><span class="s">&#34;326.37475528756636&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNShape</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-8A361F6E-ECF3-4EDF-AEB3-11E0C4FBC386&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNShape_sid-8A361F6E-ECF3-4EDF-AEB3-11E0C4FBC386&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdc:Bounds</span> <span class="na">height=</span><span class="s">&#34;30.0&#34;</span> <span class="na">width=</span><span class="s">&#34;30.0&#34;</span> <span class="na">x=</span><span class="s">&#34;294.055896733921&#34;</span> <span class="na">y=</span><span class="s">&#34;326.09840244348015&#34;</span><span class="nt">&gt;&lt;/omgdc:Bounds&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNShape&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-CE5E3449-209C-4FA4-B623-84CE1E4D5B58&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_sid-CE5E3449-209C-4FA4-B623-84CE1E4D5B58&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;150.0&#34;</span> <span class="na">y=</span><span class="s">&#34;200.5&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;210.0&#34;</span> <span class="na">y=</span><span class="s">&#34;200.5&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-B7138C91-6ED6-4A79-9F16-0C3EA187AD3F&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_sid-B7138C91-6ED6-4A79-9F16-0C3EA187AD3F&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;691.0&#34;</span> <span class="na">y=</span><span class="s">&#34;130.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;726.0&#34;</span> <span class="na">y=</span><span class="s">&#34;130.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-1190457B-AD79-42A1-AF82-D553997E2552&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_sid-1190457B-AD79-42A1-AF82-D553997E2552&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;680.0985362601482&#34;</span> <span class="na">y=</span><span class="s">&#34;356.37475528756636&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;680.0985362601482&#34;</span> <span class="na">y=</span><span class="s">&#34;450.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-7F11E687-8C92-4A8E-8E0A-167DAA300427&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_sid-7F11E687-8C92-4A8E-8E0A-167DAA300427&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;370.8906737717685&#34;</span> <span class="na">y=</span><span class="s">&#34;185.15524781930048&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;370.93457902099124&#34;</span> <span class="na">y=</span><span class="s">&#34;212.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-B701E023-89C8-481F-96AF-68D62E040712&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_sid-B701E023-89C8-481F-96AF-68D62E040712&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;765.57421875&#34;</span> <span class="na">y=</span><span class="s">&#34;130.42578125&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;861.0001059807191&#34;</span> <span class="na">y=</span><span class="s">&#34;130.05447429579488&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-4A05D4AC-C06F-4EBD-B371-67034FBC7F55&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_sid-4A05D4AC-C06F-4EBD-B371-67034FBC7F55&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;755.5762081784386&#34;</span> <span class="na">y=</span><span class="s">&#34;140.42379182156134&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;865.5515148956283&#34;</span> <span class="na">y=</span><span class="s">&#34;260.6691660921072&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-6525CF68-D40A-461E-80C1-E19DBA86FFB1&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_sid-6525CF68-D40A-461E-80C1-E19DBA86FFB1&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;746.4321428571428&#34;</span> <span class="na">y=</span><span class="s">&#34;149.56785714285715&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;746.0498217485747&#34;</span> <span class="na">y=</span><span class="s">&#34;257.0000886505175&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-3ED40954-C3F7-4360-BA68-BF1BD9FCDEB2&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_sid-3ED40954-C3F7-4360-BA68-BF1BD9FCDEB2&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;279.0&#34;</span> <span class="na">y=</span><span class="s">&#34;130.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;321.0&#34;</span> <span class="na">y=</span><span class="s">&#34;130.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-A1FEA0B1-45D5-4FF9-A470-89C75F7C2E51&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_sid-A1FEA0B1-45D5-4FF9-A470-89C75F7C2E51&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;503.76051172925065&#34;</span> <span class="na">y=</span><span class="s">&#34;185.50361816195144&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;504.6528660905469&#34;</span> <span class="na">y=</span><span class="s">&#34;212.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-551B1C78-B4E1-4D45-9544-8D24117D7B91&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_sid-551B1C78-B4E1-4D45-9544-8D24117D7B91&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;309.055896733921&#34;</span> <span class="na">y=</span><span class="s">&#34;356.09840244348015&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;309.055896733921&#34;</span> <span class="na">y=</span><span class="s">&#34;450.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-EADDE25C-040A-4639-880E-79DA6E48EDA1&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_sid-EADDE25C-040A-4639-880E-79DA6E48EDA1&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;556.0&#34;</span> <span class="na">y=</span><span class="s">&#34;130.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;591.0&#34;</span> <span class="na">y=</span><span class="s">&#34;130.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-1C0737B3-87B2-4C56-8A1F-D6EC2BB9A6C4&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_sid-1C0737B3-87B2-4C56-8A1F-D6EC2BB9A6C4&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;421.0&#34;</span> <span class="na">y=</span><span class="s">&#34;130.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;456.0&#34;</span> <span class="na">y=</span><span class="s">&#34;130.0&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;bpmndi:BPMNEdge</span> <span class="na">bpmnElement=</span><span class="s">&#34;sid-588CFB0B-F353-4AD3-93B7-028E85CF20AF&#34;</span> <span class="na">id=</span><span class="s">&#34;BPMNEdge_sid-588CFB0B-F353-4AD3-93B7-028E85CF20AF&#34;</span><span class="nt">&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;911.9999999999999&#34;</span> <span class="na">y=</span><span class="s">&#34;200.5&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;omgdi:waypoint</span> <span class="na">x=</span><span class="s">&#34;975.0&#34;</span> <span class="na">y=</span><span class="s">&#34;200.5&#34;</span><span class="nt">&gt;&lt;/omgdi:waypoint&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&lt;/bpmndi:BPMNEdge&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/bpmndi:BPMNPlane&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&lt;/bpmndi:BPMNDiagram&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/definitions&gt;</span>
+</span></span></code></pre></div><h3 id="12-手动修改流程定义">1.2 手动修改流程定义</h3>
+<p><figure 
+	>
+	<a href="/images/activiti6-18/image-20200904172026079.png" >
+		<img src="/images/activiti6-18/image-20200904172026079.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200904172026079">
+	</a>
+	
+	<figcaption>image-20200904172026079</figcaption>
+	
+</figure></p>
+<p>图中的这2处需要导出bpmn文件后手动添加。然后再重新部署流程。</p>
+<p>其中4个Java Service任务的监听类，直接复用介绍<strong>边界补偿事件</strong>时创建的补偿类。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-18/image-20200904173851024.png" >
+		<img src="/images/activiti6-18/image-20200904173851024.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200904173851024">
+	</a>
+	
+	<figcaption>image-20200904173851024</figcaption>
+	
+</figure></p>
+<h3 id="13-结束取消">1.3 结束取消</h3>
+<p>我们在流程设计时设置当pass设置为canel时，便可以触发结束取消事件。我们先发起一个流程实例</p>
+<p><figure 
+	>
+	<a href="/../../../../../workspace/blog/gaoyipeng.github.io/source/images/activiti6-18/image-20200904164604644.png" >
+		<img src="/../../../../../workspace/blog/gaoyipeng.github.io/source/images/activiti6-18/image-20200904164604644.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200904164604644">
+	</a>
+	
+	<figcaption>image-20200904164604644</figcaption>
+	
+</figure></p>
+<p>此时查看流程图：（此处无法显示事务子流程的边框，先这样，后期再找找合适方法，如果哪位大佬有好的生成实时流程图的方法，请一定要教教我。）</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-18/image-20200904164803388.png" >
+		<img src="/images/activiti6-18/image-20200904164803388.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200904164803388">
+	</a>
+	
+	<figcaption>image-20200904164803388</figcaption>
+	
+</figure></p>
+<p>使用manager签收任务，并办理：</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-18/image-20200904165602593.png" >
+		<img src="/images/activiti6-18/image-20200904165602593.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200904165602593">
+	</a>
+	
+	<figcaption>image-20200904165602593</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-18/image-20200904165540164.png" >
+		<img src="/images/activiti6-18/image-20200904165540164.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200904165540164">
+	</a>
+	
+	<figcaption>image-20200904165540164</figcaption>
+	
+</figure></p>
+<p>控制台打印补偿信息如下</p>
+<pre tabindex="0"><code>B补偿~~~null
+A补偿~~~null
+</code></pre><p>可以看到流程通过了<strong>结束取消事件</strong>，并且触发了补偿。而且被边界取消事件捕获。符合预期。</p>
+<h3 id="14--错误结束">1.4  错误结束</h3>
+<p>我们来模拟错误结束的情景，发起一个新的流程，然后manager签收任务（和上面一样，不演示了），并审批（pass设置为error）。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-18/image-20200904170914005.png" >
+		<img src="/images/activiti6-18/image-20200904170914005.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200904170914005">
+	</a>
+	
+	<figcaption>image-20200904170914005</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-18/image-20200904171027159.png" >
+		<img src="/images/activiti6-18/image-20200904171027159.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200904171027159">
+	</a>
+	
+	<figcaption>image-20200904171027159</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-18/image-20200904171058872.png" >
+		<img src="/images/activiti6-18/image-20200904171058872.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200904171058872">
+	</a>
+	
+	<figcaption>image-20200904171058872</figcaption>
+	
+</figure></p>
+<p>可以看到流程通过了<strong>错误结束事件</strong>，但是并没有触发补偿。而且被边界错误事件捕获。符合预期。</p>
+<h3 id="15事务成功">1.5事务成功</h3>
+<p>我们来模拟错误结束的情景，发起一个新的流程，然后manager签收任务（和上面一样，不演示了），并审批（pass设置为success）。</p>
+<p><figure 
+	>
+	<a href="/images/activiti6-18/image-20200904171609700.png" >
+		<img src="/images/activiti6-18/image-20200904171609700.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200904171609700">
+	</a>
+	
+	<figcaption>image-20200904171609700</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/images/activiti6-18/image-20200904171636389.png" >
+		<img src="/images/activiti6-18/image-20200904171636389.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200904171636389">
+	</a>
+	
+	<figcaption>image-20200904171636389</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../../../../workspace/blog/gaoyipeng.github.io/source/images/activiti6-18/image-20200904171732803.png" >
+		<img src="/../../../../../workspace/blog/gaoyipeng.github.io/source/images/activiti6-18/image-20200904171732803.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20200904171732803">
+	</a>
+	
+	<figcaption>image-20200904171732803</figcaption>
+	
+</figure></p>
+<p>可以看到流程正常结束，符合预期。</p>
+<h2 id="2与acid事务的关系">2、与ACID事务的关系</h2>
+<p>要注意不要将BPMN事务子流程与技术（ACID）事务混淆。BPMN事务子流程不是划分技术事务范围的方法。BPMN事务与技术事务有如下区别：</p>
+<ul>
+<li>ACID事务技术上生存期短暂，而BPMN事务可以持续几小时，几天甚至几个月才完成。（考虑一个场景，事务包括的活动中有一个用户任务。通常人的 响应时间要比程序长。或者，在另一个场景下，BPMN事务可能等待某些业务事件发生，像是特定订单的填写完成。）这些操作通常要比更新数据库字段，或者使 用事务队列存储消息，花长得多的时间完成。</li>
+<li>因为不可能将业务活动的持续时间限定为技术事务的范围，一个BPMN事务通常会生成多个ACID事务。</li>
+<li>因为一个BPMN事务可以生成多个ACID事务，就不再使用ACID特性。只能使用补偿的方式来间接实现事务的一致性。</li>
+<li>BPMN业务事务也不使用传统方式回滚。因为它生成多个ACID事务，在BPMN事务取消时，部分ACID事务可能已经提交。这样它们没法回滚。</li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/activiti/">Activiti</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/activiti6%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%B3%BB%E7%BB%9F%E6%90%AD%E5%BB%BA%E6%95%99%E7%A8%8B/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti6工作流系统搭建教程</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti33-spring-security%E8%8E%B7%E5%8F%96%E5%BD%93%E5%89%8D%E6%93%8D%E4%BD%9C%E4%BA%BA%E4%BF%A1%E6%81%AF/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（33） Spring-Security获取当前操作人信息</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti34-%E4%BD%BF%E7%94%A8swagger%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（34） 使用Swagger生成静态接口文档</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti35-%E4%BD%BF%E7%94%A8swagger%E7%94%9F%E6%88%90%E9%9D%99%E6%80%81%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（35） 使用Swagger生成静态接口文档</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/activiti32-%E6%9B%BF%E6%8D%A2activiti%E7%94%A8%E6%88%B7%E5%92%8C%E7%94%A8%E6%88%B7%E7%BB%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Activiti（32） 替换Activiti用户和用户组</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#1流程定义">1、流程定义</a>
+      <ol>
+        <li><a href="#11-流程定义">1.1 流程定义</a></li>
+        <li><a href="#12-手动修改流程定义">1.2 手动修改流程定义</a></li>
+        <li><a href="#13-结束取消">1.3 结束取消</a></li>
+        <li><a href="#14--错误结束">1.4  错误结束</a></li>
+        <li><a href="#15事务成功">1.5事务成功</a></li>
+      </ol>
+    </li>
+    <li><a href="#2与acid事务的关系">2、与ACID事务的关系</a></li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

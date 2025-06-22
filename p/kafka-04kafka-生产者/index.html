@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='（Kafka-04）Kafka 生产者、生产者同步、异步发送消息、生产者分区、生产者数据可靠性、生产者数据去重、生产者数据有序性'><title>（Kafka-04）Kafka 生产者</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/kafka-04kafka-%E7%94%9F%E4%BA%A7%E8%80%85/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='（Kafka-04）Kafka 生产者'>
+<meta property='og:description' content='（Kafka-04）Kafka 生产者、生产者同步、异步发送消息、生产者分区、生产者数据可靠性、生产者数据去重、生产者数据有序性'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/kafka-04kafka-%E7%94%9F%E4%BA%A7%E8%80%85/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Kafka' /><meta property='article:published_time' content='2023-11-20T13:36:40&#43;00:00'/><meta property='article:modified_time' content='2023-11-20T13:36:40&#43;00:00'/>
+<meta name="twitter:title" content="（Kafka-04）Kafka 生产者">
+<meta name="twitter:description" content="（Kafka-04）Kafka 生产者、生产者同步、异步发送消息、生产者分区、生产者数据可靠性、生产者数据去重、生产者数据有序性">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/kafka/" >
+                Kafka
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/kafka-04kafka-%E7%94%9F%E4%BA%A7%E8%80%85/">（Kafka-04）Kafka 生产者</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        （Kafka-04）Kafka 生产者、生产者同步、异步发送消息、生产者分区、生产者数据可靠性、生产者数据去重、生产者数据有序性
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Nov 20, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 6 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <h2 id="一kafka-生产者">一、Kafka 生产者</h2>
+<h3 id="11-消息发送原理">1.1 消息发送原理</h3>
+<p>在消息发送的过程中，涉及到了两个线程：<strong>main 线程和 Sender 线程</strong>。在 main 线程中创建了一个<strong>双端队列 RecordAccumulator</strong>。main 线程将消息发送给 RecordAccumulator，Sender 线程不断从 RecordAccumulator 中拉取消息发送到 Kafka Broker。</p>
+<p><figure 
+	>
+	<a href="/../../images/04-kafka-04/image-20231121142454632.png" >
+		<img src="/../../images/04-kafka-04/image-20231121142454632.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231121142454632">
+	</a>
+	
+	<figcaption>image-20231121142454632</figcaption>
+	
+</figure></p>
+<h3 id="12-生产者重要参数">1.2 生产者重要参数</h3>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>bootstrap.servers</td>
+<td>生产者连接集群所需的 broker 地 址 清 单 。 例 如hadoop1:9092,hadoop2:9092,hadoop3:9092，可以设置 1 个或者多个，中间用逗号隔开。注意这里并非需要所有的 broker 地址，因为生产者从给定的 broker里查找到其他 broker 信息。</td>
+</tr>
+<tr>
+<td>key.serializer 和 value.serializer</td>
+<td>指定发送消息的 key 和 value 的序列化类型。一定要写全类名。</td>
+</tr>
+<tr>
+<td>buffer.memory</td>
+<td>RecordAccumulator 缓冲区总大小，默认 32m。</td>
+</tr>
+<tr>
+<td><strong>batch.size</strong></td>
+<td>缓冲区一批数据最大值，默认 16k。适当增加该值，可以提高吞吐量，但是如果该值设置太大，会导致数据传输延迟增加。</td>
+</tr>
+<tr>
+<td><strong>linger.ms</strong></td>
+<td>如果数据迟迟未达到 batch.size，sender 等待 linger.time之后就会发送数据。单位 ms，默认值是 0ms，表示没有延迟。<strong>生产环境建议该值大小为 5-100ms 之间。</strong></td>
+</tr>
+<tr>
+<td><strong>acks</strong></td>
+<td>0：生产者发送过来的数据，不需要等数据落盘应答。<!-- raw HTML omitted -->1：生产者发送过来的数据，Leader 收到数据后应答。<!-- raw HTML omitted -->-1（all）：生产者发送过来的数据，Leader和 isr 队列里面的所有节点收齐数据后应答。<!-- raw HTML omitted -->默认值是-1，-1 和all 是等价的。</td>
+</tr>
+<tr>
+<td>max.in.flight.requests.per.connection</td>
+<td>允许最多没有返回 ack 的次数，默认为 5，开启幂等性要保证该值是 1-5 的数字。</td>
+</tr>
+<tr>
+<td>retries</td>
+<td>当消息发送出现错误的时候，系统会重发消息。retries表示重试次数。默认是 int 最大值，2147483647。如果设置了重试，还想保证消息的有序性，需要设置max.in.flight.requests.per.connection=1否则在重试此失败消息的时候，其他的消息可能发送成功了。</td>
+</tr>
+<tr>
+<td>retry.backoff.ms</td>
+<td>两次重试之间的时间间隔，默认是 100ms。</td>
+</tr>
+<tr>
+<td>enable.idempotence</td>
+<td>是否开启幂等性，默认 true，开启幂等性。</td>
+</tr>
+<tr>
+<td>compression.type</td>
+<td>生产者发送的所有数据的压缩方式。默认是 none，也就是不压缩。支持压缩类型：none、gzip、snappy、lz4 和 zstd。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="13-生产者异步发送消息">1.3 生产者异步发送消息</h3>
+<p>生产者异步发送是指发送消息到Kafka集群时，并不需要等待服务器的响应，而是继续发送下一条消息，这样可以提高消息发送吞吐量。</p>
+<p>示例Java工程</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl">    <span class="nt">&lt;groupId&gt;</span>com.sxdx<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;artifactId&gt;</span>kafka-producer<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;version&gt;</span>1.0-SNAPSHOT<span class="nt">&lt;/version&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;dependencies&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;dependency&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;groupId&gt;</span>org.apache.kafka<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;artifactId&gt;</span>kafka-clients<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&lt;version&gt;</span>3.0.0<span class="nt">&lt;/version&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/dependency&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/dependencies&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;properties&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;project.build.sourceEncoding&gt;</span>UTF-8<span class="nt">&lt;/project.build.sourceEncoding&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&lt;/properties&gt;</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.kafka.producer</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.kafka.clients.producer.KafkaProducer</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.kafka.clients.producer.ProducerConfig</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.kafka.clients.producer.ProducerRecord</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.util.Properties</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">CustomProducer</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">InterruptedException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 1. 创建 kafka 生产者的配置对象
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">Properties</span> <span class="n">properties</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Properties</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">// 2. 给 kafka 配置对象添加配置信息：bootstrap.servers
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ProducerConfig</span><span class="o">.</span><span class="na">BOOTSTRAP_SERVERS_CONFIG</span><span class="o">,</span> <span class="s">&#34;hadoop1:9092,hadoop2:9092,hadoop3:9092&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">// 3、key,value 序列化（必须）：key.serializer，value.serializer
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ProducerConfig</span><span class="o">.</span><span class="na">KEY_SERIALIZER_CLASS_CONFIG</span><span class="o">,</span> <span class="s">&#34;org.apache.kafka.common.serialization.StringSerializer&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ProducerConfig</span><span class="o">.</span><span class="na">VALUE_SERIALIZER_CLASS_CONFIG</span><span class="o">,</span> <span class="s">&#34;org.apache.kafka.common.serialization.StringSerializer&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">// 4. 创建 kafka 生产者对象
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">KafkaProducer</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">kafkaProducer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">KafkaProducer</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;(</span><span class="n">properties</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">// 5、 调用 send 方法,发送消息
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">5</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">kafkaProducer</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="k">new</span> <span class="n">ProducerRecord</span><span class="o">(</span><span class="s">&#34;first&#34;</span><span class="o">,</span><span class="s">&#34;CustomProducer &#34;</span> <span class="o">+</span> <span class="n">i</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 6. 关闭资源
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">kafkaProducer</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>开启消费者后执行main程序，查看消费端，可以看到接收到消息了：</p>
+<p><figure 
+	>
+	<a href="/../../images/04-kafka-04/image-20231122142401536.png" >
+		<img src="/../../images/04-kafka-04/image-20231122142401536.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231122142401536">
+	</a>
+	
+	<figcaption>image-20231122142401536</figcaption>
+	
+</figure></p>
+<h3 id="14-生产者回调异步发送消息">1.4 生产者回调异步发送消息</h3>
+<p>producer 收到Kafka集群 ack 回应时会触发回调函数，这就是回调异步发送，该方法有两个参数，分别是元数据信息（RecordMetadata）和异常信息（Exception），如果 Exception 为 null，说明消息发送成功，如果 Exception 不为 null，说明消息发送失败。</p>
+<p><strong>注意：消息发送失败会自动重试，不需要我们在回调函数中手动重试。</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.kafka.producer</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.kafka.clients.producer.*</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.kafka.common.serialization.StringSerializer</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.util.Properties</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">CustomProducerCallback</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">InterruptedException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 1. 创建 kafka 生产者的配置对象
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">Properties</span> <span class="n">properties</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Properties</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 2. 给 kafka 配置对象添加配置信息
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ProducerConfig</span><span class="o">.</span><span class="na">BOOTSTRAP_SERVERS_CONFIG</span><span class="o">,</span><span class="s">&#34;hadoop1:9092,hadoop2:9092,hadoop3:9092&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">// key,value 序列化（必须）：key.serializer，value.serializer
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ProducerConfig</span><span class="o">.</span><span class="na">KEY_SERIALIZER_CLASS_CONFIG</span><span class="o">,</span> <span class="n">StringSerializer</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ProducerConfig</span><span class="o">.</span><span class="na">VALUE_SERIALIZER_CLASS_CONFIG</span><span class="o">,</span><span class="n">StringSerializer</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 3. 创建 kafka 生产者对象
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">KafkaProducer</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">kafkaProducer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">KafkaProducer</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;(</span><span class="n">properties</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 4. 调用 send 方法,发送消息
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">5</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// 添加回调
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">kafkaProducer</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="k">new</span> <span class="n">ProducerRecord</span><span class="o">(</span><span class="s">&#34;first&#34;</span><span class="o">,</span><span class="s">&#34;CustomProducerCallback &#34;</span> <span class="o">+</span> <span class="n">i</span><span class="o">),</span> <span class="k">new</span> <span class="n">Callback</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="c1">// 该方法在 Producer 收到 ack 时调用，为异步调用
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">                <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onCompletion</span><span class="o">(</span><span class="n">RecordMetadata</span> <span class="n">metadata</span><span class="o">,</span> <span class="n">Exception</span> <span class="n">exception</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="k">if</span> <span class="o">(</span><span class="n">exception</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                        <span class="c1">// 没有异常,输出信息到控制台
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34; 主题： &#34;</span> <span class="o">+</span> <span class="n">metadata</span><span class="o">.</span><span class="na">topic</span><span class="o">()</span> <span class="o">+</span> <span class="s">&#34;-&gt;&#34;</span> <span class="o">+</span> <span class="s">&#34;分区：&#34;</span> <span class="o">+</span> <span class="n">metadata</span><span class="o">.</span><span class="na">partition</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">                    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                        <span class="c1">// 出现异常打印
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                        <span class="n">exception</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">                    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">                <span class="o">}</span>
+</span></span><span class="line"><span class="cl">            <span class="o">});</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// 延迟一会会看到数据发往不同分区
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">Thread</span><span class="o">.</span><span class="na">sleep</span><span class="o">(</span><span class="n">2</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 5. 关闭资源
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">kafkaProducer</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>开启消费者后执行main程序<figure 
+	>
+	<a href="/../../images/04-kafka-04/image-20231122143532607.png" >
+		<img src="/../../images/04-kafka-04/image-20231122143532607.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231122143532607">
+	</a>
+	
+	<figcaption>image-20231122143532607</figcaption>
+	
+</figure></p>
+<p><figure 
+	>
+	<a href="/../../images/04-kafka-04/image-20231122143554608.png" >
+		<img src="/../../images/04-kafka-04/image-20231122143554608.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231122143554608">
+	</a>
+	
+	<figcaption>image-20231122143554608</figcaption>
+	
+</figure></p>
+<p>可以看到消息和回调打印。</p>
+<h3 id="15-生产者同步发送消息">1.5 生产者同步发送消息</h3>
+<p>​		生产者同步发送是指发送消息到Kafka集群时，需要等待服务器的响应，只有接到响应才会继续发送下一条消息。这种方式确保了消息的可靠些和顺序性，但是会导致发送效率降低。</p>
+<p>​		只需在异步发送的基础上，再调用一下 get()方法即可。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.kafka.producer</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.kafka.clients.producer.KafkaProducer</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.kafka.clients.producer.ProducerConfig</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.kafka.clients.producer.ProducerRecord</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.kafka.common.serialization.StringSerializer</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.util.Properties</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.util.concurrent.ExecutionException</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">CustomProducerSync</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">InterruptedException</span><span class="o">,</span> <span class="n">ExecutionException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 1. 创建 kafka 生产者的配置对象
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">Properties</span> <span class="n">properties</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Properties</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 2. 给 kafka 配置对象添加配置信息
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ProducerConfig</span><span class="o">.</span><span class="na">BOOTSTRAP_SERVERS_CONFIG</span><span class="o">,</span><span class="s">&#34;hadoop1:9092,hadoop2:9092,hadoop3:9092&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// key,value 序列化（必须）：key.serializer，value.serializer
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ProducerConfig</span><span class="o">.</span><span class="na">KEY_SERIALIZER_CLASS_CONFIG</span><span class="o">,</span> <span class="n">StringSerializer</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ProducerConfig</span><span class="o">.</span><span class="na">VALUE_SERIALIZER_CLASS_CONFIG</span><span class="o">,</span> <span class="n">StringSerializer</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 3. 创建 kafka 生产者对象
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">KafkaProducer</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">kafkaProducer</span> <span class="o">=</span> <span class="k">new</span>  <span class="n">KafkaProducer</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;(</span><span class="n">properties</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 4. 调用 send 方法,发送消息
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">10</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// 同步发送，在异步发送的基础上添加.get()
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">kafkaProducer</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="k">new</span> <span class="n">ProducerRecord</span><span class="o">(</span><span class="s">&#34;first&#34;</span><span class="o">,</span><span class="s">&#34;CustomProducerSync&#34;</span> <span class="o">+</span> <span class="n">i</span><span class="o">)).</span><span class="na">get</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 5. 关闭资源
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">kafkaProducer</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>开启消费者后执行main程序：</p>
+<p><figure 
+	>
+	<a href="/../../images/04-kafka-04/image-20231122144453074.png" >
+		<img src="/../../images/04-kafka-04/image-20231122144453074.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231122144453074">
+	</a>
+	
+	<figcaption>image-20231122144453074</figcaption>
+	
+</figure></p>
+<h2 id="二kafka生产者分区">二、Kafka生产者分区</h2>
+<p><figure 
+	>
+	<a href="/../../images/04-kafka-04/image-20231122143554608.png" >
+		<img src="/../../images/04-kafka-04/image-20231122143554608.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231122143554608">
+	</a>
+	
+	<figcaption>image-20231122143554608</figcaption>
+	
+</figure></p>
+<p>我们上面可以看到，消息存储时是分布在不同的分区的。分区具体以下好处：</p>
+<p>（1）<strong>便于合理使用存储资源</strong>，每个Partition在一个Broker上存储，可以把海量的数据按照分区切割成一块一块数据存储在多台Broker上。合理控制分区的任务，可以实现负载均衡的效果。</p>
+<p>（2）<strong>提高并行度</strong>，生产者可以以分区为单位发送数据；消费者可以以分区为单位进行消费数据。</p>
+<h3 id="21--默认的分区器-defaultpartitioner">2.1  默认的分区器 DefaultPartitioner</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">* The default partitioning strategy:
+</span></span></span><span class="line"><span class="cl"><span class="cm">* &lt;ul&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm">* &lt;li&gt;If a partition is specified in the record, use it
+</span></span></span><span class="line"><span class="cl"><span class="cm">* &lt;li&gt;If no partition is specified but a key is present choose a partition based on a hash of the key
+</span></span></span><span class="line"><span class="cl"><span class="cm">* &lt;li&gt;If no partition or key is present choose the sticky partition that changes when the batch is full.
+</span></span></span><span class="line"><span class="cl"><span class="cm">*/</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">DefaultPartitioner</span> <span class="kd">implements</span> <span class="n">Partitioner</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl"> <span class="err">…</span> <span class="err">…</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>（1）指明partition的情况下，直接将指明的值作为partition值；例如partition=0，所有数据写入分区0。</p>
+<p>（2）没有指明partition值但有key的情况下，将key的hash值与topic的partition数进行取余得到partition值；例如：key1的hash值=5， key2的hash值=6 ，topic的partition数=2，那么key1 对应的value1写入1号分区，key2对应的value2写入0号分区。</p>
+<p>（3）既没有partition值又没有key值的情况下，Kafka采用Sticky Partition（黏性分区器），会随机选择一个分区，并尽可能一直使用该分区，待该分区的batch已满或者已完成，Kafka再随机一个分区进行使用（和上一次的分区不同）。例如：第一次随机选择0号分区，等0号分区当前批次满了（默认16k）或者linger.ms设置的时间到，Kafka再随机一个分区进行使用（如果还是0会继续随机）。</p>
+<p>对应以下方法：</p>
+<p><figure 
+	>
+	<a href="/../../images/04-kafka-04/image-20231122163253870.png" >
+		<img src="/../../images/04-kafka-04/image-20231122163253870.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231122163253870">
+	</a>
+	
+	<figcaption>image-20231122163253870</figcaption>
+	
+</figure></p>
+<p>示例1：将数据发往指定 partition =1的分区</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">// 指定数据发送到 1 号分区，key 为空
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">kafkaProducer</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="k">new</span> <span class="n">ProducerRecord</span><span class="o">&lt;&gt;(</span><span class="s">&#34;first&#34;</span><span class="o">,</span> <span class="n">1</span><span class="o">,</span><span class="s">&#34;&#34;</span><span class="o">,</span><span class="s">&#34;消息内容&#34;</span><span class="o">));</span>
+</span></span></code></pre></div><p>示例2：没有指明 partition 值但有 key 的情况下，将 key 的 hash 值与 topic 的 partition 数进行取余得到 partition 值。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">kafkaProducer</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="k">new</span> <span class="n">ProducerRecord</span><span class="o">&lt;&gt;(</span><span class="s">&#34;first&#34;</span><span class="o">,</span> <span class="s">&#34;a&#34;</span><span class="o">,</span><span class="s">&#34;消息内容&#34;</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl"><span class="n">kafkaProducer</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="k">new</span> <span class="n">ProducerRecord</span><span class="o">&lt;&gt;(</span><span class="s">&#34;first&#34;</span><span class="o">,</span> <span class="s">&#34;b&#34;</span><span class="o">,</span><span class="s">&#34;消息内容&#34;</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl"><span class="n">kafkaProducer</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="k">new</span> <span class="n">ProducerRecord</span><span class="o">&lt;&gt;(</span><span class="s">&#34;first&#34;</span><span class="o">,</span> <span class="s">&#34;c&#34;</span><span class="o">,</span><span class="s">&#34;消息内容&#34;</span><span class="o">));</span>
+</span></span></code></pre></div><p>不同的key(a,b,c),消息将发往不同的分区。</p>
+<h3 id="22--自定义分区器">2.2  自定义分区器</h3>
+<p>需求：实现一个分区器实现，发送过来的数据中如果包含 ppn，就发往 0 号分区，不包含 ppn，就发往 1 号分区。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.kafka.partition</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.kafka.clients.producer.Partitioner</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.kafka.common.Cluster</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.util.Map</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * 1. 实现接口 Partitioner
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * 2. 实现 3 个方法:partition,close,configure
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * 3. 编写 partition 方法,返回分区号
+</span></span></span><span class="line"><span class="cl"><span class="cm"> */</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyPartitioner</span> <span class="kd">implements</span> <span class="n">Partitioner</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/** 返回信息对应的分区
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param topic 主题
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param key 消息的 key
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param keyBytes 消息的 key 序列化后的字节数组
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param value 消息的 value
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param valueBytes 消息的 value 序列化后的字节数组
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param cluster 集群元数据可以查看分区信息
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @return
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">partition</span><span class="o">(</span><span class="n">String</span> <span class="n">topic</span><span class="o">,</span> <span class="n">Object</span> <span class="n">key</span><span class="o">,</span> <span class="kt">byte</span><span class="o">[]</span> <span class="n">keyBytes</span><span class="o">,</span> <span class="n">Object</span> <span class="n">value</span><span class="o">,</span> <span class="kt">byte</span><span class="o">[]</span> <span class="n">valueBytes</span><span class="o">,</span> <span class="n">Cluster</span> <span class="n">cluster</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 获取消息
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">String</span> <span class="n">msgValue</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="na">toString</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 创建 partition
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="kt">int</span> <span class="n">partition</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 判断消息是否包含 ppn
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">if</span> <span class="o">(</span><span class="n">msgValue</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="s">&#34;ppn&#34;</span><span class="o">)){</span>
+</span></span><span class="line"><span class="cl">            <span class="n">partition</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span><span class="k">else</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">partition</span> <span class="o">=</span> <span class="n">1</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 返回分区号
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">return</span> <span class="n">partition</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">close</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">configure</span><span class="o">(</span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="o">?&gt;</span> <span class="n">map</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>在CustomProducerCallback类中添加分区器参数,消息中包含ppn。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">// 添加自定义分区器
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ProducerConfig</span><span class="o">.</span><span class="na">PARTITIONER_CLASS_CONFIG</span><span class="o">,</span><span class="s">&#34;com.sxdx.kafka.partition.MyPartitioner&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 4. 调用 send 方法,发送消息
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">5</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// 添加回调
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">kafkaProducer</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="k">new</span> <span class="n">ProducerRecord</span><span class="o">(</span><span class="s">&#34;first&#34;</span><span class="o">,</span><span class="s">&#34;CustomProducerCallback_ppn &#34;</span> <span class="o">+</span> <span class="n">i</span><span class="o">),</span> <span class="k">new</span> <span class="n">Callback</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 该方法在 Producer 收到 ack 时调用，为异步调用
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onCompletion</span><span class="o">(</span><span class="n">RecordMetadata</span> <span class="n">metadata</span><span class="o">,</span> <span class="n">Exception</span> <span class="n">exception</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="o">(</span><span class="n">exception</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="c1">// 没有异常,输出信息到控制台
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34; 主题： &#34;</span> <span class="o">+</span> <span class="n">metadata</span><span class="o">.</span><span class="na">topic</span><span class="o">()</span> <span class="o">+</span> <span class="s">&#34;-&gt;&#34;</span> <span class="o">+</span> <span class="s">&#34;分区：&#34;</span> <span class="o">+</span> <span class="n">metadata</span><span class="o">.</span><span class="na">partition</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="c1">// 出现异常打印
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="n">exception</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">});</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// 延迟一会会看到数据发往不同分区
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">Thread</span><span class="o">.</span><span class="na">sleep</span><span class="o">(</span><span class="n">2</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/04-kafka-04/image-20231122172603322.png" >
+		<img src="/../../images/04-kafka-04/image-20231122172603322.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231122172603322">
+	</a>
+	
+	<figcaption>image-20231122172603322</figcaption>
+	
+</figure></p>
+<p>在CustomProducerCallback类中添加分区器参数,消息中不包含ppn。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">// 添加自定义分区器
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ProducerConfig</span><span class="o">.</span><span class="na">PARTITIONER_CLASS_CONFIG</span><span class="o">,</span><span class="s">&#34;com.sxdx.kafka.partition.MyPartitioner&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 4. 调用 send 方法,发送消息
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">5</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// 添加回调
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">kafkaProducer</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="k">new</span> <span class="n">ProducerRecord</span><span class="o">(</span><span class="s">&#34;first&#34;</span><span class="o">,</span><span class="s">&#34;CustomProducerCallback_fans &#34;</span> <span class="o">+</span> <span class="n">i</span><span class="o">),</span> <span class="k">new</span> <span class="n">Callback</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 该方法在 Producer 收到 ack 时调用，为异步调用
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onCompletion</span><span class="o">(</span><span class="n">RecordMetadata</span> <span class="n">metadata</span><span class="o">,</span> <span class="n">Exception</span> <span class="n">exception</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="o">(</span><span class="n">exception</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="c1">// 没有异常,输出信息到控制台
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34; 主题： &#34;</span> <span class="o">+</span> <span class="n">metadata</span><span class="o">.</span><span class="na">topic</span><span class="o">()</span> <span class="o">+</span> <span class="s">&#34;-&gt;&#34;</span> <span class="o">+</span> <span class="s">&#34;分区：&#34;</span> <span class="o">+</span> <span class="n">metadata</span><span class="o">.</span><span class="na">partition</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="c1">// 出现异常打印
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="n">exception</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">});</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// 延迟一会会看到数据发往不同分区
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">Thread</span><span class="o">.</span><span class="na">sleep</span><span class="o">(</span><span class="n">2</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p><figure 
+	>
+	<a href="/../../images/04-kafka-04/image-20231122172704452.png" >
+		<img src="/../../images/04-kafka-04/image-20231122172704452.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231122172704452">
+	</a>
+	
+	<figcaption>image-20231122172704452</figcaption>
+	
+</figure></p>
+<h2 id="三生产者吞吐量配置">三、生产者吞吐量配置</h2>
+<p>如何提高kafka生产者吞吐量。可以通过以下参数：</p>
+<ul>
+<li>batch.size：批次大小，默认16k</li>
+<li>linger.ms：等待时间，修改为5-100ms</li>
+<li>compression.type：压缩snappy</li>
+<li>RecordAccumulator：缓冲区大小，默认32M，修改为64m</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">// batch.size：批次大小，默认 16K
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ProducerConfig</span><span class="o">.</span><span class="na">BATCH_SIZE_CONFIG</span><span class="o">,</span> <span class="n">16384</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// linger.ms：等待时间，默认 0
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ProducerConfig</span><span class="o">.</span><span class="na">LINGER_MS_CONFIG</span><span class="o">,</span> <span class="n">1</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"> 
+</span></span><span class="line"><span class="cl"><span class="c1">// RecordAccumulator：缓冲区大小，默认 32M：buffer.memory
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ProducerConfig</span><span class="o">.</span><span class="na">BUFFER_MEMORY_CONFIG</span><span class="o">,</span><span class="n">33554432</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"> 
+</span></span><span class="line"><span class="cl"><span class="c1">// compression.type：压缩，默认 none，可配置值 gzip、snappy、
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ProducerConfig</span><span class="o">.</span><span class="na">COMPRESSION_TYPE_CONFIG</span><span class="o">,</span><span class="s">&#34;snappy&#34;</span><span class="o">);</span>
+</span></span></code></pre></div><h2 id="四生产者数据可靠性ack应答级别">四、生产者数据可靠性(ACK应答级别)</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">// 设置 acks
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ProducerConfig</span><span class="o">.</span><span class="na">ACKS_CONFIG</span><span class="o">,</span> <span class="s">&#34;all&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"> <span class="c1">// 重试次数 retries，默认是 int 最大值，2147483647
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span> <span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ProducerConfig</span><span class="o">.</span><span class="na">RETRIES_CONFIG</span><span class="o">,</span> <span class="n">3</span><span class="o">);</span>
+</span></span></code></pre></div><p>（1）acks=0，生产者发送过来数据就不管了，可靠性差，效率高；</p>
+<p><figure 
+	>
+	<a href="/../../images/04-kafka-04/image-20231123091114847.png" >
+		<img src="/../../images/04-kafka-04/image-20231123091114847.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231123091114847">
+	</a>
+	
+	<figcaption>image-20231123091114847</figcaption>
+	
+</figure></p>
+<p>（2）acks=1，生产者发送过来数据Leader应答，可靠性中等，效率中等；</p>
+<p><figure 
+	>
+	<a href="/../../images/04-kafka-04/image-20231123091126447.png" >
+		<img src="/../../images/04-kafka-04/image-20231123091126447.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231123091126447">
+	</a>
+	
+	<figcaption>image-20231123091126447</figcaption>
+	
+</figure></p>
+<p>（3）acks=-1，生产者发送过来数据Leader和ISR队列里面所有Follwer应答，可靠性高，效率低；</p>
+<p><figure 
+	>
+	<a href="/../../images/04-kafka-04/image-20231123091700304.png" >
+		<img src="/../../images/04-kafka-04/image-20231123091700304.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231123091700304">
+	</a>
+	
+	<figcaption>image-20231123091700304</figcaption>
+	
+</figure></p>
+<p>​		如果acks=-1，Leader收到数据，所有Follower都开始同步数据，但有一个Follower，因为某种故障，迟迟不能与Leader进行同步，那这个问题怎么解决呢？</p>
+<p>​		Kafka Leader维护了一个动态的in-sync replica set（ISR），意为和Leader保持同步的Follower+Leader集合(leader：0，isr:0,1,2)。如果Follower长时间未向Leader发送通信请求或同步数据，则该Follower将被踢出ISR。该时间阈值由<strong>replica.lag.time.max.ms</strong>参数设定，默认30s。例如2超时，30秒后就会将2剔除，变为 (leader:0, isr:0,1)。这样就不用等长期联系不上或者已经故障的节点。</p>
+<p>​		<strong>如果分区副本设置为1个，或者ISR里应答的最小副本数量（ min.insync.replicas 默认为1）设置为1，和ack=1的效果是一样的，仍然有丢数的风险（leader：0，isr:0）。<strong>所以如果acks=-1，此时应该将</strong>min.insync.replicas</strong>设置为大于1。但是要注意min.insync.replicas的值不能大于ISR，否则将消息是不可能发生成功的。</p>
+<p>​		<strong>数据完全可靠条件 = ACK级别设置为-1 + 分区副本大于等于2 + ISR里应答的最小副本数量大于等于2</strong></p>
+<p>**总结：**在生产环境中，acks=0很少使用；acks=1，一般用于传输普通日志，允许丢个别数据；acks=-1，一般用于传输和钱相关的数据，对可靠性要求比较高的场景。</p>
+<h2 id="五生产者数据去重">五、生产者数据去重</h2>
+<p><figure 
+	>
+	<a href="/../../images/04-kafka-04/image-20231123094333429.png" >
+		<img src="/../../images/04-kafka-04/image-20231123094333429.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231123094333429">
+	</a>
+	
+	<figcaption>image-20231123094333429</figcaption>
+	
+</figure></p>
+<p>​		如果acks= -1，如果副本已同步,但leader故障，导致无法应答，此时会选举一个新的leader，再次重试进行数据传输，就会造成数据重复。</p>
+<h3 id="51--幂等性">5.1  幂等性</h3>
+<p><strong>幂等性</strong>就是指Producer不论向Broker发送多少次重复数据，Broker端都只会持久化一条，保证了不重复。</p>
+<p><strong>重复数据的判断标准</strong>：具有&lt;PID, Partition, SeqNumber&gt;相同主键的消息提交时，Broker只会持久化一条。其中PID是Kafka每次重启都会分配一个新的；Partition 表示分区号；Sequence Number是单调自增的。<strong>所以幂等性只能保证的是在单分区单会话内不重复。</strong></p>
+<p>对应参数： <strong>enable.idempotence</strong> 默认开启，为 true。</p>
+<h3 id="52-生产者事务">5.2 生产者事务</h3>
+<p><figure 
+	>
+	<a href="/../../images/04-kafka-04/image-20231123101523504.png" >
+		<img src="/../../images/04-kafka-04/image-20231123101523504.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231123101523504">
+	</a>
+	
+	<figcaption>image-20231123101523504</figcaption>
+	
+</figure></p>
+<p>Kafka 的事务一共有如下5个API</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">// 1 初始化事务
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">void</span> <span class="nf">initTransactions</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// 2 开启事务
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">void</span> <span class="nf">beginTransaction</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">ProducerFencedException</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// 3 在事务内提交已经消费的偏移量（主要用于消费者）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">void</span> <span class="nf">sendOffsetsToTransaction</span><span class="o">(</span><span class="n">Map</span><span class="o">&lt;</span><span class="n">TopicPartition</span><span class="o">,</span> <span class="n">OffsetAndMetadata</span><span class="o">&gt;</span> <span class="n">offsets</span><span class="o">,</span><span class="n">String</span> <span class="n">consumerGroupId</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">ProducerFencedException</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// 4 提交事务
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">void</span> <span class="nf">commitTransaction</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">ProducerFencedException</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// 5 放弃事务（类似于回滚事务的操作）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">void</span> <span class="nf">abortTransaction</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">ProducerFencedException</span><span class="o">;</span>
+</span></span></code></pre></div><p>Java实例：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.sxdx.kafka.producer</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.kafka.clients.producer.KafkaProducer</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.kafka.clients.producer.ProducerConfig</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.kafka.clients.producer.ProducerRecord</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.apache.kafka.common.serialization.StringSerializer</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.util.Properties</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">CustomProducerTransactions</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">InterruptedException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 1. 创建 kafka 生产者的配置对象
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">Properties</span> <span class="n">properties</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Properties</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 2. 给 kafka 配置对象添加配置信息
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ProducerConfig</span><span class="o">.</span><span class="na">BOOTSTRAP_SERVERS_CONFIG</span><span class="o">,</span><span class="s">&#34;hadoop1:9092&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// key,value 序列化
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ProducerConfig</span><span class="o">.</span><span class="na">KEY_SERIALIZER_CLASS_CONFIG</span><span class="o">,</span><span class="n">StringSerializer</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ProducerConfig</span><span class="o">.</span><span class="na">VALUE_SERIALIZER_CLASS_CONFIG</span><span class="o">,</span><span class="n">StringSerializer</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 设置事务 id（必须），事务 id 任意起名
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">properties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">ProducerConfig</span><span class="o">.</span><span class="na">TRANSACTIONAL_ID_CONFIG</span><span class="o">,</span><span class="s">&#34;transaction_id_0&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 3. 创建 kafka 生产者对象
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">KafkaProducer</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">kafkaProducer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">KafkaProducer</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;(</span><span class="n">properties</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 初始化事务
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">kafkaProducer</span><span class="o">.</span><span class="na">initTransactions</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 开启事务
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">kafkaProducer</span><span class="o">.</span><span class="na">beginTransaction</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="k">try</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// 4. 调用 send 方法,发送消息
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">5</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">                <span class="c1">// 发送消息
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="n">kafkaProducer</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="k">new</span> <span class="n">ProducerRecord</span><span class="o">&lt;&gt;(</span><span class="s">&#34;first&#34;</span><span class="o">,</span><span class="s">&#34;CustomProducerTransactions &#34;</span> <span class="o">+</span> <span class="n">i</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">//int k= 1 / 0;
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="c1">// 提交事务
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">kafkaProducer</span><span class="o">.</span><span class="na">commitTransaction</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// 终止事务
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">kafkaProducer</span><span class="o">.</span><span class="na">abortTransaction</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// 5. 关闭资源
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">kafkaProducer</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>开启消费者后执行main程序，可以看到消息：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop2 kafka_2.12-3.0.2<span class="o">]</span>$ bin/kafka-console-consumer.sh --bootstrap-server hadoop1:9092 --topic first
+</span></span><span class="line"><span class="cl">CustomProducerTransactions <span class="m">0</span>
+</span></span><span class="line"><span class="cl">CustomProducerTransactions <span class="m">1</span>
+</span></span><span class="line"><span class="cl">CustomProducerTransactions <span class="m">2</span>
+</span></span><span class="line"><span class="cl">CustomProducerTransactions <span class="m">3</span>
+</span></span><span class="line"><span class="cl">CustomProducerTransactions <span class="m">4</span>
+</span></span></code></pre></div><p>如果打开 <code>int k= 1 / 0</code>的注释。再次执行main程序，则看不到消费者消息，因为事务回滚了。</p>
+<h2 id="六生产者数据有序性">六、生产者数据有序性</h2>
+<p>Kafka可以保证单分区内数据是有序的，但是无法保证多分区的数据有序。</p>
+<p>1）kafka在1.x版本之前保证数据单分区有序，条件如下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="c1">## 不需要考虑是否开启幂等性</span>
+</span></span><span class="line"><span class="cl">max.in.flight.requests.per.connection<span class="o">=</span>1。 
+</span></span></code></pre></div><p>2）kafka在1.x及以后版本保证数据单分区有序，条件如下：</p>
+<p>（1）未开启幂等性：<strong>max.in.flight.requests.per.connection需要设置为1。</strong></p>
+<p>（2）开启幂等性：<strong>max.in.flight.requests.per.connection需要设置小于等于5</strong>。</p>
+<p><strong>原因说明</strong>：因为在kafka1.x以后，启用幂等后，kafka服务端会缓存producer发来的最近5个request的元数据，故无论如何，都可以保证最近5个request的数据都是有序的。</p>
+<p><figure 
+	>
+	<a href="/../../images/04-kafka-04/image-20231123110905645.png" >
+		<img src="/../../images/04-kafka-04/image-20231123110905645.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231123110905645">
+	</a>
+	
+	<figcaption>image-20231123110905645</figcaption>
+	
+</figure></p>
+<p>单分区有序机制说明：</p>
+<p>​		**乱序是由于重试机制导致的。**解决重试机制引起的消息乱序方法为实现Producer的幂等性，Kafka引入了Producer ID（即PID）和Sequence Number。对于每个PID，该Producer发送消息的每个&lt;Topic, Partition&gt;都对应一个单调递增的Sequence Number。同样，Broker端也会为每个&lt;PID, Topic, Partition&gt;维护一个序号，并且每Commit一条消息时将其对应序号递增。对于接收的每条消息，如果其序号比Broker维护的序号）大一，则Broker会接受它，否则将其丢弃：如果消息序号比Broker维护的序号差值比一大，说明中间有数据尚未写入，即乱序，此时Broker拒绝该消息，Producer抛出InvalidSequenceNumber，如果消息序号小于等于Broker维护的序号，说明该消息已被保存，即为重复消息，Broker直接丢弃该消息，Producer抛出DuplicateSequenceNumberSender发送失败后会重试，这样可以保证每个消息都被发送到broker。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/kafka/">Kafka</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/kafka-13kafka-%E9%9B%86%E6%88%90springbootflume/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Kafka-13）Kafka 集成SpringBoot、Flume</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/kafka-12kafka-web%E7%9B%91%E6%8E%A7kafka-eagle/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Kafka-12）Kafka Web监控：Kafka-Eagle</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/kafka-11kafka-kraft-%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Kafka-11）Kafka-Kraft 模式</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/kafka-10kafka-offset-%E4%BD%8D%E7%A7%BB%E5%8F%8A%E4%BD%8D%E7%A7%BB%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Kafka-10）Kafka offset 位移及位移应用场景</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/kafka-09kafka-%E6%B6%88%E8%B4%B9%E8%80%85%E6%B6%88%E8%B4%B9%E8%80%85%E7%BB%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Kafka-09）Kafka 消费者、消费者组</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#一kafka-生产者">一、Kafka 生产者</a>
+      <ol>
+        <li><a href="#11-消息发送原理">1.1 消息发送原理</a></li>
+        <li><a href="#12-生产者重要参数">1.2 生产者重要参数</a></li>
+        <li><a href="#13-生产者异步发送消息">1.3 生产者异步发送消息</a></li>
+        <li><a href="#14-生产者回调异步发送消息">1.4 生产者回调异步发送消息</a></li>
+        <li><a href="#15-生产者同步发送消息">1.5 生产者同步发送消息</a></li>
+      </ol>
+    </li>
+    <li><a href="#二kafka生产者分区">二、Kafka生产者分区</a>
+      <ol>
+        <li><a href="#21--默认的分区器-defaultpartitioner">2.1  默认的分区器 DefaultPartitioner</a></li>
+        <li><a href="#22--自定义分区器">2.2  自定义分区器</a></li>
+      </ol>
+    </li>
+    <li><a href="#三生产者吞吐量配置">三、生产者吞吐量配置</a></li>
+    <li><a href="#四生产者数据可靠性ack应答级别">四、生产者数据可靠性(ACK应答级别)</a></li>
+    <li><a href="#五生产者数据去重">五、生产者数据去重</a>
+      <ol>
+        <li><a href="#51--幂等性">5.1  幂等性</a></li>
+        <li><a href="#52-生产者事务">5.2 生产者事务</a></li>
+      </ol>
+    </li>
+    <li><a href="#六生产者数据有序性">六、生产者数据有序性</a></li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

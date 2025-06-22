@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>数据库 on 十一爸爸的博客</title>
+    <link>https://garnettboy.gitee.io/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/</link>
+    <description>Recent content in 数据库 on 十一爸爸的博客</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Tue, 25 Jul 2023 10:32:55 +0000</lastBuildDate><atom:link href="https://garnettboy.gitee.io/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Oracle数据库导入导出及表空间操作（expdp、impdp）</title>
+      <link>https://garnettboy.gitee.io/p/oracle%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AF%BC%E5%85%A5%E5%AF%BC%E5%87%BA%E5%8F%8A%E8%A1%A8%E7%A9%BA%E9%97%B4%E6%93%8D%E4%BD%9Cexpdpimpdp/</link>
+      <pubDate>Tue, 25 Jul 2023 10:32:55 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/oracle%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AF%BC%E5%85%A5%E5%AF%BC%E5%87%BA%E5%8F%8A%E8%A1%A8%E7%A9%BA%E9%97%B4%E6%93%8D%E4%BD%9Cexpdpimpdp/</guid>
+      <description>本文记录一下工作中遇到的Oracle使用expdp和impdp进行数据库导入导出操作。
+一、导出操作 --1、查看当前实例，并切换实例 （源实例：devdb000、目标实例devdb001） echo $ORACLE_SID export ORACLE_SID=devdb000 sqlplus / as sysdba ---2、确认字符编码（验证源编码是：AMERICAN_AMERICA.ZHS16GBK） select userenv(&amp;#39;language&amp;#39;) from dual; --3、查看目录并创建目录（用于保存dump文件） drop directory PATH_PPN;--删除目录（若需要） select * from dba_directories where DIRECTORY_NAME = &amp;#39;PATH_PPN&amp;#39;; --查看目录 create directory PATH_PPN as &amp;#39;/oradata2/ppn27&amp;#39;;--如果没有import_path则创建一个 --4、目录授权给数据库用户 grant read,write on directory PATH_PPN to ppn27; --5、退出sqlplus exit --6、导出dump文件 expdp \&amp;#39;/ as sysdba\&amp;#39; directory=PATH_PPN dumpfile=ppn27.dmp logfile=ppn27.log schemas=ppn27 expdp \&amp;#39;/ as sysdba\&amp;#39; directory=PATH_PPN dumpfile=ppn27_preu_file.dmp logfile=ppn27_preu_file.log schemas=ppn27_preu_file 二、导入操作 --1、查看当前实例，并切换实例 （源实例：devdb000、目标实例devdb001） echo $ORACLE_SID export ORACLE_SID=devdb001 sqlplus / as sysdba --2、创建新数据库用户及密码 create user ppn27utf8 identified by ppn27utf8; create user ppn27fileutf8 identified by ppn27fileutf8; --3、创建表空间（可选,也可以选择已有表空间） CREATE TABLESPACE tbs_ppn_dev LOGGING DATAFILE &amp;#39;/oradata2/devdb001/tbs_ppn_dev.</description>
+    </item>
+    
+    <item>
+      <title>Oracle随笔</title>
+      <link>https://garnettboy.gitee.io/p/oracle%E9%9A%8F%E7%AC%94/</link>
+      <pubDate>Sun, 22 May 2022 20:32:55 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/oracle%E9%9A%8F%E7%AC%94/</guid>
+      <description>本文记录一下Oracle的一些常用知识。
+[TOC]
+1、常用查询 1.1、转义字符 ESCAPE &amp;rsquo;escape_character&amp;rsquo;：允许在字符串中搜索通配符而不是将其作为通配符使用。escape_character 是放在通配符前表示此特殊用途的字符。
+eg: select * from a WHERE name LIKE &amp;#39;%aa/%bb%&amp;#39; ESCAPE &amp;#39;/&amp;#39;; PS:第一个和最后一个%作为通配符，中间的%作为普通字符。
+2、常用函数 2.1、单行函数 2.1.1 字符函数 函数 结果 说明 LOWER(&amp;lsquo;SQL Course&amp;rsquo;) sql course 小写 UPPER(&amp;lsquo;SQL Course&amp;rsquo;) SQL COURSE 大写 INITCAP(&amp;lsquo;SQL Course&amp;rsquo;) Sql Course 驼峰命名 CONCAT(&amp;lsquo;Hello&amp;rsquo;, &amp;lsquo;World&amp;rsquo;) HelloWorld 字符连接 SUBSTR(&amp;lsquo;HelloWorld&amp;rsquo;,1,5) Hello 字符截取（1开始，截5位） LENGTH(&amp;lsquo;HelloWorld&amp;rsquo;) 10 获取字符长度 INSTR(&amp;lsquo;HelloWorld&amp;rsquo;, &amp;lsquo;W&amp;rsquo;) 6 获取字符出现的位置。 LPAD(&amp;lsquo;24000&amp;rsquo;,10,&amp;rsquo;*&amp;rsquo;) *********24000 左边补位 RPAD(‘24000’, 10, &amp;lsquo;*&amp;rsquo;) 24000***** 右边补位 TRIM(&amp;lsquo;H&amp;rsquo; FROM &amp;lsquo;HelloWorld&amp;rsquo;) elloWorld 去首位字符 REPLACE(‘abcd’,’b’,’m’) amcd 字符替换 2.</description>
+    </item>
+    
+    <item>
+      <title>使用explain对sql语句进行性能分析</title>
+      <link>https://garnettboy.gitee.io/p/%E4%BD%BF%E7%94%A8explain%E5%AF%B9sql%E8%AF%AD%E5%8F%A5%E8%BF%9B%E8%A1%8C%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90/</link>
+      <pubDate>Fri, 23 Oct 2020 09:19:39 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/%E4%BD%BF%E7%94%A8explain%E5%AF%B9sql%E8%AF%AD%E5%8F%A5%E8%BF%9B%E8%A1%8C%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90/</guid>
+      <description>在日常工作中，我们有时会遇到一些慢查询的情况，些时我们常常用到explain这个命令来查看一个这些SQL语句的执行计划，查看该SQL语句有没有使用上了索引，有没有做全表扫描等。
+这都可以通过explain命令来查看。所以我们深入了解MySQL的基于开销的优化器，还可以获得很多可能被优化器考虑到的访问策略的细节，以及当运行SQL语句时哪种策略预计会被优化器采用。
+可以干嘛 使用explain分析sql,我们可以分析出以下结果：
+表的读取顺序 数据读取操作的操作类型 哪些索引可以使用 哪些索引被实际使用 表之间的引用 每张表有多少行被优化器查询 环境说明 mysql&amp;gt; select version();+------------+| version() |+------------+| 5.7.17-log |+------------+1 row in set (0.02 sec) 怎么用 格式：explain + sql （命令行界面）
+我们来查看一个explain的使用示例(正好写了一个sql,拿来分析一下)：
+mysql&amp;gt; explain SELECTw.id &amp;#39;ID&amp;#39;,w.application_code &amp;#39;申请号码&amp;#39;,w.enterprise_id &amp;#39;企业ID&amp;#39;,w.enterprise_name &amp;#39;企业名称&amp;#39;,w.wmi_code &amp;#39;wmi编码&amp;#39;,w.vin_id &amp;#39;VINID&amp;#39;,w.`status` &amp;#39;状态&amp;#39;,w.origin_id &amp;#39;原始ID&amp;#39;,w.type &amp;#39;类型&amp;#39;,w.certificate_no &amp;#39;证书编号&amp;#39;,d.certificate_start &amp;#39;原证书开始时间&amp;#39;,d.certificate_end &amp;#39;原证书结束时间&amp;#39;,w.certificate_start &amp;#39;开始时间&amp;#39;,w.certificate_end &amp;#39;结束时间&amp;#39;,w.deferred_state &amp;#39;证书延期状态&amp;#39;,w.created_at &amp;#39;创建时间&amp;#39;,w.</description>
+    </item>
+    
+    <item>
+      <title>数据库锁机制</title>
+      <link>https://garnettboy.gitee.io/p/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81%E6%9C%BA%E5%88%B6/</link>
+      <pubDate>Sun, 01 Mar 2020 19:38:42 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81%E6%9C%BA%E5%88%B6/</guid>
+      <description>数据库引擎 mysql常见的数据库引擎有MyISAM、InnoDB。 MySQL中myisam与innodb的区别：
+InnoDB支持事物，而MyISAM不支持事物 InnoDB支持行级锁，而MyISAM支持表级锁 InnoDB支持外键，而MyISAM不支持 InnoDB提供提交、回滚、崩溃恢复能力的事务安全（ASID）能力，实现并发控制。 MyISAM提供较高的插入和查询记录的效率，主要用于插入和查询。 数据库锁分类 乐观锁和悲观锁概念 悲观锁：总是假设最坏的情况，每次去拿数据的时候都认为别人会修改，所以每次在拿数据的时候都会上锁，这样别人想拿这个数据就会阻塞直到它拿到锁。 乐观锁：每次去拿数据的时候都认为别人不会修改，所以不会上锁，但是在更新的时候会判断一下在此期间别人有没有去更新这个数据，可以使用版本号等机制。
+共享锁和排他锁都是悲观锁的实现方式，由数据库提供。乐观锁就需要自己实现了。
+操作粒度分类 表锁 ：开销小，加锁快；不会出现死锁；锁定粒度大，发生锁冲突的概率最高，并发度最低。 行锁 ：开销大，加锁慢；会出现死锁；锁定粒度最小，发生锁冲突的概率最低，并发度也最高。 页锁（不常见） ：开销和加锁时间界于表锁和行锁之间；会出现死锁；锁定粒度界于表锁和行锁之间，并发度一般 表锁 查看数据库每张表使用表锁的情况： mysql&amp;gt; show open tables;+--------------------+------------------------------------------------------+--------+-------------+| Database | Table | In_use | Name_locked |+--------------------+------------------------------------------------------+--------+-------------+| vim-base | user_role_bak_190902 | 0 | 0 || performance_schema | status_by_user | 0 | 0 || febs_cloud_base | zipkin_spans | 0 | 0 |......| vim-wmi | vin_group | 0 | 0 || vim-base | enterprise_update | 0 | 0 || vim-wmi | wmi_detail | 0 | 0 || performance_schema | events_stages_summary_by_host_by_event_name | 0 | 0 |+--------------------+------------------------------------------------------+--------+-------------+323 rows in set (0.</description>
+    </item>
+    
+    <item>
+      <title>SQL 调优</title>
+      <link>https://garnettboy.gitee.io/p/sql-%E8%B0%83%E4%BC%98/</link>
+      <pubDate>Sun, 01 Mar 2020 16:37:15 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/sql-%E8%B0%83%E4%BC%98/</guid>
+      <description>SQL优化方式 小表驱动大表 sql-exist.pngOrder by 优化 Order by 语句应该符合最佳左前缀原则。尽可能在索引列上完成排序 eg: 索引：index idx_n_a(name,age) select name,age from user age&amp;gt;20 order by name,age (√) select name,age from user age&amp;gt;20 order by name (√) select name,age from user age&amp;gt;20 order by age (×) select name,age from user age&amp;gt;20 order by age,name (×) 注意，当索引idx_n_a的第一个列 name为常量时，order by age也可以使用索引 select name,age from user age=20 order by age (√)
+使用Order by 时最好不要使用select * ，使用select colume1,colume2,&amp;hellip;.from table Order by colume1，colume2&amp;hellip; 使用Order by 查询慢，可以尝试提高系统参数 sort_buffer_size 的值 使用Order by 查询慢，可以尝试提高系统参数 max_length_for_sort_data 的值 group by 优化 与order by 的优化方式基本一致。主要注意的点：</description>
+    </item>
+    
+    <item>
+      <title>SQL join的使用</title>
+      <link>https://garnettboy.gitee.io/p/sql-join%E7%9A%84%E4%BD%BF%E7%94%A8/</link>
+      <pubDate>Sun, 01 Mar 2020 10:52:25 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/sql-join%E7%9A%84%E4%BD%BF%E7%94%A8/</guid>
+      <description>SQL中JOIN的常规使用示意图： image-20220612165913913</description>
+    </item>
+    
+    <item>
+      <title>数据库索引</title>
+      <link>https://garnettboy.gitee.io/p/%E6%95%B0%E6%8D%AE%E5%BA%93%E7%B4%A2%E5%BC%95/</link>
+      <pubDate>Thu, 27 Feb 2020 00:08:15 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/%E6%95%B0%E6%8D%AE%E5%BA%93%E7%B4%A2%E5%BC%95/</guid>
+      <description>{% note info %} MySQL官方对索引的定义为：索引（Index）是帮助MySQL高效获取数据的数据结构。即索引的本质：索引是数据结构。 但方法都是有利有弊，索引在方便你查询的时候，也要牺牲磁盘的空间为代价。 数据库索引可以协助快速查询,更新数据库中表的数据.索引的实现通常使用B树和变种的B+树(mysql常用的索引就是B+树){% endnote %}
+索引结构分类 Mysql目前主要有以下几种索引结构：HASH，BTREE，RTREE
+BTREE BTREE索引就是一种将索引值按一定的算法，存入一个树形的数据结构中（二叉树），每次查询都是从树的入口root开始，依次遍历node，获取leaf。 BTREE是MySQL里默认和最常用的索引类型
+HASH 由于HASH的唯一（几乎100%的唯一）及类似键值对的形式，很适合作为索引。 HASH索引可以一次定位，不需要像树形索引那样逐层查找,因此具有极高的效率。但是，这种高效是有条件的，即只在“=”和“in”条件下高效，对于范围查询、排序及组合索引仍然效率不高。
+RTREE RTREE在MySQL很少使用，仅支持geometry数据类型，支持该类型的存储引擎只有MyISAM、BDb、InnoDb、NDb、Archive几种。 相对于BTREE，RTREE的优势在于范围查找。
+索引类型 mysql 索引有2种分类标准
+从物理存储角度分为：聚簇索引、非聚簇索引 从逻辑存储角度分为：普通索引、唯一索引、主键索引、组合索引、全文索引 聚簇索引和非聚簇索引 聚簇索引：是对磁盘上实际数据重新组织以按指定的一个或多个列的值排序的算法。特点是存储数据的顺序和索引顺序一致。 一个表只能有一个聚簇索引。主键索引一般都是聚簇索引
+非聚簇索引：表数据存储顺序与索引顺序无关。对于非聚簇索引，叶结点包含索引字段值及指向数据页数据行的逻辑指针，其行数量与数据表行数据量一致。非聚簇索引记录的物理顺序与逻辑顺序没有必然的联系，与数据的存储物理结构没有关系；一个表对应的非聚簇索引可以有多条，根据不同列的约束可以建立不同要求的非聚簇索引；
+建立聚簇索引的语句：
+CREATE CLUSTER INDEX index_name ON table_name(column_name1,...); 聚簇索引 VS 非聚簇索引 聚簇索引的叶子节点就是数据节点（Innodb的B+树的主键对应的数据节点），非聚簇索引的叶子节点仍然是索引节点，只不过有指向对应数据块的指针。 聚簇索引主键的插入速度要比非聚簇索引主键的插入速度慢很多。聚簇索引适合排序，非聚簇索引不适合用在排序的场合。因为聚簇索引本身已经是按照物理顺序放置的，排序很快。非聚簇索引则没有按序存放，需要额外消耗资源来排序。 普通索引、唯一索引、主键索引、组合索引、全文索引 普通索引（NORMAL） 仅加速查询,无限制
+唯一索引（UNIQUE） 加速查询 + 列值唯一（可以有null）,如果是组合索引，则列值的组合必须唯一
+主键索引 (PRIMARY KEY) 加速查询 + 列值唯一（不可以有null）+ 表中只允许有一个主键索引, 是一种特殊的唯一索引
+组合索引 多列值组成一个索引，专门用于组合搜索，其效率大于索引合并（索引合并：使用多个单列索引组合搜索） 只有在查询条件中使用了创建索引时的第一个字段，索引才会被使用。使用组合索引时遵循最左前缀集合
+eg: 我们新建一张表：
+CREATE TABLE mytable( ID INT NOT NULL, username VARCHAR(16) NOT NULL, city VARCHAR(50) NOT NULL, age INT NOT NULL ); 为了进一步榨取MySQL的效率，就要考虑建立组合索引。就是将 name, city, age建到一个索引里：</description>
+    </item>
+    
+  </channel>
+</rss>

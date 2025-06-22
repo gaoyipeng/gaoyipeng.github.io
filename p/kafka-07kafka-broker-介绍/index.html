@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='（Kafka-07）Kafka Broker介绍'><title>（Kafka-07）Kafka Broker 介绍</title>
+
+<link rel='canonical' href='https://garnettboy.gitee.io/p/kafka-07kafka-broker-%E4%BB%8B%E7%BB%8D/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='（Kafka-07）Kafka Broker 介绍'>
+<meta property='og:description' content='（Kafka-07）Kafka Broker介绍'>
+<meta property='og:url' content='https://garnettboy.gitee.io/p/kafka-07kafka-broker-%E4%BB%8B%E7%BB%8D/'>
+<meta property='og:site_name' content='十一爸爸的博客'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Kafka' /><meta property='article:published_time' content='2023-11-26T13:36:40&#43;00:00'/><meta property='article:modified_time' content='2023-11-26T13:36:40&#43;00:00'/>
+<meta name="twitter:title" content="（Kafka-07）Kafka Broker 介绍">
+<meta name="twitter:description" content="（Kafka-07）Kafka Broker介绍">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/kafka/" >
+                Kafka
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/kafka-07kafka-broker-%E4%BB%8B%E7%BB%8D/">（Kafka-07）Kafka Broker 介绍</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        （Kafka-07）Kafka Broker介绍
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Nov 26, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 4 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <h2 id="一kafka-broker">一、Kafka Broker</h2>
+<h3 id="11-kafka-broker总体工作流程">1.1 Kafka Broker总体工作流程</h3>
+<p><figure 
+	>
+	<a href="/../../images/07-kafka-07/image-20231128164021424.png" >
+		<img src="/../../images/07-kafka-07/image-20231128164021424.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231128164021424">
+	</a>
+	
+	<figcaption>image-20231128164021424</figcaption>
+	
+</figure></p>
+<p>AR：Kafka分区中所有存活副本的集合。</p>
+<p><strong>注意：如下first主题，0分区的AR为: 0,1（<strong>Replicas</strong>），而不是Isr，Isr只表示存活的副本。Leader的顺序选举是依据Replicas的顺序，而不是Isr。</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 kafka_2.12-3.0.2<span class="o">]</span>$  bin/kafka-topics.sh --bootstrap-server hadoop1:9092 --describe --topic first
+</span></span><span class="line"><span class="cl">Topic: first    TopicId: hLJQf6d6TyGilLbFuNXvBw PartitionCount: <span class="m">3</span>       ReplicationFactor: <span class="m">2</span>    Configs: segment.bytes<span class="o">=</span><span class="m">1073741824</span>
+</span></span><span class="line"><span class="cl">        Topic: first    Partition: <span class="m">0</span>    Leader: <span class="m">0</span>       Replicas: 0,1   Isr: 0,1
+</span></span><span class="line"><span class="cl">        Topic: first    Partition: <span class="m">1</span>    Leader: <span class="m">2</span>       Replicas: 2,0   Isr: 2,0
+</span></span><span class="line"><span class="cl">        Topic: first    Partition: <span class="m">2</span>    Leader: <span class="m">1</span>       Replicas: 1,2   Isr: 1,2
+</span></span></code></pre></div><h3 id="12-kafka-broker重要参数">1.2 Kafka Broker重要参数</h3>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>replica.lag.time.max.ms</td>
+<td>ISR 中，如果 Follower 长时间未向 Leader 发送通信请求或同步数据，则该 Follower 将被踢出 ISR。该时间阈值，<strong>默认 30s。</strong></td>
+</tr>
+<tr>
+<td>auto.leader.rebalance.enable</td>
+<td>默认是 true。 自动 Leader Partition 平衡。</td>
+</tr>
+<tr>
+<td>leader.imbalance.per.broker.percentage</td>
+<td>默认是 10%。每个 broker 允许的不平衡的 leader的比率。如果每个 broker 超过了这个值，控制器会触发 leader 的平衡。</td>
+</tr>
+<tr>
+<td>leader.imbalance.check.interval.seconds</td>
+<td><strong>默认值 300 秒</strong>。检查 leader 负载是否平衡的间隔时间。</td>
+</tr>
+<tr>
+<td>log.segment.bytes</td>
+<td>Kafka 中 log 日志是分成一块块存储的，此配置是指 log 日志划分 成块的大小，<strong>默认值 1G</strong>。</td>
+</tr>
+<tr>
+<td>log.index.interval.bytes</td>
+<td><strong>默认 4kb</strong>，kafka 里面每当写入了 4kb 大小的日志（.log），然后就往 index 文件里面记录一个索引。</td>
+</tr>
+<tr>
+<td>log.retention.hours</td>
+<td>Kafka 中数据保存的时间，<strong>默认 7 天。</strong></td>
+</tr>
+<tr>
+<td>log.retention.minutes</td>
+<td>Kafka 中数据保存的时间，<strong>分钟级别</strong>，默认关闭。（优先级高于log.retention.hours）</td>
+</tr>
+<tr>
+<td>log.retention.ms</td>
+<td>Kafka 中数据保存的时间，<strong>毫秒级别</strong>，默认关闭。（优先级高于log.retention.minutes）</td>
+</tr>
+<tr>
+<td>log.retention.check.interval.ms</td>
+<td>检查数据是否保存超时的间隔，<strong>默认是 5 分钟。</strong></td>
+</tr>
+<tr>
+<td>log.retention.bytes</td>
+<td><strong>默认等于-1，表示无穷大</strong>。超过设置的所有日志总大小，删除最早的 segment。</td>
+</tr>
+<tr>
+<td>log.cleanup.policy</td>
+<td><strong>默认是 delete</strong>，表示所有数据启用删除策略；如果设置值为 compact，表示所有数据启用压缩策</td>
+</tr>
+<tr>
+<td>num.io.threads</td>
+<td><strong>默认是 8</strong>。负责写磁盘的线程数。整个参数值要占总核数的 50%。</td>
+</tr>
+<tr>
+<td>num.replica.fetchers</td>
+<td>副本拉取线程数，这个参数占总核数的 50%的 1/3</td>
+</tr>
+<tr>
+<td>num.network.threads</td>
+<td><strong>默认是 3</strong>。数据传输线程数，这个参数占总核数的50%的 2/3 。</td>
+</tr>
+<tr>
+<td>log.flush.interval.messages</td>
+<td>强制页缓存刷写到磁盘的条数，默认是 long 的最大值，9223372036854775807。一般不建议修改，</td>
+</tr>
+<tr>
+<td>log.flush.interval.ms</td>
+<td>每隔多久，刷数据到磁盘，默认是 null。一般不建议修改，交给系统自己管理。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="13-kafka-broker-副本概念">1.3 Kafka Broker <strong>副本</strong>概念</h3>
+<p>（1）Kafka 默认副本 1 个，生产环境一般配置为 2 个，保证数据可靠性；太多副本会增加磁盘存储空间，增加网络上数据传输，降低效率。Kafka 中副本分为：Leader 和 Follower。Kafka 生产者只会把数据发往 Leader，然后 Follower 找 Leader 进行同步数据。</p>
+<p>（2）Kafka 分区中的所有副本统称为 AR（Assigned Repllicas）。AR = ISR + OSR。</p>
+<p>​	<strong>ISR</strong>，表示和 Leader 保持同步的 Follower 集合。如果 Follower 长时间未向 Leader 发送通信请求或同步数据，则该 Follower 将被踢出 ISR。该时间阈值由 <strong>replica.lag.time.max.ms</strong>参数设定，默认 30s。Leader 发生故障之后，就会从 ISR 中选举新的 Leader。</p>
+<p>​	<strong>OSR</strong>，表示 Follower 与 Leader 副本同步时，延迟过多的副本。</p>
+<h3 id="14-leader-选举流程">1.4 <strong>Leader</strong> 选举流程</h3>
+<p>Kafka 集群中有一个 broker 的 Controller 会被选举为 Controller Leader，负责管理集群broker 的上下线，所有 topic 的分区副本分配和 Leader 选举等工作。Controller 的信息同步工作是依赖于 Zookeeper 的。参考下图：</p>
+<p><figure 
+	>
+	<a href="/../../images/07-kafka-07/image-20231128164021424.png" >
+		<img src="/../../images/07-kafka-07/image-20231128164021424.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231128164021424">
+	</a>
+	
+	<figcaption>image-20231128164021424</figcaption>
+	
+</figure></p>
+<h3 id="15-follower-故障下线及恢复上线逻辑">1.5 <strong>Follower</strong> 故障下线及恢复上线逻辑</h3>
+<p><figure 
+	>
+	<a href="/../../images/07-kafka-07/image-20231130163800302.png" >
+		<img src="/../../images/07-kafka-07/image-20231130163800302.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231130163800302">
+	</a>
+	
+	<figcaption>image-20231130163800302</figcaption>
+	
+</figure></p>
+<h3 id="16-leader故障下线及恢复上线逻辑">1.6 Leader故障下线及恢复上线逻辑</h3>
+<p><figure 
+	>
+	<a href="/../../images/07-kafka-07/image-20231130164350216.png" >
+		<img src="/../../images/07-kafka-07/image-20231130164350216.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231130164350216">
+	</a>
+	
+	<figcaption>image-20231130164350216</figcaption>
+	
+</figure></p>
+<h3 id="17-手动调整分区副本存储位置">1.7 手动调整分区副本存储位置</h3>
+<p>​		在生产环境中，每台服务器的配置和性能不一致，但是Kafka只会根据自己的代码规则创建对应的分区副本，就会导致个别服务器存储压力较大。所有需要手动调整分区副本的存储。</p>
+<p>​		需求：创建一个新的topic，4个分区，两个副本，名称为three。将该topic的所有副本都存储到broker0和broker1两台服务器上。</p>
+<p>存储的步骤如下：</p>
+<p>（1）创建一个新的 topic，名称为 three。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 kafka_2.12-3.0.2<span class="o">]</span>$  bin/kafka-topics.sh --bootstrap-server hadoop1:9092 --create --partitions <span class="m">4</span> --replication-factor <span class="m">2</span> --topic three
+</span></span><span class="line"><span class="cl">Created topic three.
+</span></span></code></pre></div><p>（2）查看分区副本存储情况。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 kafka_2.12-3.0.2<span class="o">]</span>$ bin/kafka-topics.sh --bootstrap-server hadoop1:9092 --describe --topic three
+</span></span><span class="line"><span class="cl">Topic: three    TopicId: aGX6FBwsRRm_5sdHNJvmRQ PartitionCount: <span class="m">4</span>       ReplicationFactor: <span class="m">2</span>    Configs: segment.bytes<span class="o">=</span><span class="m">1073741824</span>
+</span></span><span class="line"><span class="cl">        Topic: three    Partition: <span class="m">0</span>    Leader: <span class="m">2</span>       Replicas: 2,0   Isr: 2,0
+</span></span><span class="line"><span class="cl">        Topic: three    Partition: <span class="m">1</span>    Leader: <span class="m">1</span>       Replicas: 1,2   Isr: 1,2
+</span></span><span class="line"><span class="cl">        Topic: three    Partition: <span class="m">2</span>    Leader: <span class="m">0</span>       Replicas: 0,1   Isr: 0,1
+</span></span><span class="line"><span class="cl">        Topic: three    Partition: <span class="m">3</span>    Leader: <span class="m">2</span>       Replicas: 2,1   Isr: 2,1
+</span></span></code></pre></div><p>（3）创建副本存储计划（所有副本都指定存储在 broker0、broker1 中）</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"> vim increase-replication-factor2.json
+</span></span><span class="line"><span class="cl"> 
+</span></span><span class="line"><span class="cl"> <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;version&#34;</span>:1,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;partitions&#34;</span>:<span class="o">[</span>
+</span></span><span class="line"><span class="cl"><span class="o">{</span><span class="s2">&#34;topic&#34;</span>:<span class="s2">&#34;three&#34;</span>,<span class="s2">&#34;partition&#34;</span>:0,<span class="s2">&#34;replicas&#34;</span>:<span class="o">[</span>0,1<span class="o">]}</span>,
+</span></span><span class="line"><span class="cl"><span class="o">{</span><span class="s2">&#34;topic&#34;</span>:<span class="s2">&#34;three&#34;</span>,<span class="s2">&#34;partition&#34;</span>:1,<span class="s2">&#34;replicas&#34;</span>:<span class="o">[</span>0,1<span class="o">]}</span>,
+</span></span><span class="line"><span class="cl"><span class="o">{</span><span class="s2">&#34;topic&#34;</span>:<span class="s2">&#34;three&#34;</span>,<span class="s2">&#34;partition&#34;</span>:2,<span class="s2">&#34;replicas&#34;</span>:<span class="o">[</span>1,0<span class="o">]}</span>,
+</span></span><span class="line"><span class="cl"><span class="o">{</span><span class="s2">&#34;topic&#34;</span>:<span class="s2">&#34;three&#34;</span>,<span class="s2">&#34;partition&#34;</span>:3,<span class="s2">&#34;replicas&#34;</span>:<span class="o">[</span>1,0<span class="o">]}]</span> 
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>（4）执行副本存储计划。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 kafka_2.12-3.0.2<span class="o">]</span>$ bin/kafka-reassign-partitions.sh --bootstrap-server hadoop1:9092 --reassignment-json-file increase-replication-factor2.json --execute
+</span></span><span class="line"><span class="cl">Current partition replica assignment
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">{</span><span class="s2">&#34;version&#34;</span>:1,<span class="s2">&#34;partitions&#34;</span>:<span class="o">[{</span><span class="s2">&#34;topic&#34;</span>:<span class="s2">&#34;three&#34;</span>,<span class="s2">&#34;partition&#34;</span>:0,<span class="s2">&#34;replicas&#34;</span>:<span class="o">[</span>2,0<span class="o">]</span>,<span class="s2">&#34;log_dirs&#34;</span>:<span class="o">[</span><span class="s2">&#34;any&#34;</span>,<span class="s2">&#34;any&#34;</span><span class="o">]}</span>,<span class="o">{</span><span class="s2">&#34;topic&#34;</span>:<span class="s2">&#34;three&#34;</span>,<span class="s2">&#34;partition&#34;</span>:1,<span class="s2">&#34;replicas&#34;</span>:<span class="o">[</span>1,2<span class="o">]</span>,<span class="s2">&#34;log_dirs&#34;</span>:<span class="o">[</span><span class="s2">&#34;any&#34;</span>,<span class="s2">&#34;any&#34;</span><span class="o">]}</span>,<span class="o">{</span><span class="s2">&#34;topic&#34;</span>:<span class="s2">&#34;three&#34;</span>,<span class="s2">&#34;partition&#34;</span>:2,<span class="s2">&#34;replicas&#34;</span>:<span class="o">[</span>0,1<span class="o">]</span>,<span class="s2">&#34;log_dirs&#34;</span>:<span class="o">[</span><span class="s2">&#34;any&#34;</span>,<span class="s2">&#34;any&#34;</span><span class="o">]}</span>,<span class="o">{</span><span class="s2">&#34;topic&#34;</span>:<span class="s2">&#34;three&#34;</span>,<span class="s2">&#34;partition&#34;</span>:3,<span class="s2">&#34;replicas&#34;</span>:<span class="o">[</span>2,1<span class="o">]</span>,<span class="s2">&#34;log_dirs&#34;</span>:<span class="o">[</span><span class="s2">&#34;any&#34;</span>,<span class="s2">&#34;any&#34;</span><span class="o">]}]}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Save this to use as the --reassignment-json-file option during rollback
+</span></span><span class="line"><span class="cl">Successfully started partition reassignments <span class="k">for</span> three-0,three-1,three-2,three-3
+</span></span></code></pre></div><p>（5）验证副本存储计划。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 kafka_2.12-3.0.2<span class="o">]</span>$ bin/kafka-reassign-partitions.sh --bootstrap-server hadoop1:9092 --reassignment-json-file increase-replication-factor2.json --verify
+</span></span><span class="line"><span class="cl">Status of partition reassignment:
+</span></span><span class="line"><span class="cl">Reassignment of partition three-0 is complete.
+</span></span><span class="line"><span class="cl">Reassignment of partition three-1 is complete.
+</span></span><span class="line"><span class="cl">Reassignment of partition three-2 is complete.
+</span></span><span class="line"><span class="cl">Reassignment of partition three-3 is complete.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Clearing broker-level throttles on brokers 0,1,2
+</span></span><span class="line"><span class="cl">Clearing topic-level throttles on topic three
+</span></span></code></pre></div><p>（6）查看分区副本存储情况。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 kafka_2.12-3.0.2<span class="o">]</span>$ bin/kafka-topics.sh --bootstrap-server hadoop1:9092 --describe --topic three
+</span></span><span class="line"><span class="cl">Topic: three    TopicId: aGX6FBwsRRm_5sdHNJvmRQ PartitionCount: <span class="m">4</span>       ReplicationFactor: <span class="m">2</span>    Configs: segment.bytes<span class="o">=</span><span class="m">1073741824</span>
+</span></span><span class="line"><span class="cl">        Topic: three    Partition: <span class="m">0</span>    Leader: <span class="m">0</span>       Replicas: 0,1   Isr: 0,1
+</span></span><span class="line"><span class="cl">        Topic: three    Partition: <span class="m">1</span>    Leader: <span class="m">1</span>       Replicas: 0,1   Isr: 1,0
+</span></span><span class="line"><span class="cl">        Topic: three    Partition: <span class="m">2</span>    Leader: <span class="m">0</span>       Replicas: 1,0   Isr: 0,1
+</span></span><span class="line"><span class="cl">        Topic: three    Partition: <span class="m">3</span>    Leader: <span class="m">1</span>       Replicas: 1,0   Isr: 1,0
+</span></span></code></pre></div><p>这样就完成了分区副本调整。</p>
+<h3 id="18-leader-分布平衡">1.8 Leader 分布平衡</h3>
+<p>正常情况下，Kafka本身会自动把Leader Partition均匀分散在各个机器上，来保证每台机器的读写吞吐量都是均匀的。但是如果某 些broker宕机，会导致Leader Partition过于集中在其他少部分几台broker上，这会导致少数几台broker的读写请求压力过高，其他宕机的broker重启之后都是follower partition，读写请求很低，造成集群负载不均衡。</p>
+<p><figure 
+	>
+	<a href="/../../images/07-kafka-07/image-20231201170616297.png" >
+		<img src="/../../images/07-kafka-07/image-20231201170616297.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231201170616297">
+	</a>
+	
+	<figcaption>image-20231201170616297</figcaption>
+	
+</figure></p>
+<p>kafka为了解决这个问题，使用了Leader Partition自动平衡。对应参数如下：</p>
+<table>
+<thead>
+<tr>
+<th>参数名称</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>auto.leader.rebalance.enable</td>
+<td>默认是 true。 自动 Leader Partition 平衡。<strong>生产环境中，leader 重选举的代价比较大，可能会带来性能影响，建议设置为 false 关闭。</strong></td>
+</tr>
+<tr>
+<td>leader.imbalance.per.broker.percentage</td>
+<td>默认是 10%。每个 broker 允许的不平衡的 leader的比率。如果每个 broker 超过了这个值，控制器会触发 leader 的平衡。</td>
+</tr>
+<tr>
+<td>leader.imbalance.check.interval.seconds</td>
+<td>默认值 300 秒。检查 leader 负载是否平衡的间隔时间。</td>
+</tr>
+</tbody>
+</table>
+<p>示例如下：</p>
+<p><figure 
+	>
+	<a href="/../../images/07-kafka-07/image-20231201170732754.png" >
+		<img src="/../../images/07-kafka-07/image-20231201170732754.png"
+			
+			
+			
+			loading="lazy"
+			alt="image-20231201170732754">
+	</a>
+	
+	<figcaption>image-20231201170732754</figcaption>
+	
+</figure></p>
+<h3 id="19--手动增加副本数">1.9  手动增加副本数</h3>
+<p>在生产环境当中，由于某个主题的重要等级需要提升，我们考虑增加副本。副本数的增加需要先制定计划，然后根据计划执行。</p>
+<p>(1) 创建topic：four，3分区，每个分区只有一个副本</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 kafka_2.12-3.0.2<span class="o">]</span>$ bin/kafka-topics.sh --bootstrap-server hadoop1:9092 --create --partitions <span class="m">3</span> --replication-factor <span class="m">1</span> --topic four
+</span></span><span class="line"><span class="cl">Created topic four.
+</span></span></code></pre></div><p>（2）查看分区副本存储情况。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 kafka_2.12-3.0.2<span class="o">]</span>$ bin/kafka-topics.sh --bootstrap-server hadoop1:9092 --describe --topic four
+</span></span><span class="line"><span class="cl">Topic: four     TopicId: qiQFLS8DS6-_cO7b_LWrUw PartitionCount: <span class="m">3</span>       ReplicationFactor: <span class="m">1</span>    Configs: segment.bytes<span class="o">=</span><span class="m">1073741824</span>
+</span></span><span class="line"><span class="cl">        Topic: four     Partition: <span class="m">0</span>    Leader: <span class="m">2</span>       Replicas: <span class="m">2</span>     Isr: <span class="m">2</span>
+</span></span><span class="line"><span class="cl">        Topic: four     Partition: <span class="m">1</span>    Leader: <span class="m">1</span>       Replicas: <span class="m">1</span>     Isr: <span class="m">1</span>
+</span></span><span class="line"><span class="cl">        Topic: four     Partition: <span class="m">2</span>    Leader: <span class="m">0</span>       Replicas: <span class="m">0</span>     Isr: <span class="m">0</span>
+</span></span></code></pre></div><p>(3) 创建副本存储计划（所有副本都指定存储在 broker0、broker1、broker2 中）。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"> vim increase-replication-factor3.json
+</span></span><span class="line"><span class="cl"> 
+</span></span><span class="line"><span class="cl"> <span class="o">{</span><span class="s2">&#34;version&#34;</span>:1,
+</span></span><span class="line"><span class="cl"> <span class="s2">&#34;partitions&#34;</span>:
+</span></span><span class="line"><span class="cl"> <span class="o">[{</span><span class="s2">&#34;topic&#34;</span>:<span class="s2">&#34;four&#34;</span>,<span class="s2">&#34;partition&#34;</span>:0,<span class="s2">&#34;replicas&#34;</span>:<span class="o">[</span>0,1,2<span class="o">]}</span>,
+</span></span><span class="line"><span class="cl"> <span class="o">{</span><span class="s2">&#34;topic&#34;</span>:<span class="s2">&#34;four&#34;</span>,<span class="s2">&#34;partition&#34;</span>:1,<span class="s2">&#34;replicas&#34;</span>:<span class="o">[</span>0,1,2<span class="o">]}</span>,
+</span></span><span class="line"><span class="cl"> <span class="o">{</span><span class="s2">&#34;topic&#34;</span>:<span class="s2">&#34;four&#34;</span>,<span class="s2">&#34;partition&#34;</span>:2,<span class="s2">&#34;replicas&#34;</span>:<span class="o">[</span>0,1,2<span class="o">]}]}</span>
+</span></span></code></pre></div><p>（4）执行副本存储计划。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 kafka_2.12-3.0.2<span class="o">]</span>$ bin/kafka-reassign-partitions.sh --bootstrap-server hadoop1:9092 --reassignment-json-file increase-replication-factor3.json --execute
+</span></span><span class="line"><span class="cl">Current partition replica assignment
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">{</span><span class="s2">&#34;version&#34;</span>:1,<span class="s2">&#34;partitions&#34;</span>:<span class="o">[{</span><span class="s2">&#34;topic&#34;</span>:<span class="s2">&#34;four&#34;</span>,<span class="s2">&#34;partition&#34;</span>:0,<span class="s2">&#34;replicas&#34;</span>:<span class="o">[</span>2<span class="o">]</span>,<span class="s2">&#34;log_dirs&#34;</span>:<span class="o">[</span><span class="s2">&#34;any&#34;</span><span class="o">]}</span>,<span class="o">{</span><span class="s2">&#34;topic&#34;</span>:<span class="s2">&#34;four&#34;</span>,<span class="s2">&#34;partition&#34;</span>:1,<span class="s2">&#34;replicas&#34;</span>:<span class="o">[</span>1<span class="o">]</span>,<span class="s2">&#34;log_dirs&#34;</span>:<span class="o">[</span><span class="s2">&#34;any&#34;</span><span class="o">]}</span>,<span class="o">{</span><span class="s2">&#34;topic&#34;</span>:<span class="s2">&#34;four&#34;</span>,<span class="s2">&#34;partition&#34;</span>:2,<span class="s2">&#34;replicas&#34;</span>:<span class="o">[</span>0<span class="o">]</span>,<span class="s2">&#34;log_dirs&#34;</span>:<span class="o">[</span><span class="s2">&#34;any&#34;</span><span class="o">]}]}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Save this to use as the --reassignment-json-file option during rollback
+</span></span><span class="line"><span class="cl">Successfully started partition reassignments <span class="k">for</span> four-0,four-1,four-2
+</span></span></code></pre></div><p>（5）再次查看分区副本存储情况。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="o">[</span>admin@hadoop1 kafka_2.12-3.0.2<span class="o">]</span>$ bin/kafka-topics.sh --bootstrap-server hadoop1:9092 --describe --topic four
+</span></span><span class="line"><span class="cl">Topic: four     TopicId: qiQFLS8DS6-_cO7b_LWrUw PartitionCount: <span class="m">3</span>       ReplicationFactor: <span class="m">3</span>    Configs: segment.bytes<span class="o">=</span><span class="m">1073741824</span>
+</span></span><span class="line"><span class="cl">        Topic: four     Partition: <span class="m">0</span>    Leader: <span class="m">2</span>       Replicas: 0,1,2 Isr: 2,1,0
+</span></span><span class="line"><span class="cl">        Topic: four     Partition: <span class="m">1</span>    Leader: <span class="m">1</span>       Replicas: 0,1,2 Isr: 1,2,0
+</span></span><span class="line"><span class="cl">        Topic: four     Partition: <span class="m">2</span>    Leader: <span class="m">0</span>       Replicas: 0,1,2 Isr: 0,2,1
+</span></span></code></pre></div>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/kafka/">Kafka</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css"integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js"integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js"integrity="sha384-vZTG03m&#43;2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl"crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/kafka-13kafka-%E9%9B%86%E6%88%90springbootflume/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Kafka-13）Kafka 集成SpringBoot、Flume</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/kafka-12kafka-web%E7%9B%91%E6%8E%A7kafka-eagle/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Kafka-12）Kafka Web监控：Kafka-Eagle</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/kafka-11kafka-kraft-%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Kafka-11）Kafka-Kraft 模式</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/kafka-10kafka-offset-%E4%BD%8D%E7%A7%BB%E5%8F%8A%E4%BD%8D%E7%A7%BB%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Kafka-10）Kafka offset 位移及位移应用场景</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/kafka-09kafka-%E6%B6%88%E8%B4%B9%E8%80%85%E6%B6%88%E8%B4%B9%E8%80%85%E7%BB%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">（Kafka-09）Kafka 消费者、消费者组</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 十一爸爸的博客
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#一kafka-broker">一、Kafka Broker</a>
+      <ol>
+        <li><a href="#11-kafka-broker总体工作流程">1.1 Kafka Broker总体工作流程</a></li>
+        <li><a href="#12-kafka-broker重要参数">1.2 Kafka Broker重要参数</a></li>
+        <li><a href="#13-kafka-broker-副本概念">1.3 Kafka Broker <strong>副本</strong>概念</a></li>
+        <li><a href="#14-leader-选举流程">1.4 <strong>Leader</strong> 选举流程</a></li>
+        <li><a href="#15-follower-故障下线及恢复上线逻辑">1.5 <strong>Follower</strong> 故障下线及恢复上线逻辑</a></li>
+        <li><a href="#16-leader故障下线及恢复上线逻辑">1.6 Leader故障下线及恢复上线逻辑</a></li>
+        <li><a href="#17-手动调整分区副本存储位置">1.7 手动调整分区副本存储位置</a></li>
+        <li><a href="#18-leader-分布平衡">1.8 Leader 分布平衡</a></li>
+        <li><a href="#19--手动增加副本数">1.9  手动增加副本数</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

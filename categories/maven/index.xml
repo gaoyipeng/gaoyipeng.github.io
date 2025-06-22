@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Maven on 十一爸爸的博客</title>
+    <link>https://garnettboy.gitee.io/categories/maven/</link>
+    <description>Recent content in Maven on 十一爸爸的博客</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Thu, 04 Feb 2021 17:10:09 +0000</lastBuildDate><atom:link href="https://garnettboy.gitee.io/categories/maven/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Maven聚合工程-多环境打包配置</title>
+      <link>https://garnettboy.gitee.io/p/maven%E8%81%9A%E5%90%88%E5%B7%A5%E7%A8%8B-%E5%A4%9A%E7%8E%AF%E5%A2%83%E6%89%93%E5%8C%85%E9%85%8D%E7%BD%AE/</link>
+      <pubDate>Thu, 04 Feb 2021 17:10:09 +0000</pubDate>
+      
+      <guid>https://garnettboy.gitee.io/p/maven%E8%81%9A%E5%90%88%E5%B7%A5%E7%A8%8B-%E5%A4%9A%E7%8E%AF%E5%A2%83%E6%89%93%E5%8C%85%E9%85%8D%E7%BD%AE/</guid>
+      <description>1、问题场景 分布式微服务目前已经非常行，一个工程中经常会包含几个或者十几个独立的服务，我们经常搭建Maven聚合工程，子工程是一个个的SpringBoot应用。工程往往有测试环境(test)、开发环境(dev)、生产环境(prod)等.
+每个环境的配置是不同的，所以我们使用application-xx.yaml来分别配置各个环境参数，使用spring.profiles.active来激活对应的环境，但是打包时如果手动去修改各个子工程的spring.profiles.active会很麻烦，而且打出的包中包含所有环境的配置变量，不是很安全，这个如何处理呢？
+先贴出示例工程：
+image-20210204172257678sms-platform是一个聚合工程，其中sms-nafmii、sms-provider是两个springboot应用，都分别有4个环境（dev、moni、prod、officeprod）,切换环境只需修改application.yaml如下代码：
+spring:profiles:active: dev 此时如果我们想要部署prod环境，我们将sms-nafmii、sms-provider工程的application.yaml的spring.profiles.active都改为prod，如果只改2个还好，如果有10几个工程呢？
+2、解决方法 1、在父工程的pom.xml中添加如下内容：
+&amp;lt;build&amp;gt; &amp;lt;plugins&amp;gt; &amp;lt;plugin&amp;gt; &amp;lt;groupId&amp;gt;org.apache.maven.plugins&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;maven-compiler-plugin&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;3.1&amp;lt;/version&amp;gt; &amp;lt;configuration&amp;gt; &amp;lt;source&amp;gt;${java.version}&amp;lt;/source&amp;gt; &amp;lt;target&amp;gt;${java.version}&amp;lt;/target&amp;gt; &amp;lt;encoding&amp;gt;${project.build.sourceEncoding}&amp;lt;/encoding&amp;gt; &amp;lt;/configuration&amp;gt; &amp;lt;/plugin&amp;gt; &amp;lt;/plugins&amp;gt; &amp;lt;resources&amp;gt; &amp;lt;resource&amp;gt; &amp;lt;directory&amp;gt;src/main/resources&amp;lt;/directory&amp;gt; &amp;lt;!-- 处理文件时替换文件中的变量 --&amp;gt; &amp;lt;filtering&amp;gt;true&amp;lt;/filtering&amp;gt; &amp;lt;excludes&amp;gt; &amp;lt;!-- 打包时排除文件，可自行添加test.yml --&amp;gt; &amp;lt;exclude&amp;gt;application.yaml&amp;lt;/exclude&amp;gt; &amp;lt;exclude&amp;gt;application-dev.yaml&amp;lt;/exclude&amp;gt; &amp;lt;exclude&amp;gt;application-moni.yaml&amp;lt;/exclude&amp;gt; &amp;lt;exclude&amp;gt;application-officeprod.yaml&amp;lt;/exclude&amp;gt; &amp;lt;exclude&amp;gt;application-prod.yaml&amp;lt;/exclude&amp;gt; &amp;lt;/excludes&amp;gt; &amp;lt;/resource&amp;gt; &amp;lt;resource&amp;gt; &amp;lt;directory&amp;gt;src/main/resources&amp;lt;/directory&amp;gt; &amp;lt;filtering&amp;gt;true&amp;lt;/filtering&amp;gt; &amp;lt;!-- 打包时所包含得文件 --&amp;gt; &amp;lt;includes&amp;gt; &amp;lt;include&amp;gt;application.yaml&amp;lt;/include&amp;gt; &amp;lt;include&amp;gt;application-${profileActive}.yaml&amp;lt;/include&amp;gt; &amp;lt;/includes&amp;gt; &amp;lt;/resource&amp;gt; &amp;lt;/resources&amp;gt; &amp;lt;/build&amp;gt; &amp;lt;profiles&amp;gt; &amp;lt;!-- dev开发环境配置,prod为生产环境配置 --&amp;gt; &amp;lt;profile&amp;gt; &amp;lt;id&amp;gt;dev&amp;lt;/id&amp;gt; &amp;lt;properties&amp;gt; &amp;lt;profileActive&amp;gt;dev&amp;lt;/profileActive&amp;gt; &amp;lt;/properties&amp;gt; &amp;lt;activation&amp;gt; &amp;lt;activeByDefault&amp;gt;true&amp;lt;/activeByDefault&amp;gt; &amp;lt;/activation&amp;gt; &amp;lt;/profile&amp;gt; &amp;lt;profile&amp;gt; &amp;lt;id&amp;gt;moni&amp;lt;/id&amp;gt; &amp;lt;properties&amp;gt; &amp;lt;profileActive&amp;gt;moni&amp;lt;/profileActive&amp;gt; &amp;lt;/properties&amp;gt; &amp;lt;/profile&amp;gt; &amp;lt;profile&amp;gt; &amp;lt;id&amp;gt;officeprod&amp;lt;/id&amp;gt; &amp;lt;properties&amp;gt; &amp;lt;profileActive&amp;gt;officeprod&amp;lt;/profileActive&amp;gt; &amp;lt;/properties&amp;gt; &amp;lt;/profile&amp;gt; &amp;lt;profile&amp;gt; &amp;lt;id&amp;gt;prod&amp;lt;/id&amp;gt; &amp;lt;properties&amp;gt; &amp;lt;profileActive&amp;gt;prod&amp;lt;/profileActive&amp;gt; &amp;lt;/properties&amp;gt; &amp;lt;/profile&amp;gt; &amp;lt;/profiles&amp;gt; 2、修改各个子工程的application.</description>
+    </item>
+    
+  </channel>
+</rss>
